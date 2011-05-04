@@ -6,6 +6,10 @@
 
 Description : This plugin allows to view the content of your Jenkins Continous Integration Server.
 
+Plugin Compatibility :
+
+This plugin was built with JDK 1.5 and IntelliJ-8.1.3-jdk5 version.
+
 Installation steps:
 Download this plugin from your IDE (Settings -> Plugins -> Available -> Jenkins Control Plugin -> Right Click "Download and Install").
 You can also download it from your favorite browser at http://plugins.intellij.net/?idea (Search Jenkins control Plugin).

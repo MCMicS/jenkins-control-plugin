@@ -236,7 +236,7 @@
     </build>
 
     <!--
-      | Environment Information
+      | SCM Information
     -->
     <scm>
         <connection>scm:git:ssh://github.com/dboissier/jenkins-control-plugin.git</connection>
