@@ -1,0 +1,46 @@
+/********************************************/
+/* Jenkins Control Plugin for IntelliJ IDEA */
+/* ChangeLog :                              */
+/*            - 0.1: Initial version        */
+/********************************************/
+
+Description : This plugin allows to view the content of your Jenkins Continous Integration Server.
+
+Installation steps:
+Download this plugin from your IDE (Settings -> Plugins -> Available -> Jenkins Control Plugin -> Right Click "Download and Install").
+You can also download it from your favorite browser at http://plugins.intellij.net/?idea (Search Jenkins control Plugin).
+
+Configuration steps:
+Click on Settings and select Jenkins Control Plugin.
+    Set your Jenkins url in the Server Address text field
+    If you want the plugin to refresh periodically the Jenkins workspace, you can set a timeout value
+    You can also specify a build start delay (in sec.) that will be set when launching a build.
+    You can specify a preferred view at Start Up.
+Validate your configuration by clicking on te OK or Apply Button
+
+Usage:
+
+By default, Jenkins Plugin Panel is available on the right of the IDE. Click on the Jenkins Button to display it.
+The panel is divided into 2 parts :
+Up part - Job view
+    To view the jobs You have to refresh the Jenkins Workspace by right-clicking on the Server icon node
+    You can select some view by selecting of them in the combo box.
+    When you right click on a job some options are available such as Launch a Build, View The Job's Page and View the Last Build Results.
+Down part - Rss View
+    To get the last rss feeds, you have to click on the Rss icon button, a list wil appear and you will be able to clear each of them or all of them.
+
+
+
+Limitations :
+This software follows some agile practice: Provide basic functionality and get feedback from the users. So, this version does not cover all needs and
+it is opened for any suggestion that you can send by email (david [dot] boissier [at] gmail [dot] com).
+
+
+Thanks :
+
+I would like to thank
+- Mark James author of the famfamfam web site who provides beautiful icons.
+- Kohsuke Kawaguchi for providing us such a great CI server
+- Jetbrains Team for providing us an incredible IDE (certainly the best that Java developers could have).
+- Guys from XP Monday Group : Boris Gonnot, Regis Medina, Olivier Catteau, Jean Baptiste Potonnier and others who gave be the XP virus and some other Agile ones.
+- My wife and my daughter who support me to have fun in software development and also remind me my husband/father duty ;).

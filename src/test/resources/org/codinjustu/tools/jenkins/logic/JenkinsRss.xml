@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>All last builds only</title>
+    <link type="text/html" href="http://ci.jenkins-ci.org/" rel="alternate"/>
+    <updated>2011-03-16T14:28:59Z</updated>
+    <author>
+        <name>Jenkins Server</name>
+    </author>
+    <id>urn:uuid:903deee0-7bfa-11db-9fe1-0800200c9a66</id>
+    <entry>
+        <title>gerrit_master #170 (broken since build #165)</title>
+        <link type="text/html" href="http://ci.jenkins-ci.org/job/gerrit_master/170/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://ci.jenkins-ci.org/job/gerrit_master/</id>
+        <published>2011-03-16T14:28:59Z</published>
+        <updated>2011-03-16T14:28:59Z</updated>
+    </entry>
+    <entry>
+        <title>hudson_metrics_wip #6 (aborted)</title>
+        <link type="text/html" href="http://ci.jenkins-ci.org/job/hudson_metrics_wip/6/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://ci.jenkins-ci.org/job/hudson_metrics_wip/</id>
+        <published>2010-10-26T19:51:56Z</published>
+        <updated>2010-10-26T19:51:56Z</updated>
+    </entry>
+    <entry>
+        <title>infa_release.rss #139 (stable)</title>
+        <link type="text/html" href="http://ci.jenkins-ci.org/job/infa_release.rss/139/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://ci.jenkins-ci.org/job/infa_release.rss/</id>
+        <published>2011-03-16T20:30:51Z</published>
+        <updated>2011-03-16T20:30:51Z</updated>
+    </entry>
+    <entry>
+        <title>infra_jenkins-ci.org_webcontents #2 (back to normal)</title>
+        <link type="text/html" href="http://ci.jenkins-ci.org/job/infra_jenkins-ci.org_webcontents/2/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://ci.jenkins-ci.org/job/infra_jenkins-ci.org_webcontents/</id>
+        <published>2011-02-02T00:49:58Z</published>
+        <updated>2011-02-02T00:49:58Z</updated>
+    </entry>
+    <entry>
+        <title>infra_main_svn_to_git #351 (stable)</title>
+        <link type="text/html" href="http://ci.jenkins-ci.org/job/infra_main_svn_to_git/351/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://ci.jenkins-ci.org/job/infra_main_svn_to_git/</id>
+        <published>2010-11-21T17:01:51Z</published>
+        <updated>2010-11-21T17:01:51Z</updated>
+    </entry>
+    <entry>
+        <title>jenkins_main_trunk #600 (?)</title>
+        <link type="text/html" href="http://ci.jenkins-ci.org/job/jenkins_main_trunk/600/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://ci.jenkins-ci.org/job/jenkins_main_trunk/</id>
+        <published>2011-03-15T23:30:58Z</published>
+        <updated>2011-03-15T23:30:58Z</updated>
+    </entry>
+    <entry>
+        <title>plugins_subversion #58 (2 tests are still failing)</title>
+        <link type="text/html" href="http://ci.jenkins-ci.org/job/plugins_subversion/58/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://ci.jenkins-ci.org/job/plugins_subversion/</id>
+        <published>2011-03-16T12:22:08Z</published>
+        <updated>2011-03-16T12:22:08Z</updated>
+    </entry>
+    <entry>
+        <title>TESTING-HUDSON-7434 #2 (broken for a long time)</title>
+        <link type="text/html" href="http://ci.jenkins-ci.org/job/TESTING-HUDSON-7434/2/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://ci.jenkins-ci.org/job/TESTING-HUDSON-7434/</id>
+        <published>2011-03-02T05:27:56Z</published>
+        <updated>2011-03-02T05:27:56Z</updated>
+    </entry>
+</feed>

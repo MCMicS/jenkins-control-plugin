@@ -1,0 +1,33 @@
+<idea-plugin>
+    <name>Jenkins Control Plugin</name>
+    <description>A Jenkins Plugin for Intellij</description>
+    <version>1.0</version>
+    <vendor>David Boissier</vendor>
+    <idea-version since-build="9886"/>
+
+    <project-components>
+        <component>
+            <implementation-class>org.codinjustu.tools.jenkins.JenkinsControlComponent</implementation-class>
+        </component>
+    </project-components>
+
+    <change-notes><![CDATA[
+1.0-SNAPSHOT - Initial version including the following features :
+    - Server configuration,
+    - Jenkins jobs display with autorefreshed job list and view selection,
+    - Job Build runner,
+    - Open Job web page and its last build web page on browser,
+    - Autorefreshed Rss Reader View,
+    - Autorefresh functions can be disabled on the Jenkins Configuration Panel.
+
+TODO List :
+    + Features
+        - Provide a filter on the build status,
+        - Apply the Force Refresh Action on all nodes (root and jobs)
+        - Updating Jenkins plugin configuration updates also the component itself.
+    + Tech :
+        - Better Exception Handling,
+        - Fix weird bug on the build request sent to the Jenkins server,
+        - Fix bug when IDEA tries to connect the remote plugin repository (Settings -> Plugins), it makes Jenkins plugin crash
+     ]]> </change-notes>
+</idea-plugin>

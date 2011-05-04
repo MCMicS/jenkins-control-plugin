@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<statusView>
+    <name>Tous</name>
+    <url>http://myjenkins/</url>
+
+    <job>
+        <name>sql-tools</name>
+        <url>http://myjenkins/job/sql-tools/</url>
+        <color>blue</color>
+        <inQueue>true</inQueue>
+        <lastBuild>
+            <building>false</building>
+            <result>SUCCESS</result>
+            <number>15</number>
+            <url>http://myjenkins/job/sql-tools/15/</url>
+        </lastBuild>
+    </job>
+    <job>
+        <name>db-utils</name>
+        <url>http://myjenkins/job/db-utils/</url>
+        <color>grey</color>
+        <inQueue>false</inQueue>
+    </job>
+    <job>
+        <name>myapp</name>
+        <url>http://myjenkins/job/myapp/</url>
+        <color>red</color>
+        <inQueue>false</inQueue>
+        <lastBuild>
+            <building>true</building>
+            <result>FAILURE</result>
+            <number>12</number>
+            <url>http://myjenkins/job/myapp/12/</url>
+        </lastBuild>
+    </job>
+    <job>
+        <name>swing-utils</name>
+        <url>http://myjenkins/job/swing-utils/</url>
+        <color>disabled</color>
+        <inQueue>true</inQueue>
+        <lastBuild>
+            <building>false</building>
+            <result>FAILURE</result>
+            <number>5</number>
+            <url>http://myjenkins/job/swing-utils/5/</url>
+        </lastBuild>
+    </job>
+</statusView>
