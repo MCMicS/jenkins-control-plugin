@@ -239,10 +239,8 @@
       | Environment Information
     -->
     <scm>
-        <connection>scm:hg:https://dboissier@bitbucket.org/dboissier/incubator/jenkins-control-plugin</connection>
-        <developerConnection>scm:hg:https://dboissier@bitbucket.org/dboissier/incubator/kenkins-control-plugin
-        </developerConnection>
-        <url>scm:hg:https://dboissier@bitbucket.org/dboissier/incubator/jenkins-control-plugin</url>
+        <connection>scm:git:ssh://github.com/dboissier/jenkins-control-plugin.git</connection>
+        <url>git:ssh://github.com/dboissier/jenkins-control-plugin.git</url>
     </scm>
 
     <!--
