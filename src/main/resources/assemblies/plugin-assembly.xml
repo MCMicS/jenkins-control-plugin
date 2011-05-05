@@ -7,6 +7,7 @@
   </formats>
   <dependencySets>
     <dependencySet>
+	  <outputDirectory>/lib</outputDirectory>
       <excludes>
         <exclude>junit:junit</exclude>
         <exclude>org.mockito:mockito-all</exclude>
