@@ -72,8 +72,8 @@ abstract class JenkinsBrowserLogic<V extends JenkinsBrowserView> {
                 String errorMessage = buildServerErrorMessage(domEx);
                 LOG.error(errorMessage, domEx);
                 showErrorDialog(errorMessage, "Error during parsing workspace");
-            } catch (IOException ioEx) {
-                LOG.error(buildServerErrorMessage(ioEx), ioEx);
+            } catch (Exception ex) {
+                LOG.error(buildServerErrorMessage(ex), ex);
                 displayConnectionErrorMsg();
             }
         } else {
@@ -202,7 +202,7 @@ abstract class JenkinsBrowserLogic<V extends JenkinsBrowserView> {
 
 
     String buildServerErrorMessage(Exception ex) {
-        return "Server Url= " + configuration.getServerUrl() + "\n" + ex.getMessage();
+        return "Server Url=" + configuration.getServerUrl() + "\n" + ex.getMessage();
     }
 
 
