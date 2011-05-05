@@ -2,7 +2,7 @@ package org.codinjustu.tools.jenkins;
 
 public class JenkinsConfiguration {
 
-    public static final String DEFAULT_JENKINS_SERVER_URL = "http://myjenkinsserver";
+    public static final String DEFAULT_JENKINS_SERVER_URL = "http://dummyjenkinsserver";
     public static final int DEFAULT_BUILD_DELAY = 0;
     public static final int RESET_VALUE = 0;
 
@@ -30,7 +30,8 @@ public class JenkinsConfiguration {
 
 
     public boolean isServerUrlSet() {
-        return serverUrl != null && serverUrl.length() != 0;
+        return serverUrl != null && serverUrl.length() != 0 &&
+                !JenkinsConfiguration.DEFAULT_JENKINS_SERVER_URL.equals(serverUrl);
     }
 
 

@@ -243,6 +243,18 @@
             <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
     </licenses>
+	
+	<distributionManagement>
+        <repository>
+            <id>scp-repository</id>
+            <url>scp:file:///E:/Dev/distribution/maven/m2/inhouse</url>
+        </repository>
+        <snapshotRepository>
+            <id>scp-repository</id>
+            <url>scp:file:///E:/Dev/distribution/maven/m2/inhouse-snapshot</url>
+        </snapshotRepository>
+    </distributionManagement>
+	
     <!--
       | SCM Information
     -->
