@@ -243,13 +243,12 @@
             <name>The Apache Software License, Version 2.0</name>
             <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
-
+    </licenses>
     <!--
       | SCM Information
     -->
-    <scm>
-        <connection>scm:git:ssh://github.com/dboissier/jenkins-control-plugin.git</connection>
-        <url>git:ssh://github.com/dboissier/jenkins-control-plugin.git</url>
+	<scm>
+        <connection>scm:git:ssh://git@github.com/dboissier/jenkins-control-plugin.git</connection>
+        <url>git:ssh://git@github.com/dboissier/jenkins-control-plugin.git</url>
     </scm>
-    </licenses>
 </project>
