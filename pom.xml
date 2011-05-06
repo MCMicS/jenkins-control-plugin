@@ -248,11 +248,11 @@
 	<distributionManagement>
         <repository>
             <id>scp-repository</id>
-            <url>scp:file:///E:/Dev/distribution/maven/m2/inhouse</url>
+            <url>file:///E:/Dev/distribution/maven/m2/inhouse</url>
         </repository>
         <snapshotRepository>
             <id>scp-repository</id>
-            <url>scp:file:///E:/Dev/distribution/maven/m2/inhouse-snapshot</url>
+            <url>file:///E:/Dev/distribution/maven/m2/inhouse-snapshot</url>
         </snapshotRepository>
     </distributionManagement>
 	
