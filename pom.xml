@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.codinjustu.tools.jenkins</groupId>
@@ -26,7 +27,7 @@
         <developer>
             <name>David Boissier</name>
             <email>david [dot] boissier [at] gmail [dot] com</email>
-            <organization>Codinjustu</organization>
+            <organization>Codinjutsu</organization>
             <timezone>+1</timezone>
         </developer>
         <developer>
@@ -51,6 +52,11 @@
             <groupId>jdom</groupId>
             <artifactId>jdom</artifactId>
             <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>hudson.cli</groupId>
+            <artifactId>jenkins-cli</artifactId>
+            <version>1.411</version>
         </dependency>
         <dependency>
             <groupId>com.intellij</groupId>
@@ -172,7 +178,7 @@
                     </execution>
                 </executions>
                 <configuration>
-				    <finalName>${project.artifactId}-${project.version}</finalName>
+                    <finalName>${project.artifactId}-${project.version}</finalName>
                     <filters>
                         <filter>src/assemble/filter.properties</filter>
                     </filters>
@@ -252,8 +258,8 @@
             <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
     </licenses>
-	
-	<distributionManagement>
+
+    <distributionManagement>
         <repository>
             <id>scp-repository</id>
             <url>file:///E:/Dev/distribution/maven/m2/inhouse</url>
@@ -263,12 +269,37 @@
             <url>file:///E:/Dev/distribution/maven/m2/inhouse-snapshot</url>
         </snapshotRepository>
     </distributionManagement>
-	
+
     <!--
       | SCM Information
     -->
-	<scm>
+    <scm>
         <connection>scm:git:ssh://git@github.com/dboissier/jenkins-control-plugin.git</connection>
         <url>git:ssh://git@github.com/dboissier/jenkins-control-plugin.git</url>
     </scm>
+
+
+    <!--
+      | Reporting tools
+    -->
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <configuration>
+                    <formats>
+                        <format>xml</format>
+                    </formats>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <configuration>
+                    <findbugsXmlOutput>true</findbugsXmlOutput>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
 </project>
