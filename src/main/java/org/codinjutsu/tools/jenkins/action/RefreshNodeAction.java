@@ -6,13 +6,13 @@ import org.codinjutsu.tools.jenkins.logic.IdeaJenkinsBrowserLogic;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
-public class RefreshViewAction extends AnAction {
+public class RefreshNodeAction extends AnAction {
 
     private IdeaJenkinsBrowserLogic logic;
 
 
-    public RefreshViewAction(IdeaJenkinsBrowserLogic logic) {
-        super("Refresh", "Refresh current view", GuiUtil.loadIcon("loadingTree.png"));
+    public RefreshNodeAction(IdeaJenkinsBrowserLogic logic) {
+        super("Refresh", "Refresh current node", GuiUtil.loadIcon("loadingTree.png"));
         this.logic = logic;
     }
 
