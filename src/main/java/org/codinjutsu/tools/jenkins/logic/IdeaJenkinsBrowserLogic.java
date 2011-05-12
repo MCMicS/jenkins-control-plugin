@@ -83,6 +83,8 @@ public class IdeaJenkinsBrowserLogic extends JenkinsBrowserLogic<JenkinsBrowserP
             actionGroup.addSeparator();
             actionGroup.add(new GotoJobPageAction(getView()));
             actionGroup.add(new GotoLastBuildPageAction(getView()));
+            actionGroup.addSeparator();
+            actionGroup.add(new OpenPluginSettingsAction());
         }
         installActionGroupInToolBar(actionGroup, toolBar, ActionManager.getInstance(), JENKINS_ACTIONS);
         installActionGroupInPopupMenu(actionGroup, jobTree, ActionManager.getInstance());

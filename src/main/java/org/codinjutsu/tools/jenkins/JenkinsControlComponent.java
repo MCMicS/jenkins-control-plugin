@@ -35,7 +35,7 @@ public class JenkinsControlComponent
         implements ProjectComponent, Configurable, PersistentStateComponent<JenkinsConfiguration> {
 
     public static final String JENKINS_CONTROL_COMPONENT_NAME = "JenkinsControlComponent";
-    private static final String JENKINS_CONTROL_PLUGIN_NAME = "Jenkins Control Plugin";
+    static final String JENKINS_CONTROL_PLUGIN_NAME = "Jenkins Control Plugin";
 
     private static final String JENKINS_BROWSER = "jenkinsBrowser";
     private static final String JENKINS_BROWSER_TITLE = "Jenkins Browser";

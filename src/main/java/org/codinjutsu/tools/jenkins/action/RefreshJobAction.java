@@ -32,9 +32,4 @@ public class RefreshJobAction extends AnAction {
         event.getPresentation().setVisible(jenkinsBrowserLogic.getSelectedJob() != null);
     }
 
-
-    private static Project getProject(AnActionEvent event) {
-        DataContext dataContext = event.getDataContext();
-        return DataKeys.PROJECT.getData(dataContext);
-    }
 }
