@@ -4,6 +4,7 @@ import hudson.cli.CLI;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -107,36 +108,6 @@ public class DefaultJenkinsRequestManagerTest {
         assertThat(actualJobBuildMap, equalTo(expectedJobBuildMap));
     }
 
-    @Test
-    public void testAuthentication() throws Exception {
-        String hudsonHost = "http://localhost:8080/jenkins";
-        String username = "dboissier";
-        String password = "coucoucnous";
-
-        CLI cli = new CLI(new URL(hudsonHost));
-
-
-//        int result = cli.execute("build", "--username", "dboissier", "--password", "coucoucnous", "jenkins-control-plugin");
-//        int result = cli.execute("clear-queue");
-//        assertEquals(0, result);
-        try {
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            cli.execute(Arrays.asList("login", "--username", "admin", "--password", "admin"), System.in,System.out, byteArrayOutputStream);
-//            cli.execute("build", "--username", "dboissier", "--password", "pipo", "jenkins-control-plugin");
-//            cli.execute("build", "jenkins-control-plugin");
-            System.out.println("toString() = " + byteArrayOutputStream.toString());
-            cli.execute("build", "jenkins-control-plugin");
-        } catch (Exception e) {
-            assertEquals("Failed to login as dboissier", e);
-        }
-//        try {
-//            cli.execute("build", "jenkins-control-plugin");
-//        } catch (Exception e) {
-//            assertEquals("anonymous is missing the Build permission", e.getMessage());
-//        }
-
-    }
-
     private Map<String, Build> buildLastJobResultMap(String[][] datas) {
         Map<String, Build> expectedJobBuildMap = new HashMap<String, Build>();
         for (String[] data : datas) {
@@ -144,7 +115,6 @@ public class DefaultJenkinsRequestManagerTest {
         }
         return expectedJobBuildMap;
     }
-
 
     @Before
     public void setUp() {
