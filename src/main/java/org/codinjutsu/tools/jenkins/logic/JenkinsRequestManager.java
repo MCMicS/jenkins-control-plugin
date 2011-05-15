@@ -25,7 +25,7 @@ public interface JenkinsRequestManager {
     Job loadJob(String jobUrl) throws JDOMException, IOException;
 
 
-    void runBuild(Job job, JenkinsConfiguration configuration) throws IOException;
+    AuthenticationResult runBuild(Job job, JenkinsConfiguration configuration) throws IOException;
 
     AuthenticationResult testConnexion(String serverUrl, boolean enableAuthentication, String username, String password);
 }

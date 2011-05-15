@@ -21,7 +21,7 @@ public class JenkinsConfiguration {
 
     private boolean enableAuthentication = false;
     private String username = RESET_STR_VALUE;
-    private String password = RESET_STR_VALUE;
+    private String passwordFile = RESET_STR_VALUE;
 
 
     public String getServerUrl() {
@@ -107,12 +107,12 @@ public class JenkinsConfiguration {
         this.username = username;
     }
 
-    public String getPassword() {
-        return password;
+    public String getPasswordFile() {
+        return passwordFile;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setPasswordFile(String passwordFile) {
+        this.passwordFile = passwordFile;
     }
 
     public void setEnableAuthentication(boolean enableAuthentication) {

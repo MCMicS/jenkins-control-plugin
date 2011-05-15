@@ -41,10 +41,13 @@ class JenkinsTreeRenderer extends DefaultTreeCellRenderer {
         } else if (userObject instanceof Job) {
             Job job = (Job) node.getUserObject();
 
-            super.getTreeCellRendererComponent(tree, buildLabel(job), sel,
+            String jobLabel = buildLabel(job);
+            
+            super.getTreeCellRendererComponent(tree, jobLabel, sel,
                     expanded, leaf, row,
                     hasFocus);
 
+            setToolTipText(jobLabel);
             setFont(job);
             setIcon(findRightJobStateIcon(job));
             return this;

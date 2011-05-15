@@ -1,16 +1,21 @@
 package org.codinjutsu.tools.jenkins.view;
 
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.ui.LabeledComponent;
+import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
+import org.codinjutsu.tools.jenkins.action.ThreadFunctor;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.logic.AuthenticationResult;
-import org.codinjutsu.tools.jenkins.logic.DefaultJenkinsRequestManager;
 import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
+import org.codinjutsu.tools.jenkins.util.SwingUtils;
 import org.codinjutsu.tools.jenkins.view.annotation.FormValidator;
 import org.codinjutsu.tools.jenkins.view.annotation.GuiField;
 import org.codinjutsu.tools.jenkins.view.validator.NotNullValidator;
 import org.codinjutsu.tools.jenkins.view.validator.UIValidator;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -19,6 +24,10 @@ import java.awt.event.ItemListener;
 import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.*;
 
 public class JenkinsConfigurationPanel {
+
+    private static final Color CONNECTION_TEST_SUCCESSFUL_COLOR = new Color(0, 165, 0);
+    private static final Color CONNECTION_TEST_FAILED_COLOR = new Color(165, 0, 0);
+
 
     @GuiField(validators = {NOTNULL, URL})
     private JTextField serverUrl;
@@ -40,7 +49,7 @@ public class JenkinsConfigurationPanel {
 
     private JCheckBox enableAuthentication;
     private JTextField username;
-    private JPasswordField password;
+    private LabeledComponent<TextFieldWithBrowseButton> passwordFile;
 
     private JPanel rootPanel;
 
@@ -52,6 +61,10 @@ public class JenkinsConfigurationPanel {
 
 
     public JenkinsConfigurationPanel(final JenkinsRequestManager jenkinsRequestManager) {
+        this(jenkinsRequestManager, true);
+    }
+
+    JenkinsConfigurationPanel(final JenkinsRequestManager jenkinsRequestManager, boolean installBrowserFileBrowser) {
         serverUrl.setName("serverUrl");
         buildDelay.setName("buildDelay");
         enableJobAutoRefresh.setName("enableJobAutoRefresh");
@@ -61,31 +74,56 @@ public class JenkinsConfigurationPanel {
         preferredView.setName("preferredView");
         enableAuthentication.setName("enableAuthentication");
         username.setName("username");
-        password.setName("password");
+
+        passwordFile.getComponent().getTextField().setName("passwordFile");
 
         initListeners();
+
+        if (installBrowserFileBrowser) {
+            addBrowserLinkToPasswordFile();
+        }
 
         formValidator = FormValidator.init(this)
                 .addValidator(enableAuthentication, new UIValidator<JCheckBox>() {
                     public void validate(JCheckBox component) throws ConfigurationException {
                         if (enableAuthentication.isSelected()) {
                             new NotNullValidator().validate(username);
-                            new NotNullValidator().validate(password);
+                            if (passwordFile.isEnabled()) {    //TODO a revoir
+                                String value = passwordFile.getComponent().getText();
+                                if (value == null || "".equals(value)) {
+                                    throw new ConfigurationException("'" + passwordFile.getComponent().getTextField().getName() + "' must be set");
+                                }
+                            }
                         }
                     }
                 });
 
         testConnexionButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                AuthenticationResult authResult = jenkinsRequestManager.testConnexion(serverUrl.getText(), enableAuthentication.isSelected(), username.getText(), String.valueOf(password.getPassword()));
-                connectionStatusLabel.setText(authResult.getLabel());
+                final AuthenticationResult authResult = jenkinsRequestManager.testConnexion(
+                        serverUrl.getText(),
+                        enableAuthentication.isSelected(), username.getText(), passwordFile.getComponent().getText());
+
+
+                SwingUtils.runInSwingThread(new ThreadFunctor() {
+                    public void run() {
+                        Color foregroundColor = CONNECTION_TEST_FAILED_COLOR;
+                        if (AuthenticationResult.SUCCESSFULL.equals(authResult)) {
+                            foregroundColor = CONNECTION_TEST_SUCCESSFUL_COLOR;
+                        }
+
+                        connectionStatusLabel.setForeground(foregroundColor);
+                        connectionStatusLabel.setText(authResult.getLabel());
+                    }
+                });
+
             }
         });
     }
 
 
     public boolean isModified(JenkinsConfiguration configuration) {
-        return  !configuration.getServerUrl().equals(serverUrl.getText())
+        return !configuration.getServerUrl().equals(serverUrl.getText())
                 || !(configuration.getBuildDelay() == Integer.parseInt(buildDelay.getText()))
                 || !(configuration.isEnableJobAutoRefresh() == enableJobAutoRefresh.isSelected())
                 || !(configuration.getJobRefreshPeriod() == Integer.parseInt(jobRefreshPeriod.getText()))
@@ -94,7 +132,7 @@ public class JenkinsConfigurationPanel {
                 || !(configuration.getPreferredView().equals(preferredView.getText()))
                 || !(configuration.isEnableAuthentication() == enableAuthentication.isSelected())
                 || !(configuration.getUsername().equals(username.getText()))
-                || !(configuration.getPassword().equals(String.valueOf(password.getPassword())))
+                || !(configuration.getPasswordFile().equals(passwordFile.getComponent().getText()))
                 ;
     }
 
@@ -112,7 +150,7 @@ public class JenkinsConfigurationPanel {
         configuration.setPreferredView(preferredView.getText());
         configuration.setEnableAuthentication(enableAuthentication.isSelected());
         configuration.setUsername(username.getText());
-        configuration.setPassword(String.valueOf(password.getPassword()));
+        configuration.setPasswordFile(passwordFile.getComponent().getText());
     }
 
 
@@ -138,8 +176,8 @@ public class JenkinsConfigurationPanel {
         username.setText(configuration.getUsername());
         username.setEnabled(isEnableAuthentication);
 
-        password.setText(configuration.getPassword());
-        password.setEnabled(isEnableAuthentication);
+        passwordFile.getComponent().setText(configuration.getPasswordFile());
+        passwordFile.setEnabled(isEnableAuthentication);
     }
 
 
@@ -158,8 +196,15 @@ public class JenkinsConfigurationPanel {
 
         enableAuthentication.addItemListener(new EnablerFieldListener(enableAuthentication,
                 username, JenkinsConfiguration.RESET_STR_VALUE));
-        enableAuthentication.addItemListener(new EnablerFieldListener(enableAuthentication,
-                password, JenkinsConfiguration.RESET_STR_VALUE));
+        enableAuthentication.addItemListener(new EnablerPasswordFileListener(enableAuthentication,
+                passwordFile, JenkinsConfiguration.RESET_STR_VALUE));
+
+
+    }
+
+    void addBrowserLinkToPasswordFile() {
+        passwordFile.getComponent().addBrowseFolderListener("Jenkins User password File", "", null,
+                new FileChooserDescriptor(true, false, false, false, false, false));
     }
 
     private class EnablerFieldListener implements ItemListener {
@@ -180,6 +225,34 @@ public class JenkinsConfigurationPanel {
             final boolean isSelected = enablerCheckBox.isSelected();
             if (!isSelected) {
                 fieldToEnable.setText(resetValue);
+            }
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    fieldToEnable.setEnabled(isSelected);
+                }
+            });
+        }
+    }
+
+
+    private class EnablerPasswordFileListener implements ItemListener {
+        private final JCheckBox enablerCheckBox;
+        private final LabeledComponent<TextFieldWithBrowseButton> fieldToEnable;
+        private final String resetValue;
+
+
+        private EnablerPasswordFileListener(JCheckBox enablerCheckBox,
+                                            LabeledComponent<TextFieldWithBrowseButton> fieldToEnable, String resetValue) {
+            this.enablerCheckBox = enablerCheckBox;
+            this.fieldToEnable = fieldToEnable;
+            this.resetValue = resetValue;
+        }
+
+
+        public void itemStateChanged(ItemEvent event) {
+            final boolean isSelected = enablerCheckBox.isSelected();
+            if (!isSelected) {
+                fieldToEnable.getComponent().setText(resetValue);
             }
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {

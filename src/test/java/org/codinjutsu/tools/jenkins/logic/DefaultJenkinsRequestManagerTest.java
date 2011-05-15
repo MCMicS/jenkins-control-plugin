@@ -122,4 +122,24 @@ public class DefaultJenkinsRequestManagerTest {
         configuration = new JenkinsConfiguration();
         requestManager = new DefaultJenkinsRequestManager(urlBuilderMock);
     }
+
+
+    public static void main(String[] args) throws Exception{
+
+        String hudsonHost = "http://localhost:8080/hudson";
+
+        CLI cli = new CLI(new URL(hudsonHost));
+
+
+        try {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            cli.execute(Arrays.asList("login", "--username", "dboissier", "--password", "dboissier"), System.in, System.out, byteArrayOutputStream);
+            cli.execute(Arrays.asList("build", "-s", "jenkins-control-plugin"), System.in, System.out, byteArrayOutputStream);
+            System.out.println("byteArrayOutputStream = " + byteArrayOutputStream.toString());
+        } finally {
+            cli.close();
+        }
+
+
+    }
 }

@@ -4,7 +4,7 @@ package org.codinjutsu.tools.jenkins.logic;
 public enum AuthenticationResult {
 
     SUCCESSFULL(DefaultJenkinsRequestManager.SUCCESS_ID, "Successful"),
-    BAD_CREDENTIAL(DefaultJenkinsRequestManager.BAD_CREDENTIAL_ID, "Bad Credential"),
+    BAD_CREDENTIAL(DefaultJenkinsRequestManager.BAD_CREDENTIAL_ID, "Bad Credentials"),
     BAD_URL(DefaultJenkinsRequestManager.BAD_URL_ID, "Bad URL");
 
 

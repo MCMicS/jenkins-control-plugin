@@ -56,11 +56,16 @@
         <dependency>
             <groupId>hudson.cli</groupId>
             <artifactId>jenkins-cli</artifactId>
-            <version>1.411</version>
+            <version>1.396</version>
         </dependency>
         <dependency>
             <groupId>com.intellij</groupId>
             <artifactId>forms_rt</artifactId>
+            <version>${intellij.sdk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.intellij</groupId>
+            <artifactId>idea-openapi</artifactId>
             <version>${intellij.sdk.version}</version>
         </dependency>
 
@@ -86,18 +91,12 @@
         </dependency>
 
         <!-- IntelliJ SDK -->
+
         <dependency>
             <groupId>com.intellij</groupId>
             <artifactId>idea</artifactId>
             <scope>system</scope>
             <systemPath>${intellij.lib.path}/idea.jar</systemPath>
-            <version>${intellij.sdk.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.intellij</groupId>
-            <artifactId>idea-openapi</artifactId>
-            <scope>system</scope>
-            <systemPath>${intellij.lib.path}/openapi.jar</systemPath>
             <version>${intellij.sdk.version}</version>
         </dependency>
         <dependency>
@@ -133,6 +132,14 @@
             <artifactId>idea-util</artifactId>
             <scope>system</scope>
             <systemPath>${intellij.lib.path}/util.jar</systemPath>
+            <version>${intellij.sdk.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.intellij</groupId>
+            <artifactId>idea-resources-en</artifactId>
+            <scope>system</scope>
+            <systemPath>${intellij.lib.path}/resources_en.jar</systemPath>
             <version>${intellij.sdk.version}</version>
         </dependency>
     </dependencies>

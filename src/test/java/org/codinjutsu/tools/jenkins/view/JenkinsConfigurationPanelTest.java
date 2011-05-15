@@ -4,7 +4,9 @@ import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 import org.uispec4j.*;
 
 import static org.codinjutsu.tools.jenkins.JenkinsConfiguration.DEFAULT_BUILD_DELAY;
@@ -48,9 +50,9 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
         assertFalse(usernameTextbox.isEnabled());
         usernameTextbox.textIsEmpty().check();
 
-        PasswordField passwordTextField = uiSpecPanel.getPasswordField("password");
+        TextBox passwordTextField = uiSpecPanel.getTextBox("passwordFile");
         assertFalse(passwordTextField.isEnabled());
-        passwordTextField.passwordEquals("").check();
+        passwordTextField.textIsEmpty().check();
 
     }
 
@@ -89,9 +91,9 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
         assertTrue(usernameTextbox.isEnabled());
         usernameTextbox.setText("johndoe");
 
-        PasswordField passwordTextField = uiSpecPanel.getPasswordField("password");
-        assertTrue(passwordTextField.isEnabled());
-        passwordTextField.setPassword("seven");
+        TextBox passwordFileField = uiSpecPanel.getTextBox("passwordFile");
+        assertTrue(passwordFileField.isEnabled());
+        passwordFileField.setText("D:/password.txt");
 
         jenkinsConfigurationPanel.applyConfigurationData(configuration);
 
@@ -103,7 +105,7 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
         assertFalse(configuration.isEnableRssAutoRefresh());
         assertTrue(configuration.isEnableAuthentication());
         assertEquals("johndoe", configuration.getUsername());
-        assertEquals("seven", configuration.getPassword());
+        assertEquals("D:/password.txt", configuration.getPasswordFile());
     }
 
 
@@ -191,31 +193,32 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
             jenkinsConfigurationPanel.applyConfigurationData(configuration);
             fail();
         } catch (ConfigurationException ex) {
-             assertEquals("'password' must be set", ex.getMessage());
+             assertEquals("'passwordFile' must be set", ex.getMessage());
         }
 
-        PasswordField passwordTextField = uiSpecPanel.getPasswordField("password");
-        passwordTextField.setPassword("seven");
+        TextBox passwordTextField = uiSpecPanel.getTextBox("passwordFile");
+        passwordTextField.setText("D:/password.txt");
         jenkinsConfigurationPanel.applyConfigurationData(configuration);
         assertTrue(configuration.isEnableAuthentication());
         assertEquals("johndoe", configuration.getUsername());
-        assertEquals("seven", configuration.getPassword());
+        assertEquals("D:/password.txt", configuration.getPasswordFile());
 
 
         enableAuthenticationCheckBox.click();
         jenkinsConfigurationPanel.applyConfigurationData(configuration);
         assertFalse(configuration.isEnableAuthentication());
         assertEquals("", configuration.getUsername());
-        assertEquals("", configuration.getPassword());
+        assertEquals("", configuration.getPasswordFile());
 
     }
 
-
+//component.with.browse.button.browse.button.tooltip.text
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         MockitoAnnotations.initMocks(this);
-        jenkinsConfigurationPanel = new JenkinsConfigurationPanel(jenkinsRequestManager);
+        jenkinsConfigurationPanel = new JenkinsConfigurationPanel(jenkinsRequestManager, false);
+
         configuration = new JenkinsConfiguration();
         jenkinsConfigurationPanel.loadConfigurationData(configuration);
 

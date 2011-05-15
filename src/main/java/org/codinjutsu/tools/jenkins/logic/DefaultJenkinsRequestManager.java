@@ -9,7 +9,6 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
-import javax.swing.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,6 +19,8 @@ import java.util.*;
 
 @SuppressWarnings({"unchecked"})
 public class DefaultJenkinsRequestManager implements JenkinsRequestManager {
+
+    private static final String FORBIDDEN_ACCESS_CODE = "403";
 
 
     public static final int SUCCESS_ID = 0;
@@ -150,13 +151,56 @@ public class DefaultJenkinsRequestManager implements JenkinsRequestManager {
     }
 
 
-    public void runBuild(Job job, JenkinsConfiguration configuration) throws IOException {
+    public AuthenticationResult runBuild(Job job, JenkinsConfiguration configuration) throws IOException {
+        if (configuration.isEnableAuthentication()) {
+            return runBuildFromCLI(job, configuration);
+        }
+        return runBuildFromUrl(job, configuration);
+    }
+
+    private AuthenticationResult runBuildFromCLI(Job job, JenkinsConfiguration configuration) throws IOException {
+        CLI cli = null;
+        try {
+            cli = new CLI(new URL(configuration.getServerUrl()));
+            ByteArrayOutputStream errStream = new ByteArrayOutputStream();
+            int returnCode = cli.execute(Arrays.asList("build",
+                    "--username", configuration.getUsername(),
+                    "--password-file", configuration.getPasswordFile(),
+                    job.getName()),
+                    System.in, System.out, errStream);
+            if (returnCode == 0) {
+                return AuthenticationResult.SUCCESSFULL;
+            } else {
+                return AuthenticationResult.BAD_CREDENTIAL;
+            }
+        } catch (Exception ex) {
+            return AuthenticationResult.BAD_URL;
+        } finally {
+            if (cli != null) {
+                try {
+                    cli.close();
+                } catch (InterruptedException interrEx) {
+                    throw new IOException(interrEx.getMessage());
+                }
+            }
+        }
+    }
+
+    private AuthenticationResult runBuildFromUrl(Job job, JenkinsConfiguration configuration) throws IOException {
         URL url = urlBuilder.createRunJobUrl(job.getUrl(), configuration);
 
         InputStream inputStream = null;
         try {
             inputStream = createInputStream(url);
-        } finally {
+            return AuthenticationResult.SUCCESSFULL;
+        } catch(IOException ioEx) {
+            if (ioEx.getMessage().contains(FORBIDDEN_ACCESS_CODE)) {
+                return AuthenticationResult.BAD_CREDENTIAL;
+            } else {
+                return AuthenticationResult.BAD_URL;
+            }
+        }
+        finally {
             if (inputStream != null) {
                 inputStream.close();
             }
@@ -270,7 +314,7 @@ public class DefaultJenkinsRequestManager implements JenkinsRequestManager {
     }
 
     public AuthenticationResult testConnexion(String serverUrl, boolean enableAuthentication, String username, String password) {
-         CLI cli;
+        CLI cli;
         try {
             cli = new CLI(new URL(serverUrl));
         } catch (Exception e) {
@@ -282,12 +326,16 @@ public class DefaultJenkinsRequestManager implements JenkinsRequestManager {
         }
 
         ByteArrayOutputStream errStream = new ByteArrayOutputStream();
-        cli.execute(Arrays.asList("login", "--username", username, "--password", password), System.in, System.out, errStream);
+        int returnCode = cli.execute(Arrays.asList("login",
+                "--username", username,
+                "--password-file", password),
+                System.in, System.out, errStream);
 
         String errStr = errStream.toString();
-        if (errStr.length() == 0) {
+        if (returnCode == 0) {
             return AuthenticationResult.SUCCESSFULL;
         } else {
+            System.out.println("errStr = " + errStr);
             return AuthenticationResult.BAD_CREDENTIAL;
         }
     }
