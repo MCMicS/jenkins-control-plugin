@@ -12,6 +12,10 @@
     </project-components>
 
     <change-notes><![CDATA[
+Version 0.2:
+    - Add Jenkins Security Support (See https://github.com/dboissier/jenkins-control-plugin/wiki to check how to and see limitations)
+    - Add Settings shortcut on the upper toolbar
+    
 Version 0.1:
     - Initial version including the following features :
     - Server configuration,

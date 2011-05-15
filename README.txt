@@ -8,15 +8,21 @@ Description : This plugin allows to view the content of your Jenkins Continous I
 
 Plugin Compatibility :
 
-This plugin was built with JDK 1.5 and IntelliJ-8.1.3-jdk5 version.
+This plugin was built with JDK 1.5 and IntelliJ-8.1.3-jdk5 version. Jenkins 1.396 was used to test
+security support.
 
 Installation steps:
+
 Download this plugin from your IDE (Settings -> Plugins -> Available -> Jenkins Control Plugin -> Right Click "Download and Install").
-You can also download it from your favorite browser at http://plugins.intellij.net/?idea (Search Jenkins control Plugin).
+You can also download it from your favorite browser at http://plugins.intellij.net/?idea&id=6110.
 
 Configuration steps:
-Click on Settings and select Jenkins Control Plugin.
+
+Click on the Jenkins Settings button (or click on the IDEA General Settings and select Jenkins Control Plugin):
     Set your Jenkins url in the Server Address text field
+    If security is enabled on the Jenkins Server, click on the checkbox and put your credentials (Note that the password
+    should be put in a file). To make sure your security parameters are correct, you can test by clicking on the test button.
+
     If you want the plugin to refresh periodically the Jenkins workspace, you can set a timeout value
     You can also specify a build start delay (in sec.) that will be set when launching a build.
     You can specify a preferred view at Start Up.
@@ -45,6 +51,7 @@ Thanks :
 I would like to thank
 - Mark James author of the famfamfam web site who provides beautiful icons.
 - Kohsuke Kawaguchi for providing us such a great CI server
+- Sébastian Le Merdy for providing support for Eclipse version
 - Jetbrains Team for providing us an incredible IDE (certainly the best that Java developers could have).
-- Guys from XP Monday Group : Boris Gonnot, Regis Medina, Olivier Catteau, Jean Baptiste Potonnier and others who gave be the XP virus and some other Agile ones.
+- Guys from XP Monday Group : Boris Gonnot, Regis Medina, Sébastien Crego, Olivier Catteau, Jean Baptiste Potonnier and others who gave be the XP virus and some other Agile ones.
 - My wife and my daughter who support me to have fun in software development and also remind me my husband/father duty ;).
