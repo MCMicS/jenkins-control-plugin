@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.codinjustu.tools.jenkins</groupId>
+    <groupId>org.codinjutsu.tools.jenkins</groupId>
     <artifactId>jenkins-control-plugin</artifactId>
     <version>0.2-SNAPSHOT</version>
 
