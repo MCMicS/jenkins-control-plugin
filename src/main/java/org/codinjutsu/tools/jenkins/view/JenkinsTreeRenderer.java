@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2011 David Boissier
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.codinjutsu.tools.jenkins.view;
 
 import org.codinjutsu.tools.jenkins.model.Build;
@@ -10,8 +26,22 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
 
 class JenkinsTreeRenderer extends DefaultTreeCellRenderer {
+
+
+    private static final Map<BuildStatusEnum, Icon> ICON_BY_BUILD_STATUS_MAP = new HashMap<BuildStatusEnum, Icon>();
+
+    static {
+        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.SUCCESS, GuiUtil.loadIcon("blue.png"));
+        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.FAILURE, GuiUtil.loadIcon("red.png"));
+        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.NULL, GuiUtil.loadIcon("grey.png"));
+        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.UNSTABLE, GuiUtil.loadIcon("yellow.png"));
+        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.STABLE, GuiUtil.loadIcon("blue.png"));
+        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.ABORTED, GuiUtil.loadIcon("grey.png"));
+    }
 
     @Override
     public Component getTreeCellRendererComponent(JTree tree,
@@ -42,19 +72,24 @@ class JenkinsTreeRenderer extends DefaultTreeCellRenderer {
             Job job = (Job) node.getUserObject();
 
             String jobLabel = buildLabel(job);
-            
+
             super.getTreeCellRendererComponent(tree, jobLabel, sel,
                     expanded, leaf, row,
                     hasFocus);
 
             setToolTipText(jobLabel);
             setFont(job);
-            setIcon(findRightJobStateIcon(job));
+            setIcon(buildJobIcon(job));
             return this;
         }
         return super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
+    private Icon buildJobIcon(Job job) {
+        Icon jobStateIcon = findJobStateIcon(job);
+        Icon healthIcon = findHealthIcon(job);
+        return new CompositeIcon(jobStateIcon, healthIcon);
+    }
 
     private void setFont(Job job) {
         Font font = getFont();
@@ -93,15 +128,20 @@ class JenkinsTreeRenderer extends DefaultTreeCellRenderer {
     }
 
 
-    private static Icon findRightJobStateIcon(Job job) {
+    private static Icon findJobStateIcon(Job job) {
         BuildStatusEnum[] jobStates = BuildStatusEnum.values();
         for (BuildStatusEnum jobState : jobStates) {
             String stateName = jobState.getColor();
             if (job.getColor().startsWith(stateName)) {
-                return jobState.getIcon();
+                return ICON_BY_BUILD_STATUS_MAP.get(jobState);
             }
         }
 
-        return BuildStatusEnum.NULL.getIcon();
+        return ICON_BY_BUILD_STATUS_MAP.get(BuildStatusEnum.NULL);
+    }
+
+
+    private static Icon findHealthIcon(Job job) {
+        return GuiUtil.loadIcon(job.getHealth() + ".png");
     }
 }

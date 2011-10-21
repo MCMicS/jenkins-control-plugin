@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2011 David Boissier
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.codinjutsu.tools.jenkins;
 
 import com.intellij.openapi.components.PersistentStateComponent;
@@ -15,17 +31,14 @@ import com.intellij.ui.BrowserHyperlinkListener;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.xmlb.XmlSerializerUtil;
-import org.codinjutsu.tools.jenkins.logic.AuthenticationResult;
-import org.codinjutsu.tools.jenkins.logic.DefaultJenkinsRequestManager;
 import org.codinjutsu.tools.jenkins.logic.IdeaJenkinsBrowserLogic;
+import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.JenkinsConfigurationPanel;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 @State(
         name = JenkinsControlComponent.JENKINS_CONTROL_COMPONENT_NAME,
@@ -46,7 +59,7 @@ public class JenkinsControlComponent
 
     private Project project;
     private IdeaJenkinsBrowserLogic jenkinsBrowserLogic;
-    private DefaultJenkinsRequestManager jenkinsRequestManager;
+    private JenkinsRequestManager jenkinsRequestManager;
 
 
     public JenkinsControlComponent(Project project) {
@@ -96,12 +109,13 @@ public class JenkinsControlComponent
 
 
     public void loadState(JenkinsConfiguration jenkinsConfiguration) {
+        System.out.println("JenkinsControlComponent.loadState");
         XmlSerializerUtil.copyBean(jenkinsConfiguration, configuration);
+        System.out.println("JenkinsControlComponent.loadState : Done");
     }
 
 
     public void projectOpened() {
-        jenkinsRequestManager = new DefaultJenkinsRequestManager();
         installJenkinsBrowser();
     }
 
@@ -112,6 +126,7 @@ public class JenkinsControlComponent
                 true,
                 ToolWindowAnchor.RIGHT);
 
+        jenkinsRequestManager = new JenkinsRequestManager();
         jenkinsBrowserLogic = new IdeaJenkinsBrowserLogic(configuration, jenkinsRequestManager);
         jenkinsBrowserLogic.init();
 

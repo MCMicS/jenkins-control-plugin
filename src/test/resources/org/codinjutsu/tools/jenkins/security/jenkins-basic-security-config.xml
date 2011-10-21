@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<hudson>
+  <disabledAdministrativeMonitors/>
+  <version>1.420</version>
+  <numExecutors>2</numExecutors>
+  <mode>NORMAL</mode>
+  <useSecurity>true</useSecurity>
+  <authorizationStrategy class="hudson.security.GlobalMatrixAuthorizationStrategy">
+    <permission>hudson.model.Computer.Configure:dboissier</permission>
+    <permission>hudson.model.Computer.Delete:dboissier</permission>
+    <permission>hudson.model.Hudson.Administer:dboissier</permission>
+    <permission>hudson.model.Item.Build:dboissier</permission>
+    <permission>hudson.model.Item.Configure:dboissier</permission>
+    <permission>hudson.model.Item.Create:dboissier</permission>
+    <permission>hudson.model.Item.Delete:dboissier</permission>
+    <permission>hudson.model.Item.Read:dboissier</permission>
+    <permission>hudson.model.Item.Workspace:dboissier</permission>
+    <permission>hudson.model.Run.Delete:dboissier</permission>
+    <permission>hudson.model.Run.Update:dboissier</permission>
+    <permission>hudson.model.View.Configure:dboissier</permission>
+    <permission>hudson.model.View.Create:dboissier</permission>
+    <permission>hudson.model.View.Delete:dboissier</permission>
+  </authorizationStrategy>
+  <securityRealm class="hudson.security.HudsonPrivateSecurityRealm">
+    <disableSignup>false</disableSignup>
+    <enableCaptcha>false</enableCaptcha>
+  </securityRealm>
+  <markupFormatter class="hudson.markup.RawHtmlMarkupFormatter"/>
+  <jdks>
+    <jdk>
+      <name>JDK15</name>
+      <home>C:\Progra~2\Java\jdk1.5.0_22</home>
+      <properties/>
+    </jdk>
+    <jdk>
+      <name>JDK16</name>
+      <home>C:\Progra~2\Java\jdk1.6.0_25</home>
+      <properties/>
+    </jdk>
+  </jdks>
+  <viewsTabBar class="hudson.views.DefaultViewsTabBar"/>
+  <myViewsTabBar class="hudson.views.DefaultMyViewsTabBar"/>
+  <clouds/>
+  <slaves/>
+  <quietPeriod>5</quietPeriod>
+  <scmCheckoutRetryCount>0</scmCheckoutRetryCount>
+  <views>
+    <hudson.model.AllView>
+      <owner class="hudson" reference="../../.."/>
+      <name>All</name>
+      <filterExecutors>false</filterExecutors>
+      <filterQueue>false</filterQueue>
+      <properties class="hudson.model.View$PropertyList"/>
+    </hudson.model.AllView>
+  </views>
+  <primaryView>All</primaryView>
+  <slaveAgentPort>-1</slaveAgentPort>
+  <label></label>
+  <nodeProperties/>
+  <globalNodeProperties/>
+  <noUsageStatistics>true</noUsageStatistics>
+</hudson>

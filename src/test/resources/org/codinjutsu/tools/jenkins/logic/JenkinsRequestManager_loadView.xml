@@ -8,6 +8,9 @@
         <url>http://myjenkins/job/sql-tools/</url>
         <color>blue</color>
         <inQueue>true</inQueue>
+        <healthReport>
+            <iconUrl>health-80plus.gif</iconUrl>
+        </healthReport>
         <lastBuild>
             <building>false</building>
             <result>SUCCESS</result>
@@ -26,6 +29,9 @@
         <url>http://myjenkins/job/myapp/</url>
         <color>red</color>
         <inQueue>false</inQueue>
+        <healthReport>
+            <iconUrl>health-00to19.gif</iconUrl>
+        </healthReport>
         <lastBuild>
             <building>true</building>
             <result>FAILURE</result>
@@ -38,6 +44,9 @@
         <url>http://myjenkins/job/swing-utils/</url>
         <color>disabled</color>
         <inQueue>true</inQueue>
+        <healthReport>
+            <iconUrl>health20to39.gif</iconUrl>
+        </healthReport>
         <lastBuild>
             <building>false</building>
             <result>FAILURE</result>

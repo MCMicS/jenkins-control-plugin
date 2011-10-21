@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2011 David Boissier
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.codinjutsu.tools.jenkins.logic;
 
 import org.apache.log4j.Logger;
@@ -57,7 +73,7 @@ abstract class JenkinsBrowserLogic<V extends JenkinsBrowserView> {
     void loadJenkinsWorkspace() {
         if (configuration.isServerUrlSet()) {
             try {
-
+                jenkinsRequestManager.authenticate(configuration.getServerUrl(), configuration.getSecurityMode(), configuration.getUsername(), configuration.getPassword());
                 jenkins = jenkinsRequestManager.loadJenkinsWorkspace(configuration);
                 view.initModel(jenkins);
                 String preferredView = configuration.getPreferredView();
@@ -67,7 +83,6 @@ abstract class JenkinsBrowserLogic<V extends JenkinsBrowserView> {
                 } else {
                     this.view.setSelectedView(jenkins.getPrimaryView());
                 }
-//              addLatestBuilds(jenkinsRequestManager.loadJenkinsRssLatestBuilds(configuration));
             } catch (JDOMException domEx) {
                 String errorMessage = buildServerErrorMessage(domEx);
                 LOG.error(errorMessage, domEx);
@@ -93,12 +108,8 @@ abstract class JenkinsBrowserLogic<V extends JenkinsBrowserView> {
             } else {
                 loadJenkinsWorkspace();
             }
-        } catch (JDOMException domEx) {
-            String errorMessage = buildServerErrorMessage(domEx);
-            LOG.error(errorMessage, domEx);
-            showErrorDialog(errorMessage, "Error during parsing View Data");
-        } catch (IOException ioEx) {
-            LOG.error(buildServerErrorMessage(ioEx), ioEx);
+        } catch (Exception ex) {
+            LOG.error(buildServerErrorMessage(ex), ex);
             displayConnectionErrorMsg();
         }
     }
@@ -108,12 +119,8 @@ abstract class JenkinsBrowserLogic<V extends JenkinsBrowserView> {
             Job job = getSelectedJob();
             Job updatedJob = jenkinsRequestManager.loadJob(job.getUrl());
             job.updateContentWith(updatedJob);
-        } catch (JDOMException domEx) {
-            String errorMessage = buildServerErrorMessage(domEx);
-            LOG.error(errorMessage, domEx);
-            showErrorDialog(errorMessage, "Error during parsing View Data");
-        } catch (IOException ioEx) {
-            LOG.error(buildServerErrorMessage(ioEx), ioEx);
+        } catch (Exception ex) {
+            LOG.error(buildServerErrorMessage(ex), ex);
             displayConnectionErrorMsg();
         }
     }

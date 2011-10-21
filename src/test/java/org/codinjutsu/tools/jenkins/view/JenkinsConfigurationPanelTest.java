@@ -1,13 +1,34 @@
+/*
+ * Copyright (c) 2011 David Boissier
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.codinjutsu.tools.jenkins.view;
 
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
+import org.codinjutsu.tools.jenkins.security.SecurityMode;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 import org.uispec4j.*;
+import org.uispec4j.Panel;
+import org.uispec4j.finder.ComponentMatcher;
+
+import javax.swing.*;
+
+import java.awt.*;
 
 import static org.codinjutsu.tools.jenkins.JenkinsConfiguration.DEFAULT_BUILD_DELAY;
 import static org.codinjutsu.tools.jenkins.JenkinsConfiguration.DEFAULT_JENKINS_SERVER_URL;
@@ -43,17 +64,14 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
         rssRefreshPeriodBox.textEquals("0").check();
         assertFalse(rssRefreshPeriodBox.isEnabled());
 
-        CheckBox enableAuthenticationCheckBox = uiSpecPanel.getCheckBox("enableAuthentication");
-        assertFalse(enableAuthenticationCheckBox.isSelected());
+        RadioButton noneRadioButton = uiSpecPanel.getRadioButton("noneRadioButton");
+        assertTrue(noneRadioButton.isSelected());
 
-        TextBox usernameTextbox = uiSpecPanel.getTextBox("username");
-        assertFalse(usernameTextbox.isEnabled());
-        usernameTextbox.textIsEmpty().check();
+        RadioButton basicRadioButton = uiSpecPanel.getRadioButton("basicRadioButton");
+        assertFalse(basicRadioButton.isSelected());
 
-        TextBox passwordTextField = uiSpecPanel.getTextBox("passwordFile");
-        assertFalse(passwordTextField.isEnabled());
-        passwordTextField.textIsEmpty().check();
-
+        RadioButton sslRadioButton = uiSpecPanel.getRadioButton("sslRadioButton");
+        assertFalse(sslRadioButton.isSelected());
     }
 
 
@@ -84,16 +102,17 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
         rssRefreshPeriodBox.textEquals("0").check();
         assertFalse(rssRefreshPeriodBox.isEnabled());
 
-        CheckBox enableAuthenticationCheckBox = uiSpecPanel.getCheckBox("enableAuthentication");
-        enableAuthenticationCheckBox.click();
+        RadioButton basicRadioButton = uiSpecPanel.getRadioButton("basicRadioButton");
+        basicRadioButton.click();
 
-        TextBox usernameTextbox = uiSpecPanel.getTextBox("username");
+        Panel basicCredentialPanel = uiSpecPanel.getPanel("basicCredentialPanel");
+        TextBox usernameTextbox = basicCredentialPanel.getTextBox("username field");
         assertTrue(usernameTextbox.isEnabled());
         usernameTextbox.setText("johndoe");
 
-        TextBox passwordFileField = uiSpecPanel.getTextBox("passwordFile");
-        assertTrue(passwordFileField.isEnabled());
-        passwordFileField.setText("D:/password.txt");
+        PasswordField passwordField = basicCredentialPanel.getPasswordField("password field");
+        assertTrue(passwordField.isEnabled());
+        passwordField.setPassword("password");
 
         jenkinsConfigurationPanel.applyConfigurationData(configuration);
 
@@ -103,9 +122,9 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
         assertEquals(0, configuration.getRssRefreshPeriod());
         assertTrue(configuration.isEnableJobAutoRefresh());
         assertFalse(configuration.isEnableRssAutoRefresh());
-        assertTrue(configuration.isEnableAuthentication());
+        assertEquals(SecurityMode.BASIC, configuration.getSecurityMode());
         assertEquals("johndoe", configuration.getUsername());
-        assertEquals("D:/password.txt", configuration.getPasswordFile());
+        assertEquals("password", configuration.getPassword());
     }
 
 
@@ -177,42 +196,43 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
     }
 
     public void testApplyAuthenticationWithInvalidUserParameters() throws Exception {
-        CheckBox enableAuthenticationCheckBox = uiSpecPanel.getCheckBox("enableAuthentication");
-        enableAuthenticationCheckBox.click();
+        RadioButton basicRadioButton = uiSpecPanel.getRadioButton("basicRadioButton");
+        basicRadioButton.click();
 
         try {
             jenkinsConfigurationPanel.applyConfigurationData(configuration);
             fail();
         } catch (ConfigurationException ex) {
-             assertEquals("'username' must be set", ex.getMessage());
+             assertEquals("'username field' must be set", ex.getMessage());
         }
 
-        TextBox usernameTextbox = uiSpecPanel.getTextBox("username");
+        TextBox usernameTextbox = uiSpecPanel.getTextBox("username field");
         usernameTextbox.setText("johndoe");
         try {
             jenkinsConfigurationPanel.applyConfigurationData(configuration);
             fail();
         } catch (ConfigurationException ex) {
-             assertEquals("'passwordFile' must be set", ex.getMessage());
+             assertEquals("'password field' must be set", ex.getMessage());
         }
 
-        TextBox passwordTextField = uiSpecPanel.getTextBox("passwordFile");
-        passwordTextField.setText("D:/password.txt");
+        PasswordField passwordTextField = uiSpecPanel.getPasswordField("password field");
+        passwordTextField.setPassword("password");
         jenkinsConfigurationPanel.applyConfigurationData(configuration);
-        assertTrue(configuration.isEnableAuthentication());
+        assertEquals(SecurityMode.BASIC, configuration.getSecurityMode());
         assertEquals("johndoe", configuration.getUsername());
-        assertEquals("D:/password.txt", configuration.getPasswordFile());
+        assertEquals("password", configuration.getPassword());
 
 
-        enableAuthenticationCheckBox.click();
+        RadioButton noneRadioButton = uiSpecPanel.getRadioButton("noneRadioButton");
+        noneRadioButton.click();
         jenkinsConfigurationPanel.applyConfigurationData(configuration);
-        assertFalse(configuration.isEnableAuthentication());
+        assertEquals(SecurityMode.NONE, configuration.getSecurityMode());
         assertEquals("", configuration.getUsername());
-        assertEquals("", configuration.getPasswordFile());
+        assertEquals("", configuration.getPassword());
 
     }
 
-//component.with.browse.button.browse.button.tooltip.text
+
     @Override
     protected void setUp() throws Exception {
         super.setUp();
@@ -224,4 +244,5 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
 
         uiSpecPanel = new Panel(jenkinsConfigurationPanel.getRootPanel());
     }
+
 }

@@ -9,7 +9,7 @@
     <properties>
         <intellij.sdk.name>IDEA 9886</intellij.sdk.name>
         <intellij.sdk.version>8.1.3</intellij.sdk.version>
-        <intellij.lib.path>E:/Dev/intellij-sdk-8.1.3/lib</intellij.lib.path>
+        <intellij.lib.path>/home/dboissier/incubator/libs/idea-8.1.3-jdk15/lib</intellij.lib.path>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -53,11 +53,6 @@
             <version>1.0</version>
         </dependency>
         <dependency>
-            <groupId>hudson.cli</groupId>
-            <artifactId>jenkins-cli</artifactId>
-            <version>1.396</version>
-        </dependency>
-        <dependency>
             <groupId>com.intellij</groupId>
             <artifactId>forms_rt</artifactId>
             <version>${intellij.sdk.version}</version>
@@ -67,8 +62,26 @@
             <artifactId>idea-openapi</artifactId>
             <version>${intellij.sdk.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <version>3.1</version>
+        </dependency>
+        
         <!-- Test dependencies -->
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient-contrib-ssl</artifactId>
+            <version>3.1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>jetty</artifactId>
+            <version>6.1.11</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -133,14 +146,14 @@
             <systemPath>${intellij.lib.path}/util.jar</systemPath>
             <version>${intellij.sdk.version}</version>
         </dependency>
-        
-        <dependency>
-            <groupId>com.intellij</groupId>
-            <artifactId>idea-resources-en</artifactId>
-            <scope>system</scope>
-            <systemPath>${intellij.lib.path}/resources_en.jar</systemPath>
-            <version>${intellij.sdk.version}</version>
-        </dependency>
+        <!---->
+        <!--<dependency>-->
+            <!--<groupId>com.intellij</groupId>-->
+            <!--<artifactId>idea-resources-en</artifactId>-->
+            <!--<scope>system</scope>-->
+            <!--<systemPath>${intellij.lib.path}/resources_en.jar</systemPath>-->
+            <!--<version>${intellij.sdk.version}</version>-->
+        <!--</dependency>-->
     </dependencies>
 
     <build>

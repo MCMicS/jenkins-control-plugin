@@ -1,8 +1,9 @@
-/********************************************/
-/* Jenkins Control Plugin for IntelliJ IDEA */
-/* ChangeLog :                              */
-/*            - 0.1: Initial version        */
-/********************************************/
+/**********************************************************/
+/* Jenkins Control Plugin for IntelliJ IDEA               */
+/* ChangeLog :                                            */
+/*            - 0.1: Initial version                      */
+/*            - 0.2: Add security support (based on CLI   */
+/**********************************************************/
 
 Description : This plugin allows to view the content of your Jenkins Continous Integration Server.
 
@@ -53,5 +54,5 @@ I would like to thank
 - Kohsuke Kawaguchi for providing us such a great CI server
 - Sébastian Le Merdy for providing support for Eclipse version
 - Jetbrains Team for providing us an incredible IDE (certainly the best that Java developers could have).
-- Guys from XP Monday Group : Boris Gonnot, Regis Medina, Sébastien Crego, Olivier Catteau, Jean Baptiste Potonnier and others who gave be the XP virus and some other Agile ones.
+- Guys from XP Monday Group : Boris Gonnot, Regis Medina, Sébastien Crego, Olivier Catteau, Jean Baptiste Potonnier and others who gave be the XP virus.
 - My wife and my daughter who support me to have fun in software development and also remind me my husband/father duty ;).

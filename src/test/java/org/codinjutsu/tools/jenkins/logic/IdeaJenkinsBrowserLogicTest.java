@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2011 David Boissier
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.codinjutsu.tools.jenkins.logic;
 
 
@@ -7,10 +23,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.uispec4j.ComboBox;
-import org.uispec4j.Panel;
-import org.uispec4j.Tree;
-import org.uispec4j.UISpecTestCase;
+import org.uispec4j.*;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -45,16 +58,22 @@ public class IdeaJenkinsBrowserLogicTest extends UISpecTestCase {
         comboBox.contains("Vue 1", "All").check();
         comboBox.selectionEquals("All").check();
 
-        Tree jobTree = panel.getTree("jobTree");
+        Tree jobTree = getJobTree(panel);
         jobTree.contentEquals("Jenkins (master)").check();
 
         comboBox.select("Vue 1");
 
-        panel.getTree("jobTree");
+        getJobTree(panel);
         jobTree.contentEquals(
                 "Jenkins (master)\n" +
                         "  mint #150\n" +
                         "  capri #15 (running) #(bold)\n").check();
+    }
+
+    private Tree getJobTree(Panel panel) {
+        Tree jobTree = panel.getTree("jobTree");
+        jobTree.setCellValueConverter(new DefaultTreeCellValueConverter());
+        return jobTree;
     }
 
 
@@ -89,12 +108,12 @@ public class IdeaJenkinsBrowserLogicTest extends UISpecTestCase {
 
         jenkins.setPrimaryView(View.createView("All", "http://myjenkinsserver/"));
 
-        Job mintJob = Job.createJob("mint", "blue", "http://myjenkinsserver/mint", "false");
+        Job mintJob = Job.createJob("mint", "blue", "health-80plus", "http://myjenkinsserver/mint", "false");
         mintJob.setLastBuild(Build.createBuild("http://myjenkinsserver/mint/150",
                 "150",
                 BuildStatusEnum.SUCCESS.getStatus(),
                 "false"));
-        Job capriJob = Job.createJob("capri", "red", "http://myjenkinsserver/capri", "false");
+        Job capriJob = Job.createJob("capri", "red", "health-00to19", "http://myjenkinsserver/capri", "false");
         capriJob.setLastBuild(Build.createBuild("http://myjenkinsserver/capri/15",
                 "15",
                 BuildStatusEnum.FAILURE.getStatus(),
