@@ -33,10 +33,10 @@ class SSLSecurityClient implements SecurityClient {
 
     private HttpClient client;
 
-    private String username;
+    private final String username;
 
-    private String password;
-    private ProtocolSocketFactory protocolSocketFactory;
+    private final String password;
+    private final ProtocolSocketFactory protocolSocketFactory;
 
 
     SSLSecurityClient() {

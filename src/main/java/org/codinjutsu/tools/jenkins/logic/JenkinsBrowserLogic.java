@@ -22,7 +22,7 @@ import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.model.View;
-import org.codinjutsu.tools.jenkins.view.JenkinsBrowserView;
+import org.codinjutsu.tools.jenkins.view.JenkinsBrowserPanel;
 import org.jdom.JDOMException;
 
 import java.io.IOException;
@@ -30,16 +30,16 @@ import java.util.*;
 import java.util.Map.Entry;
 
 //TODO gérer les exception JDOM et IO autrements
-abstract class JenkinsBrowserLogic<V extends JenkinsBrowserView> {
+abstract class JenkinsBrowserLogic {
 
     private static final Logger LOG = Logger.getLogger(JenkinsBrowserLogic.class);
 
     private static final int MILLISECONDS = 1000;
     private static final int MINUTES = 60 * MILLISECONDS;
 
-    private final V view;
+    private final JenkinsBrowserPanel view;
     private final JenkinsConfiguration configuration;
-    protected final JenkinsRequestManager jenkinsRequestManager;
+    private final JenkinsRequestManager jenkinsRequestManager;
 
     private Jenkins jenkins;
     private final Map<String, Build> currentBuildMap = new HashMap<String, Build>();
@@ -48,7 +48,7 @@ abstract class JenkinsBrowserLogic<V extends JenkinsBrowserView> {
 
     JenkinsBrowserLogic(JenkinsConfiguration configuration,
                         JenkinsRequestManager jenkinsRequestManager,
-                        V view) {
+                        JenkinsBrowserPanel view) {
         this.configuration = configuration;
         this.jenkinsRequestManager = jenkinsRequestManager;
         this.view = view;
@@ -113,6 +113,7 @@ abstract class JenkinsBrowserLogic<V extends JenkinsBrowserView> {
             displayConnectionErrorMsg();
         }
     }
+
 
     public void loadSelectedJob() {
         try {
@@ -213,17 +214,17 @@ abstract class JenkinsBrowserLogic<V extends JenkinsBrowserView> {
     }
 
 
-    public View getSelectedJenkinsView() {
-        return view.getSelectedJenkinsView();
-    }
-
-
     public Job getSelectedJob() {
         return view.getSelectedJob();
     }
 
 
-    public V getView() {
+    private View getSelectedJenkinsView() {
+        return view.getSelectedJenkinsView();
+    }
+
+
+    public JenkinsBrowserPanel getView() {
         return view;
     }
 

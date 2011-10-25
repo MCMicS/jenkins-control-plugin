@@ -24,11 +24,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.uispec4j.*;
 import org.uispec4j.Panel;
-import org.uispec4j.finder.ComponentMatcher;
-
-import javax.swing.*;
-
-import java.awt.*;
 
 import static org.codinjutsu.tools.jenkins.JenkinsConfiguration.DEFAULT_BUILD_DELAY;
 import static org.codinjutsu.tools.jenkins.JenkinsConfiguration.DEFAULT_JENKINS_SERVER_URL;
@@ -237,7 +232,7 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         MockitoAnnotations.initMocks(this);
-        jenkinsConfigurationPanel = new JenkinsConfigurationPanel(jenkinsRequestManager, false);
+        jenkinsConfigurationPanel = new JenkinsConfigurationPanel(jenkinsRequestManager);
 
         configuration = new JenkinsConfiguration();
         jenkinsConfigurationPanel.loadConfigurationData(configuration);

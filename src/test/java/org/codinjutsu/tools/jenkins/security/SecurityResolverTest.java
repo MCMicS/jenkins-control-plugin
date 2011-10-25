@@ -30,21 +30,21 @@ public class SecurityResolverTest {
     @Ignore
     public void testResolveSSLSecurity() throws Exception {
 
-        SecurityMode securityMode = SecurityResolver.resolve(new URL("https://localhost:8443/"));
+        SecurityMode securityMode = SecurityResolver.resolve("https://localhost:8443/");
         assertThat(securityMode, equalTo(SecurityMode.SSL));
     }
 
     @Test
     @Ignore
     public void testResolveNoSecurity() throws Exception {
-        SecurityMode securityMode = SecurityResolver.resolve(new URL("http://localhost:8080/"));
+        SecurityMode securityMode = SecurityResolver.resolve("http://localhost:8080/");
         assertThat(securityMode, equalTo(SecurityMode.NONE));
     }
 
     @Test
     @Ignore
     public void testResolveJenkinsSecurity() throws Exception {
-        SecurityMode securityMode = SecurityResolver.resolve(new URL("http://localhost:8080/"));
+        SecurityMode securityMode = SecurityResolver.resolve("http://localhost:8080/");
         assertThat(securityMode, equalTo(SecurityMode.BASIC));
     }
 }

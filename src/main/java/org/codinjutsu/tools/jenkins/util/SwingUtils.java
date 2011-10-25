@@ -16,7 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.util;
 
-import org.codinjutsu.tools.jenkins.action.ThreadFunctor;
+import org.codinjutsu.tools.jenkins.view.action.ThreadFunctor;
 
 import javax.swing.*;
 

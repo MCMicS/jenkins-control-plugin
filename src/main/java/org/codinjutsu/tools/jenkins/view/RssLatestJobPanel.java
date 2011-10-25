@@ -16,7 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
-import org.codinjutsu.tools.jenkins.action.ThreadFunctor;
+import org.codinjutsu.tools.jenkins.view.action.ThreadFunctor;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
@@ -31,7 +31,7 @@ import java.util.Map.Entry;
 
 import static org.codinjutsu.tools.jenkins.model.BuildStatusEnum.SUCCESS;
 
-public class RssLatestJobPanel implements RssLatestJobView {
+public class RssLatestJobPanel {
     private JPanel rssContentPanel;
     private JPanel rootPanel;
 

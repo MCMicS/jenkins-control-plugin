@@ -14,32 +14,26 @@
  * limitations under the License.
  */
 
-package org.codinjutsu.tools.jenkins.action;
+package org.codinjutsu.tools.jenkins.view.action;
 
-import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import org.codinjutsu.tools.jenkins.logic.IdeaJenkinsBrowserLogic;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
-import org.codinjutsu.tools.jenkins.view.JenkinsBrowserView;
 
-abstract class AbstractGotoWebPageAction extends AnAction {
-    final JenkinsBrowserView jenkinsBrowserPanel;
+public class RefreshRssAction extends AnAction {
+
+    private final IdeaJenkinsBrowserLogic logic;
 
 
-    AbstractGotoWebPageAction(String label,
-                              String description,
-                              String iconFilename,
-                              JenkinsBrowserView jenkinsBrowserPanel) {
-        super(label, description, GuiUtil.loadIcon(iconFilename));
-        this.jenkinsBrowserPanel = jenkinsBrowserPanel;
+    public RefreshRssAction(IdeaJenkinsBrowserLogic logic) {
+        super("Refresh last completed builds", "Refresh last completed builds from Jenkins server", GuiUtil.loadIcon("rss.png"));
+        this.logic = logic;
     }
 
 
-    protected abstract String getUrl();
-
-
     @Override
-    public void actionPerformed(AnActionEvent event) {
-        BrowserUtil.launchBrowser(getUrl());
+    public void actionPerformed(AnActionEvent e) {
+        logic.refreshLatestCompletedBuilds();
     }
 }

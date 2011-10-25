@@ -247,7 +247,7 @@ public class JenkinsRequestManager {
     }
 
 
-    private List<Job> createJenkinsJobs(Document doc) throws JDOMException, IOException {
+    private List<Job> createJenkinsJobs(Document doc) {
         List<Element> jobElements = doc.getRootElement().getChildren(JOB);
         List<Job> jobs = new LinkedList<Job>();
         for (Element jobElement : jobElements) {

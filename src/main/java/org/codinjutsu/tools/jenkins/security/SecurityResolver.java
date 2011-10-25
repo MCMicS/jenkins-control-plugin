@@ -16,31 +16,53 @@
 
 package org.codinjutsu.tools.jenkins.security;
 
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 public class SecurityResolver {
 
-    public static SecurityMode resolve(URL url) throws Exception {
+    public static SecurityMode resolve(String serverUrl) throws AuthenticationException {
+
+        URL url;
+        try {
+            url = new URL(serverUrl);
+        } catch (MalformedURLException urlEx) {
+            throw new AuthenticationException(urlEx.getMessage());
+        }
 
         String protocol = url.getProtocol();
         if ("https".equals(protocol.toLowerCase())) {
             return SecurityMode.SSL;
         }
 
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        con.connect();
 
-        if (con.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN) {
-            return SecurityMode.BASIC;
+        HttpURLConnection con;
+        try {
+            con = (HttpURLConnection) url.openConnection();
+            con.connect();
+
+            if (con.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN) {
+                return SecurityMode.BASIC;
+            }
+        } catch (IOException ioEx) {
+            throw new AuthenticationException(ioEx.getMessage());
         }
 
-        String jenkinsHeader = con.getHeaderField("X-Jenkins");
+        String jenkinsHeader = getServerHeader(con);
         if (jenkinsHeader == null) {
             throw new AuthenticationException("This URL doesn't look like Jenkins.");
         }
 
         return SecurityMode.NONE;
+    }
+
+    private static String getServerHeader(HttpURLConnection con) {
+        String jenkinsHeader = con.getHeaderField("X-Jenkins");
+        if (jenkinsHeader == null) {
+            jenkinsHeader = con.getHeaderField("X-Hudson");
+        }
+        return jenkinsHeader;
     }
 }

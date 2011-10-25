@@ -22,7 +22,7 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.ui.PopupHandler;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
-import org.codinjutsu.tools.jenkins.action.*;
+import org.codinjutsu.tools.jenkins.view.action.*;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.view.JenkinsBrowserPanel;
@@ -33,7 +33,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Map;
 
-public class IdeaJenkinsBrowserLogic extends JenkinsBrowserLogic<JenkinsBrowserPanel> {
+public class IdeaJenkinsBrowserLogic extends JenkinsBrowserLogic {
 
     private static final String JENKINS_JOB_ACTION_GROUP = "JenkinsJobGroup";
     private static final String JENKINS_RSS_ACTIONS = "JenkinsRssActions";

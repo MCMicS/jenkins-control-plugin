@@ -19,11 +19,11 @@ package org.codinjutsu.tools.jenkins.view;
 import javax.swing.*;
 import java.awt.*;
 
-public class CompositeIcon extends ImageIcon {
+class CompositeIcon extends ImageIcon {
 
     private final Icon[] icons;
 
-    public CompositeIcon(Icon... icons) {
+    CompositeIcon(Icon... icons) {
         this.icons = icons;
     }
 

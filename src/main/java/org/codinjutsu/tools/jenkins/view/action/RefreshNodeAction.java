@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.codinjutsu.tools.jenkins.action;
+package org.codinjutsu.tools.jenkins.view.action;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -24,7 +24,7 @@ import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
 public class RefreshNodeAction extends AnAction {
 
-    private IdeaJenkinsBrowserLogic logic;
+    private final IdeaJenkinsBrowserLogic logic;
 
 
     public RefreshNodeAction(IdeaJenkinsBrowserLogic logic) {

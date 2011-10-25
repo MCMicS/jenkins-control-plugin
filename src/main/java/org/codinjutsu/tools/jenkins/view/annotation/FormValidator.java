@@ -26,10 +26,11 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings({"unchecked"})
 public class FormValidator<T extends JComponent> {
 
-    private JenkinsConfigurationPanel formToValidate;
-    private HashMap<T, UIValidator<T>> uiValidatorByUiComponent = new HashMap<T, UIValidator<T>>();
+    private final JenkinsConfigurationPanel formToValidate;
+    private final HashMap<T, UIValidator<T>> uiValidatorByUiComponent = new HashMap<T, UIValidator<T>>();
 
 
     private FormValidator(JenkinsConfigurationPanel formToValidate) {
@@ -40,7 +41,7 @@ public class FormValidator<T extends JComponent> {
         return new FormValidator(formToValidate);
     }
 
-    public FormValidator  addValidator(T componentToValidate, UIValidator<T> validator) {
+    public FormValidator addValidator(T componentToValidate, UIValidator<T> validator) {
         uiValidatorByUiComponent.put(componentToValidate, validator);
         return this;
     }

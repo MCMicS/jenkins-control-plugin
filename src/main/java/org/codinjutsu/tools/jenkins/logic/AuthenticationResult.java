@@ -33,21 +33,7 @@ public enum AuthenticationResult {
         this.label = label;
     }
 
-    public int getId() {
-        return id;
-    }
-
     public String getLabel() {
         return label;
-    }
-
-    public static AuthenticationResult find(int id) {
-        for (AuthenticationResult authenticationResult : AuthenticationResult.values()) {
-            if (authenticationResult.getId() == id) {
-                return authenticationResult;
-            }
-        }
-
-        return null;
     }
 }

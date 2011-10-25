@@ -27,7 +27,7 @@ import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.util.List;
 
-public class JenkinsBrowserPanel extends JPanel implements JenkinsBrowserView {
+public class JenkinsBrowserPanel extends JPanel {
     private JComboBox viewCombo;
     private JTree jobTree;
     private JPanel rootPanel;

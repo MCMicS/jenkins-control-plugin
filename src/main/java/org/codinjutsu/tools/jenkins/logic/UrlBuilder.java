@@ -51,7 +51,7 @@ class UrlBuilder {
         return new URL(URIUtil.encodePathQuery(jobUrl + API_XML + TREE_PARAM + BASIC_JOB_INFO));
     }
 
-    public URL createRssLatestUrl(String serverUrl) throws MalformedURLException, URIException {
+    public URL createRssLatestUrl(String serverUrl) throws MalformedURLException {
         return new URL(serverUrl + RSS_LATEST);
     }
 

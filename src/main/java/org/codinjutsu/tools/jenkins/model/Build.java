@@ -24,13 +24,13 @@ import static org.codinjutsu.tools.jenkins.model.BuildStatusEnum.SUCCESS;
 
 public class Build {
 
-    private String buildUrl;
+    private final String buildUrl;
 
-    private int number;
+    private final int number;
 
-    private BuildStatusEnum status;
+    private final BuildStatusEnum status;
 
-    private boolean building;
+    private final boolean building;
 
 
     private Build(String buildUrl, int number, BuildStatusEnum status, boolean isBuilding) {
@@ -73,7 +73,7 @@ public class Build {
 
     public boolean isDisplayable(Build currentBuild) {
         return this.isAfter(currentBuild) &&
-                (BuildStatusEnum.ABORTED.equals(this.getStatus()) || !this.hasSameSuccessThan(currentBuild));
+                (BuildStatusEnum.ABORTED.equals(this.getStatus()) || this.hasNotSameSuccessThan(currentBuild));
     }
 
 
@@ -82,8 +82,8 @@ public class Build {
     }
 
 
-    private boolean hasSameSuccessThan(Build aBuild) {
-        return this.isSuccess() && aBuild.isSuccess();
+    private boolean hasNotSameSuccessThan(Build aBuild) {
+        return !(this.isSuccess() && aBuild.isSuccess());
     }
 
 

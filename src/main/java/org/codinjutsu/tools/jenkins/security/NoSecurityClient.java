@@ -25,7 +25,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 class NoSecurityClient implements SecurityClient {
-    private HttpClient client;
+    private final HttpClient client;
 
 
     NoSecurityClient() {

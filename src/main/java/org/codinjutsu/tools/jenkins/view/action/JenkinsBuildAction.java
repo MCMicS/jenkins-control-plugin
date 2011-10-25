@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.codinjutsu.tools.jenkins.action;
+package org.codinjutsu.tools.jenkins.view.action;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -29,12 +29,10 @@ import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.util.HtmlUtil;
 
-import java.io.IOException;
-
 public class JenkinsBuildAction extends AnAction {
 
     private static final Logger LOG = Logger.getLogger(JenkinsBuildAction.class.getName());
-    private IdeaJenkinsBrowserLogic jenkinsBrowserLogic;
+    private final IdeaJenkinsBrowserLogic jenkinsBrowserLogic;
 
 
     public JenkinsBuildAction(IdeaJenkinsBrowserLogic jenkinsBrowserLogic) {

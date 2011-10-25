@@ -25,22 +25,20 @@ import javax.swing.*;
  */
 public enum BuildStatusEnum {
 
-    SUCCESS("Success", "blue", "blue.png"),
-    FAILURE("Failure", "red", "red.png"),
-    NULL("Null", "disabled", "grey.png"),
-    UNSTABLE("Unstable", "yellow", "yellow.png"),
-    STABLE("Stable", "blue", "blue.png"),
-    ABORTED("Aborted","aborted", "grey.png")
+    SUCCESS("Success", "blue"),
+    FAILURE("Failure", "red"),
+    NULL("Null", "disabled"),
+    UNSTABLE("Unstable", "yellow"),
+    STABLE("Stable", "blue"),
+    ABORTED("Aborted","aborted")
     ;
     private final String status;
     private final String color;
-    private final Icon icon;
 
 
-    BuildStatusEnum(String status, String color, String iconName) {
+    BuildStatusEnum(String status, String color) {
         this.status = status;
         this.color = color;
-        this.icon = GuiUtil.loadIcon(iconName);
     }
 
 
@@ -54,7 +52,4 @@ public enum BuildStatusEnum {
     }
 
 
-    public Icon getIcon() {
-        return icon;
-    }
 }

@@ -23,23 +23,24 @@ public class JenkinsConfiguration {
     public static final String DEFAULT_JENKINS_SERVER_URL = "http://dummyjenkinsserver";
     public static final int DEFAULT_BUILD_DELAY = 0;
     public static final int RESET_PERIOD_VALUE = 0;
-    public static final String RESET_STR_VALUE = "";
+
+    private static final String RESET_STR_VALUE = "";
 
     private String serverUrl = DEFAULT_JENKINS_SERVER_URL;
+
     private int delay = DEFAULT_BUILD_DELAY;
+
+    private SecurityMode securityMode = SecurityMode.NONE;
+    private String username = RESET_STR_VALUE;
+    private String password = RESET_STR_VALUE;
 
     private int jobRefreshPeriod = RESET_PERIOD_VALUE;
     private int rssRefreshPeriod = RESET_PERIOD_VALUE;
 
     private boolean enableJobAutoRefresh = false;
-
     private boolean enableRssAutoRefresh = false;
 
     private String preferredView = "";
-
-    private SecurityMode securityMode = SecurityMode.NONE;
-    private String username = RESET_STR_VALUE;
-    private String password = RESET_STR_VALUE;
 
 
     public String getServerUrl() {

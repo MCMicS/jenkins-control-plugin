@@ -14,25 +14,32 @@
  * limitations under the License.
  */
 
-package org.codinjutsu.tools.jenkins.action;
+package org.codinjutsu.tools.jenkins.view.action;
 
+import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import org.codinjutsu.tools.jenkins.logic.IdeaJenkinsBrowserLogic;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
+import org.codinjutsu.tools.jenkins.view.JenkinsBrowserPanel;
 
-public class CleanRssAction extends AnAction {
-    private IdeaJenkinsBrowserLogic logic;
+abstract class AbstractGotoWebPageAction extends AnAction {
+    final JenkinsBrowserPanel jenkinsBrowserPanel;
 
 
-    public CleanRssAction(IdeaJenkinsBrowserLogic logic) {
-        super("Clean last completed builds", "Clean last completed builds", GuiUtil.loadIcon("erase.png"));
-        this.logic = logic;
+    AbstractGotoWebPageAction(String label,
+                              String description,
+                              String iconFilename,
+                              JenkinsBrowserPanel jenkinsBrowserPanel) {
+        super(label, description, GuiUtil.loadIcon(iconFilename));
+        this.jenkinsBrowserPanel = jenkinsBrowserPanel;
     }
 
 
+    protected abstract String getUrl();
+
+
     @Override
-    public void actionPerformed(AnActionEvent e) {
-        logic.cleanRssEntries();
+    public void actionPerformed(AnActionEvent event) {
+        BrowserUtil.launchBrowser(getUrl());
     }
 }

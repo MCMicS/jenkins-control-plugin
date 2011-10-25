@@ -19,5 +19,5 @@ package org.codinjutsu.tools.jenkins.security;
 
 public enum SecurityMode {
 
-    NONE, BASIC, SSL, SSH;
+    NONE, BASIC, SSL, SSH
 }

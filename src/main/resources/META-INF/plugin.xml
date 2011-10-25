@@ -14,18 +14,18 @@
     <change-notes><![CDATA[
 Version 0.3:<br/>
 <ul>
-    <li>Browser Panel: Add health icon</li>
-    <li>Configuration Panel : Redesign the security options panel</li>
-    <li>Security Support : Rewrite from scratch with replacing CLI by HttpClient to support misc security protocols (see wiki for more info)</li>
-    <li>Fix issue # : When clicking on the Jenkins plugin settings button, the Jenkins plugin configuration should be always selected</li>
+    <li>[Add] Browser Panel: health icon for each job</li>
+    <li>[Update] Configuration Panel : Redesign the security options panel, add Wizard which try to resolve security configuration</li>
+    <li>[Update] Security Support : Rewrite from scratch with replacing CLI by HttpClient to support misc security protocols (see wiki for more info)</li>
+    <li>[Fix] issue # : When clicking on the Jenkins plugin settings button, the Jenkins plugin configuration should be always selected</li>
 </ul>
 Version 0.2:<br/>
 <ul>
-    <li>Add Jenkins Security Support (See https://github.com/dboissier/jenkins-control-plugin/wiki to check how to and see limitations)</li>
-    <li>Add Settings shortcut on the upper toolbar</li>
+    <li>[Add] Jenkins Security Support (See https://github.com/dboissier/jenkins-control-plugin/wiki to check how to and see limitations)</li>
+    <li>[Add] Settings shortcut on the upper toolbar</li>
 </ul>
     
-Version 0.1: Initial version including the following features<br/>
+Version 0.1: Initial version<br/>
 <ul>
     <li>Server configuration</li>
     <li>Jenkins jobs display with autorefreshed job list and view selection</li>

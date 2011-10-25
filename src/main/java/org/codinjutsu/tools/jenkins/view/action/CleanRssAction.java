@@ -14,26 +14,25 @@
  * limitations under the License.
  */
 
-package org.codinjutsu.tools.jenkins.action;
+package org.codinjutsu.tools.jenkins.view.action;
 
+import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import org.codinjutsu.tools.jenkins.view.JenkinsBrowserView;
+import org.codinjutsu.tools.jenkins.logic.IdeaJenkinsBrowserLogic;
+import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
-public class GotoJobPageAction extends AbstractGotoWebPageAction {
+public class CleanRssAction extends AnAction {
+    private final IdeaJenkinsBrowserLogic logic;
 
-    public GotoJobPageAction(JenkinsBrowserView jenkinsBrowserPanel) {
-        super("Go to the job page", "Open the job page in a web browser", "page_go.png", jenkinsBrowserPanel);
+
+    public CleanRssAction(IdeaJenkinsBrowserLogic logic) {
+        super("Clean last completed builds", "Clean last completed builds", GuiUtil.loadIcon("erase.png"));
+        this.logic = logic;
     }
 
 
     @Override
-    protected String getUrl() {
-        return jenkinsBrowserPanel.getSelectedJob().getUrl();
-    }
-
-
-    @Override
-    public void update(AnActionEvent event) {
-        event.getPresentation().setEnabled(jenkinsBrowserPanel.getSelectedJob() != null);
+    public void actionPerformed(AnActionEvent e) {
+        logic.cleanRssEntries();
     }
 }

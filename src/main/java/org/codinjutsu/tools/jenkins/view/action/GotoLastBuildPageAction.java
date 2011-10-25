@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package org.codinjutsu.tools.jenkins.action;
+package org.codinjutsu.tools.jenkins.view.action;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.codinjutsu.tools.jenkins.model.Job;
-import org.codinjutsu.tools.jenkins.view.JenkinsBrowserView;
+import org.codinjutsu.tools.jenkins.view.JenkinsBrowserPanel;
 
 public class GotoLastBuildPageAction extends AbstractGotoWebPageAction {
 
-    public GotoLastBuildPageAction(JenkinsBrowserView jenkinsBrowserPanel) {
+    public GotoLastBuildPageAction(JenkinsBrowserPanel jenkinsBrowserPanel) {
         super("Go to the latest build page",
                 "Open the latest build page in a web browser",
                 "page_gear.png", jenkinsBrowserPanel);

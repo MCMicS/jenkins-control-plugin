@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.codinjutsu.tools.jenkins.action;
+package org.codinjutsu.tools.jenkins.view.action;
 
 
 import com.intellij.openapi.actionSystem.AnAction;
@@ -34,13 +34,13 @@ public class OpenPluginSettingsAction extends AnAction {
     }
 
     @Override
-  public void actionPerformed(AnActionEvent e) {
-    showSettingsFor(getProject(e.getDataContext()));
-  }
+    public void actionPerformed(AnActionEvent e) {
+        showSettingsFor(getProject(e.getDataContext()));
+    }
 
-  protected static void showSettingsFor(Project project) {
-    ShowSettingsUtil.getInstance().showSettingsDialog(project, JenkinsControlComponent.class);
-  }
+    private static void showSettingsFor(Project project) {
+        ShowSettingsUtil.getInstance().showSettingsDialog(project, JenkinsControlComponent.class);
+    }
 
     private static Project getProject(DataContext dataContext) {
         return DataKeys.PROJECT.getData(dataContext);

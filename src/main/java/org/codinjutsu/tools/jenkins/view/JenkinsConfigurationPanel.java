@@ -16,18 +16,22 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
+import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
-import org.codinjutsu.tools.jenkins.action.ThreadFunctor;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.logic.AuthenticationResult;
 import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
+import org.codinjutsu.tools.jenkins.security.AuthenticationException;
 import org.codinjutsu.tools.jenkins.security.SecurityMode;
+import org.codinjutsu.tools.jenkins.security.SecurityResolver;
+import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.util.SwingUtils;
+import org.codinjutsu.tools.jenkins.view.action.ThreadFunctor;
 import org.codinjutsu.tools.jenkins.view.annotation.FormValidator;
 import org.codinjutsu.tools.jenkins.view.annotation.GuiField;
 import org.codinjutsu.tools.jenkins.view.security.BasicCredentialPanel;
 import org.codinjutsu.tools.jenkins.view.validator.UIValidator;
-import org.mockito.Mockito;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -35,6 +39,7 @@ import java.awt.event.*;
 
 import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.*;
 
+@SuppressWarnings({"unchecked"})
 public class JenkinsConfigurationPanel {
 
     private static final Color CONNECTION_TEST_SUCCESSFUL_COLOR = new Color(0, 165, 0);
@@ -71,25 +76,23 @@ public class JenkinsConfigurationPanel {
 
     private JLabel securityDescriptionLabel;
 
+    private JButton discoverButton;
+
     private JPanel cardPanel;
-    private JButton button1;
-    private CardLayout cardLayout;
+    private final CardLayout cardLayout;
 
 
-    private FormValidator formValidator;
+    private final FormValidator formValidator;
 
     private SecurityMode securityMode = SecurityMode.NONE;
 
-    private BasicCredentialPanel credentialPanel = new BasicCredentialPanel();
-    private ButtonGroup securityModeGroup;
+    private final JenkinsRequestManager jenkinsRequestManager;
+
+    private final BasicCredentialPanel credentialPanel = new BasicCredentialPanel();
 
 
     public JenkinsConfigurationPanel(final JenkinsRequestManager jenkinsRequestManager) {
-        this(jenkinsRequestManager, true);
-    }
-
-    JenkinsConfigurationPanel(final JenkinsRequestManager jenkinsRequestManager, boolean installBrowserFileBrowser) {
-
+        this.jenkinsRequestManager = jenkinsRequestManager;
 
         serverUrl.setName("serverUrl");
         buildDelay.setName("buildDelay");
@@ -102,6 +105,8 @@ public class JenkinsConfigurationPanel {
         basicRadioButton.setName("basicRadioButton");
         sslRadioButton.setName("sslRadioButton");
 
+        discoverButton.setToolTipText("Discover the Security Configuration of your Jenkins Server");
+        discoverButton.setIcon(GuiUtil.loadIcon("wand.png"));
 
         cardLayout = new CardLayout();
         cardPanel.setLayout(cardLayout);
@@ -112,10 +117,6 @@ public class JenkinsConfigurationPanel {
 
         initListeners();
 
-        if (installBrowserFileBrowser) {
-//            credentialPanel.addBrowserLinkToPasswordFile();
-        }
-
         formValidator = FormValidator.init(this).addValidator(basicRadioButton, new UIValidator<JRadioButton>() {
             public void validate(JRadioButton component) throws ConfigurationException {
                 if (basicRadioButton.isSelected()) {
@@ -124,26 +125,7 @@ public class JenkinsConfigurationPanel {
             }
         });
 
-        testConnexionButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                final AuthenticationResult authResult = jenkinsRequestManager.authenticate(
-                        serverUrl.getText(), securityMode, credentialPanel.getUsernameValue(), credentialPanel.getPasswordValue());
 
-
-                SwingUtils.runInSwingThread(new ThreadFunctor() {
-                    public void run() {
-                        Color foregroundColor = CONNECTION_TEST_FAILED_COLOR;
-                        if (AuthenticationResult.SUCCESSFULL.equals(authResult)) {
-                            foregroundColor = CONNECTION_TEST_SUCCESSFUL_COLOR;
-                        }
-
-                        connectionStatusLabel.setForeground(foregroundColor);
-                        connectionStatusLabel.setText(authResult.getLabel());
-                    }
-                });
-
-            }
-        });
     }
 
 
@@ -200,7 +182,7 @@ public class JenkinsConfigurationPanel {
     }
 
 
-    private void setSecurityMode(SecurityMode securityMode, String username, String passwordFile) {
+    private void setSecurityMode(SecurityMode securityMode, @Nullable String username, @Nullable String passwordFile) {
         cardLayout.show(cardPanel, securityMode.name());
         if (SecurityMode.BASIC.equals(securityMode)) {
             credentialPanel.updateFields(username, passwordFile);
@@ -222,13 +204,52 @@ public class JenkinsConfigurationPanel {
     private void initListeners() {
         String resetPeriodValue = Integer.toString(JenkinsConfiguration.RESET_PERIOD_VALUE);
 
+        testConnexionButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                final AuthenticationResult authResult = jenkinsRequestManager.authenticate(
+                        serverUrl.getText(), securityMode, credentialPanel.getUsernameValue(), credentialPanel.getPasswordValue());
+
+
+                SwingUtils.runInSwingThread(new ThreadFunctor() {
+                    public void run() {
+                        Color foregroundColor = CONNECTION_TEST_FAILED_COLOR;
+                        if (AuthenticationResult.SUCCESSFULL.equals(authResult)) {
+                            foregroundColor = CONNECTION_TEST_SUCCESSFUL_COLOR;
+                        }
+
+                        connectionStatusLabel.setForeground(foregroundColor);
+                        connectionStatusLabel.setText(authResult.getLabel());
+                    }
+                });
+
+            }
+        });
+
+        discoverButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent actionEvent) {
+                if (StringUtils.isNotEmpty(serverUrl.getText())) {
+                    try {
+                        SecurityMode securityMode = SecurityResolver.resolve(serverUrl.getText());
+                        setSecurityMode(securityMode, null, null);
+                    } catch (final AuthenticationException authEx) {
+                        SwingUtils.runInSwingThread(new ThreadFunctor() {
+                            public void run() {
+                                connectionStatusLabel.setForeground(CONNECTION_TEST_FAILED_COLOR);
+                                connectionStatusLabel.setText(authEx.getMessage());
+                            }
+                        });
+                    }
+                }
+            }
+        });
+
         enableJobAutoRefresh.addItemListener(new EnablerFieldListener(enableJobAutoRefresh,
                 jobRefreshPeriod, resetPeriodValue));
         enableRssAutoRefresh.addItemListener(new EnablerFieldListener(enableRssAutoRefresh,
                 rssRefreshPeriod, resetPeriodValue));
 
 
-        securityModeGroup = new ButtonGroup();
+        ButtonGroup securityModeGroup = new ButtonGroup();
         securityModeGroup.add(noneRadioButton);
         securityModeGroup.add(basicRadioButton);
         securityModeGroup.add(sslRadioButton);
@@ -310,21 +331,5 @@ public class JenkinsConfigurationPanel {
         public void mouseExited(MouseEvent e) {
             securityDescriptionLabel.setText("");
         }
-    }
-
-
-    public static void main(String[] args) throws Exception {
-        JenkinsRequestManager jenkinsRequestManager = Mockito.mock(JenkinsRequestManager.class);
-        JenkinsConfigurationPanel jenkinsConfigurationPanel = new JenkinsConfigurationPanel(jenkinsRequestManager, false);
-
-        JenkinsConfiguration configuration = new JenkinsConfiguration();
-        jenkinsConfigurationPanel.loadConfigurationData(configuration);
-
-        JFrame frame = new JFrame("test");
-        frame.setLayout(new BorderLayout());
-        frame.add(jenkinsConfigurationPanel.getRootPanel());
-        frame.setSize(400, 300);
-        frame.setVisible(true);
-
     }
 }

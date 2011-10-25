@@ -14,26 +14,26 @@
  * limitations under the License.
  */
 
-package org.codinjutsu.tools.jenkins.action;
+package org.codinjutsu.tools.jenkins.view.action;
 
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import org.codinjutsu.tools.jenkins.logic.IdeaJenkinsBrowserLogic;
-import org.codinjutsu.tools.jenkins.util.GuiUtil;
+import org.codinjutsu.tools.jenkins.view.JenkinsBrowserPanel;
 
-public class RefreshRssAction extends AnAction {
+public class GotoJobPageAction extends AbstractGotoWebPageAction {
 
-    private IdeaJenkinsBrowserLogic logic;
-
-
-    public RefreshRssAction(IdeaJenkinsBrowserLogic logic) {
-        super("Refresh last completed builds", "Refresh last completed builds from Jenkins server", GuiUtil.loadIcon("rss.png"));
-        this.logic = logic;
+    public GotoJobPageAction(JenkinsBrowserPanel jenkinsBrowserPanel) {
+        super("Go to the job page", "Open the job page in a web browser", "page_go.png", jenkinsBrowserPanel);
     }
 
 
     @Override
-    public void actionPerformed(AnActionEvent e) {
-        logic.refreshLatestCompletedBuilds();
+    protected String getUrl() {
+        return jenkinsBrowserPanel.getSelectedJob().getUrl();
+    }
+
+
+    @Override
+    public void update(AnActionEvent event) {
+        event.getPresentation().setEnabled(jenkinsBrowserPanel.getSelectedJob() != null);
     }
 }

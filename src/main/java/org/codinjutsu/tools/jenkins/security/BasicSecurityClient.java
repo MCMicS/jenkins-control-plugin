@@ -31,11 +31,11 @@ class BasicSecurityClient implements SecurityClient {
 
     private URL master;
 
-    private String username;
+    private final String username;
 
-    private String password;
+    private final String password;
 
-    private HttpClient client;
+    private final HttpClient client;
 
     BasicSecurityClient(String username, String password) {
         this.client = new HttpClient();
@@ -80,8 +80,7 @@ class BasicSecurityClient implements SecurityClient {
     }
 
 
-    private void doAuthentication() throws IOException, InterruptedException,
-            AuthenticationException {
+    private void doAuthentication() throws IOException, AuthenticationException {
 
         if (username != null && password != null) {
             client.getState().setCredentials(
@@ -109,7 +108,7 @@ class BasicSecurityClient implements SecurityClient {
     }
 
 
-    protected void checkJenkinsSecurity() throws InterruptedException, AuthenticationException {
+    private void checkJenkinsSecurity() throws AuthenticationException {
         try {
             System.out.println("Connecting to " + master);
             HttpURLConnection con = (HttpURLConnection) master
