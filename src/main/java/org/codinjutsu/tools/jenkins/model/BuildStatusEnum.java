@@ -16,10 +16,6 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
-import org.codinjutsu.tools.jenkins.util.GuiUtil;
-
-import javax.swing.*;
-
 /**
  *
  */

@@ -16,11 +16,11 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
-import org.codinjutsu.tools.jenkins.view.action.ThreadFunctor;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.util.SwingUtils;
+import org.codinjutsu.tools.jenkins.view.action.ThreadFunctor;
 
 import javax.swing.*;
 import java.awt.*;

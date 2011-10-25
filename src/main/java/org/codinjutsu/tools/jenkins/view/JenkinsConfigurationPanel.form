@@ -245,8 +245,8 @@
           <component id="b8730" class="javax.swing.JButton" binding="discoverButton" default-binding="true">
             <constraints>
               <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
-                <preferred-size width="20" height="20"/>
-                <maximum-size width="20" height="20"/>
+                <preferred-size width="22" height="22"/>
+                <maximum-size width="22" height="22"/>
               </grid>
             </constraints>
             <properties>

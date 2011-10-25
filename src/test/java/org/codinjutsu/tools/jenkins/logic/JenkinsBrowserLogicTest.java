@@ -31,12 +31,12 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public class IdeaJenkinsBrowserLogicTest extends UISpecTestCase {
+public class JenkinsBrowserLogicTest extends UISpecTestCase {
 
     @Mock
     private JenkinsRequestManager requestManagerMock;
 
-    private IdeaJenkinsBrowserLogic jenkinsBrowserLogic;
+    private JenkinsBrowserLogic jenkinsBrowserLogic;
 
     private JenkinsConfiguration configuration;
 
@@ -52,7 +52,7 @@ public class IdeaJenkinsBrowserLogicTest extends UISpecTestCase {
 
         jenkinsBrowserLogic.init();
 
-        Panel panel = new Panel(jenkinsBrowserLogic.getView());
+        Panel panel = new Panel(jenkinsBrowserLogic.getBrowserPanel());
 
         ComboBox comboBox = panel.getComboBox("viewCombo");
         comboBox.contains("Vue 1", "All").check();
@@ -83,7 +83,7 @@ public class IdeaJenkinsBrowserLogicTest extends UISpecTestCase {
         configuration = new JenkinsConfiguration();
         configuration.setJobRefreshPeriod(60);
         configuration.setServerUrl("http://myjenkinsserver/");
-        jenkinsBrowserLogic = new IdeaJenkinsBrowserLogic(configuration, requestManagerMock) {
+        jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, requestManagerMock) {
             @Override
             protected void installRssActions(JPanel rssActionPanel) {
 

@@ -31,7 +31,7 @@ import com.intellij.ui.BrowserHyperlinkListener;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.xmlb.XmlSerializerUtil;
-import org.codinjutsu.tools.jenkins.logic.IdeaJenkinsBrowserLogic;
+import org.codinjutsu.tools.jenkins.logic.JenkinsBrowserLogic;
 import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.JenkinsConfigurationPanel;
@@ -58,7 +58,7 @@ public class JenkinsControlComponent
     private JenkinsConfigurationPanel configurationPanel;
 
     private final Project project;
-    private IdeaJenkinsBrowserLogic jenkinsBrowserLogic;
+    private JenkinsBrowserLogic jenkinsBrowserLogic;
     private JenkinsRequestManager jenkinsRequestManager;
 
 
@@ -125,11 +125,11 @@ public class JenkinsControlComponent
                 ToolWindowAnchor.RIGHT);
 
         jenkinsRequestManager = new JenkinsRequestManager();
-        jenkinsBrowserLogic = new IdeaJenkinsBrowserLogic(configuration, jenkinsRequestManager);
+        jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, jenkinsRequestManager);
         jenkinsBrowserLogic.init();
 
 
-        JPanel yourContentPanel = jenkinsBrowserLogic.getView();
+        JPanel yourContentPanel = jenkinsBrowserLogic.getBrowserPanel();
         Content content = ContentFactory.SERVICE.getInstance()
                 .createContent(yourContentPanel, JENKINS_BROWSER_TITLE, false);
         toolWindow.getContentManager().addContent(content);

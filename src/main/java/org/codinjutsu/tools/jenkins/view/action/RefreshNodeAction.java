@@ -18,16 +18,16 @@ package org.codinjutsu.tools.jenkins.view.action;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import org.codinjutsu.tools.jenkins.logic.IdeaJenkinsBrowserLogic;
+import org.codinjutsu.tools.jenkins.logic.JenkinsBrowserLogic;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
 public class RefreshNodeAction extends AnAction {
 
-    private final IdeaJenkinsBrowserLogic logic;
+    private final JenkinsBrowserLogic logic;
 
 
-    public RefreshNodeAction(IdeaJenkinsBrowserLogic logic) {
+    public RefreshNodeAction(JenkinsBrowserLogic logic) {
         super("Refresh", "Refresh current node", GuiUtil.loadIcon("loadingTree.png"));
         this.logic = logic;
     }

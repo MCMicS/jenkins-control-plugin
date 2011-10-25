@@ -24,18 +24,18 @@ import com.intellij.openapi.project.Project;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsControlComponent;
 import org.codinjutsu.tools.jenkins.logic.AuthenticationResult;
-import org.codinjutsu.tools.jenkins.logic.IdeaJenkinsBrowserLogic;
+import org.codinjutsu.tools.jenkins.logic.JenkinsBrowserLogic;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.util.HtmlUtil;
 
-public class JenkinsBuildAction extends AnAction {
+public class RunBuildAction extends AnAction {
 
-    private static final Logger LOG = Logger.getLogger(JenkinsBuildAction.class.getName());
-    private final IdeaJenkinsBrowserLogic jenkinsBrowserLogic;
+    private static final Logger LOG = Logger.getLogger(RunBuildAction.class.getName());
+    private final JenkinsBrowserLogic jenkinsBrowserLogic;
 
 
-    public JenkinsBuildAction(IdeaJenkinsBrowserLogic jenkinsBrowserLogic) {
+    public RunBuildAction(JenkinsBrowserLogic jenkinsBrowserLogic) {
         super("Build on Jenkins", "Run a build on Jenkins Server", GuiUtil.loadIcon("cog_go.png"));
         this.jenkinsBrowserLogic = jenkinsBrowserLogic;
     }

@@ -18,14 +18,14 @@ package org.codinjutsu.tools.jenkins.view.action;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import org.codinjutsu.tools.jenkins.logic.IdeaJenkinsBrowserLogic;
+import org.codinjutsu.tools.jenkins.logic.JenkinsBrowserLogic;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
 public class CleanRssAction extends AnAction {
-    private final IdeaJenkinsBrowserLogic logic;
+    private final JenkinsBrowserLogic logic;
 
 
-    public CleanRssAction(IdeaJenkinsBrowserLogic logic) {
+    public CleanRssAction(JenkinsBrowserLogic logic) {
         super("Clean last completed builds", "Clean last completed builds", GuiUtil.loadIcon("erase.png"));
         this.logic = logic;
     }

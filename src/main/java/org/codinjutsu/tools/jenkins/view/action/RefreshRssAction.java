@@ -18,15 +18,15 @@ package org.codinjutsu.tools.jenkins.view.action;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import org.codinjutsu.tools.jenkins.logic.IdeaJenkinsBrowserLogic;
+import org.codinjutsu.tools.jenkins.logic.JenkinsBrowserLogic;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
 public class RefreshRssAction extends AnAction {
 
-    private final IdeaJenkinsBrowserLogic logic;
+    private final JenkinsBrowserLogic logic;
 
 
-    public RefreshRssAction(IdeaJenkinsBrowserLogic logic) {
+    public RefreshRssAction(JenkinsBrowserLogic logic) {
         super("Refresh last completed builds", "Refresh last completed builds from Jenkins server", GuiUtil.loadIcon("rss.png"));
         this.logic = logic;
     }
