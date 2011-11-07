@@ -43,17 +43,11 @@ public class JenkinsRequestManagerTest {
     private JenkinsConfiguration configuration;
 
     @Mock
-    private UrlBuilder urlBuilderMock;
-
-    @Mock
     private SecurityClient securityClientMock;
 
 
     @Test
     public void loadJenkinsWorkSpace() throws Exception {
-
-        Mockito.when(urlBuilderMock.createJenkinsWorkspaceUrl(Mockito.any(JenkinsConfiguration.class)))
-                .thenReturn(JenkinsRequestManagerTest.class.getResource("JenkinsRequestManager_loadJenkinsWorkspace.xml"));
         Mockito.when(securityClientMock.executeAndGetResponseStream(Mockito.any(URL.class)))
                 .thenReturn(JenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadJenkinsWorkspace.xml"));
         Jenkins jenkins = requestManager.loadJenkinsWorkspace(configuration);
@@ -73,9 +67,6 @@ public class JenkinsRequestManagerTest {
 
     @Test
     public void loadView() throws Exception {
-
-        Mockito.when(urlBuilderMock.createViewUrl("http://myjenkins/"))
-                .thenReturn(JenkinsRequestManagerTest.class.getResource("JenkinsRequestManager_loadView.xml"));
         Mockito.when(securityClientMock.executeAndGetResponseStream(Mockito.any(URL.class)))
                 .thenReturn(JenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadView.xml"));
 
@@ -98,8 +89,8 @@ public class JenkinsRequestManagerTest {
 
     @Test
     public void buildLatestBuildList() throws Exception {
-        Mockito.when(urlBuilderMock.createRssLatestUrl(Mockito.anyString()))
-                .thenReturn(JenkinsRequestManagerTest.class.getResource("JenkinsRss.xml"));
+        Mockito.when(securityClientMock.executeAndGetResponseStream(Mockito.any(URL.class)))
+                .thenReturn(JenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRss.xml"));
 
         Map<String, Build> actualJobBuildMap = requestManager.loadJenkinsRssLatestBuilds(configuration);
 
@@ -129,7 +120,7 @@ public class JenkinsRequestManagerTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         configuration = new JenkinsConfiguration();
-        requestManager = new JenkinsRequestManager(urlBuilderMock, securityClientMock);
+        requestManager = new JenkinsRequestManager(securityClientMock);
     }
 
     private static class JobBuilder {

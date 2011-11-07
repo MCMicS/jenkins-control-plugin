@@ -73,7 +73,4 @@ class NoSecurityClient implements SecurityClient {
     }
 
 
-    public void close() throws Exception {
-
-    }
 }

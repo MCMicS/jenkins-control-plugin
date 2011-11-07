@@ -72,10 +72,6 @@ class BasicSecurityClient implements SecurityClient {
         if (HttpURLConnection.HTTP_INTERNAL_ERROR == statusCode) {
             throw new AuthenticationException("Server Internal Error");
         }
-
-        if (HttpURLConnection.HTTP_MOVED_TEMP == statusCode) {
-            throw new AuthenticationException("Temporary Redirection");
-        }
     }
 
     public InputStream executeAndGetResponseStream(URL url) throws Exception {
@@ -83,11 +79,6 @@ class BasicSecurityClient implements SecurityClient {
         client.executeMethod(post);
         checkStatusCode(post.getStatusCode());
         return post.getResponseBodyAsStream();
-    }
-
-
-    public void close() throws Exception {
-        client.getHttpConnectionManager().closeIdleConnections(10000);
     }
 
 

@@ -78,12 +78,12 @@ public class JenkinsRequestManager {
 
 
     public JenkinsRequestManager() {
-        this(new UrlBuilder(), SecurityClientFactory.none());
+        this(SecurityClientFactory.none());
     }
 
 
-    public JenkinsRequestManager(UrlBuilder urlBuilder, SecurityClient securityClient) {
-        this.urlBuilder = urlBuilder;
+    public JenkinsRequestManager(SecurityClient securityClient) {
+        this.urlBuilder = new UrlBuilder();
         this.securityClient = securityClient;
     }
 
@@ -108,12 +108,12 @@ public class JenkinsRequestManager {
     }
 
 
-    public Map<String, Build> loadJenkinsRssLatestBuilds(JenkinsConfiguration configuration) throws IOException, JDOMException {
+    public Map<String, Build> loadJenkinsRssLatestBuilds(JenkinsConfiguration configuration) throws Exception {
         URL url = urlBuilder.createRssLatestUrl(configuration.getServerUrl());
 
         InputStream inputStream = null;
         try {
-            inputStream = createInputStream(url);
+            inputStream = securityClient.executeAndGetResponseStream(url);
             Document doc = getXMLBuilder().build(inputStream);
 
             return createLatestBuildList(doc);

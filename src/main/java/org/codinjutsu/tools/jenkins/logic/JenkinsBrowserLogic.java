@@ -135,13 +135,10 @@ public class JenkinsBrowserLogic {
                         configuration);
                 displayFinishedBuilds(addLatestBuilds(latestBuild));
             }
-        } catch (JDOMException domEx) {
+        } catch (Exception domEx) {
             String errorMessage = buildServerErrorMessage(domEx);
             LOG.error(errorMessage, domEx);
             showErrorDialog(errorMessage, "Error during parsing Rss Data");
-        } catch (IOException ioEx) {
-            LOG.error(buildServerErrorMessage(ioEx), ioEx);
-            ioEx.printStackTrace();
         }
     }
 
