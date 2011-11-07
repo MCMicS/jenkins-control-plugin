@@ -30,7 +30,6 @@ import org.jdom.input.SAXBuilder;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
@@ -172,19 +171,9 @@ public class JenkinsRequestManager {
     }
 
 
-    public AuthenticationResult runBuild(Job job, JenkinsConfiguration configuration) throws IOException {
+    public void runBuild(Job job, JenkinsConfiguration configuration) throws Exception {
         URL url = urlBuilder.createRunJobUrl(job.getUrl(), configuration);
-
-        try {
-            securityClient.execute(url);
-            return AuthenticationResult.SUCCESSFULL;
-        } catch (Exception ex) {
-            if (ex.getMessage().contains(String.valueOf(HttpURLConnection.HTTP_FORBIDDEN))) {
-                return AuthenticationResult.UNAUTHORIZED;
-            } else {
-                return AuthenticationResult.FAILED;
-            }
-        }
+        securityClient.execute(url);
     }
 
 
@@ -192,7 +181,8 @@ public class JenkinsRequestManager {
         try {
             securityClient = SecurityClientFactory.create(securityMode, username, password);
 
-            securityClient.connect(new URL(serverUrl + TEST_CONNECTION_REQUEST));
+//            securityClient.connect(new URL(serverUrl + TEST_CONNECTION_REQUEST));
+            securityClient.connect(new URL(serverUrl));
             return AuthenticationResult.SUCCESSFULL;
 
         } catch (Exception e) {

@@ -64,9 +64,6 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
 
         RadioButton basicRadioButton = uiSpecPanel.getRadioButton("basicRadioButton");
         assertFalse(basicRadioButton.isSelected());
-
-        RadioButton sslRadioButton = uiSpecPanel.getRadioButton("sslRadioButton");
-        assertFalse(sslRadioButton.isSelected());
     }
 
 

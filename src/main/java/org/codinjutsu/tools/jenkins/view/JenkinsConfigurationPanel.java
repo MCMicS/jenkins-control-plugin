@@ -72,7 +72,7 @@ public class JenkinsConfigurationPanel {
 
     private JRadioButton noneRadioButton;
     private JRadioButton basicRadioButton;
-    private JRadioButton sslRadioButton;
+
 
     private JLabel securityDescriptionLabel;
 
@@ -103,7 +103,6 @@ public class JenkinsConfigurationPanel {
         preferredView.setName("preferredView");
         noneRadioButton.setName("noneRadioButton");
         basicRadioButton.setName("basicRadioButton");
-        sslRadioButton.setName("sslRadioButton");
 
         discoverButton.setToolTipText("Discover the Security Configuration of your Jenkins Server");
         discoverButton.setIcon(GuiUtil.loadIcon("wand.png"));
@@ -113,7 +112,6 @@ public class JenkinsConfigurationPanel {
 
         cardPanel.add(SecurityMode.NONE.name(), new JPanel());
         cardPanel.add(SecurityMode.BASIC.name(), credentialPanel);
-        cardPanel.add(SecurityMode.SSL.name(), new JPanel());
 
         initListeners();
 
@@ -187,8 +185,6 @@ public class JenkinsConfigurationPanel {
         if (SecurityMode.BASIC.equals(securityMode)) {
             credentialPanel.updateFields(username, passwordFile);
             basicRadioButton.setSelected(true);
-        } else if (SecurityMode.SSL.equals(securityMode)) {
-            sslRadioButton.setSelected(true);
         } else {
             credentialPanel.resetFields();
         }
@@ -229,8 +225,8 @@ public class JenkinsConfigurationPanel {
             public void actionPerformed(ActionEvent actionEvent) {
                 if (StringUtils.isNotEmpty(serverUrl.getText())) {
                     try {
-                        SecurityMode securityMode = SecurityResolver.resolve(serverUrl.getText());
-                        setSecurityMode(securityMode, null, null);
+                        SecurityMode SecurityMode = SecurityResolver.resolve(serverUrl.getText());
+                        setSecurityMode(SecurityMode, null, null);
                     } catch (final AuthenticationException authEx) {
                         SwingUtils.runInSwingThread(new ThreadFunctor() {
                             public void run() {
@@ -252,11 +248,9 @@ public class JenkinsConfigurationPanel {
         ButtonGroup securityModeGroup = new ButtonGroup();
         securityModeGroup.add(noneRadioButton);
         securityModeGroup.add(basicRadioButton);
-        securityModeGroup.add(sslRadioButton);
 
         noneRadioButton.addMouseListener(new SecurityDescriptionListener("Jenkins security is disabled"));
         basicRadioButton.addMouseListener(new SecurityDescriptionListener("Jenkins security is enabled"));
-        sslRadioButton.addMouseListener(new SecurityDescriptionListener("Jenkins security is configured with SSL protocol"));
 
         ActionListener securityModeListener = new SecurityModeListener();
         noneRadioButton.addActionListener(securityModeListener);
@@ -273,9 +267,6 @@ public class JenkinsConfigurationPanel {
 
         basicRadioButton.addActionListener(securityModeListener);
         basicRadioButton.setActionCommand(SecurityMode.BASIC.name());
-
-        sslRadioButton.addActionListener(securityModeListener);
-        sslRadioButton.setActionCommand(SecurityMode.SSL.name());
     }
 
     private class EnablerFieldListener implements ItemListener {

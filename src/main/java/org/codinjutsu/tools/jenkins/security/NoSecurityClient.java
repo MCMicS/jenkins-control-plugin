@@ -35,7 +35,6 @@ class NoSecurityClient implements SecurityClient {
 
     public void connect(URL jenkinsUrl) throws Exception {
         try {
-            System.out.println("Connecting to " + jenkinsUrl);
             HttpURLConnection con = (HttpURLConnection) jenkinsUrl.openConnection();
             con.connect();
 

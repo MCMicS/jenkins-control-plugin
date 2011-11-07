@@ -134,8 +134,8 @@ public class JenkinsConfiguration {
         this.password = password;
     }
 
-    public void setSecurityMode(SecurityMode securityMode) {
-        this.securityMode = securityMode;
+    public void setSecurityMode(SecurityMode SecurityMode) {
+        this.securityMode = SecurityMode;
     }
 
     public SecurityMode getSecurityMode() {

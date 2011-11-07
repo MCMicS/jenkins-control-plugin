@@ -23,7 +23,6 @@ import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.project.Project;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsControlComponent;
-import org.codinjutsu.tools.jenkins.logic.AuthenticationResult;
 import org.codinjutsu.tools.jenkins.logic.JenkinsBrowserLogic;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
@@ -45,23 +44,20 @@ public class RunBuildAction extends AnAction {
     public void actionPerformed(AnActionEvent event) {
         Project project = getProject(event);
 
-        JenkinsControlComponent jenkinsControlComponent
-                = project.getComponent(JenkinsControlComponent.class);
+        JenkinsControlComponent jenkinsControlComponent = project.getComponent(JenkinsControlComponent.class);
         try {
 
             Job job = jenkinsBrowserLogic.getSelectedJob();
 
-            AuthenticationResult authResult = jenkinsBrowserLogic.getJenkinsManager().runBuild(job, jenkinsControlComponent.getState());
-            if (AuthenticationResult.SUCCESSFULL.equals(authResult)) {
-                jenkinsControlComponent.notifyInfoJenkinsToolWindow(HtmlUtil.createHtmlLinkMessage(
-                        job.getName() + " build is on going",
-                        job.getUrl()), GuiUtil.loadIcon("toolWindowRun.png"));
-            } else {
-                jenkinsControlComponent.notifyErrorJenkinsToolWindow("Build cannot be run: " + authResult.getLabel());
-            }
+            jenkinsBrowserLogic.getJenkinsManager().runBuild(job, jenkinsControlComponent.getState());
+
+            jenkinsControlComponent.notifyInfoJenkinsToolWindow(HtmlUtil.createHtmlLinkMessage(
+                    job.getName() + " build is on going",
+                    job.getUrl()), GuiUtil.loadIcon("toolWindowRun.png"));
+
         } catch (Exception ex) {
             LOG.error(ex.getMessage(), ex);
-            GuiUtil.showErrorDialog(ex.getMessage(), "Error during executing the following request");
+            jenkinsControlComponent.notifyErrorJenkinsToolWindow("Build cannot be run: " + ex.getMessage());
         }
     }
 

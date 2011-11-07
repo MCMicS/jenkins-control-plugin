@@ -32,10 +32,10 @@ class BasicSecurityClient implements SecurityClient {
     private URL master;
 
     private final String username;
-
     private final String password;
 
     private final HttpClient client;
+
 
     BasicSecurityClient(String username, String password) {
         this.client = new HttpClient();
@@ -58,20 +58,31 @@ class BasicSecurityClient implements SecurityClient {
         PostMethod post = new PostMethod(url.toString());
         try {
             client.executeMethod(post);
+            checkStatusCode(post.getStatusCode());
             return post.getResponseBodyAsString();
         } finally {
             post.releaseConnection();
         }
     }
 
+    private static void checkStatusCode(int statusCode) throws AuthenticationException {
+        if (HttpURLConnection.HTTP_FORBIDDEN == statusCode) {
+            throw new AuthenticationException("Forbidden");
+        }
+        if (HttpURLConnection.HTTP_INTERNAL_ERROR == statusCode) {
+            throw new AuthenticationException("Server Internal Error");
+        }
+
+        if (HttpURLConnection.HTTP_MOVED_TEMP == statusCode) {
+            throw new AuthenticationException("Temporary Redirection");
+        }
+    }
+
     public InputStream executeAndGetResponseStream(URL url) throws Exception {
         PostMethod post = new PostMethod(url.toString());
-      /*  try {*/
-            client.executeMethod(post);
-            return post.getResponseBodyAsStream();
-      /*  } finally {
-            post.releaseConnection();
-        }*/
+        client.executeMethod(post);
+        checkStatusCode(post.getStatusCode());
+        return post.getResponseBodyAsStream();
     }
 
 
@@ -110,7 +121,6 @@ class BasicSecurityClient implements SecurityClient {
 
     private void checkJenkinsSecurity() throws AuthenticationException {
         try {
-            System.out.println("Connecting to " + master);
             HttpURLConnection con = (HttpURLConnection) master
                     .openConnection();
             con.connect();

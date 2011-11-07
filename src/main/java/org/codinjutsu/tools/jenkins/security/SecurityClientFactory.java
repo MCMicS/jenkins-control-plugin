@@ -20,9 +20,9 @@ public class SecurityClientFactory {
 
     public static SecurityClient create(SecurityMode securityMode, String username, String password) {
         SecurityClient securityClient;
-        if (SecurityMode.SSL.equals(securityMode)) {
-            securityClient = new SSLSecurityClient();
-        } else if (SecurityMode.BASIC.equals(securityMode)) {
+
+        if (SecurityMode.BASIC.equals(securityMode)) {
+
             securityClient = new BasicSecurityClient(username, password);
         } else {
             securityClient = none();

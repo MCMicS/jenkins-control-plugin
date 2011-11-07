@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Timer;
 
-//TODO gérer les exception JDOM et IO autrements
 public class JenkinsBrowserLogic {
 
     private static final Logger LOG = Logger.getLogger(JenkinsBrowserLogic.class);
@@ -110,33 +109,22 @@ public class JenkinsBrowserLogic {
     }
 
 
-    public void loadSelectedView() {
-
-        try {
-            View jenkinsView = getSelectedJenkinsView();
-            if (jenkinsView != null) {
-                List<Job> jobList = jenkinsRequestManager.loadJenkinsView(jenkinsView.getUrl());
-                jenkins.setJobs(jobList);
-                this.browserPanel.fillJobTree(jenkins);
-            } else {
-                loadJenkinsWorkspace();
-            }
-        } catch (Exception ex) {
-            LOG.error(buildServerErrorMessage(ex), ex);
-            displayConnectionErrorMsg();
+    public void loadSelectedView() throws Exception {
+        View jenkinsView = getSelectedJenkinsView();
+        if (jenkinsView != null) {
+            List<Job> jobList = jenkinsRequestManager.loadJenkinsView(jenkinsView.getUrl());
+            jenkins.setJobs(jobList);
+            this.browserPanel.fillJobTree(jenkins);
+        } else {
+            loadJenkinsWorkspace();
         }
     }
 
 
-    public void loadSelectedJob() {
-        try {
-            Job job = getSelectedJob();
-            Job updatedJob = jenkinsRequestManager.loadJob(job.getUrl());
-            job.updateContentWith(updatedJob);
-        } catch (Exception ex) {
-            LOG.error(buildServerErrorMessage(ex), ex);
-            displayConnectionErrorMsg();
-        }
+    public void loadSelectedJob() throws Exception {
+        Job job = getSelectedJob();
+        Job updatedJob = jenkinsRequestManager.loadJob(job.getUrl());
+        job.updateContentWith(updatedJob);
     }
 
 
@@ -320,7 +308,11 @@ public class JenkinsBrowserLogic {
         getBrowserPanel().getViewCombo().addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent evt) {
                 if (evt.getStateChange() == ItemEvent.SELECTED) {
-                    loadSelectedView();
+                    try {
+                        loadSelectedView();
+                    } catch (Exception e) {
+//TODO Gros KK !
+                    }
                 }
             }
         });
@@ -331,7 +323,11 @@ public class JenkinsBrowserLogic {
 
         @Override
         public void run() {
-            loadSelectedView();
+            try {
+                loadSelectedView();
+            } catch (Exception e) {
+//TODO Gros KK !
+            }
         }
     }
 

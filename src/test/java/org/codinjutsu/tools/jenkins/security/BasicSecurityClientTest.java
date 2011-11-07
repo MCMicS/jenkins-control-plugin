@@ -19,6 +19,10 @@ package org.codinjutsu.tools.jenkins.security;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mortbay.jetty.Connector;
+import org.mortbay.jetty.Server;
+import org.mortbay.jetty.security.SslSocketConnector;
+import org.mortbay.jetty.webapp.WebAppContext;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -94,5 +98,29 @@ public class BasicSecurityClientTest extends AbstractSecurityClientTestCase {
         } catch (Exception e) {
             Assert.fail("The connection should not fail: " + e.getMessage());
         }
+    }
+
+
+    public static void main(String[] args) throws Exception {
+        Server server = new Server();
+
+        System.setProperty("JENKINS_HOME", "/home/dboissier/.jenkins");
+
+        SslSocketConnector connector = new SslSocketConnector();
+        connector.setPort(HTTPS_PORT);
+        connector.setMaxIdleTime(60000);
+        connector.setKeystore(BasicSecurityClientTest.class.getResource(".keystore").getFile());
+        connector.setPassword("jetty6");
+        connector.setKeyPassword("jetty6");
+
+        server.addConnector(connector);
+
+        WebAppContext webAppContext = new WebAppContext();
+        webAppContext.setWar(BasicSecurityClientTest.class.getResource("jenkins.war").getFile());
+        webAppContext.setContextPath("/jenkins");
+
+        server.setStopAtShutdown(true);
+
+        server.start();
     }
 }

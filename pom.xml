@@ -12,6 +12,8 @@
         <intellij.sdk.version>8.1.3</intellij.sdk.version>
         <intellij.lib.path>/home/dboissier/incubator/libs/idea-8.1.3-jdk15/lib</intellij.lib.path>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <release.dir>file:///E:/Dev/distribution/maven/m2/inhouse</release.dir>
+        <snapshot.dir>file:///E:/Dev/distribution/maven/m2/inhouse-snapshot</snapshot.dir>
     </properties>
 
     <packaging>jar</packaging>
@@ -70,13 +72,6 @@
         </dependency>
 
         <!-- Test dependencies -->
-        <dependency>
-            <groupId>commons-httpclient</groupId>
-            <artifactId>commons-httpclient-contrib-ssl</artifactId>
-            <version>3.1</version>
-            <scope>test</scope>
-        </dependency>
-
         <dependency>
             <groupId>org.mortbay.jetty</groupId>
             <artifactId>jetty</artifactId>
@@ -147,14 +142,6 @@
             <systemPath>${intellij.lib.path}/util.jar</systemPath>
             <version>${intellij.sdk.version}</version>
         </dependency>
-        <!---->
-        <!--<dependency>-->
-        <!--<groupId>com.intellij</groupId>-->
-        <!--<artifactId>idea-resources-en</artifactId>-->
-        <!--<scope>system</scope>-->
-        <!--<systemPath>${intellij.lib.path}/resources_en.jar</systemPath>-->
-        <!--<version>${intellij.sdk.version}</version>-->
-        <!--</dependency>-->
     </dependencies>
 
     <build>
@@ -283,11 +270,11 @@
     <distributionManagement>
         <repository>
             <id>scp-repository</id>
-            <url>file:///E:/Dev/distribution/maven/m2/inhouse</url>
+            <url>${release.dir}</url>
         </repository>
         <snapshotRepository>
             <id>scp-repository</id>
-            <url>file:///E:/Dev/distribution/maven/m2/inhouse-snapshot</url>
+            <url>${snapshot.dir}</url>
         </snapshotRepository>
     </distributionManagement>
 
