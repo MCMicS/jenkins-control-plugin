@@ -227,6 +227,7 @@ public class JenkinsConfigurationPanel {
                     try {
                         SecurityMode SecurityMode = SecurityResolver.resolve(serverUrl.getText());
                         setSecurityMode(SecurityMode, null, null);
+                        connectionStatusLabel.setText("");
                     } catch (final AuthenticationException authEx) {
                         SwingUtils.runInSwingThread(new ThreadFunctor() {
                             public void run() {

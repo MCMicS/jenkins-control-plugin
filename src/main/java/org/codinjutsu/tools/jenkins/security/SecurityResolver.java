@@ -32,25 +32,28 @@ public class SecurityResolver {
             throw new AuthenticationException(urlEx.getMessage());
         }
 
-        HttpURLConnection con;
-        SecurityMode securityMode = SecurityMode.NONE;
+        HttpURLConnection connection = null;
         try {
-            con = (HttpURLConnection) url.openConnection();
-            con.connect();
+            connection = (HttpURLConnection) url.openConnection();
+            connection.connect();
 
-            if (con.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN) {
-                securityMode = SecurityMode.BASIC;
+            if (connection.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN) {
+                return SecurityMode.BASIC;
+            }
+
+            String jenkinsHeader = getServerHeader(connection);
+            if (jenkinsHeader == null) {
+                throw new AuthenticationException("This URL doesn't look like Jenkins/Hudson.");
             }
         } catch (IOException ioEx) {
             throw new AuthenticationException(ioEx.getMessage());
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
 
-        String jenkinsHeader = getServerHeader(con);
-        if (jenkinsHeader == null) {
-            throw new AuthenticationException("This URL doesn't look like Jenkins/Hudson.");
-        }
-
-        return securityMode;
+        return SecurityMode.NONE;
     }
 
     private static String getServerHeader(HttpURLConnection connection) {
