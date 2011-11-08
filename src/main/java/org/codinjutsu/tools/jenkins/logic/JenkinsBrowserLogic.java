@@ -35,7 +35,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.io.IOException;
 import java.util.*;
 import java.util.List;
 import java.util.Map.Entry;
@@ -192,7 +191,7 @@ public class JenkinsBrowserLogic {
     private void loadJenkinsWorkspace() {
         if (configuration.isServerUrlSet()) {
             try {
-                jenkinsRequestManager.authenticate(configuration.getServerUrl(), configuration.getSecurityMode(), configuration.getUsername(), configuration.getPassword());
+                jenkinsRequestManager.authenticate(configuration.getServerUrl(), configuration.getSecurityMode(), configuration.getUsername(), configuration.getPasswordFile());
                 jenkins = jenkinsRequestManager.loadJenkinsWorkspace(configuration);
                 browserPanel.initModel(jenkins);
                 String preferredView = configuration.getPreferredView();

@@ -24,7 +24,7 @@ public class JenkinsConfiguration {
     public static final int DEFAULT_BUILD_DELAY = 0;
     public static final int RESET_PERIOD_VALUE = 0;
 
-    private static final String RESET_STR_VALUE = "";
+    public static final String RESET_STR_VALUE = "";
 
     private String serverUrl = DEFAULT_JENKINS_SERVER_URL;
 
@@ -32,7 +32,7 @@ public class JenkinsConfiguration {
 
     private SecurityMode securityMode = SecurityMode.NONE;
     private String username = RESET_STR_VALUE;
-    private String password = RESET_STR_VALUE;
+    private String passwordFile = RESET_STR_VALUE;
 
     private int jobRefreshPeriod = RESET_PERIOD_VALUE;
     private int rssRefreshPeriod = RESET_PERIOD_VALUE;
@@ -126,12 +126,12 @@ public class JenkinsConfiguration {
         this.username = username;
     }
 
-    public String getPassword() {
-        return password;
+    public String getPasswordFile() {
+        return passwordFile;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setPasswordFile(String passwordFile) {
+        this.passwordFile = passwordFile;
     }
 
     public void setSecurityMode(SecurityMode SecurityMode) {

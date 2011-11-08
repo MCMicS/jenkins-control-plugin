@@ -3,6 +3,7 @@
 /* ChangeLog :                                            */
 /*            - 0.1: Initial version                      */
 /*            - 0.2: Add security support (based on CLI   */
+/*            - 0.2: Rewrite communication layer          */
 /**********************************************************/
 
 Description : This plugin allows to view the content of your Jenkins Continous Integration Server.
@@ -21,7 +22,9 @@ Configuration steps:
 
 Click on the Jenkins Settings button (or click on the IDEA General Settings and select Jenkins Control Plugin):
     Set your Jenkins url in the Server Address text field
-    If security is enabled on the Jenkins Server, click on the checkbox and put your credentials (Note that the password
+    If you are not sure about the security configuration of your Jenkins, you can click on the Wizard Button.
+    (Please note that only In-House Jenkins Security mode and SSL Protocol with trusted certificate are supported)
+    If security is enabled on the Jenkins Server, put your credentials (Note that the password is now 
     should be put in a file). To make sure your security parameters are correct, you can test by clicking on the test button.
 
     If you want the plugin to refresh periodically the Jenkins workspace, you can set a timeout value

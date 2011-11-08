@@ -16,6 +16,9 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.ui.LabeledComponent;
+import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
@@ -29,7 +32,7 @@ import org.codinjutsu.tools.jenkins.util.SwingUtils;
 import org.codinjutsu.tools.jenkins.view.action.ThreadFunctor;
 import org.codinjutsu.tools.jenkins.view.annotation.FormValidator;
 import org.codinjutsu.tools.jenkins.view.annotation.GuiField;
-import org.codinjutsu.tools.jenkins.view.security.BasicCredentialPanel;
+import org.codinjutsu.tools.jenkins.view.validator.NotNullValidator;
 import org.codinjutsu.tools.jenkins.view.validator.UIValidator;
 import org.jetbrains.annotations.Nullable;
 
@@ -64,34 +67,30 @@ public class JenkinsConfigurationPanel {
 
     private JTextField preferredView;
 
+    private JCheckBox enableAuthentication;
+    private JTextField username;
+    private LabeledComponent<TextFieldWithBrowseButton> passwordFile;
+
     private JPanel rootPanel;
 
     private JButton testConnexionButton;
 
     private JLabel connectionStatusLabel;
 
-    private JRadioButton noneRadioButton;
-    private JRadioButton basicRadioButton;
-
-
-    private JLabel securityDescriptionLabel;
+    private final FormValidator formValidator;
 
     private JButton discoverButton;
 
-    private JPanel cardPanel;
-    private final CardLayout cardLayout;
-
-
-    private final FormValidator formValidator;
 
     private SecurityMode securityMode = SecurityMode.NONE;
 
     private final JenkinsRequestManager jenkinsRequestManager;
 
-    private final BasicCredentialPanel credentialPanel = new BasicCredentialPanel();
+    public JenkinsConfigurationPanel(JenkinsRequestManager jenkinsRequestManager) {
+        this(jenkinsRequestManager, true);
+    }
 
-
-    public JenkinsConfigurationPanel(final JenkinsRequestManager jenkinsRequestManager) {
+    public JenkinsConfigurationPanel(final JenkinsRequestManager jenkinsRequestManager, boolean installBrowserFileBrowser) {
         this.jenkinsRequestManager = jenkinsRequestManager;
 
         serverUrl.setName("serverUrl");
@@ -101,27 +100,34 @@ public class JenkinsConfigurationPanel {
         enableRssAutoRefresh.setName("enableRssAutoRefresh");
         rssRefreshPeriod.setName("rssRefreshPeriod");
         preferredView.setName("preferredView");
-        noneRadioButton.setName("noneRadioButton");
-        basicRadioButton.setName("basicRadioButton");
+        enableAuthentication.setName("enableAuthentication");
+        username.setName("username");
+
+        passwordFile.getComponent().getTextField().setName("passwordFile");
 
         discoverButton.setToolTipText("Discover the Security Configuration of your Jenkins Server");
         discoverButton.setIcon(GuiUtil.loadIcon("wand.png"));
 
-        cardLayout = new CardLayout();
-        cardPanel.setLayout(cardLayout);
-
-        cardPanel.add(SecurityMode.NONE.name(), new JPanel());
-        cardPanel.add(SecurityMode.BASIC.name(), credentialPanel);
-
         initListeners();
 
-        formValidator = FormValidator.init(this).addValidator(basicRadioButton, new UIValidator<JRadioButton>() {
-            public void validate(JRadioButton component) throws ConfigurationException {
-                if (basicRadioButton.isSelected()) {
-                    credentialPanel.validateInputs();
-                }
-            }
-        });
+        if (installBrowserFileBrowser) {
+            addBrowserLinkToPasswordFile();
+        }
+
+        formValidator = FormValidator.init(this)
+                .addValidator(enableAuthentication, new UIValidator<JCheckBox>() {
+                    public void validate(JCheckBox component) throws ConfigurationException {
+                        if (enableAuthentication.isSelected()) {
+                            new NotNullValidator().validate(username);
+                            if (passwordFile.isEnabled()) {    //TODO a revoir
+                                String value = passwordFile.getComponent().getText();
+                                if (value == null || "".equals(value)) {
+                                    throw new ConfigurationException("'" + passwordFile.getComponent().getTextField().getName() + "' must be set");
+                                }
+                            }
+                        }
+                    }
+                });
 
 
     }
@@ -136,8 +142,8 @@ public class JenkinsConfigurationPanel {
                 || !(configuration.getRssRefreshPeriod() == Integer.parseInt(rssRefreshPeriod.getText()))
                 || !(configuration.getPreferredView().equals(preferredView.getText()))
                 || !(configuration.getSecurityMode() == securityMode)
-                || !(configuration.getUsername().equals(credentialPanel.getUsernameValue()))
-                || !(configuration.getPassword().equals(credentialPanel.getPasswordValue()))
+                || !(configuration.getUsername().equals(username.getText()))
+                || !(configuration.getPasswordFile().equals(passwordFile.getComponent().getText()))
                 ;
     }
 
@@ -155,8 +161,8 @@ public class JenkinsConfigurationPanel {
         configuration.setPreferredView(preferredView.getText());
         configuration.setSecurityMode(securityMode);
 
-        configuration.setUsername(credentialPanel.getUsernameValue());
-        configuration.setPassword(credentialPanel.getPasswordValue());
+        configuration.setUsername(username.getText());
+        configuration.setPasswordFile(passwordFile.getComponent().getText());
     }
 
     public void loadConfigurationData(JenkinsConfiguration configuration) {
@@ -175,19 +181,22 @@ public class JenkinsConfigurationPanel {
 
         preferredView.setText(configuration.getPreferredView());
 
-        setSecurityMode(configuration.getSecurityMode(), configuration.getUsername(), configuration.getPassword());
-
+        setSecurityMode(configuration.getSecurityMode(), configuration.getUsername(), configuration.getPasswordFile());
     }
 
 
-    private void setSecurityMode(SecurityMode securityMode, @Nullable String username, @Nullable String passwordFile) {
-        cardLayout.show(cardPanel, securityMode.name());
-        if (SecurityMode.BASIC.equals(securityMode)) {
-            credentialPanel.updateFields(username, passwordFile);
-            basicRadioButton.setSelected(true);
-        } else {
-            credentialPanel.resetFields();
-        }
+    private void setSecurityMode(SecurityMode securityMode, @Nullable String usernameValue, @Nullable String passwordFileValue) {
+        boolean isEnableAuthentication = SecurityMode.BASIC.equals(securityMode);
+
+        enableAuthentication.setSelected(isEnableAuthentication);
+
+        username.setText(usernameValue);
+        username.setEnabled(isEnableAuthentication);
+
+        passwordFile.getComponent().setText(passwordFileValue);
+        passwordFile.setEnabled(isEnableAuthentication);
+
+
         this.securityMode = securityMode;
     }
 
@@ -203,7 +212,7 @@ public class JenkinsConfigurationPanel {
         testConnexionButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 final AuthenticationResult authResult = jenkinsRequestManager.authenticate(
-                        serverUrl.getText(), securityMode, credentialPanel.getUsernameValue(), credentialPanel.getPasswordValue());
+                        serverUrl.getText(), securityMode, username.getText(), passwordFile.getComponent().getText());
 
 
                 SwingUtils.runInSwingThread(new ThreadFunctor() {
@@ -245,29 +254,25 @@ public class JenkinsConfigurationPanel {
         enableRssAutoRefresh.addItemListener(new EnablerFieldListener(enableRssAutoRefresh,
                 rssRefreshPeriod, resetPeriodValue));
 
+        enableAuthentication.addItemListener(new EnablerFieldListener(enableAuthentication,
+                username, JenkinsConfiguration.RESET_STR_VALUE));
+        enableAuthentication.addItemListener(new EnablerPasswordFileListener(enableAuthentication,
+                passwordFile, JenkinsConfiguration.RESET_STR_VALUE));
 
-        ButtonGroup securityModeGroup = new ButtonGroup();
-        securityModeGroup.add(noneRadioButton);
-        securityModeGroup.add(basicRadioButton);
-
-        noneRadioButton.addMouseListener(new SecurityDescriptionListener("Jenkins security is disabled"));
-        basicRadioButton.addMouseListener(new SecurityDescriptionListener("Jenkins security is enabled"));
-
-        ActionListener securityModeListener = new SecurityModeListener();
-        noneRadioButton.addActionListener(securityModeListener);
-        noneRadioButton.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent event) {
-                final boolean isSelected = noneRadioButton.isSelected();
-                if (isSelected) {
-                    credentialPanel.resetFields();
+        enableAuthentication.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                if (enableAuthentication.isSelected()) {
+                    securityMode = SecurityMode.BASIC;
+                } else {
+                    securityMode = SecurityMode.NONE;
                 }
             }
         });
+    }
 
-        noneRadioButton.setActionCommand(SecurityMode.NONE.name());
-
-        basicRadioButton.addActionListener(securityModeListener);
-        basicRadioButton.setActionCommand(SecurityMode.BASIC.name());
+    void addBrowserLinkToPasswordFile() {
+        passwordFile.getComponent().addBrowseFolderListener("Jenkins User password File", "", null,
+                new FileChooserDescriptor(true, false, false, false, false, false));
     }
 
     private class EnablerFieldListener implements ItemListener {
@@ -297,31 +302,30 @@ public class JenkinsConfigurationPanel {
         }
     }
 
-    private class SecurityModeListener implements ActionListener {
+   private class EnablerPasswordFileListener implements ItemListener {
+        private final JCheckBox enablerCheckBox;
+        private final LabeledComponent<TextFieldWithBrowseButton> fieldToEnable;
+        private final String resetValue;
 
-        public void actionPerformed(ActionEvent event) {
-            String actionCommand = event.getActionCommand();
-            cardLayout.show(cardPanel, actionCommand);
-            securityMode = SecurityMode.valueOf(actionCommand);
-        }
-    }
 
-    private class SecurityDescriptionListener extends MouseAdapter {
-
-        private final String description;
-
-        private SecurityDescriptionListener(String description) {
-            this.description = description;
+        private EnablerPasswordFileListener(JCheckBox enablerCheckBox,
+                                            LabeledComponent<TextFieldWithBrowseButton> fieldToEnable, String resetValue) {
+            this.enablerCheckBox = enablerCheckBox;
+            this.fieldToEnable = fieldToEnable;
+            this.resetValue = resetValue;
         }
 
-        @Override
-        public void mouseEntered(MouseEvent e) {
-            securityDescriptionLabel.setText(description);
-        }
 
-        @Override
-        public void mouseExited(MouseEvent e) {
-            securityDescriptionLabel.setText("");
+        public void itemStateChanged(ItemEvent event) {
+            final boolean isSelected = enablerCheckBox.isSelected();
+            if (!isSelected) {
+                fieldToEnable.getComponent().setText(resetValue);
+            }
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    fieldToEnable.setEnabled(isSelected);
+                }
+            });
         }
     }
 }

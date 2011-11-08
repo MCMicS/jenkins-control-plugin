@@ -177,9 +177,9 @@ public class JenkinsRequestManager {
     }
 
 
-    public AuthenticationResult authenticate(final String serverUrl, SecurityMode securityMode, final String username, final String password) {
+    public AuthenticationResult authenticate(final String serverUrl, SecurityMode securityMode, final String username, final String passwordFile) {
         try {
-            securityClient = SecurityClientFactory.create(securityMode, username, password);
+            securityClient = SecurityClientFactory.create(securityMode, username, passwordFile);
 
             securityClient.connect(new URL(serverUrl + TEST_CONNECTION_REQUEST));
             return AuthenticationResult.SUCCESSFULL;

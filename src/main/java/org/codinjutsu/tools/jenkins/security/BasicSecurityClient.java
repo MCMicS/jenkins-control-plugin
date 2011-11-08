@@ -20,7 +20,10 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -32,20 +35,28 @@ class BasicSecurityClient implements SecurityClient {
     private URL master;
 
     private final String username;
-    private final String password;
+    private final String passwordFile;
+    private String password = null;
 
     private final HttpClient client;
 
 
-    BasicSecurityClient(String username, String password) {
+    BasicSecurityClient(String username, String passwordFile) {
         this.client = new HttpClient();
         this.username = username;
-        this.password = password;
+        this.passwordFile = passwordFile;
     }
 
 
     public void connect(URL jenkinsUrl) throws Exception {
         master = jenkinsUrl;
+
+        if (passwordFile != null) {
+            password = IOUtils.toString(new FileInputStream(passwordFile));
+            if (StringUtils.isNotEmpty(password)) {
+                password = StringUtils.removeEnd(password, "\n");
+            }
+        }
 
         if (password == null && username == null) {
             checkJenkinsSecurity();
@@ -101,7 +112,8 @@ class BasicSecurityClient implements SecurityClient {
         postMethod.setFollowRedirects(false);
         int responseCode = client.executeMethod(postMethod);
         if (responseCode != HttpURLConnection.HTTP_OK) {
-            if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED || responseCode == HttpURLConnection.HTTP_MOVED_TEMP) {
+            if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED || responseCode == HttpURLConnection.HTTP_FORBIDDEN
+                    || responseCode == HttpURLConnection.HTTP_MOVED_TEMP) {
                 throw new AuthenticationException("Bad Credentials.");
             }
         }

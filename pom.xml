@@ -70,6 +70,11 @@
             <artifactId>commons-httpclient</artifactId>
             <version>3.1</version>
         </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>1.4</version>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
@@ -140,6 +145,14 @@
             <artifactId>idea-util</artifactId>
             <scope>system</scope>
             <systemPath>${intellij.lib.path}/util.jar</systemPath>
+            <version>${intellij.sdk.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.intellij</groupId>
+            <artifactId>idea-resources-en</artifactId>
+            <scope>system</scope>
+            <systemPath>${intellij.lib.path}/resources_en.jar</systemPath>
             <version>${intellij.sdk.version}</version>
         </dependency>
     </dependencies>
