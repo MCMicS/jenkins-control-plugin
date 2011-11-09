@@ -38,6 +38,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class JenkinsRequestManagerTest {
+
     private JenkinsRequestManager requestManager;
 
     private JenkinsConfiguration configuration;
@@ -79,7 +80,10 @@ public class JenkinsRequestManagerTest {
                 .withLastBuild("http://myjenkins/job/sql-tools/15/", "15", SUCCESS.getStatus(), "false").get());
         expectedJobs.add(new JobBuilder().job("db-utils", "grey", null, "http://myjenkins/job/db-utils/", "false").get());
         expectedJobs.add(new JobBuilder().job("myapp", "red", "health-00to19", "http://myjenkins/job/myapp/", "false")
-                .withLastBuild("http://myjenkins/job/myapp/12/", "12", FAILURE.getStatus(), "true").get());
+                .withLastBuild("http://myjenkins/job/myapp/12/", "12", FAILURE.getStatus(), "true")
+                .withParameter("param1", "ChoiceParameterDefinition", "value1", "value1", "value2", "value3")
+                .withParameter("runIntegrationTest", "BooleanParameterDefinition", null)
+                .get());
         expectedJobs.add(new JobBuilder().job("swing-utils", "disabled", "health20to39", "http://myjenkins/job/swing-utils/", "true")
                 .withLastBuild("http://myjenkins/job/swing-utils/5/", "5", FAILURE.getStatus(), "false").get());
 
@@ -135,6 +139,11 @@ public class JenkinsRequestManagerTest {
 
         private JobBuilder withLastBuild(String buildUrl, String number, String status, String isBuilding) {
             job.setLastBuild(Build.createBuild(buildUrl, number, status, isBuilding));
+            return this;
+        }
+
+        private JobBuilder withParameter(String paramName, String paramType, String defaultValue, String... choices) {
+            job.addParameter(paramName, paramType, defaultValue, choices);
             return this;
         }
 

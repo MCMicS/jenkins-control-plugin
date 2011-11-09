@@ -22,20 +22,31 @@ import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Iterator;
+import java.util.Map;
 
 class UrlBuilder {
 
     private static final String API_XML = "/api/xml";
     private static final String BUILD = "/build";
+    private static final String PARAMETERIZED_BUILD = "/buildWithParameters";
     private static final String RSS_LATEST = "/rssLatest";
     private static final String TREE_PARAM = "?tree=";
     private static final String BASIC_JENKINS_INFO = "nodeName,nodeDescription,primaryView[name,url],views[name,url]";
-    private static final String BASIC_JOB_INFO = "name,url,color,inQueue,healthReport[iconUrl],lastBuild[url,building,result,number]";
+    private static final String BASIC_JOB_INFO = "name,url,color,inQueue,healthReport[iconUrl],lastBuild[url,building,result,number],property[parameterDefinitions[name,type,defaultParameterValue[value],choices]]";
     private static final String BASIC_VIEW_INFO = "name,url,jobs[" + BASIC_JOB_INFO + "]";
 
     public URL createRunJobUrl(String jobBuildUrl, JenkinsConfiguration configuration)
             throws MalformedURLException, URIException {
         return new URL(URIUtil.encodePathQuery(jobBuildUrl + BUILD + "?delay=" + configuration.getBuildDelay() + "sec"));
+    }
+
+    public URL createRunParameterizedJobUrl(String jobUrl, JenkinsConfiguration configuration, Map<String, String> paramValueMap) throws MalformedURLException, URIException {
+        StringBuilder strBuilder = new StringBuilder(jobUrl + PARAMETERIZED_BUILD + "?delay=" + configuration.getBuildDelay() + "sec");
+        for (Map.Entry<String, String> valueByName: paramValueMap.entrySet()) {
+            strBuilder.append("&").append(valueByName.getKey()).append("=").append(valueByName.getValue());
+        }
+        return new URL(URIUtil.encodePathQuery(strBuilder.toString()));
     }
 
     public URL createJenkinsWorkspaceUrl(JenkinsConfiguration configuration)
@@ -54,5 +65,4 @@ class UrlBuilder {
     public URL createRssLatestUrl(String serverUrl) throws MalformedURLException {
         return new URL(serverUrl + RSS_LATEST);
     }
-
 }

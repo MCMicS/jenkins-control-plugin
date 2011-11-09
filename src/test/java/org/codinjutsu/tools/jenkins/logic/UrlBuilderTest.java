@@ -22,6 +22,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
@@ -42,6 +44,19 @@ public class UrlBuilderTest {
 
 
     @Test
+    public void createRunParameterizedJobUrl() throws Exception {
+        configuration.setDelay(20);
+
+        Map<String, String> valueByNameParams = new HashMap<String, String>();
+        valueByNameParams.put("param1", "value1");
+        valueByNameParams.put("param2", "value2");
+
+        URL url = urlBuilder.createRunParameterizedJobUrl("http://localhost:8080/jenkins/My Job", configuration, valueByNameParams);
+        assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/My%20Job/buildWithParameters?delay=20sec&param2=value2&param1=value1"));
+    }
+
+
+    @Test
     public void createJenkinsWorkspaceUrl() throws Exception {
         configuration.setServerUrl("http://localhost:8080/jenkins");
 
@@ -53,14 +68,14 @@ public class UrlBuilderTest {
     @Test
     public void createViewUrl() throws Exception {
         URL url = urlBuilder.createViewUrl("http://localhost:8080/jenkins/My View");
-        assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/My%20View/api/xml?tree=name,url,jobs%5Bname,url,color,inQueue,healthReport%5BiconUrl%5D,lastBuild%5Burl,building,result,number%5D%5D"));
+        assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/My%20View/api/xml?tree=name,url,jobs%5Bname,url,color,inQueue,healthReport%5BiconUrl%5D,lastBuild%5Burl,building,result,number%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,choices%5D%5D%5D"));
     }
 
 
     @Test
     public void createJobUrl() throws Exception {
         URL url = urlBuilder.createJobUrl("http://localhost:8080/jenkins/my Job");
-        assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/my%20Job/api/xml?tree=name,url,color,inQueue,healthReport%5BiconUrl%5D,lastBuild%5Burl,building,result,number%5D"));
+        assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/my%20Job/api/xml?tree=name,url,color,inQueue,healthReport%5BiconUrl%5D,lastBuild%5Burl,building,result,number%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,choices%5D%5D"));
     }
 
 

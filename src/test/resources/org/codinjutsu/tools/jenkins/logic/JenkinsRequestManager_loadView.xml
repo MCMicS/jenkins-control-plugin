@@ -38,6 +38,23 @@
             <number>12</number>
             <url>http://myjenkins/job/myapp/12/</url>
         </lastBuild>
+        <property>
+            <parameterDefinition>
+                <defaultParameterValue>
+                    <value>value1</value>
+                </defaultParameterValue>
+                <name>param1</name>
+                <type>ChoiceParameterDefinition</type>
+                <choice>value1</choice>
+                <choice>value2</choice>
+                <choice>value3</choice>
+            </parameterDefinition>
+            <parameterDefinition>
+                <defaultParameterValue/>
+                <name>runIntegrationTest</name>
+                <type>BooleanParameterDefinition</type>
+            </parameterDefinition>
+        </property>
     </job>
     <job>
         <name>swing-utils</name>

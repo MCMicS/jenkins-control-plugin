@@ -25,14 +25,10 @@ import org.codinjutsu.tools.jenkins.security.SecurityMode;
 import org.codinjutsu.tools.jenkins.util.RssUtil;
 import org.jdom.Document;
 import org.jdom.Element;
-import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.Proxy;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.*;
 
 public class JenkinsRequestManager {
@@ -64,6 +60,14 @@ public class JenkinsRequestManager {
     private static final String BUILD_RESULT = "result";
     private static final String BUILD_URL = "url";
     private static final String BUILD_NUMBER = "number";
+
+    private static final String PARAMETER_PROPERTY = "property";
+    private static final String PARAMETER_DEFINITION = "parameterDefinition";
+    private static final String PARAMETER_NAME = "name";
+    private static final String PARAMETER_TYPE = "type";
+    private static final String PARAMETER_DEFAULT_PARAM = "defaultParameterValue";
+    private static final String PARAMETER_DEFAULT_PARAM_VALUE = "value";
+    private static final String PARAMETER_CHOICE = "choice";
 
     private static final String RSS_ENTRY = "entry";
     private static final String RSS_TITLE = "title";
@@ -142,8 +146,8 @@ public class JenkinsRequestManager {
     }
 
 
-    public Job loadJob(String jobUrl) throws Exception {
-        URL url = urlBuilder.createJobUrl(jobUrl);
+    public Job loadJob(String jenkinsJobUrl) throws Exception {
+        URL url = urlBuilder.createJobUrl(jenkinsJobUrl);
         InputStream inputStream = null;
         try {
             inputStream = securityClient.executeAndGetResponseStream(url);
@@ -151,18 +155,8 @@ public class JenkinsRequestManager {
 
             Element jobElement = doc.getRootElement();
 
-            String jobName = jobElement.getChildText(JOB_NAME);
-            String jobColor = jobElement.getChildText(JOB_COLOR);
-            String inQueue = jobElement.getChildText(JOB_IS_IN_QUEUE);
-            String jobHealth = getJobHealth(jobElement);
+            return createJob(jobElement);
 
-            Job job = Job.createJob(jobName, jobColor, jobHealth, jobUrl, inQueue);
-            Element lastBuild = jobElement.getChild(JOB_LAST_BUILD);
-            if (lastBuild != null) {
-                job.setLastBuild(createLastBuild(lastBuild));
-            }
-
-            return job;
         } finally {
             if (inputStream != null) {
                 inputStream.close();
@@ -173,6 +167,12 @@ public class JenkinsRequestManager {
 
     public void runBuild(Job job, JenkinsConfiguration configuration) throws Exception {
         URL url = urlBuilder.createRunJobUrl(job.getUrl(), configuration);
+        securityClient.execute(url);
+    }
+
+
+    public void runParameterizedBuild(Job job, JenkinsConfiguration configuration, Map<String, String> paramValueMap) throws Exception {
+        URL url = urlBuilder.createRunParameterizedJobUrl(job.getUrl(), configuration, paramValueMap);
         securityClient.execute(url);
     }
 
@@ -240,23 +240,62 @@ public class JenkinsRequestManager {
         List<Element> jobElements = doc.getRootElement().getChildren(JOB);
         List<Job> jobs = new LinkedList<Job>();
         for (Element jobElement : jobElements) {
-            String jobName = jobElement.getChildText(JOB_NAME);
-            String jobColor = jobElement.getChildText(JOB_COLOR);
-            String jobUrl = jobElement.getChildText(JOB_URL);
-            String inQueue = jobElement.getChildText(JOB_IS_IN_QUEUE);
-
-            String jobHealth = getJobHealth(jobElement);
-
-
-            Job job = Job.createJob(jobName, jobColor, jobHealth, jobUrl, inQueue);
-            Element lastBuild = jobElement.getChild(JOB_LAST_BUILD);
-            if (lastBuild != null) {
-                job.setLastBuild(createLastBuild(lastBuild));
-            }
-            jobs.add(job);
+            jobs.add(createJob(jobElement));
         }
         return jobs;
     }
+
+
+    private void setJobParameters(Job job, List<Element> parameterDefinitions) {
+
+        for (Element parameterDefinition : parameterDefinitions) {
+
+            String paramName = parameterDefinition.getChildText(PARAMETER_NAME);
+            String paramType = parameterDefinition.getChildText(PARAMETER_TYPE);
+            String defaultParamValue = parameterDefinition.getChild(PARAMETER_DEFAULT_PARAM).getChildText(PARAMETER_DEFAULT_PARAM_VALUE);
+
+            String[] choices = extractChoices(parameterDefinition);
+
+            job.addParameter(paramName, paramType, defaultParamValue, choices);
+        }
+    }
+
+
+    private String[] extractChoices(Element parameterDefinition) {
+        List<Element> choices = parameterDefinition.getChildren(PARAMETER_CHOICE);
+        String[] paramValues = new String[0];
+        if (choices != null && !choices.isEmpty()) {
+            paramValues = new String[choices.size()];
+            for (int i = 0; i < choices.size(); i++) {
+                Element choice = choices.get(i);
+                paramValues[i] = choice.getText();
+            }
+        }
+        return paramValues;
+    }
+
+    private Job createJob(Element jobElement) {
+        String jobName = jobElement.getChildText(JOB_NAME);
+        String jobColor = jobElement.getChildText(JOB_COLOR);
+        String jobUrl = jobElement.getChildText(JOB_URL);
+        String inQueue = jobElement.getChildText(JOB_IS_IN_QUEUE);
+
+        String jobHealth = getJobHealth(jobElement);
+
+
+        Job job = Job.createJob(jobName, jobColor, jobHealth, jobUrl, inQueue);
+        Element lastBuild = jobElement.getChild(JOB_LAST_BUILD);
+        if (lastBuild != null) {
+            job.setLastBuild(createLastBuild(lastBuild));
+        }
+
+        Element property = jobElement.getChild(PARAMETER_PROPERTY);
+        if (property != null) {
+            setJobParameters(job, property.getChildren(PARAMETER_DEFINITION));
+        }
+        return job;
+    }
+
 
     private String getJobHealth(Element jobElement) {
         String jobHealth = null;
@@ -302,58 +341,9 @@ public class JenkinsRequestManager {
         return buildMap;
     }
 
-
-    private static InputStream createInputStream(URL url) throws IOException {
-        URLConnection urlConnection = url.openConnection(Proxy.NO_PROXY);
-        urlConnection.setConnectTimeout(DEFAULT_CONNECTION_TIMEOUT);
-        urlConnection.setReadTimeout(DEFAULT_READ_TIMEOUT);
-        return urlConnection.getInputStream();
-    }
-
     private static SAXBuilder getXMLBuilder() {
         SAXBuilder saxBuilder = new SAXBuilder();
         saxBuilder.setValidation(false);
         return saxBuilder;
     }
-
-
-//    private AuthenticationResult runCLICommand(CLICommandHandler cmdHandler) {
-//        CLI cli = null;
-//        try {
-//            cli = new CLI(new URL(cmdHandler.getServerURL()));
-//            ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
-//            InputStream stdIn = System.in;
-//            PrintStream stdOut = System.out;
-//            int returnCode = cli.execute(cmdHandler.getArgs(), stdIn, stdOut, stdErr);
-//
-//            cmdHandler.processStdStreams(stdIn, stdErr, stdErr);
-//
-//            if (returnCode == 0) {
-//                return AuthenticationResult.SUCCESSFULL;
-//            } else {
-//                return AuthenticationResult.BAD_CREDENTIAL;
-//            }
-//        } catch (Exception ex) {
-//            return AuthenticationResult.FAILED;
-//        } finally {
-//            if (cli != null) {
-//                try {
-//                    cli.close();
-//                } catch (Exception interrEx) {
-//                    throw new RuntimeException(interrEx.getMessage());
-//                }
-//            }
-//        }
-//    }
-
-
-//    private interface CLICommandHandler {
-//
-//        String getServerURL();
-//
-//        List<String> getArgs();
-//
-//        void processStdStreams(InputStream stdIn, OutputStream stdOut, OutputStream stdErr);
-//    }
-
 }

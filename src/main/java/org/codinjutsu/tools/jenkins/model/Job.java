@@ -16,6 +16,9 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import static org.apache.commons.lang.builder.EqualsBuilder.reflectionEquals;
 import static org.apache.commons.lang.builder.HashCodeBuilder.reflectionHashCode;
 import static org.apache.commons.lang.builder.ToStringBuilder.reflectionToString;
@@ -28,8 +31,10 @@ public class Job {
     private String color;
     private String health;
     private boolean inQueue;
-    
+
     private Build lastBuild;
+
+    private List<JobParameter> parameters = new LinkedList<JobParameter>();
 
 
     private Job(String name, String color, String health, String url, Boolean inQueue) {
@@ -40,6 +45,23 @@ public class Job {
         this.inQueue = inQueue;
     }
 
+
+    public static Job createJob(String jobName, String jobColor, String health, String jobUrl, String inQueue) {
+        return new Job(jobName, jobColor, health, jobUrl, Boolean.valueOf(inQueue));
+    }
+
+
+    public void updateContentWith(Job updatedJob) {
+        this.color = updatedJob.getColor();
+        this.health = updatedJob.getHealth();
+        this.inQueue = updatedJob.isInQueue();
+        this.lastBuild = updatedJob.getLastBuild();
+    }
+
+
+    public void addParameter(String paramName, String paramType, String defaultValue, String... choices) {
+        parameters.add(JobParameter.create(paramName, paramType, defaultValue, choices));
+    }
 
     public String getName() {
         return name;
@@ -74,9 +96,14 @@ public class Job {
         return health;
     }
 
-    public void setHealth(String health) {
-        this.health = health;
+    public boolean hasParameters() {
+        return !parameters.isEmpty();
     }
+
+    public List<JobParameter> getParameters() {
+        return parameters;
+    }
+
 
     @Override
     public boolean equals(Object obj) {
@@ -89,21 +116,8 @@ public class Job {
         return reflectionHashCode(this);
     }
 
-
     @Override
     public String toString() {
         return reflectionToString(this, SHORT_PREFIX_STYLE);
-    }
-
-
-    public static Job createJob(String jobName, String jobColor, String health, String jobUrl, String inQueue) {
-        return new Job(jobName, jobColor, health, jobUrl, Boolean.valueOf(inQueue));
-    }
-
-    public void updateContentWith(Job updatedJob) {
-        this.color = updatedJob.getColor();
-        this.health = updatedJob.getHealth();
-        this.inQueue = updatedJob.isInQueue();
-        this.lastBuild = updatedJob.getLastBuild();
     }
 }

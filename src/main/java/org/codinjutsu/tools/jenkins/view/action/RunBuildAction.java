@@ -24,9 +24,11 @@ import com.intellij.openapi.project.Project;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsControlComponent;
 import org.codinjutsu.tools.jenkins.logic.JenkinsBrowserLogic;
+import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.util.HtmlUtil;
+import org.codinjutsu.tools.jenkins.view.BuildParamDialog;
 
 public class RunBuildAction extends AnAction {
 
@@ -49,11 +51,16 @@ public class RunBuildAction extends AnAction {
 
             Job job = jenkinsBrowserLogic.getSelectedJob();
 
-            jenkinsBrowserLogic.getJenkinsManager().runBuild(job, jenkinsControlComponent.getState());
+            JenkinsRequestManager jenkinsManager = jenkinsBrowserLogic.getJenkinsManager();
+            if (job.hasParameters()) {
+                BuildParamDialog.showDialog(job, jenkinsControlComponent.getState(), jenkinsManager);
+            } else {
+                jenkinsManager.runBuild(job, jenkinsControlComponent.getState());
 
-            jenkinsControlComponent.notifyInfoJenkinsToolWindow(HtmlUtil.createHtmlLinkMessage(
-                    job.getName() + " build is on going",
-                    job.getUrl()), GuiUtil.loadIcon("toolWindowRun.png"));
+                jenkinsControlComponent.notifyInfoJenkinsToolWindow(HtmlUtil.createHtmlLinkMessage(
+                        job.getName() + " build is on going",
+                        job.getUrl()), GuiUtil.loadIcon("toolWindowRun.png"));
+            }
 
         } catch (Exception ex) {
             LOG.error(ex.getMessage(), ex);
