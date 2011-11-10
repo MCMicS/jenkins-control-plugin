@@ -14,10 +14,11 @@
     <change-notes><![CDATA[
 Version 0.3:<br/>
 <ul>
+    <li>[Add] Parameterized Builds are supported (see wiki to see limitations)</li>
     <li>[Add] Browser Panel: health icon for each job</li>
-    <li>[Update] Configuration Panel : Redesign the security options panel, add Wizard which try to resolve security configuration</li>
-    <li>[Update] Security Support : Rewrite from scratch with replacing CLI by HttpClient to support misc security protocols (see wiki for more info)</li>
-    <li>[Fix] issue # : When clicking on the Jenkins plugin settings button, the Jenkins plugin configuration should be always selected</li>
+    <li>[Update] Configuration Panel :  add Button Wizard which try to resolve security configuration</li> 
+    <li>[Update] Security Support : Rewrite from scratch with replacing CLI by HttpClient (see wiki for more info)</li>
+    <li>[Fix] issue #5 : When clicking on the Jenkins plugin settings button, the Jenkins plugin configuration should be always selected</li>
 </ul>
 Version 0.2:<br/>
 <ul>
