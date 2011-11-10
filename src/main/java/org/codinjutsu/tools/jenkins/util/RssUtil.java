@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.util;
 
+import org.codinjutsu.tools.jenkins.logic.BuildStatusVisitor;
 import org.codinjutsu.tools.jenkins.logic.RssBuildStatusVisitor;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
 
@@ -62,7 +63,7 @@ public class RssUtil {
     }
 
 
-    private static void visit(RssBuildStatusVisitor statusVisitor, String rssEntryTitle) {
+    private static void visit(BuildStatusVisitor statusVisitor, String rssEntryTitle) {
         if (matches(rssEntryTitle, SUCCESS_MATCHER)) {
             statusVisitor.visitSuccess();
             return;
