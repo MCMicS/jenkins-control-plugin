@@ -20,14 +20,14 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 
 
 class BasicSecurityClient implements SecurityClient {
@@ -39,7 +39,10 @@ class BasicSecurityClient implements SecurityClient {
     private String password = null;
 
     private final HttpClient client;
+    private String crumbName;
+    private String crumbValue;
 
+    private static final String TEST_CONNECTION_REQUEST = "/api/xml?tree=nodeName";
 
     BasicSecurityClient(String username, String passwordFile) {
         this.client = new HttpClient();
@@ -49,7 +52,12 @@ class BasicSecurityClient implements SecurityClient {
 
 
     public void connect(URL jenkinsUrl) throws Exception {
-        master = jenkinsUrl;
+        master = new URL(jenkinsUrl.toString() + TEST_CONNECTION_REQUEST);
+
+        if (!isCrumbDataSet()) {
+            getCrumbData(jenkinsUrl.toString());
+        }
+
 
         if (passwordFile != null) {
             password = IOUtils.toString(new FileInputStream(passwordFile));
@@ -62,11 +70,22 @@ class BasicSecurityClient implements SecurityClient {
             checkJenkinsSecurity();
         }
         doAuthentication();
+
+
+    }
+
+
+    private boolean isCrumbDataSet() {
+        return crumbName != null && crumbValue != null;
     }
 
 
     public String execute(URL url) throws Exception {
-        PostMethod post = new PostMethod(url.toString());
+        String urlStr = url.toString();
+        PostMethod post = new PostMethod(urlStr);
+        if (!isCrumbDataSet()) {
+            getCrumbData(urlStr);
+        }
         try {
             client.executeMethod(post);
             checkStatusCode(post.getStatusCode());
@@ -75,6 +94,7 @@ class BasicSecurityClient implements SecurityClient {
             post.releaseConnection();
         }
     }
+
 
     private static void checkStatusCode(int statusCode) throws AuthenticationException {
         if (HttpURLConnection.HTTP_FORBIDDEN == statusCode) {
@@ -85,11 +105,28 @@ class BasicSecurityClient implements SecurityClient {
         }
     }
 
+
     public InputStream executeAndGetResponseStream(URL url) throws Exception {
-        PostMethod post = new PostMethod(url.toString());
+        String urlStr = url.toString();
+        PostMethod post = new PostMethod(urlStr);
+        if (!isCrumbDataSet()) {
+            getCrumbData(urlStr);
+        }
+
         client.executeMethod(post);
         checkStatusCode(post.getStatusCode());
         return post.getResponseBodyAsStream();
+    }
+
+
+    private void getCrumbData(String baseUrlStr) throws IOException {
+        URL breadCrumbUrl = new URL(URIUtil.encodePathQuery(baseUrlStr + "/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,\":\",//crumb)"));
+        URLConnection urlConnection = breadCrumbUrl.openConnection();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+        String crumbData = reader.readLine();
+        String[] crumbNameValue = crumbData.split(":");
+        crumbName = crumbNameValue[0];
+        crumbValue = crumbNameValue[1];
     }
 
 

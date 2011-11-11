@@ -74,8 +74,6 @@ public class JenkinsRequestManager {
     private static final String RSS_LINK = "link";
     private static final String RSS_LINK_HREF = "href";
 
-    private static final String TEST_CONNECTION_REQUEST = "/api/xml?tree=nodeName";
-
     private final UrlBuilder urlBuilder;
 
     private SecurityClient securityClient;
@@ -181,7 +179,7 @@ public class JenkinsRequestManager {
         try {
             securityClient = SecurityClientFactory.create(securityMode, username, passwordFile);
 
-            securityClient.connect(new URL(serverUrl + TEST_CONNECTION_REQUEST));
+            securityClient.connect(new URL(serverUrl));
             return AuthenticationResult.SUCCESSFULL;
 
         } catch (Exception e) {

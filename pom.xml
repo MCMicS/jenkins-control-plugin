@@ -9,10 +9,10 @@
     <properties>
         <intellij.sdk.name>IDEA 9886</intellij.sdk.name>
         <intellij.sdk.version>8.1.3</intellij.sdk.version>
-        <intellij.lib.path>/home/dboissier/incubator/libs/idea-8.1.3-jdk15/lib</intellij.lib.path>
+        <intellij.lib.path>E:/Dev/intellij-sdk-8.1.3/lib</intellij.lib.path>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <release.dir>file:////home/incubator/distribution/maven/m2/inhouse</release.dir>
-        <snapshot.dir>file:///home/incubator/distribution/maven/m2/inhouse-snapshot</snapshot.dir>
+        <release.dir>file:///E:/Dev/distribution/maven/m2/inhouse</release.dir>
+        <snapshot.dir>file://E/Dev/distribution/maven/m2/inhouse-snapshot</snapshot.dir>
     </properties>
 
     <packaging>jar</packaging>

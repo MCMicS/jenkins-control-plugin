@@ -18,14 +18,18 @@ package org.codinjutsu.tools.jenkins.security;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.util.URIUtil;
 
-import java.io.IOException;
+import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
 class NoSecurityClient implements SecurityClient {
     private final HttpClient client;
+    private String crumbName;
+    private String crumbValue;
 
 
     NoSecurityClient() {
@@ -34,26 +38,32 @@ class NoSecurityClient implements SecurityClient {
 
 
     public void connect(URL jenkinsUrl) throws Exception {
-        try {
-            HttpURLConnection con = (HttpURLConnection) jenkinsUrl.openConnection();
-            con.connect();
+        getCrumbData(jenkinsUrl.toString());
+    }
 
-            if (con.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN) {
-                throw new AuthenticationException("This Jenkins server requires authentication!");
-            }
 
-            String v = con.getHeaderField("X-Jenkins");
-            if (v == null) {
-                throw new AuthenticationException("This URL doesn't look like Jenkins.");
-            }
-        } catch (IOException e) {
-            throw new AuthenticationException("Failed to connect to " + jenkinsUrl, e);
+    private void getCrumbData(String baseUrlStr) throws Exception {
+        URL breadCrumbUrl = new URL(URIUtil.encodePathQuery(baseUrlStr + "/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,\":\",//crumb)"));
+        HttpURLConnection urlConnection = (HttpURLConnection) breadCrumbUrl.openConnection();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+        String crumbData = reader.readLine();
+        String[] crumbNameValue = crumbData.split(":");
+        crumbName = crumbNameValue[0];
+        crumbValue = crumbNameValue[1];
+
+        if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN) {
+            throw new AuthenticationException("This Jenkins server requires authentication!");
         }
     }
 
 
     public String execute(URL url) throws Exception {
-        PostMethod post = new PostMethod(url.toString());
+        String urlStr = url.toString();
+        PostMethod post = new PostMethod(urlStr);
+        if (!isCrumbDataSet()) {
+            getCrumbData(urlStr);
+        }
+        post.addRequestHeader(crumbName, crumbValue);
         try {
             client.executeMethod(post);
             return post.getResponseBodyAsString();
@@ -62,15 +72,24 @@ class NoSecurityClient implements SecurityClient {
         }
     }
 
+
     public InputStream executeAndGetResponseStream(URL url) throws Exception {
-        PostMethod post = new PostMethod(url.toString());
-        try {
-            client.executeMethod(post);
-            return post.getResponseBodyAsStream();
-        } finally {
-            post.releaseConnection();
+        String urlStr = url.toString();
+        PostMethod post = new PostMethod(urlStr);
+        if (!isCrumbDataSet()) {
+            getCrumbData(urlStr);
         }
+        post.addRequestHeader(crumbName, crumbValue);
+//        try {
+        client.executeMethod(post);
+        return post.getResponseBodyAsStream();
+//        } finally {
+//            post.releaseConnection();
+//        }
     }
 
 
+    public boolean isCrumbDataSet() {
+        return crumbName != null && crumbValue != null;
+    }
 }
