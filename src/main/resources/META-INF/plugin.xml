@@ -1,9 +1,9 @@
 <idea-plugin>
-    <name>Jenkins Control Plugin IDEA 8.5.x</name>
-    <description>A Jenkins Plugin for old Intellij 8.5.x</description>
-    <version>0.3</version>
+    <name>Jenkins Control Plugin IDEA 9-</name>
+    <description>A Jenkins Plugin for Intellij 8.5.0 until 9.0.4</description>
+    <version>0.3.1</version>
     <vendor email="david.boissier@gmail.com" url="htp://codinjutsu.blogger.com">David Boissier</vendor>
-    <idea-version since-build="9886" max="9886"/>
+    <idea-version since-build="9886" until-build="95.627"/>
 
     <project-components>
         <component>
@@ -15,7 +15,7 @@
 Version 0.3.1:<br/>
 <ul>
     <li>[Fix] Cross Site Request Forgery Protected Support (see wiki to see limitations)</li>
-    <li>[Fix] Limit this version for 8.5.x users</li>
+    <li>[Fix] Limit this version for 8.5.x - 9.0.x users</li>
     <li>[Fix] Encoded space character in url</li>
 </ul>
 Version 0.3:<br/>
