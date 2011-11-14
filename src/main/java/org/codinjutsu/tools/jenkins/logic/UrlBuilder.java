@@ -22,7 +22,6 @@ import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Iterator;
 import java.util.Map;
 
 class UrlBuilder {
@@ -38,15 +37,15 @@ class UrlBuilder {
 
     public URL createRunJobUrl(String jobBuildUrl, JenkinsConfiguration configuration)
             throws MalformedURLException, URIException {
-        return new URL(URIUtil.encodePathQuery(jobBuildUrl + BUILD + "?delay=" + configuration.getBuildDelay() + "sec"));
+        return new URL(jobBuildUrl + URIUtil.encodePathQuery(BUILD + "?delay=" + configuration.getBuildDelay() + "sec"));
     }
 
     public URL createRunParameterizedJobUrl(String jobUrl, JenkinsConfiguration configuration, Map<String, String> paramValueMap) throws MalformedURLException, URIException {
-        StringBuilder strBuilder = new StringBuilder(jobUrl + PARAMETERIZED_BUILD + "?delay=" + configuration.getBuildDelay() + "sec");
-        for (Map.Entry<String, String> valueByName: paramValueMap.entrySet()) {
+        StringBuilder strBuilder = new StringBuilder(PARAMETERIZED_BUILD + "?delay=" + configuration.getBuildDelay() + "sec");
+        for (Map.Entry<String, String> valueByName : paramValueMap.entrySet()) {
             strBuilder.append("&").append(valueByName.getKey()).append("=").append(valueByName.getValue());
         }
-        return new URL(URIUtil.encodePathQuery(strBuilder.toString()));
+        return new URL(jobUrl + URIUtil.encodePathQuery(strBuilder.toString()));
     }
 
     public URL createJenkinsWorkspaceUrl(JenkinsConfiguration configuration)
@@ -55,11 +54,11 @@ class UrlBuilder {
     }
 
     public URL createViewUrl(String viewUrl) throws MalformedURLException, URIException {
-        return new URL(URIUtil.encodePathQuery(viewUrl + API_XML + TREE_PARAM + BASIC_VIEW_INFO));
+        return new URL(viewUrl + URIUtil.encodePathQuery(API_XML + TREE_PARAM + BASIC_VIEW_INFO));
     }
 
     public URL createJobUrl(String jobUrl) throws MalformedURLException, URIException {
-        return new URL(URIUtil.encodePathQuery(jobUrl + API_XML + TREE_PARAM + BASIC_JOB_INFO));
+        return new URL(jobUrl + URIUtil.encodePathQuery(API_XML + TREE_PARAM + BASIC_JOB_INFO));
     }
 
     public URL createRssLatestUrl(String serverUrl) throws MalformedURLException {

@@ -308,6 +308,7 @@ public class JenkinsBrowserLogic {
                         loadSelectedView();
                     } catch (Exception e) {
 //TODO Gros KK !
+                        System.out.println("e = " + e.getMessage());
                     }
                 }
             }
@@ -322,7 +323,7 @@ public class JenkinsBrowserLogic {
             try {
                 loadSelectedView();
             } catch (Exception e) {
-//TODO Gros KK !
+                System.out.println("e = " + e.getMessage());
             }
         }
     }

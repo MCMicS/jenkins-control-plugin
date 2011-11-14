@@ -30,6 +30,7 @@ class NoSecurityClient implements SecurityClient {
     private final HttpClient client;
     private String crumbName;
     private String crumbValue;
+    private PostMethod currentPostMethod;
 
 
     NoSecurityClient() {
@@ -75,17 +76,17 @@ class NoSecurityClient implements SecurityClient {
 
     public InputStream executeAndGetResponseStream(URL url) throws Exception {
         String urlStr = url.toString();
-        PostMethod post = new PostMethod(urlStr);
+        currentPostMethod = new PostMethod(urlStr);
         if (!isCrumbDataSet()) {
             getCrumbData(urlStr);
         }
-        post.addRequestHeader(crumbName, crumbValue);
-//        try {
-        client.executeMethod(post);
-        return post.getResponseBodyAsStream();
-//        } finally {
-//            post.releaseConnection();
-//        }
+        currentPostMethod.addRequestHeader(crumbName, crumbValue);
+        client.executeMethod(currentPostMethod);
+        return currentPostMethod.getResponseBodyAsStream();
+    }
+
+    public void releasePostConnection() {
+        currentPostMethod.releaseConnection();
     }
 
 

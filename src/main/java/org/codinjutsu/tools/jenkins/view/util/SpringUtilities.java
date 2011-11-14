@@ -32,7 +32,6 @@
 package org.codinjutsu.tools.jenkins.view.util;
 
 import javax.swing.*;
-import javax.swing.SpringLayout;
 import java.awt.*;
 
 /**
@@ -45,9 +44,9 @@ public class SpringUtilities {
 
     /* Used by makeCompactGrid. */
     private static SpringLayout.Constraints getConstraintsForCell(
-                                                int row, int col,
-                                                Container parent,
-                                                int cols) {
+            int row, int col,
+            Container parent,
+            int cols) {
         SpringLayout layout = (SpringLayout) parent.getLayout();
         Component c = parent.getComponent(row * cols + col);
         return layout.getConstraints(c);
@@ -61,13 +60,13 @@ public class SpringUtilities {
      * height is similarly determined for each row.
      * The parent is made just big enough to fit them all.
      *
-     * @param parent parent container
-     * @param rows number of rows
-     * @param cols number of columns
+     * @param parent   parent container
+     * @param rows     number of rows
+     * @param cols     number of columns
      * @param initialX x location to start the grid at
      * @param initialY y location to start the grid at
-     * @param xPad x padding between cells
-     * @param yPad y padding between cells
+     * @param xPad     x padding between cells
+     * @param yPad     y padding between cells
      */
     public static void makeCompactGrid(Container parent,
                                        int rows, int cols,
@@ -75,7 +74,7 @@ public class SpringUtilities {
                                        int xPad, int yPad) {
         SpringLayout layout;
         try {
-            layout = (SpringLayout)parent.getLayout();
+            layout = (SpringLayout) parent.getLayout();
         } catch (ClassCastException exc) {
             System.err.println("The first argument to makeCompactGrid must use SpringLayout.");
             return;
@@ -87,8 +86,8 @@ public class SpringUtilities {
             Spring width = Spring.constant(0);
             for (int r = 0; r < rows; r++) {
                 width = Spring.max(width,
-                                   getConstraintsForCell(r, c, parent, cols).
-                                       getWidth());
+                        getConstraintsForCell(r, c, parent, cols).
+                                getWidth());
             }
             for (int r = 0; r < rows; r++) {
                 SpringLayout.Constraints constraints =
@@ -105,8 +104,8 @@ public class SpringUtilities {
             Spring height = Spring.constant(0);
             for (int c = 0; c < cols; c++) {
                 height = Spring.max(height,
-                                    getConstraintsForCell(r, c, parent, cols).
-                                        getHeight());
+                        getConstraintsForCell(r, c, parent, cols).
+                                getHeight());
             }
             for (int c = 0; c < cols; c++) {
                 SpringLayout.Constraints constraints =

@@ -19,14 +19,12 @@ package org.codinjutsu.tools.jenkins.security;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.security.SslSocketConnector;
 import org.mortbay.jetty.webapp.WebAppContext;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.net.URL;
 

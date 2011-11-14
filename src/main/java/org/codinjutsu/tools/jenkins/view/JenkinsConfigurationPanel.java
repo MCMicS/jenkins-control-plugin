@@ -38,7 +38,10 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.*;
 
@@ -302,7 +305,7 @@ public class JenkinsConfigurationPanel {
         }
     }
 
-   private class EnablerPasswordFileListener implements ItemListener {
+    private class EnablerPasswordFileListener implements ItemListener {
         private final JCheckBox enablerCheckBox;
         private final LabeledComponent<TextFieldWithBrowseButton> fieldToEnable;
         private final String resetValue;

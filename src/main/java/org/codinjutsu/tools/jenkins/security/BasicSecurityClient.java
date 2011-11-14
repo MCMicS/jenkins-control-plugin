@@ -43,6 +43,7 @@ class BasicSecurityClient implements SecurityClient {
     private String crumbValue;
 
     private static final String TEST_CONNECTION_REQUEST = "/api/xml?tree=nodeName";
+    private PostMethod currentPostMethod;
 
     BasicSecurityClient(String username, String passwordFile) {
         this.client = new HttpClient();
@@ -82,16 +83,16 @@ class BasicSecurityClient implements SecurityClient {
 
     public String execute(URL url) throws Exception {
         String urlStr = url.toString();
-        PostMethod post = new PostMethod(urlStr);
+        PostMethod postMethod = new PostMethod(urlStr);
         if (!isCrumbDataSet()) {
             getCrumbData(urlStr);
         }
         try {
-            client.executeMethod(post);
-            checkStatusCode(post.getStatusCode());
-            return post.getResponseBodyAsString();
+            client.executeMethod(postMethod);
+            checkStatusCode(postMethod.getStatusCode());
+            return postMethod.getResponseBodyAsString();
         } finally {
-            post.releaseConnection();
+            postMethod.releaseConnection();
         }
     }
 
@@ -108,14 +109,18 @@ class BasicSecurityClient implements SecurityClient {
 
     public InputStream executeAndGetResponseStream(URL url) throws Exception {
         String urlStr = url.toString();
-        PostMethod post = new PostMethod(urlStr);
+        currentPostMethod = new PostMethod(urlStr);
         if (!isCrumbDataSet()) {
             getCrumbData(urlStr);
         }
 
-        client.executeMethod(post);
-        checkStatusCode(post.getStatusCode());
-        return post.getResponseBodyAsStream();
+        client.executeMethod(currentPostMethod);
+        checkStatusCode(currentPostMethod.getStatusCode());
+        return currentPostMethod.getResponseBodyAsStream();
+    }
+
+    public void releasePostConnection() {
+        currentPostMethod.releaseConnection();
     }
 
 

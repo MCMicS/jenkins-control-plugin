@@ -38,7 +38,7 @@ public abstract class AbstractSecurityClientTestCase {
 
 
     protected static final String JENKINS_HTTP_URL = "http://" + HOST + ":" + STANDARD_PORT + "/jenkins";
-    
+
     protected static final String JENKINS_HTTPS_URL = "https://" + HOST + ":" + HTTPS_PORT + "/jenkins";
 
     private static Server server;

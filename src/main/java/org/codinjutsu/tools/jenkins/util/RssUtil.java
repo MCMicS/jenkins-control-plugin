@@ -28,7 +28,7 @@ public class RssUtil {
     private static final Pattern BUILD_NUMBER_MATCHER = Pattern.compile("#[0-9]{1,}+");
 
     private static final Pattern SUCCESS_MATCHER = Pattern.compile("normal|stable");
-    
+
     private static final Pattern FAILED_MATCHER = Pattern.compile("failing|broken");
 
     private static final Pattern ABORTED_MATCHER = Pattern.compile("aborted");

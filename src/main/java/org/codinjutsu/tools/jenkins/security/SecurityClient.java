@@ -27,4 +27,6 @@ public interface SecurityClient {
 
     InputStream executeAndGetResponseStream(URL url) throws Exception;
 
+    void releasePostConnection();
+
 }

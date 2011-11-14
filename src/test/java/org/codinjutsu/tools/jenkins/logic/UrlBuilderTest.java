@@ -16,7 +16,6 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
-import org.apache.commons.httpclient.util.URIUtil;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +37,7 @@ public class UrlBuilderTest {
     public void createRunJobUrl() throws Exception {
         configuration.setDelay(20);
 
-        URL url = urlBuilder.createRunJobUrl("http://localhost:8080/jenkins/My Job", configuration);
+        URL url = urlBuilder.createRunJobUrl("http://localhost:8080/jenkins/My%20Job", configuration);
         assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/My%20Job/build?delay=20sec"));
     }
 
@@ -51,7 +50,7 @@ public class UrlBuilderTest {
         valueByNameParams.put("param1", "value1");
         valueByNameParams.put("param2", "value2");
 
-        URL url = urlBuilder.createRunParameterizedJobUrl("http://localhost:8080/jenkins/My Job", configuration, valueByNameParams);
+        URL url = urlBuilder.createRunParameterizedJobUrl("http://localhost:8080/jenkins/My%20Job", configuration, valueByNameParams);
         assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/My%20Job/buildWithParameters?delay=20sec&param2=value2&param1=value1"));
     }
 
@@ -67,14 +66,14 @@ public class UrlBuilderTest {
 
     @Test
     public void createViewUrl() throws Exception {
-        URL url = urlBuilder.createViewUrl("http://localhost:8080/jenkins/My View");
+        URL url = urlBuilder.createViewUrl("http://localhost:8080/jenkins/My%20View");
         assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/My%20View/api/xml?tree=name,url,jobs%5Bname,url,color,inQueue,healthReport%5BiconUrl%5D,lastBuild%5Burl,building,result,number%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,choices%5D%5D%5D"));
     }
 
 
     @Test
     public void createJobUrl() throws Exception {
-        URL url = urlBuilder.createJobUrl("http://localhost:8080/jenkins/my Job");
+        URL url = urlBuilder.createJobUrl("http://localhost:8080/jenkins/my%20Job");
         assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/my%20Job/api/xml?tree=name,url,color,inQueue,healthReport%5BiconUrl%5D,lastBuild%5Burl,building,result,number%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,choices%5D%5D"));
     }
 

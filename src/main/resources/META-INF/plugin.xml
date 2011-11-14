@@ -1,9 +1,9 @@
 <idea-plugin>
-    <name>Jenkins Control Plugin</name>
-    <description>A Jenkins Plugin for Intellij</description>
+    <name>Jenkins Control Plugin IDEA 8.5.x</name>
+    <description>A Jenkins Plugin for old Intellij 8.5.x</description>
     <version>0.3</version>
     <vendor email="david.boissier@gmail.com" url="htp://codinjutsu.blogger.com">David Boissier</vendor>
-    <idea-version since-build="9886"/>
+    <idea-version since-build="9886" max="9886"/>
 
     <project-components>
         <component>
@@ -12,11 +12,17 @@
     </project-components>
 
     <change-notes><![CDATA[
+Version 0.3.1:<br/>
+<ul>
+    <li>[Fix] Cross Site Request Forgery Protected Support (see wiki to see limitations)</li>
+    <li>[Fix] Limit this version for 8.5.x users</li>
+    <li>[Fix] Encoded space character in url</li>
+</ul>
 Version 0.3:<br/>
 <ul>
     <li>[Add] Parameterized Builds are supported (see wiki to see limitations)</li>
     <li>[Add] Browser Panel: health icon for each job</li>
-    <li>[Update] Configuration Panel :  add Button Wizard which try to resolve security configuration</li> 
+    <li>[Update] Configuration Panel :  add Button Wizard which try to resolve security configuration</li>
     <li>[Update] Security Support : Rewrite from scratch with replacing CLI by HttpClient (see wiki for more info)</li>
     <li>[Fix] issue #5 : When clicking on the Jenkins plugin settings button, the Jenkins plugin configuration should be always selected</li>
 </ul>

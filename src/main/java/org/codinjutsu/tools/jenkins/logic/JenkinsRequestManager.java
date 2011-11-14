@@ -106,6 +106,7 @@ public class JenkinsRequestManager {
             if (inputStream != null) {
                 inputStream.close();
             }
+            securityClient.releasePostConnection();
         }
     }
 
@@ -123,6 +124,7 @@ public class JenkinsRequestManager {
             if (inputStream != null) {
                 inputStream.close();
             }
+            securityClient.releasePostConnection();
         }
     }
 
@@ -140,6 +142,7 @@ public class JenkinsRequestManager {
             if (inputStream != null) {
                 inputStream.close();
             }
+            securityClient.releasePostConnection();
         }
     }
 

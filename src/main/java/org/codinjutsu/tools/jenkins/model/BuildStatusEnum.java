@@ -26,8 +26,7 @@ public enum BuildStatusEnum {
     NULL("Null", "disabled"),
     UNSTABLE("Unstable", "yellow"),
     STABLE("Stable", "blue"),
-    ABORTED("Aborted","aborted")
-    ;
+    ABORTED("Aborted", "aborted");
     private final String status;
     private final String color;
 
