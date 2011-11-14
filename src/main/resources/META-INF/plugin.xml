@@ -1,9 +1,9 @@
 <idea-plugin>
-    <name>Jenkins Control Plugin IDEA 9-</name>
-    <description>A Jenkins Plugin for Intellij 8.5.0 until 9.0.4</description>
-    <version>0.3.1</version>
+    <name>Jenkins Control Plugin IDEA 10+</name>
+    <description>A Jenkins Plugin for Intellij</description>
+    <version>0.4</version>
     <vendor email="david.boissier@gmail.com" url="htp://codinjutsu.blogger.com">David Boissier</vendor>
-    <idea-version since-build="9886" until-build="95.627"/>
+    <idea-version since-build="99.32"/>
 
     <project-components>
         <component>
@@ -12,6 +12,10 @@
     </project-components>
 
     <change-notes><![CDATA[
+Version 0.4.0:<br/>
+<ul>
+    <li>[Fix] Remove HttpClient from package (already embedded in Idea 10)</li>
+</ul>
 Version 0.3.1:<br/>
 <ul>
     <li>[Fix] Cross Site Request Forgery Protected Support (see wiki to see limitations)</li>

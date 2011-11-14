@@ -15,6 +15,7 @@
                 <exclude>com.intellij:idea-openapi</exclude>
                 <exclude>log4j:log4j</exclude>
                 <exclude>jdom:jdom</exclude>
+                <exclude>commons-httpclient:commons-httpclient</exclude>
             </excludes>
         </dependencySet>
     </dependencySets>
