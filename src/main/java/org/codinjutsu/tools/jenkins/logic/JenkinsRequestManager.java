@@ -178,17 +178,9 @@ public class JenkinsRequestManager {
     }
 
 
-    public AuthenticationResult authenticate(final String serverUrl, SecurityMode securityMode, final String username, final String passwordFile) {
-        try {
-            securityClient = SecurityClientFactory.create(securityMode, username, passwordFile);
-
-            securityClient.connect(new URL(serverUrl));
-            return AuthenticationResult.SUCCESSFULL;
-
-        } catch (Exception e) {
-            return AuthenticationResult.FAILED;
-        }
-
+    public void authenticate(final String serverUrl, SecurityMode securityMode, final String username, final String passwordFile) throws Exception {
+        securityClient = SecurityClientFactory.create(securityMode, username, passwordFile);
+        securityClient.connect(new URL(serverUrl));
     }
 
 

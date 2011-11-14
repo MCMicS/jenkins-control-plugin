@@ -22,7 +22,6 @@ import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
-import org.codinjutsu.tools.jenkins.logic.AuthenticationResult;
 import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
 import org.codinjutsu.tools.jenkins.security.AuthenticationException;
 import org.codinjutsu.tools.jenkins.security.SecurityMode;
@@ -213,23 +212,14 @@ public class JenkinsConfigurationPanel {
         String resetPeriodValue = Integer.toString(JenkinsConfiguration.RESET_PERIOD_VALUE);
 
         testConnexionButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                final AuthenticationResult authResult = jenkinsRequestManager.authenticate(
-                        serverUrl.getText(), securityMode, username.getText(), passwordFile.getComponent().getText());
-
-
-                SwingUtils.runInSwingThread(new ThreadFunctor() {
-                    public void run() {
-                        Color foregroundColor = CONNECTION_TEST_FAILED_COLOR;
-                        if (AuthenticationResult.SUCCESSFULL.equals(authResult)) {
-                            foregroundColor = CONNECTION_TEST_SUCCESSFUL_COLOR;
-                        }
-
-                        connectionStatusLabel.setForeground(foregroundColor);
-                        connectionStatusLabel.setText(authResult.getLabel());
-                    }
-                });
-
+            public void actionPerformed(ActionEvent event) {
+                try {
+                    jenkinsRequestManager.authenticate(
+                            serverUrl.getText(), securityMode, username.getText(), passwordFile.getComponent().getText());
+                    setConnectionFeedbackLabel(CONNECTION_TEST_SUCCESSFUL_COLOR, "Successful");
+                } catch (Exception ex) {
+                    setConnectionFeedbackLabel(CONNECTION_TEST_FAILED_COLOR, "Fail: " + ex.getMessage());
+                }
             }
         });
 
@@ -269,6 +259,15 @@ public class JenkinsConfigurationPanel {
                 } else {
                     securityMode = SecurityMode.NONE;
                 }
+            }
+        });
+    }
+
+    private void setConnectionFeedbackLabel(final Color labelColor, final String labelText) {
+        SwingUtils.runInSwingThread(new ThreadFunctor() {
+            public void run() {
+                connectionStatusLabel.setForeground(labelColor);
+                connectionStatusLabel.setText(labelText);
             }
         });
     }

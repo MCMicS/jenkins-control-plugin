@@ -17,6 +17,7 @@
 package org.codinjutsu.tools.jenkins.security;
 
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpConnection;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -124,14 +125,21 @@ class BasicSecurityClient implements SecurityClient {
     }
 
 
-    private void getCrumbData(String baseUrlStr) throws IOException {
+    private void getCrumbData(String baseUrlStr) throws Exception {
         URL breadCrumbUrl = new URL(URIUtil.encodePathQuery(baseUrlStr + "/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,\":\",//crumb)"));
-        URLConnection urlConnection = breadCrumbUrl.openConnection();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-        String crumbData = reader.readLine();
-        String[] crumbNameValue = crumbData.split(":");
-        crumbName = crumbNameValue[0];
-        crumbValue = crumbNameValue[1];
+        URLConnection urlConnection;
+        try {
+            urlConnection = breadCrumbUrl.openConnection();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+            String crumbData = reader.readLine();
+            String[] crumbNameValue = crumbData.split(":");
+            crumbName = crumbNameValue[0];
+            crumbValue = crumbNameValue[1];
+        } catch (IOException ioEx) {
+            if (ioEx.getMessage().contains(Integer.toString(HttpURLConnection.HTTP_FORBIDDEN))) {
+                throw new AuthenticationException("If Cross Request Site Forgery Protection is set,\n Anonymous users should have at least read-only access");
+            }
+        }
     }
 
 
