@@ -9,13 +9,14 @@
 /*                   - Add Weather icon on the job        */
 /*                   - Parameterized builds are supported */
 /*                     (see limitations on the wiki)      */
+/*            - 0.4: - create branch for IDEA 10.x        */
 /**********************************************************/
 
 Description : This plugin allows to view the content of your Jenkins Continous Integration Server.
 
 Plugin Compatibility :
 
-This plugin was built with JDK 1.5 and IntelliJ-8.1.3-jdk5 version. Jenkins 1.437 was use for manual testing.
+This plugin was built with JDK 1.6 and ideaIU-10.0.1 version. Jenkins 1.437 was use for manual testing.
 
 Installation steps:
 
@@ -27,7 +28,8 @@ Configuration steps:
   -  Click on the Jenkins Settings button (or click on the IDEA General Settings and select Jenkins Control Plugin):
   -  Set your Jenkins url in the Server Address text field.
   -  If you are not sure about the security configuration of your Jenkins, you can click on the 'Wizard' Button.
-     (Please note that only In-House Jenkins Security mode and SSL Protocol with trusted certificate are supported)
+     (Please note that only In-House Jenkins Security mode and SSL Protocol with trusted certificate are supported.
+     Moreover if Cross Site Request Forgery Prevention is set, anonymous user should have at least read-only access)
   -  If security is enabled on the Jenkins Server, put your credentials (Note that the password should be put in a file).
      To make sure your security parameters are correct, you can test by clicking on the 'Test Connection' button.
 

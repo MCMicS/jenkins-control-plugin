@@ -1,8 +1,8 @@
 <idea-plugin>
-    <name>Jenkins Control Plugin IDEA 10+</name>
-    <description>A Jenkins Plugin for Intellij</description>
+    <name>Jenkins Control Plugin</name>
+    <description>A Jenkins Plugin for Intellij for IDEA 10+</description>
     <version>0.4</version>
-    <vendor email="david.boissier@gmail.com" url="htp://codinjutsu.blogger.com">David Boissier</vendor>
+    <vendor email="david.boissier [at] gmail [dot] com" url="http://codinjutsu.blogger.com">David Boissier</vendor>
     <idea-version since-build="99.32"/>
 
     <project-components>
@@ -14,7 +14,7 @@
     <change-notes><![CDATA[
 Version 0.4.0:<br/>
 <ul>
-    <li>[Fix] Remove HttpClient from package (already embedded in Idea 10)</li>
+    <li>[Fix] Remove HttpClient from package (already embedded in Idea 10) and limit this version to Idea 10.x</li>
 </ul>
 Version 0.3.1:<br/>
 <ul>
