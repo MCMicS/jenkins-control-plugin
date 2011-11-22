@@ -51,7 +51,7 @@ public class UrlBuilderTest {
         valueByNameParams.put("param2", "value2");
 
         URL url = urlBuilder.createRunParameterizedJobUrl("http://localhost:8080/jenkins/My%20Job", configuration, valueByNameParams);
-        assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/My%20Job/buildWithParameters?delay=20sec&param2=value2&param1=value1"));
+        assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/My%20Job/buildWithParameters?delay=20sec&param1=value1&param2=value2"));
     }
 
 
