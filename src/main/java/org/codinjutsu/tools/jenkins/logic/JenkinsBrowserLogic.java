@@ -191,7 +191,7 @@ public class JenkinsBrowserLogic {
     private void loadJenkinsWorkspace() {
         if (configuration.isServerUrlSet()) {
             try {
-                jenkinsRequestManager.authenticate(configuration.getServerUrl(), configuration.getSecurityMode(), configuration.getUsername(), configuration.getPasswordFile());
+                jenkinsRequestManager.authenticate(configuration.getServerUrl(), configuration.getSecurityMode(), configuration.getUsername(), configuration.getPasswordFile(), configuration.getCrumbFile());
                 jenkins = jenkinsRequestManager.loadJenkinsWorkspace(configuration);
                 browserPanel.initModel(jenkins);
                 String preferredView = configuration.getPreferredView();

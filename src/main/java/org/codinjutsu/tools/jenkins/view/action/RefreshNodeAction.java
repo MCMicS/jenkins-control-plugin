@@ -50,7 +50,7 @@ public class RefreshNodeAction extends AnAction {
                 logic.loadSelectedView();
             }
         } catch (Exception ex) {
-            jenkinsControlComponent.notifyErrorJenkinsToolWindow("Build cannot be run: " + ex.getMessage());
+            jenkinsControlComponent.notifyErrorJenkinsToolWindow("Unable to refresh: " + ex.getMessage());
         }
     }
 

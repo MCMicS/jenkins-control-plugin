@@ -46,14 +46,25 @@ public class RunBuildAction extends AnAction {
     public void actionPerformed(AnActionEvent event) {
         Project project = getProject(event);
 
-        JenkinsControlComponent jenkinsControlComponent = project.getComponent(JenkinsControlComponent.class);
+        final JenkinsControlComponent jenkinsControlComponent = project.getComponent(JenkinsControlComponent.class);
         try {
 
             Job job = jenkinsBrowserLogic.getSelectedJob();
 
             JenkinsRequestManager jenkinsManager = jenkinsBrowserLogic.getJenkinsManager();
             if (job.hasParameters()) {
-                BuildParamDialog.showDialog(job, jenkinsControlComponent.getState(), jenkinsManager);
+                BuildParamDialog.showDialog(job, jenkinsControlComponent.getState(), jenkinsManager, new BuildParamDialog.BuildCallback() {
+
+                    public void notifyOnOk(Job job) {
+                        jenkinsControlComponent.notifyInfoJenkinsToolWindow(HtmlUtil.createHtmlLinkMessage(
+                                job.getName() + " build is on going",
+                                job.getUrl()), GuiUtil.loadIcon("toolWindowRun.png"));
+                    }
+
+                    public void notifyOnError(Job job, Exception ex) {
+                        jenkinsControlComponent.notifyErrorJenkinsToolWindow("Build cannot be run: " + ex.getMessage());
+                    }
+                });
             } else {
                 jenkinsManager.runBuild(job, jenkinsControlComponent.getState());
 

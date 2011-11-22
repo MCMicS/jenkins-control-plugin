@@ -17,164 +17,100 @@
 package org.codinjutsu.tools.jenkins.security;
 
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpConnection;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.util.URIUtil;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
-import java.io.*;
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 
 
-class BasicSecurityClient implements SecurityClient {
-
-    private URL master;
+class BasicSecurityClient extends AbstractSecurityClient {
 
     private final String username;
     private final String passwordFile;
     private String password = null;
 
-    private final HttpClient client;
-    private String crumbName;
-    private String crumbValue;
 
-    private static final String TEST_CONNECTION_REQUEST = "/api/xml?tree=nodeName";
-    private PostMethod currentPostMethod;
-
-    BasicSecurityClient(String username, String passwordFile) {
-        this.client = new HttpClient();
+    BasicSecurityClient(String username, String passwordFile, String crumbDataFile) {
+        super(new HttpClient(), crumbDataFile);
         this.username = username;
         this.passwordFile = passwordFile;
     }
 
 
-    public void connect(URL jenkinsUrl) throws Exception {
-        master = new URL(jenkinsUrl.toString() + TEST_CONNECTION_REQUEST);
+    public void connect(URL jenkinsURL) throws Exception {
+        URL url = new URL(jenkinsURL.toString() + TEST_CONNECTION_REQUEST);
 
-        if (!isCrumbDataSet()) {
-            getCrumbData(jenkinsUrl.toString());
-        }
+        setCrumbValueIfNeeded();
 
-
-        if (passwordFile != null) {
-            password = IOUtils.toString(new FileInputStream(passwordFile));
-            if (StringUtils.isNotEmpty(password)) {
-                password = StringUtils.removeEnd(password, "\n");
-            }
+        if (StringUtils.isNotEmpty(passwordFile)) {
+            password = extractValueFromFile(passwordFile);
         }
 
         if (password == null && username == null) {
-            checkJenkinsSecurity();
+            checkJenkinsSecurity(url);
         }
-        doAuthentication();
+        doAuthentication(url);
 
 
     }
 
-
-    private boolean isCrumbDataSet() {
-        return crumbName != null && crumbValue != null;
-    }
-
-
-    public String execute(URL url) throws Exception {
-        String urlStr = url.toString();
-        PostMethod postMethod = new PostMethod(urlStr);
-        if (!isCrumbDataSet()) {
-            getCrumbData(urlStr);
-        }
-        try {
-            client.executeMethod(postMethod);
-            checkStatusCode(postMethod.getStatusCode());
-            return postMethod.getResponseBodyAsString();
-        } finally {
-            postMethod.releaseConnection();
-        }
-    }
-
-
-    private static void checkStatusCode(int statusCode) throws AuthenticationException {
-        if (HttpURLConnection.HTTP_FORBIDDEN == statusCode) {
-            throw new AuthenticationException("Forbidden");
-        }
-        if (HttpURLConnection.HTTP_INTERNAL_ERROR == statusCode) {
-            throw new AuthenticationException("Server Internal Error");
-        }
-    }
-
-
-    public InputStream executeAndGetResponseStream(URL url) throws Exception {
-        String urlStr = url.toString();
-        currentPostMethod = new PostMethod(urlStr);
-        if (!isCrumbDataSet()) {
-            getCrumbData(urlStr);
-        }
-
-        client.executeMethod(currentPostMethod);
-        checkStatusCode(currentPostMethod.getStatusCode());
-        return currentPostMethod.getResponseBodyAsStream();
-    }
-
-    public void releasePostConnection() {
-        currentPostMethod.releaseConnection();
-    }
-
-
-    private void getCrumbData(String baseUrlStr) throws Exception {
-        URL breadCrumbUrl = new URL(URIUtil.encodePathQuery(baseUrlStr + "/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,\":\",//crumb)"));
-        URLConnection urlConnection;
-        try {
-            urlConnection = breadCrumbUrl.openConnection();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-            String crumbData = reader.readLine();
-            String[] crumbNameValue = crumbData.split(":");
-            crumbName = crumbNameValue[0];
-            crumbValue = crumbNameValue[1];
-        } catch (IOException ioEx) {
-            if (ioEx.getMessage().contains(Integer.toString(HttpURLConnection.HTTP_FORBIDDEN))) {
-                throw new AuthenticationException("If Cross Request Site Forgery Protection is set,\n Anonymous users should have at least read-only access");
-            }
-        }
-    }
-
-
-    private void doAuthentication() throws IOException, AuthenticationException {
+    private void doAuthentication(URL jenkinsUrl) throws IOException, AuthenticationException {
 
         if (username != null && password != null) {
-            client.getState().setCredentials(
-                    new AuthScope(master.getHost(), master.getPort()),
+            httpClient.getState().setCredentials(
+                    new AuthScope(jenkinsUrl.getHost(), jenkinsUrl.getPort()),
                     new UsernamePasswordCredentials(username, password));
         }
 
 
-        client.getParams().setAuthenticationPreemptive(true);
-        client.getParams().setParameter("http.protocol.handle-redirects", false);
+        httpClient.getParams().setAuthenticationPreemptive(true);
 
-        PostMethod postMethod = new PostMethod(master.toString());
+        PostMethod postMethod = new PostMethod(jenkinsUrl.toString());
 
+        if (isCrumbDataSet()) {
+            postMethod.addRequestHeader(CRUMB_NAME, crumbValue);
+        }
 
         postMethod.setDoAuthentication(true);
-        postMethod.setFollowRedirects(false);
-        int responseCode = client.executeMethod(postMethod);
+        int responseCode = httpClient.executeMethod(postMethod);
         if (responseCode != HttpURLConnection.HTTP_OK) {
-            if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED || responseCode == HttpURLConnection.HTTP_FORBIDDEN
-                    || responseCode == HttpURLConnection.HTTP_MOVED_TEMP) {
-                throw new AuthenticationException("Bad Credentials.");
-            }
+            checkResponse(responseCode, postMethod.getResponseBodyAsString());
         }
 
         postMethod.releaseConnection();
     }
 
 
-    private void checkJenkinsSecurity() throws AuthenticationException {
+    public String execute(URL url) throws Exception {
+        String urlStr = url.toString();
+        PostMethod postMethod = new PostMethod(urlStr);
+
+        setCrumbValueIfNeeded();
+
+        if (isCrumbDataSet()) {
+            postMethod.addRequestHeader(CRUMB_NAME, crumbValue);
+        }
+
         try {
-            HttpURLConnection con = (HttpURLConnection) master
+            int statusCode = httpClient.executeMethod(postMethod);
+            String responseBody = postMethod.getResponseBodyAsString();
+            if (HttpURLConnection.HTTP_OK != statusCode) {
+                checkResponse(postMethod.getStatusCode(), responseBody);
+            }
+            return responseBody;
+        } finally {
+            postMethod.releaseConnection();
+        }
+    }
+
+
+    private void checkJenkinsSecurity(URL jenkinsUrl) throws AuthenticationException {
+        try {
+            HttpURLConnection con = (HttpURLConnection) jenkinsUrl
                     .openConnection();
             con.connect();
 
@@ -182,14 +118,9 @@ class BasicSecurityClient implements SecurityClient {
                 throw new AuthenticationException("This Jenkins server requires authentication!");
             }
 
-            String jenkinsHeader = con.getHeaderField("X-Jenkins");
-            if (jenkinsHeader == null) {
-                throw new AuthenticationException("This URL doesn't look like Jenkins.");
-            }
         } catch (IOException ioEx) {
-            throw new AuthenticationException("Failed to connect to " + master, ioEx);
+            throw new AuthenticationException("Failed to connect to " + jenkinsUrl, ioEx);
         }
     }
-
 
 }

@@ -72,6 +72,9 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
         assertFalse(passwordTextField.isEnabled());
         passwordTextField.textIsEmpty().check();
 
+        TextBox crumbDataFileTextField = uiSpecPanel.getTextBox("crumbDataFile");
+        crumbDataFileTextField.textIsEmpty().check();
+
     }
 
 
@@ -113,6 +116,10 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
         assertTrue(passwordFileField.isEnabled());
         passwordFileField.setText("D:/password.txt");
 
+        TextBox crumbDataFileField = uiSpecPanel.getTextBox("crumbDataFile");
+        assertTrue(crumbDataFileField.isEnabled());
+        crumbDataFileField.setText("D:/crumbData.txt");
+
         jenkinsConfigurationPanel.applyConfigurationData(configuration);
 
         assertEquals("http://anotherjenkinsserver:1010/jenkins", configuration.getServerUrl());
@@ -124,6 +131,7 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
         assertEquals(SecurityMode.BASIC, configuration.getSecurityMode());
         assertEquals("johndoe", configuration.getUsername());
         assertEquals("D:/password.txt", configuration.getPasswordFile());
+        assertEquals("D:/crumbData.txt", configuration.getCrumbFile());
     }
 
 

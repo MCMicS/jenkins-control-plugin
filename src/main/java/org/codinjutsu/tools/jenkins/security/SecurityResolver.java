@@ -23,11 +23,14 @@ import java.net.URL;
 
 public class SecurityResolver {
 
+    private static final String CRUMB_REQUEST = "/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,\":\",//crumb)";
+
+
     public static SecurityMode resolve(String serverUrl) throws AuthenticationException {
 
         URL url;
         try {
-            url = new URL(serverUrl);
+            url = new URL(serverUrl + "/api/xml?tree=nodeName");
         } catch (MalformedURLException urlEx) {
             throw new AuthenticationException(urlEx.getMessage());
         }
@@ -39,11 +42,6 @@ public class SecurityResolver {
 
             if (connection.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN) {
                 return SecurityMode.BASIC;
-            }
-
-            String jenkinsHeader = getServerHeader(connection);
-            if (jenkinsHeader == null) {
-                throw new AuthenticationException("This URL doesn't look like Jenkins/Hudson.");
             }
         } catch (IOException ioEx) {
             throw new AuthenticationException(ioEx.getMessage());
@@ -63,4 +61,29 @@ public class SecurityResolver {
         }
         return jenkinsHeader;
     }
+
+
+    //
+//    private void getCrumbData() throws Exception {
+//        URL breadCrumbUrl = new URL(URIUtil.encodePathQuery(serverUrl + CRUMB_REQUEST));
+//        HttpURLConnection urlConnection;
+//        try {
+//            urlConnection = (HttpURLConnection) breadCrumbUrl.openConnection();
+//
+//            if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
+//                return;
+//            }
+//
+//            BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+//            String crumbData = reader.readLine();
+//            if (StringUtils.isNotEmpty(crumbData) && crumbData.contains("crumb")) {
+//                String[] crumbNameValue = crumbData.split(":");
+//                crumbName = crumbNameValue[0];
+//                crumbValue = crumbNameValue[1];
+//            }
+//        } catch (IOException ioEx) {
+//            if (ioEx.getMessage().contains(Integer.toString(HttpURLConnection.HTTP_FORBIDDEN))) {
+//                throw new AuthenticationException("If Cross Request Site Forgery Protection is set,\n Anonymous users should have at least read-only access");
+//            }
+//        }
 }

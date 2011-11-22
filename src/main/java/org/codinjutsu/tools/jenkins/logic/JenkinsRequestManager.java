@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
+import org.apache.commons.io.input.CharSequenceReader;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.model.*;
@@ -27,18 +28,10 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 
-import java.io.InputStream;
 import java.net.URL;
 import java.util.*;
 
 public class JenkinsRequestManager {
-
-    public static final int SUCCESS_ID = 0;
-    public static final int UNAUTHORIZED_ID = 1;
-    public static final int FAILED_ID = 2;
-
-    private static final int DEFAULT_CONNECTION_TIMEOUT = 10000;
-    private static final int DEFAULT_READ_TIMEOUT = 10000;
 
     private static final String JENKINS_DESCRIPTION = "description";
 
@@ -79,8 +72,8 @@ public class JenkinsRequestManager {
     private SecurityClient securityClient;
 
 
-    public JenkinsRequestManager() {
-        this(SecurityClientFactory.none());
+    public JenkinsRequestManager(String crumbDataFile) {
+        this(SecurityClientFactory.none(crumbDataFile));
     }
 
 
@@ -92,77 +85,46 @@ public class JenkinsRequestManager {
 
     public Jenkins loadJenkinsWorkspace(JenkinsConfiguration configuration) throws Exception {
         URL url = urlBuilder.createJenkinsWorkspaceUrl(configuration);
-        InputStream inputStream = null;
-        try {
-            inputStream = securityClient.executeAndGetResponseStream(url);
-            Document doc = getXMLBuilder().build(inputStream);
+        String input = securityClient.execute(url);
 
-            Jenkins jenkins = createJenkins(doc);
-            jenkins.setPrimaryView(createPreferredView(doc));
-            jenkins.setViews(createJenkinsViews(doc));
+        Document doc = getXMLBuilder().build(new CharSequenceReader(input));
 
-            return jenkins;
-        } finally {
-            if (inputStream != null) {
-                inputStream.close();
-            }
-            securityClient.releasePostConnection();
-        }
+        Jenkins jenkins = createJenkins(doc);
+        jenkins.setPrimaryView(createPreferredView(doc));
+        jenkins.setViews(createJenkinsViews(doc));
+
+        return jenkins;
     }
 
 
     public Map<String, Build> loadJenkinsRssLatestBuilds(JenkinsConfiguration configuration) throws Exception {
         URL url = urlBuilder.createRssLatestUrl(configuration.getServerUrl());
 
-        InputStream inputStream = null;
-        try {
-            inputStream = securityClient.executeAndGetResponseStream(url);
-            Document doc = getXMLBuilder().build(inputStream);
+        String inputStream = securityClient.execute(url);
+        Document doc = getXMLBuilder().build(new CharSequenceReader(inputStream));
 
-            return createLatestBuildList(doc);
-        } finally {
-            if (inputStream != null) {
-                inputStream.close();
-            }
-            securityClient.releasePostConnection();
-        }
+        return createLatestBuildList(doc);
     }
 
 
     public List<Job> loadJenkinsView(String viewUrl) throws Exception {
         URL url = urlBuilder.createViewUrl(viewUrl);
 
-        InputStream inputStream = null;
-        try {
-            inputStream = securityClient.executeAndGetResponseStream(url);
-            Document doc = getXMLBuilder().build(inputStream);
+        String inputStream = securityClient.execute(url);
+        Document doc = getXMLBuilder().build(new CharSequenceReader(inputStream));
 
-            return createJenkinsJobs(doc);
-        } finally {
-            if (inputStream != null) {
-                inputStream.close();
-            }
-            securityClient.releasePostConnection();
-        }
+        return createJenkinsJobs(doc);
     }
 
 
     public Job loadJob(String jenkinsJobUrl) throws Exception {
         URL url = urlBuilder.createJobUrl(jenkinsJobUrl);
-        InputStream inputStream = null;
-        try {
-            inputStream = securityClient.executeAndGetResponseStream(url);
-            Document doc = getXMLBuilder().build(inputStream);
+        String inputStream = securityClient.execute(url);
+        Document doc = getXMLBuilder().build(inputStream);
 
-            Element jobElement = doc.getRootElement();
+        Element jobElement = doc.getRootElement();
 
-            return createJob(jobElement);
-
-        } finally {
-            if (inputStream != null) {
-                inputStream.close();
-            }
-        }
+        return createJob(jobElement);
     }
 
 
@@ -178,8 +140,8 @@ public class JenkinsRequestManager {
     }
 
 
-    public void authenticate(final String serverUrl, SecurityMode securityMode, final String username, final String passwordFile) throws Exception {
-        securityClient = SecurityClientFactory.create(securityMode, username, passwordFile);
+    public void authenticate(final String serverUrl, SecurityMode securityMode, final String username, final String passwordFile, String crumbDataFilename) throws Exception {
+        securityClient = SecurityClientFactory.create(securityMode, username, passwordFile, crumbDataFilename);
         securityClient.connect(new URL(serverUrl));
     }
 
