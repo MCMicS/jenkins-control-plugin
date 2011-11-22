@@ -18,42 +18,39 @@ package org.codinjutsu.tools.jenkins.security;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.util.URIUtil;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-class NoSecurityClient implements SecurityClient {
-    private final HttpClient client;
-    private String crumbName;
-    private String crumbValue;
-    private PostMethod currentPostMethod;
+class NoSecurityClient extends AbstractSecurityClient {
 
 
-    NoSecurityClient() {
-        this.client = new HttpClient();
+    NoSecurityClient(String crumbDataFile) {
+        this(crumbDataFile, new HttpClient());
     }
 
 
-    public void connect(URL jenkinsUrl) throws Exception {
-        getCrumbData(jenkinsUrl.toString());
+    NoSecurityClient(String crumbDataFile, HttpClient httpClient) {
+        super(httpClient, crumbDataFile);
     }
 
 
-    private void getCrumbData(String baseUrlStr) throws Exception {
-        URL breadCrumbUrl = new URL(URIUtil.encodePathQuery(baseUrlStr + "/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,\":\",//crumb)"));
-        HttpURLConnection urlConnection = (HttpURLConnection) breadCrumbUrl.openConnection();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-        String crumbData = reader.readLine();
-        String[] crumbNameValue = crumbData.split(":");
-        crumbName = crumbNameValue[0];
-        crumbValue = crumbNameValue[1];
+    public void connect(URL jenkinsURL) throws Exception {
+        try {
+            URL url = new URL(jenkinsURL.toString() + TEST_CONNECTION_REQUEST);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
-        if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN) {
-            throw new AuthenticationException("This Jenkins server requires authentication!");
+            setCrumbValueIfNeeded();
+            connection.setRequestProperty(CRUMB_NAME, crumbValue);
+
+            connection.connect();
+
+            if (connection.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN) {
+                throw new AuthenticationException("This Jenkins server requires authentication!");
+            }
+        } catch (IOException e) {
+            throw new AuthenticationException("Failed to connect to " + jenkinsURL, e);
         }
     }
 
@@ -61,36 +58,23 @@ class NoSecurityClient implements SecurityClient {
     public String execute(URL url) throws Exception {
         String urlStr = url.toString();
         PostMethod post = new PostMethod(urlStr);
-        if (!isCrumbDataSet()) {
-            getCrumbData(urlStr);
+
+        setCrumbValueIfNeeded();
+
+        if (isCrumbDataSet()) {
+            post.addRequestHeader(CRUMB_NAME, crumbValue);
         }
-        post.addRequestHeader(crumbName, crumbValue);
         try {
-            client.executeMethod(post);
-            return post.getResponseBodyAsString();
+            int statusCode = httpClient.executeMethod(post);
+            String responseBody = post.getResponseBodyAsString();
+            if (HttpURLConnection.HTTP_OK != statusCode) {
+                checkResponse(statusCode, responseBody);
+            }
+            return responseBody;
         } finally {
             post.releaseConnection();
         }
     }
 
 
-    public InputStream executeAndGetResponseStream(URL url) throws Exception {
-        String urlStr = url.toString();
-        currentPostMethod = new PostMethod(urlStr);
-        if (!isCrumbDataSet()) {
-            getCrumbData(urlStr);
-        }
-        currentPostMethod.addRequestHeader(crumbName, crumbValue);
-        client.executeMethod(currentPostMethod);
-        return currentPostMethod.getResponseBodyAsStream();
-    }
-
-    public void releasePostConnection() {
-        currentPostMethod.releaseConnection();
-    }
-
-
-    public boolean isCrumbDataSet() {
-        return crumbName != null && crumbValue != null;
-    }
 }

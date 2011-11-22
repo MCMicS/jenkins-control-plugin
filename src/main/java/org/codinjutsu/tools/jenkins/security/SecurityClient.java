@@ -16,7 +16,6 @@
 
 package org.codinjutsu.tools.jenkins.security;
 
-import java.io.InputStream;
 import java.net.URL;
 
 public interface SecurityClient {
@@ -24,9 +23,4 @@ public interface SecurityClient {
     void connect(URL jenkinsUrl) throws Exception;
 
     String execute(URL url) throws Exception;
-
-    InputStream executeAndGetResponseStream(URL url) throws Exception;
-
-    void releasePostConnection();
-
 }

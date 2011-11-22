@@ -2,6 +2,7 @@ package org.codinjutsu.tools.jenkins.view;
 
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
+import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
@@ -27,12 +28,14 @@ public class BuildParamDialog extends JDialog {
     private final Job job;
     private final JenkinsConfiguration configuration;
     private final JenkinsRequestManager jenkinsManager;
+    private final BuildCallback buildCallback;
     private Map<JobParameter, JComponent> inputFieldByParameterMap = new HashMap<JobParameter, JComponent>();
 
-    public BuildParamDialog(Job job, JenkinsConfiguration configuration, JenkinsRequestManager jenkinsManager) {
+    public BuildParamDialog(Job job, JenkinsConfiguration configuration, JenkinsRequestManager jenkinsManager, BuildCallback buildCallback) {
         this.job = job;
         this.configuration = configuration;
         this.jenkinsManager = jenkinsManager;
+        this.buildCallback = buildCallback;
 
         addParameterInputs();
         setTitle("This build requires parameters");
@@ -45,10 +48,10 @@ public class BuildParamDialog extends JDialog {
         registerListeners();
     }
 
-    public static void showDialog(final Job job, final JenkinsConfiguration configuration, final JenkinsRequestManager jenkinsManager) {
+    public static void showDialog(final Job job, final JenkinsConfiguration configuration, final JenkinsRequestManager jenkinsManager, final BuildCallback buildCallback) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                BuildParamDialog dialog = new BuildParamDialog(job, configuration, jenkinsManager);
+                BuildParamDialog dialog = new BuildParamDialog(job, configuration, jenkinsManager, buildCallback);
                 dialog.setLocationRelativeTo(null);
                 dialog.setPreferredSize(new Dimension(300, 200));
                 dialog.pack();
@@ -129,16 +132,19 @@ public class BuildParamDialog extends JDialog {
 
     private void onOK() {
         try {
-            checkInputValues();
+//            checkInputValues();
             jenkinsManager.runParameterizedBuild(job, configuration, getParamValueMap());
             dispose();
-        } catch (Exception e) {
-            setErrorOnFeedbackPanel(e.getMessage());
+            buildCallback.notifyOnOk(job);
+        } catch (ConfigurationException confEx) {
+            setErrorOnFeedbackPanel(confEx.getMessage());
+        } catch (Exception ex) {
+            buildCallback.notifyOnError(job, ex);
         }
-        //ajouter notification ici
+
     }
 
-    private void onCancel() {//TODO corriger la notification
+    private void onCancel() {
         dispose();
     }
 
@@ -204,5 +210,12 @@ public class BuildParamDialog extends JDialog {
         feedbackLabel.setText(message);
         feedbackLabel.setBackground(LIGHT_RED_BACKGROUND);
         feedbackLabel.setBorder(BorderFactory.createLineBorder(RED_BORDER));
+    }
+
+    public interface BuildCallback {
+
+        void notifyOnOk(Job job);
+
+        void notifyOnError(Job job, Exception ex);
     }
 }

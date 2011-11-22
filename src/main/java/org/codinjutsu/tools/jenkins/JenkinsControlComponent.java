@@ -124,7 +124,7 @@ public class JenkinsControlComponent
                 true,
                 ToolWindowAnchor.RIGHT);
 
-        jenkinsRequestManager = new JenkinsRequestManager();
+        jenkinsRequestManager = new JenkinsRequestManager(configuration.getCrumbFile());
         jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, jenkinsRequestManager);
         jenkinsBrowserLogic.init();
 

@@ -19,14 +19,10 @@ package org.codinjutsu.tools.jenkins.view;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.ui.LabeledComponent;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
-import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
-import org.codinjutsu.tools.jenkins.security.AuthenticationException;
 import org.codinjutsu.tools.jenkins.security.SecurityMode;
-import org.codinjutsu.tools.jenkins.security.SecurityResolver;
-import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.util.SwingUtils;
 import org.codinjutsu.tools.jenkins.view.action.ThreadFunctor;
 import org.codinjutsu.tools.jenkins.view.annotation.FormValidator;
@@ -72,16 +68,15 @@ public class JenkinsConfigurationPanel {
     private JCheckBox enableAuthentication;
     private JTextField username;
     private LabeledComponent<TextFieldWithBrowseButton> passwordFile;
+    private LabeledComponent<TextFieldWithBrowseButton> crumbDataFile;
 
     private JPanel rootPanel;
 
+    //    private JButton discoverButton;
     private JButton testConnexionButton;
-
     private JLabel connectionStatusLabel;
 
     private final FormValidator formValidator;
-
-    private JButton discoverButton;
 
 
     private SecurityMode securityMode = SecurityMode.NONE;
@@ -106,9 +101,10 @@ public class JenkinsConfigurationPanel {
         username.setName("username");
 
         passwordFile.getComponent().getTextField().setName("passwordFile");
+        crumbDataFile.getComponent().getTextField().setName("crumbDataFile");
 
-        discoverButton.setToolTipText("Discover the Security Configuration of your Jenkins Server");
-        discoverButton.setIcon(GuiUtil.loadIcon("wand.png"));
+//        discoverButton.setToolTipText("Discover the Security Configuration of your Jenkins Server");
+//        discoverButton.setIcon(GuiUtil.loadIcon("wand.png"));
 
         initListeners();
 
@@ -146,6 +142,7 @@ public class JenkinsConfigurationPanel {
                 || !(configuration.getSecurityMode() == securityMode)
                 || !(configuration.getUsername().equals(username.getText()))
                 || !(configuration.getPasswordFile().equals(passwordFile.getComponent().getText()))
+                || !(configuration.getCrumbFile().equals(crumbDataFile.getComponent().getText()))
                 ;
     }
 
@@ -165,6 +162,7 @@ public class JenkinsConfigurationPanel {
 
         configuration.setUsername(username.getText());
         configuration.setPasswordFile(passwordFile.getComponent().getText());
+        configuration.setCrumbFile(crumbDataFile.getComponent().getText());
     }
 
     public void loadConfigurationData(JenkinsConfiguration configuration) {
@@ -183,11 +181,11 @@ public class JenkinsConfigurationPanel {
 
         preferredView.setText(configuration.getPreferredView());
 
-        setSecurityMode(configuration.getSecurityMode(), configuration.getUsername(), configuration.getPasswordFile());
+        setSecurityMode(configuration.getSecurityMode(), configuration.getUsername(), configuration.getPasswordFile(), configuration.getCrumbFile());
     }
 
 
-    private void setSecurityMode(SecurityMode securityMode, @Nullable String usernameValue, @Nullable String passwordFileValue) {
+    private void setSecurityMode(SecurityMode securityMode, @Nullable String usernameValue, @Nullable String passwordFileValue, @Nullable String crumbFile) {
         boolean isEnableAuthentication = SecurityMode.BASIC.equals(securityMode);
 
         enableAuthentication.setSelected(isEnableAuthentication);
@@ -198,6 +196,7 @@ public class JenkinsConfigurationPanel {
         passwordFile.getComponent().setText(passwordFileValue);
         passwordFile.setEnabled(isEnableAuthentication);
 
+        crumbDataFile.getComponent().setText(crumbFile);
 
         this.securityMode = securityMode;
     }
@@ -215,7 +214,7 @@ public class JenkinsConfigurationPanel {
             public void actionPerformed(ActionEvent event) {
                 try {
                     jenkinsRequestManager.authenticate(
-                            serverUrl.getText(), securityMode, username.getText(), passwordFile.getComponent().getText());
+                            serverUrl.getText(), securityMode, username.getText(), passwordFile.getComponent().getText(), crumbDataFile.getComponent().getText());
                     setConnectionFeedbackLabel(CONNECTION_TEST_SUCCESSFUL_COLOR, "Successful");
                 } catch (Exception ex) {
                     setConnectionFeedbackLabel(CONNECTION_TEST_FAILED_COLOR, "Fail: " + ex.getMessage());
@@ -223,24 +222,24 @@ public class JenkinsConfigurationPanel {
             }
         });
 
-        discoverButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent actionEvent) {
-                if (StringUtils.isNotEmpty(serverUrl.getText())) {
-                    try {
-                        SecurityMode SecurityMode = SecurityResolver.resolve(serverUrl.getText());
-                        setSecurityMode(SecurityMode, null, null);
-                        connectionStatusLabel.setText("");
-                    } catch (final AuthenticationException authEx) {
-                        SwingUtils.runInSwingThread(new ThreadFunctor() {
-                            public void run() {
-                                connectionStatusLabel.setForeground(CONNECTION_TEST_FAILED_COLOR);
-                                connectionStatusLabel.setText(authEx.getMessage());
-                            }
-                        });
-                    }
-                }
-            }
-        });
+//        discoverButton.addActionListener(new ActionListener() {
+//            public void actionPerformed(ActionEvent actionEvent) {
+//                if (StringUtils.isNotEmpty(serverUrl.getText())) {
+//                    try {
+//                        SecurityMode SecurityMode = SecurityResolver.resolve(serverUrl.getText());
+//                        setSecurityMode(SecurityMode, null, null, null);
+//                        connectionStatusLabel.setText("");
+//                    } catch (final AuthenticationException authEx) {
+//                        SwingUtils.runInSwingThread(new ThreadFunctor() {
+//                            public void run() {
+//                                connectionStatusLabel.setForeground(CONNECTION_TEST_FAILED_COLOR);
+//                                connectionStatusLabel.setText(authEx.getMessage());
+//                            }
+//                        });
+//                    }
+//                }
+//            }
+//        });
 
         enableJobAutoRefresh.addItemListener(new EnablerFieldListener(enableJobAutoRefresh,
                 jobRefreshPeriod, resetPeriodValue));
@@ -274,6 +273,9 @@ public class JenkinsConfigurationPanel {
 
     void addBrowserLinkToPasswordFile() {
         passwordFile.getComponent().addBrowseFolderListener("Jenkins User password File", "", null,
+                new FileChooserDescriptor(true, false, false, false, false, false));
+
+        crumbDataFile.getComponent().addBrowseFolderListener("Jenkins User Crumb File", "", null,
                 new FileChooserDescriptor(true, false, false, false, false, false));
     }
 

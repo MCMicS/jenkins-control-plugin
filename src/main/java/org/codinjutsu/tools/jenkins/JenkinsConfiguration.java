@@ -31,8 +31,11 @@ public class JenkinsConfiguration {
     private int delay = DEFAULT_BUILD_DELAY;
 
     private SecurityMode securityMode = SecurityMode.NONE;
+
     private String username = RESET_STR_VALUE;
     private String passwordFile = RESET_STR_VALUE;
+
+    private String crumbFile = RESET_STR_VALUE;
 
     private int jobRefreshPeriod = RESET_PERIOD_VALUE;
     private int rssRefreshPeriod = RESET_PERIOD_VALUE;
@@ -140,5 +143,13 @@ public class JenkinsConfiguration {
 
     public SecurityMode getSecurityMode() {
         return securityMode;
+    }
+
+    public String getCrumbFile() {
+        return crumbFile;
+    }
+
+    public void setCrumbFile(String crumbFile) {
+        this.crumbFile = crumbFile;
     }
 }

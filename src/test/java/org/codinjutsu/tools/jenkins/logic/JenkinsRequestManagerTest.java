@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
+import org.apache.commons.io.IOUtils;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.security.SecurityClient;
@@ -49,8 +50,8 @@ public class JenkinsRequestManagerTest {
 
     @Test
     public void loadJenkinsWorkSpace() throws Exception {
-        Mockito.when(securityClientMock.executeAndGetResponseStream(Mockito.any(URL.class)))
-                .thenReturn(JenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadJenkinsWorkspace.xml"));
+        Mockito.when(securityClientMock.execute(Mockito.any(URL.class)))
+                .thenReturn(IOUtils.toString(JenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadJenkinsWorkspace.xml")));
         Jenkins jenkins = requestManager.loadJenkinsWorkspace(configuration);
 
         List<View> actualViews = jenkins.getViews();
@@ -68,8 +69,8 @@ public class JenkinsRequestManagerTest {
 
     @Test
     public void loadView() throws Exception {
-        Mockito.when(securityClientMock.executeAndGetResponseStream(Mockito.any(URL.class)))
-                .thenReturn(JenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadView.xml"));
+        Mockito.when(securityClientMock.execute(Mockito.any(URL.class)))
+                .thenReturn(IOUtils.toString(JenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadView.xml")));
 
         List<Job> actualJobs = requestManager.loadJenkinsView("http://myjenkins/");
 
@@ -93,8 +94,8 @@ public class JenkinsRequestManagerTest {
 
     @Test
     public void buildLatestBuildList() throws Exception {
-        Mockito.when(securityClientMock.executeAndGetResponseStream(Mockito.any(URL.class)))
-                .thenReturn(JenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRss.xml"));
+        Mockito.when(securityClientMock.execute(Mockito.any(URL.class)))
+                .thenReturn(IOUtils.toString(JenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRss.xml")));
 
         Map<String, Build> actualJobBuildMap = requestManager.loadJenkinsRssLatestBuilds(configuration);
 
