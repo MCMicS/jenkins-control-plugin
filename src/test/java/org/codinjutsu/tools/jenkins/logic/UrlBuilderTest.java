@@ -21,7 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.net.URL;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -46,7 +46,7 @@ public class UrlBuilderTest {
     public void createRunParameterizedJobUrl() throws Exception {
         configuration.setDelay(20);
 
-        Map<String, String> valueByNameParams = new HashMap<String, String>();
+        Map<String, String> valueByNameParams = new LinkedHashMap<String, String>();
         valueByNameParams.put("param1", "value1");
         valueByNameParams.put("param2", "value2");
 
