@@ -2,7 +2,7 @@ Version 0.4.1:
 
     * [Add] Configuration Panel: Crumb Data can be read from a local file (see explaination on the wiki)
     * [Rem] Discover Wizard button does not work well
-    * [Fix] Bad Implementation of Cross Site Request Forgery Protected Support makes the plugin crash
+    * [Fix] Bad Implementation of Cross Site Request Forgery Prevention Support makes the plugin crash
 
 Version 0.4.0:
 
