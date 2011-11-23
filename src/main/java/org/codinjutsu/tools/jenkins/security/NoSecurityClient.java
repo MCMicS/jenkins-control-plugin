@@ -39,16 +39,7 @@ class NoSecurityClient extends AbstractSecurityClient {
     public void connect(URL jenkinsURL) throws Exception {
         try {
             URL url = new URL(jenkinsURL.toString() + TEST_CONNECTION_REQUEST);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-            setCrumbValueIfNeeded();
-            connection.setRequestProperty(CRUMB_NAME, crumbValue);
-
-            connection.connect();
-
-            if (connection.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN) {
-                throw new AuthenticationException("This Jenkins server requires authentication!");
-            }
+            execute(url);
         } catch (IOException e) {
             throw new AuthenticationException("Failed to connect to " + jenkinsURL, e);
         }
