@@ -1,0 +1,33 @@
+Version 0.4.1:
+
+    * [Add] Configuration Panel: Crumb Data can be read from a local file (see explaination on the wiki)
+    * [Rem] Discover Wizard button does not work well
+    * [Fix] Bad Implementation of Cross Site Request Forgery Protected Support makes the plugin crash
+
+Version 0.4.0:
+
+    * [Fix] Remove HttpClient from package (already embedded in Idea 10) and limit this version to Idea 10.x
+    * [Fix] Cross Site Request Forgery Protected Support (see wiki to see limitations)
+    * [Fix] Encoded space character in url
+
+Version 0.3:
+
+    * [Add] Parameterized Builds are supported (see wiki to see limitations)
+    * [Add] Browser Panel: health icon for each job
+    * [Update] Configuration Panel :  add Button Wizard which try to resolve security configuration
+    * [Update] Security Support : Rewrite from scratch with replacing CLI by HttpClient (see wiki for more info)
+    * [Fix] issue #5 : When clicking on the Jenkins plugin settings button, the Jenkins plugin configuration should be always selected
+
+Version 0.2:
+
+    * [Add] Jenkins Security Support (See https://github.com/dboissier/jenkins-control-plugin/wiki to check how to and see limitations)
+    * [Add] Settings shortcut on the upper toolbar
+
+Version 0.1: Initial version
+
+    * Server configuration
+    * Jenkins jobs display with autorefreshed job list and view selection
+    * Job Build runner
+    * Open Job web page and its last build web page on browser
+    * Autorefreshed Rss Reader View
+    * Autorefresh functions can be disabled on the Jenkins Configuration Panel
