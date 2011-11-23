@@ -1,14 +1,7 @@
 /**********************************************************/
 /* Jenkins Control Plugin for IntelliJ IDEA               */
-/* ChangeLog :                                            */
-/*            - 0.1: Initial version                      */
-/*            - 0.2: Add security support (based on CLI)  */
-/*            - 0.3:                                      */
-/*                   - Rewrite security support (replace  */
-/*                     CLI by HttpClient)                 */
-/*                   - Add Weather icon on the job        */
-/*                   - Parameterized builds are supported */
-/*                     (see limitations on the wiki)      */
+/*                                                        */
+/* ChangeLog : see CHANGELOG.txt                          */
 /**********************************************************/
 
 Description : This plugin allows to view the content of your Jenkins Continous Integration Server.
@@ -20,15 +13,20 @@ This plugin was built with JDK 1.5 and IntelliJ-8.1.3-jdk5 version. Jenkins 1.43
 Installation steps:
 
 Download this plugin from your IDE (Settings -> Plugins -> Available -> Jenkins Control Plugin -> Right Click "Download and Install").
-You can also download it from your favorite browser at http://plugins.intellij.net/?idea&id=6110.
+You can also download it from your favorite browser at http://plugins.intellij.net/?idea&id=<put new id here>.
 
 Configuration steps:
 
   -  Click on the Jenkins Settings button (or click on the IDEA General Settings and select Jenkins Control Plugin):
   -  Set your Jenkins url in the Server Address text field.
-  -  If you are not sure about the security configuration of your Jenkins, you can click on the 'Wizard' Button.
-     (Please note that only In-House Jenkins Security mode and SSL Protocol with trusted certificate are supported)
   -  If security is enabled on the Jenkins Server, put your credentials (Note that the password should be put in a file).
+     (Please note that only In-House Jenkins Security mode and SSL Protocol with trusted certificate are supported)
+  -  If Cross Site Request Forgery is enabled on your server, you have to get your crumb Data on the Jenkins Web application:
+       - Open your favorite browser and type your JenKins Url
+       - Depending on the level of security of your profile you may have authenticate yourself first
+       - Type the followind URL in the address bar of your browser: <jenkins_url>/crumbIssuer/api/xml
+       - Save the crumb data value in a local file
+       - Come back to the Jnenkins Configuration Plugin and select the crumb file you have just saved
      To make sure your security parameters are correct, you can test by clicking on the 'Test Connection' button.
 
   -  If you want the plugin to refresh periodically the Jenkins workspace, you can set a timeout value
