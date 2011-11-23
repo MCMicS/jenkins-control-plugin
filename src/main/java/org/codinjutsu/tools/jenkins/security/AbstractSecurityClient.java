@@ -60,10 +60,10 @@ abstract class AbstractSecurityClient implements SecurityClient {
     protected void checkResponse(int statusCode, String responseBody) throws AuthenticationException {
         if (statusCode == HttpURLConnection.HTTP_FORBIDDEN || statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
             if (StringUtils.contains(responseBody, BAD_CRUMB_DATA)) {
-                throw new AuthenticationException("CSRF enabled: missing or bad crumb data");
+                throw new AuthenticationException("CSRF enabled -> Missing or bad crumb data");
             }
             if (StringUtils.contains(responseBody, "Unauthorized")) {
-                throw new AuthenticationException("Unauthorized: Missing or bad credentials");
+                throw new AuthenticationException("Unauthorized -> Missing or bad credentials");
             }
             if (StringUtils.contains(responseBody, "Authentication required")) {
                 throw new AuthenticationException("Authentication required");

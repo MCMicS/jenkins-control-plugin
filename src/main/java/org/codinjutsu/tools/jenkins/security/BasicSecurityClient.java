@@ -50,12 +50,7 @@ class BasicSecurityClient extends AbstractSecurityClient {
             password = extractValueFromFile(passwordFile);
         }
 
-        if (password == null && username == null) {
-            checkJenkinsSecurity(url);
-        }
         doAuthentication(url);
-
-
     }
 
     private void doAuthentication(URL jenkinsUrl) throws IOException, AuthenticationException {
@@ -106,21 +101,4 @@ class BasicSecurityClient extends AbstractSecurityClient {
             postMethod.releaseConnection();
         }
     }
-
-
-    private void checkJenkinsSecurity(URL jenkinsUrl) throws AuthenticationException {
-        try {
-            HttpURLConnection con = (HttpURLConnection) jenkinsUrl
-                    .openConnection();
-            con.connect();
-
-            if (con.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN) {
-                throw new AuthenticationException("This Jenkins server requires authentication!");
-            }
-
-        } catch (IOException ioEx) {
-            throw new AuthenticationException("Failed to connect to " + jenkinsUrl, ioEx);
-        }
-    }
-
 }
