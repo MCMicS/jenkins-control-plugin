@@ -8,7 +8,7 @@ Description : This plugin allows to view the content of your Jenkins Continous I
 
 Plugin Compatibility :
 
-This plugin was built with JDK 1.5 and IntelliJ-8.1.3-jdk5 version. Jenkins 1.437 was use for manual testing.
+This plugin was built with JDK 1.5 and idea-8.1.3-jdk5 version. Jenkins 1.437 was use for manual testing.
 
 Installation steps:
 
@@ -48,7 +48,8 @@ Down part - Rss View
 
 Limitations :
 
-This software follows some agile practice: Provide basic functionality and get feedback from the users. So, this version does not cover all needs and it is opened for any suggestion that you can send by email (david [dot] boissier [at] gmail [dot] com).
+This software follows some agile practice: Provide basic functionality and get feedback from the users. So, this version
+does not cover all needs and it is opened for any suggestion that you can send by email (david [dot] boissier [at] gmail [dot] com).
 
 
 Thanks :

@@ -1,13 +1,24 @@
+<<<<<<< HEAD
 Version 0.3.2:
+=======
+Version 0.4.1:
+>>>>>>> 9f0af5f36e4dc099bca3b93b5aeadc99db50d816
 
     * [Add] Configuration Panel: Crumb Data can be read from a local file (see explaination on the wiki)
     * [Rem] Discover Wizard button does not work well
     * [Fix] Bad Implementation of Cross Site Request Forgery Prevention Support makes the plugin crash
 
+<<<<<<< HEAD
 Version 0.3.1:
 
     * [Add] Cross Site Request Forgery Protected Support (see wiki to see limitations)
     * [Fix] Limit this version for 8.5.x - 9.0.x users
+=======
+Version 0.4.0:
+
+    * [Fix] Remove HttpClient from package (already embedded in Idea 10) and limit this version to Idea 10.x
+    * [Fix] Cross Site Request Forgery Protected Support (see wiki to see limitations)
+>>>>>>> 9f0af5f36e4dc099bca3b93b5aeadc99db50d816
     * [Fix] Encoded space character in url
 
 Version 0.3:
@@ -31,4 +42,7 @@ Version 0.1: Initial version
     * Open Job web page and its last build web page on browser
     * Autorefreshed Rss Reader View
     * Autorefresh functions can be disabled on the Jenkins Configuration Panel
+<<<<<<< HEAD
 
+=======
+>>>>>>> 9f0af5f36e4dc099bca3b93b5aeadc99db50d816

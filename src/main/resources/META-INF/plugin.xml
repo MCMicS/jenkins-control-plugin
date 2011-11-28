@@ -16,7 +16,7 @@ Version 0.3.2:<br/>
 <ul>
     <li>[Add] Configuration Panel: Crumb Data can be read from a local file (see explaination on the wiki)
     <li>[Rem] Discover Wizard button does not work well
-    <li>[Fix] Bad Implementation of Cross Site Request Forgery Protected Support makes the plugin crash</li>
+    <li>[Fix] Bad Implementation of Cross Site Request Forgery Prevention Support makes the plugin crash</li>
 </ul>
-]]> </change-notes>
+    ]]></changes-notes>
 </idea-plugin>
