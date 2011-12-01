@@ -78,19 +78,36 @@ public class JenkinsRequestManagerTest {
 
 
         expectedJobs.add(new JobBuilder().job("sql-tools", "blue", "health-80plus", "http://myjenkins/job/sql-tools/", "true")
-                .withLastBuild("http://myjenkins/job/sql-tools/15/", "15", SUCCESS.getStatus(), "false").get());
+                .lastBuild("http://myjenkins/job/sql-tools/15/", "15", SUCCESS.getStatus(), "false").get());
         expectedJobs.add(new JobBuilder().job("db-utils", "grey", null, "http://myjenkins/job/db-utils/", "false").get());
         expectedJobs.add(new JobBuilder().job("myapp", "red", "health-00to19", "http://myjenkins/job/myapp/", "false")
-                .withLastBuild("http://myjenkins/job/myapp/12/", "12", FAILURE.getStatus(), "true")
-                .withParameter("param1", "ChoiceParameterDefinition", "value1", "value1", "value2", "value3")
-                .withParameter("runIntegrationTest", "BooleanParameterDefinition", null)
+                .lastBuild("http://myjenkins/job/myapp/12/", "12", FAILURE.getStatus(), "true")
+                .parameter("param1", "ChoiceParameterDefinition", "value1", "value1", "value2", "value3")
+                .parameter("runIntegrationTest", "BooleanParameterDefinition", null)
                 .get());
         expectedJobs.add(new JobBuilder().job("swing-utils", "disabled", "health20to39", "http://myjenkins/job/swing-utils/", "true")
-                .withLastBuild("http://myjenkins/job/swing-utils/5/", "5", FAILURE.getStatus(), "false").get());
+                .lastBuild("http://myjenkins/job/swing-utils/5/", "5", FAILURE.getStatus(), "false")
+                .parameter("dummyParam", null, null)
+                .get());
 
         assertThat(actualJobs, equalTo(expectedJobs));
     }
 
+    @Test
+    public void loadJob() throws Exception {
+        Mockito.when(securityClientMock.execute(Mockito.any(URL.class)))
+                .thenReturn(IOUtils.toString(JenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadJob.xml")));
+
+        Job actualJob = requestManager.loadJob("http://ci.jenkins-ci.org/job/config-provider-model/");
+
+        Job expectedJob =
+                new JobBuilder()
+                        .job("config-provider-model", "blue", "health-80plus", "http://ci.jenkins-ci.org/job/config-provider-model/", "false")
+                        .lastBuild("http://ci.jenkins-ci.org/job/config-provider-model/8/", "8", "SUCCESS", "false")
+                        .get();
+
+        assertThat(actualJob, equalTo(expectedJob));
+    }
 
     @Test
     public void buildLatestBuildList() throws Exception {
@@ -130,7 +147,6 @@ public class JenkinsRequestManagerTest {
 
     private static class JobBuilder {
 
-
         private Job job;
 
         private JobBuilder job(String jobName, String jobColor, String health, String jobUrl, String inQueue) {
@@ -138,12 +154,12 @@ public class JenkinsRequestManagerTest {
             return this;
         }
 
-        private JobBuilder withLastBuild(String buildUrl, String number, String status, String isBuilding) {
+        private JobBuilder lastBuild(String buildUrl, String number, String status, String isBuilding) {
             job.setLastBuild(Build.createBuild(buildUrl, number, status, isBuilding));
             return this;
         }
 
-        private JobBuilder withParameter(String paramName, String paramType, String defaultValue, String... choices) {
+        private JobBuilder parameter(String paramName, String paramType, String defaultValue, String... choices) {
             job.addParameter(paramName, paramType, defaultValue, choices);
             return this;
         }
