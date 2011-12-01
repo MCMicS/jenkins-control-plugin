@@ -25,6 +25,10 @@
             <outputDirectory>/</outputDirectory>
         </file>
         <file>
+            <source>CHANGELOG.txt</source>
+            <outputDirectory>/</outputDirectory>
+        </file>
+        <file>
             <source>LICENSE.txt</source>
             <outputDirectory>/</outputDirectory>
         </file>
