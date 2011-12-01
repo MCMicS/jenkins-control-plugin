@@ -27,9 +27,7 @@ import org.codinjutsu.tools.jenkins.util.RssUtil;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
-import org.xml.sax.InputSource;
 
-import java.io.StringReader;
 import java.net.URL;
 import java.util.*;
 
@@ -210,8 +208,12 @@ public class JenkinsRequestManager {
 
             String paramName = parameterDefinition.getChildText(PARAMETER_NAME);
             String paramType = parameterDefinition.getChildText(PARAMETER_TYPE);
-            String defaultParamValue = parameterDefinition.getChild(PARAMETER_DEFAULT_PARAM).getChildText(PARAMETER_DEFAULT_PARAM_VALUE);
 
+            String defaultParamValue = null;
+            Element defaultParamElement = parameterDefinition.getChild(PARAMETER_DEFAULT_PARAM);
+            if (defaultParamElement != null) {
+                defaultParamValue = defaultParamElement.getChildText(PARAMETER_DEFAULT_PARAM_VALUE);
+            }
             String[] choices = extractChoices(parameterDefinition);
 
             job.addParameter(paramName, paramType, defaultParamValue, choices);

@@ -27,7 +27,14 @@ import static org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 public class JobParameter {
 
     public static enum JobParameterType {
-        ChoiceParameterDefinition, BooleanParameterDefinition, StringParameterDefinition
+        ChoiceParameterDefinition,
+        BooleanParameterDefinition,
+        StringParameterDefinition,
+        PasswordParameterDefinition,
+        FileParameterDefinition,
+        TextParameterDefinition,
+        RunParameterDefinition,
+        ListSubversionTagsParameterDefinition
     }
 
     private final String name;
