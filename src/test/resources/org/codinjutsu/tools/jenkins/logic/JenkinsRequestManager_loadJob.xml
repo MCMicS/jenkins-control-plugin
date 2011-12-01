@@ -1,0 +1,16 @@
+<mavenModuleSet>
+    <name>config-provider-model</name>
+    <url>http://ci.jenkins-ci.org/job/config-provider-model/</url>
+    <color>blue</color>
+    <healthReport>
+        <iconUrl>health-80plus.png</iconUrl>
+    </healthReport>
+    <inQueue>false</inQueue>
+    <lastBuild>
+        <building>false</building>
+        <number>8</number>
+        <result>SUCCESS</result>
+        <url>http://ci.jenkins-ci.org/job/config-provider-model/8/</url>
+    </lastBuild>
+    <property></property>
+</mavenModuleSet>

@@ -27,7 +27,9 @@ import org.codinjutsu.tools.jenkins.util.RssUtil;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
+import org.xml.sax.InputSource;
 
+import java.io.StringReader;
 import java.net.URL;
 import java.util.*;
 
@@ -119,8 +121,9 @@ public class JenkinsRequestManager {
 
     public Job loadJob(String jenkinsJobUrl) throws Exception {
         URL url = urlBuilder.createJobUrl(jenkinsJobUrl);
+
         String inputStream = securityClient.execute(url);
-        Document doc = getXMLBuilder().build(inputStream);
+        Document doc = getXMLBuilder().build(new CharSequenceReader(inputStream));
 
         Element jobElement = doc.getRootElement();
 
