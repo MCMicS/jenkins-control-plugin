@@ -7,14 +7,12 @@ import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
 import org.codinjutsu.tools.jenkins.view.util.SpringUtilities;
-import org.codinjutsu.tools.jenkins.view.validator.NotNullValidator;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 public class BuildParamDialog extends JDialog {
     public static final Color LIGHT_RED_BACKGROUND = new Color(230, 150, 150);
@@ -30,6 +28,15 @@ public class BuildParamDialog extends JDialog {
     private final JenkinsRequestManager jenkinsManager;
     private final BuildCallback buildCallback;
     private Map<JobParameter, JComponent> inputFieldByParameterMap = new HashMap<JobParameter, JComponent>();
+
+    private static final Set<JobParameter.JobParameterType> USUPPORTED_PARAM_TYPE = new HashSet<JobParameter.JobParameterType>();
+
+    static {
+        USUPPORTED_PARAM_TYPE.add(JobParameter.JobParameterType.FileParameterDefinition);
+        USUPPORTED_PARAM_TYPE.add(JobParameter.JobParameterType.TextParameterDefinition);
+        USUPPORTED_PARAM_TYPE.add(JobParameter.JobParameterType.RunParameterDefinition);
+        USUPPORTED_PARAM_TYPE.add(JobParameter.JobParameterType.ListSubversionTagsParameterDefinition);
+    }
 
     public BuildParamDialog(Job job, JenkinsConfiguration configuration, JenkinsRequestManager jenkinsManager, BuildCallback buildCallback) {
         this.job = job;
@@ -124,6 +131,8 @@ public class BuildParamDialog extends JDialog {
             inputField = createCheckBox(defaultValue);
         } else if (JobParameter.JobParameterType.StringParameterDefinition.equals(jobParameterType)) {
             inputField = createTextField(defaultValue);
+        } else if (JobParameter.JobParameterType.PasswordParameterDefinition.equals(jobParameterType)) {
+            inputField = createPasswordField(defaultValue);
         } else {
             inputField = new JLabel("Unsupported ParameterDefinitionType: " + jobParameterType.name());
         }
@@ -146,6 +155,14 @@ public class BuildParamDialog extends JDialog {
 
     private void onCancel() {
         dispose();
+    }
+
+    private JPasswordField createPasswordField(String defaultValue) {
+        JPasswordField passwordField = new JPasswordField();
+        if (StringUtils.isNotEmpty(defaultValue)) {
+            passwordField.setText(defaultValue);
+        }
+        return passwordField;
     }
 
     private JTextField createTextField(String defaultValue) {
@@ -172,16 +189,16 @@ public class BuildParamDialog extends JDialog {
         return comboBox;
     }
 
-    private void checkInputValues() throws Exception {
-
-        NotNullValidator notNullValidator = new NotNullValidator();
-        for (Map.Entry<JobParameter, JComponent> componentByJobParameterEntry : inputFieldByParameterMap.entrySet()) {
-            JComponent component = componentByJobParameterEntry.getValue();
-            if (component instanceof JTextField) {
-                notNullValidator.validate((JTextField) component);
-            }
-        }
-    }
+//    private void checkInputValues() throws Exception {
+//
+//        NotNullValidator notNullValidator = new NotNullValidator();
+//        for (Map.Entry<JobParameter, JComponent> componentByJobParameterEntry : inputFieldByParameterMap.entrySet()) {
+//            JComponent component = componentByJobParameterEntry.getValue();
+//            if (component instanceof JTextField) {
+//                notNullValidator.validate((JTextField) component);
+//            }
+//        }
+//    }
 
     private Map<String, String> getParamValueMap() {//TODO transformer en visiteur
         HashMap<String, String> valueByNameMap = new HashMap<String, String>();
