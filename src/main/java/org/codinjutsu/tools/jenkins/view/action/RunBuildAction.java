@@ -56,9 +56,7 @@ public class RunBuildAction extends AnAction {
                 BuildParamDialog.showDialog(job, jenkinsControlComponent.getState(), jenkinsManager, new BuildParamDialog.BuildCallback() {
 
                     public void notifyOnOk(Job job) {
-                        jenkinsControlComponent.notifyInfoJenkinsToolWindow(HtmlUtil.createHtmlLinkMessage(
-                                job.getName() + " build is on going",
-                                job.getUrl()), GuiUtil.loadIcon("toolWindowRun.png"));
+                        notifyOngoingMessage(jenkinsControlComponent, job);
                     }
 
                     public void notifyOnError(Job job, Exception ex) {
@@ -67,10 +65,7 @@ public class RunBuildAction extends AnAction {
                 });
             } else {
                 jenkinsManager.runBuild(job, jenkinsControlComponent.getState());
-
-                jenkinsControlComponent.notifyInfoJenkinsToolWindow(HtmlUtil.createHtmlLinkMessage(
-                        job.getName() + " build is on going",
-                        job.getUrl()), GuiUtil.loadIcon("toolWindowRun.png"));
+                notifyOngoingMessage(jenkinsControlComponent, job);
             }
 
         } catch (Exception ex) {
@@ -78,7 +73,6 @@ public class RunBuildAction extends AnAction {
             jenkinsControlComponent.notifyErrorJenkinsToolWindow("Build cannot be run: " + ex.getMessage());
         }
     }
-
 
     @Override
     public void update(AnActionEvent event) {
@@ -89,5 +83,12 @@ public class RunBuildAction extends AnAction {
     private static Project getProject(AnActionEvent event) {
         DataContext dataContext = event.getDataContext();
         return DataKeys.PROJECT.getData(dataContext);
+    }
+
+
+    private static void notifyOngoingMessage(JenkinsControlComponent jenkinsControlComponent, Job job) {
+        jenkinsControlComponent.notifyInfoJenkinsToolWindow(HtmlUtil.createHtmlLinkMessage(
+                job.getName() + " build is on going",
+                job.getUrl()), GuiUtil.loadIcon("toolWindowRun.png"));
     }
 }
