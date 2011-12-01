@@ -70,5 +70,12 @@
             <number>5</number>
             <url>http://myjenkins/job/swing-utils/5/</url>
         </lastBuild>
+        <property>
+            <parameterDefinition>
+                <defaultParameterValue/>
+                <name>dummyParam</name>
+                <type>DummyParameterDefinition</type>
+            </parameterDefinition>
+        </property>
     </job>
 </statusView>
