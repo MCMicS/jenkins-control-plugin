@@ -61,7 +61,7 @@ public class JobParameter {
 
 
     private void setType(String paramType) {
-        jobParameterType = JobParameterType.valueOf(paramType);
+        jobParameterType = evaluate(paramType);
     }
 
 
@@ -96,5 +96,14 @@ public class JobParameter {
     @Override
     public String toString() {
         return reflectionToString(this, SHORT_PREFIX_STYLE);
+    }
+
+    private static JobParameterType evaluate(String paramTypeToEvaluate) {
+        for (JobParameterType parameterType : JobParameterType.values()) {
+            if (parameterType.name().equals(paramTypeToEvaluate)) {
+                return parameterType;
+            }
+        }
+        return null;
     }
 }
