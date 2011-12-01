@@ -29,9 +29,11 @@ public class BuildResultPanel extends JPanel {
     private JButton closeButton;
     private JPanel rootPanel;
     private JPanel buildStatusPanel;
+    private String jobName;
 
 
     public BuildResultPanel(String jobName, String buildMessage, Icon icon, final String buildUrl) {
+        this.jobName = jobName;
         buildStatusPanel.setLayout(new BorderLayout());
 
         HyperlinkLabel buildStatusLabel = new HyperlinkLabel(buildMessage);
@@ -57,5 +59,9 @@ public class BuildResultPanel extends JPanel {
 
     public JButton getCloseButton() {
         return closeButton;
+    }
+
+    public String getJobName() {
+        return jobName;
     }
 }

@@ -143,6 +143,7 @@ public class JenkinsBrowserLogic {
 
 
     public void cleanRssEntries() {
+        currentBuildMap.clear();
         getBrowserPanel().getRssLatestJobPanel().cleanRssEntries();
     }
 

@@ -60,11 +60,19 @@ public class RssLatestJobPanel {
     }
 
 
-    public void addFinishedBuild(final Map<String, Build> stringBuildMap) {
+    public void addFinishedBuild(final Map<String, Build> jobBuildByJobNameMap) {
+
+        final RssCallback rssCallback = new RssCallback() {
+
+            public void onClearJobEntry(String jobName) {
+                jobBuildByJobNameMap.remove(jobName);
+            }
+        };
+
         SwingUtils.runInSwingThread(new ThreadFunctor() {
             public void run() {
-                for (Entry<String, Build> entry : stringBuildMap.entrySet()) {
-                    addFinishedBuild(entry.getKey(), entry.getValue());
+                for (Entry<String, Build> entry : jobBuildByJobNameMap.entrySet()) {
+                    addFinishedBuild(rssCallback, entry.getKey(), entry.getValue());
                 }
 
                 rssContentPanel.repaint();
@@ -74,12 +82,12 @@ public class RssLatestJobPanel {
     }
 
 
-    private void addFinishedBuild(String jobName, Build build) {
+    private void addFinishedBuild(RssCallback rssCallback, String jobName, Build build) {
         String buildMessage = createLinkLabel(build);
         Icon icon = setIcon(build);
         BuildResultPanel buildResultPanel = new BuildResultPanel(jobName, buildMessage, icon, build.getUrl());
         buildResultPanel.getCloseButton()
-                .addActionListener(new ClosePanelAction(rssContentPanel, buildResultPanel));
+                .addActionListener(new ClosePanelAction(rssCallback, rssContentPanel, buildResultPanel));
         rssContentPanel.add(buildResultPanel);
     }
 
@@ -100,21 +108,29 @@ public class RssLatestJobPanel {
 
 
     private class ClosePanelAction implements ActionListener {
+        private final RssCallback callback;
         private final JPanel parentPanel;
-        private final JPanel childPanel;
+        private final BuildResultPanel childPanel;
 
 
-        private ClosePanelAction(JPanel parentPanel, JPanel childPanel) {
+        private ClosePanelAction(RssCallback callback, JPanel parentPanel, BuildResultPanel childPanel) {
+            this.callback = callback;
             this.parentPanel = parentPanel;
             this.childPanel = childPanel;
         }
 
 
         public void actionPerformed(ActionEvent e) {
+            callback.onClearJobEntry(childPanel.getJobName());
+
             parentPanel.getRootPane().invalidate();
             parentPanel.remove(childPanel);
             parentPanel.getRootPane().validate();
             parentPanel.repaint();
         }
+    }
+
+    interface RssCallback {
+        void onClearJobEntry(String jobName);
     }
 }
