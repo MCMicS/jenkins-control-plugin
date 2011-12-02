@@ -1,17 +1,21 @@
-Version 0.4.1:
+Version 0.4.2:
+    * [Upd] Support other JetBrains product
+    * [Fix] Unsupported build parameters should not raise an error
+    * [Fix] Regression in refreshing job
+    * [fix] Rss toolbar Panel Layout should be fixed
+    * [Fix] After clearing all rss entries, when clicking on update button, rss entries do not appear on the panel
 
+Version 0.4.1:
     * [Add] Configuration Panel: Crumb Data can be read from a local file (see explaination on the wiki)
     * [Rem] Discover Wizard button does not work well
     * [Fix] Bad Implementation of Cross Site Request Forgery Prevention Support makes the plugin crash
 
 Version 0.4.0:
-
     * [Fix] Remove HttpClient from package (already embedded in Idea 10) and limit this version to Idea 10.x
-    * [Fix] Cross Site Request Forgery Protected Support (see wiki to see limitations)
+    * [Fix] Cross Site Request Forgery Prevention Support (see wiki for limitations)
     * [Fix] Encoded space character in url
 
 Version 0.3:
-
     * [Add] Parameterized Builds are supported (see wiki to see limitations)
     * [Add] Browser Panel: health icon for each job
     * [Update] Configuration Panel :  add Button Wizard which try to resolve security configuration
@@ -19,12 +23,10 @@ Version 0.3:
     * [Fix] issue #5 : When clicking on the Jenkins plugin settings button, the Jenkins plugin configuration should be always selected
 
 Version 0.2:
-
     * [Add] Jenkins Security Support (See https://github.com/dboissier/jenkins-control-plugin/wiki to check how to and see limitations)
     * [Add] Settings shortcut on the upper toolbar
 
 Version 0.1: Initial version
-
     * Server configuration
     * Jenkins jobs display with autorefreshed job list and view selection
     * Job Build runner
