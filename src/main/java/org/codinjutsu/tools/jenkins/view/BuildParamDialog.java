@@ -6,6 +6,7 @@ import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
+import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.util.SpringUtilities;
 
 import javax.swing.*;
@@ -17,11 +18,15 @@ import java.util.List;
 public class BuildParamDialog extends JDialog {
     public static final Color LIGHT_RED_BACKGROUND = new Color(230, 150, 150);
     public static final Color RED_BORDER = new Color(220, 0, 0);
+    private static final String MISSING_NAME_LABEL = "<Missing Name>";
+    private static final Icon ERROR_ICON = GuiUtil.loadIcon("error.png");
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
     private JPanel contentPanel;
     private JLabel feedbackLabel;
+
+    private boolean hasError = false;
 
     private final Job job;
     private final JenkinsConfiguration configuration;
@@ -60,7 +65,7 @@ public class BuildParamDialog extends JDialog {
             public void run() {
                 BuildParamDialog dialog = new BuildParamDialog(job, configuration, jenkinsManager, buildCallback);
                 dialog.setLocationRelativeTo(null);
-                dialog.setPreferredSize(new Dimension(300, 200));
+                dialog.setMaximumSize(new Dimension(300, 200));
                 dialog.pack();
                 dialog.setVisible(true);
             }
@@ -76,9 +81,17 @@ public class BuildParamDialog extends JDialog {
 
             String name = jobParameter.getName();
             inputField.setName(name);
-
-            JLabel label = new JLabel(name + ":", JLabel.TRAILING);
+            
+            JLabel label = new JLabel();
+            label.setHorizontalAlignment(JLabel.TRAILING);
             label.setLabelFor(inputField);
+
+            if (StringUtils.isEmpty(name)) {
+                name = MISSING_NAME_LABEL;
+                label.setIcon(ERROR_ICON);
+                hasError = true;
+            }
+            label.setText(name + ":");
 
             contentPanel.add(label);
             contentPanel.add(inputField);
@@ -90,6 +103,10 @@ public class BuildParamDialog extends JDialog {
                 parameters.size(), 2,
                 6, 6,        //initX, initY
                 6, 6);       //xPad, yPad
+
+        if (hasError) {
+            buttonOK.setEnabled(false);
+        }
     }
 
     private void registerListeners() {
@@ -119,7 +136,7 @@ public class BuildParamDialog extends JDialog {
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     }
 
-    private JComponent createInputField(JobParameter jobParameter) {
+    private JComponent createInputField(JobParameter jobParameter) {//TODO a transformer en visiteur ?
 
         JobParameter.JobParameterType jobParameterType = jobParameter.getJobParameterType();
         String defaultValue = jobParameter.getDefaultValue();
@@ -134,9 +151,22 @@ public class BuildParamDialog extends JDialog {
         } else if (JobParameter.JobParameterType.PasswordParameterDefinition.equals(jobParameterType)) {
             inputField = createPasswordField(defaultValue);
         } else {
-            inputField = new JLabel("Unsupported ParameterDefinitionType: " + jobParameterType.name());
+            inputField = createErrorLabel(jobParameterType);
+            hasError = true;
         }
         return inputField;
+    }
+
+    private JLabel createErrorLabel(JobParameter.JobParameterType jobParameterType) {
+        String text;
+        if (jobParameterType != null) {
+            text = jobParameterType.name() + " is unsupported.";
+        } else {
+            text = "Unkown parameter";
+        }
+        JLabel label = new JLabel(text);
+        label.setIcon(ERROR_ICON);
+        return label;
     }
 
     private void onOK() {
