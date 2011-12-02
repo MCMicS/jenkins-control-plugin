@@ -1,5 +1,11 @@
-Version 0.3.2:
+Version 0.3.3
+    * [Upd] Support other JetBrains product
+    * [Fix] Unsupported build parameters should not raise an error
+    * [Fix] Regression in refreshing job
+    * [Fix] Rss toolbar Panel Layout should be fixed
+    * [Fix] After clearing all rss entries, when clicking on update button, rss entries do not appear on the panel
 
+Version 0.3.2:
     * [Add] Configuration Panel: Crumb Data can be read from a local file (see explaination on the wiki)
     * [Rem] Discover Wizard button does not work well
     * [Fix] Bad Implementation of Cross Site Request Forgery Prevention Support makes the plugin crash
@@ -31,4 +37,3 @@ Version 0.1: Initial version
     * Open Job web page and its last build web page on browser
     * Autorefreshed Rss Reader View
     * Autorefresh functions can be disabled on the Jenkins Configuration Panel
-

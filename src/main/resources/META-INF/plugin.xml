@@ -1,8 +1,8 @@
 <idea-plugin>
     <name>Jenkins Control Plugin IDEA 9-</name>
     <description>A Jenkins Plugin for Intellij 8.5.0 until 9.0.4</description>
-    <version>0.3.2</version>
-    <vendor email="david.boissier@gmail.com" url="htp://codinjutsu.blogger.com">David Boissier</vendor>
+    <version>0.3.3</version>
+    <vendor email="david.boissier@gmail.com" url="http://codinjutsu.blogspot.com">David Boissier</vendor>
     <idea-version since-build="9886" until-build="95.627"/>
 
     <project-components>
@@ -12,11 +12,13 @@
     </project-components>
 
     <change-notes><![CDATA[
-Version 0.3.2:<br/>
+Version 0.3.3:<br/>
 <ul>
-    <li>[Add] Configuration Panel: Crumb Data can be read from a local file (see explaination on the wiki)
-    <li>[Rem] Discover Wizard button does not work well
-    <li>[Fix] Bad Implementation of Cross Site Request Forgery Protected Support makes the plugin crash</li>
+    <li>[Upd] Support other JetBrains product</li>
+    <li>[Fix] Unsupported build parameters should not raise an error</li>
+    <li>[Fix] Regression in refreshing job</li>
+    <li>[fix] Rss toolbar Panel Layout should be fixed</li>
+    <li>[Fix] After clearing all rss entries, when clicking on update button, rss entries do not appear on the panel</li>
 </ul>
 ]]> </change-notes>
 </idea-plugin>
