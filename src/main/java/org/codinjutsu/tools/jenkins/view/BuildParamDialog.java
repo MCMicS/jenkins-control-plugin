@@ -43,11 +43,13 @@ public class BuildParamDialog extends JDialog {
         USUPPORTED_PARAM_TYPE.add(JobParameter.JobParameterType.ListSubversionTagsParameterDefinition);
     }
 
-    public BuildParamDialog(Job job, JenkinsConfiguration configuration, JenkinsRequestManager jenkinsManager, BuildCallback buildCallback) {
+    BuildParamDialog(Job job, JenkinsConfiguration configuration, JenkinsRequestManager jenkinsManager, BuildCallback buildCallback) {
         this.job = job;
         this.configuration = configuration;
         this.jenkinsManager = jenkinsManager;
         this.buildCallback = buildCallback;
+
+        contentPanel.setName("contentPanel");
 
         addParameterInputs();
         setTitle("This build requires parameters");
@@ -264,5 +266,15 @@ public class BuildParamDialog extends JDialog {
         void notifyOnOk(Job job);
 
         void notifyOnError(Job job, Exception ex);
+
+        public BuildCallback NULL = new BuildCallback() {
+            @Override
+            public void notifyOnOk(Job job) {
+            }
+
+            @Override
+            public void notifyOnError(Job job, Exception ex) {
+            }
+        };
     }
 }

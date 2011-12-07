@@ -145,28 +145,4 @@ public class JenkinsRequestManagerTest {
         requestManager = new JenkinsRequestManager(securityClientMock);
     }
 
-    private static class JobBuilder {
-
-        private Job job;
-
-        private JobBuilder job(String jobName, String jobColor, String health, String jobUrl, String inQueue) {
-            job = Job.createJob(jobName, jobColor, health, jobUrl, inQueue);
-            return this;
-        }
-
-        private JobBuilder lastBuild(String buildUrl, String number, String status, String isBuilding) {
-            job.setLastBuild(Build.createBuild(buildUrl, number, status, isBuilding));
-            return this;
-        }
-
-        private JobBuilder parameter(String paramName, String paramType, String defaultValue, String... choices) {
-            job.addParameter(paramName, paramType, defaultValue, choices);
-            return this;
-        }
-
-        private Job get() {
-            return job;
-        }
-
-    }
 }
