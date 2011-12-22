@@ -16,10 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.view.action;
 
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.DataKeys;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
 import org.codinjutsu.tools.jenkins.JenkinsControlComponent;
 import org.codinjutsu.tools.jenkins.logic.JenkinsBrowserLogic;
@@ -39,9 +36,8 @@ public class RefreshNodeAction extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        Project project = getProject(event);
+        Project project = ActionUtil.getProject(event);
         JenkinsControlComponent jenkinsControlComponent = project.getComponent(JenkinsControlComponent.class);
-
 
         try {
             if (logic.getSelectedJob() != null) {
@@ -59,11 +55,5 @@ public class RefreshNodeAction extends AnAction {
     public void update(AnActionEvent event) {
         Jenkins jenkins = logic.getJenkins();
         event.getPresentation().setEnabled(jenkins != null || logic.getSelectedJob() != null);
-    }
-
-
-    private static Project getProject(AnActionEvent event) {
-        DataContext dataContext = event.getDataContext();
-        return DataKeys.PROJECT.getData(dataContext);
     }
 }

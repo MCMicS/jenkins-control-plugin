@@ -16,10 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.view.action;
 
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.DataKeys;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsControlComponent;
@@ -44,7 +41,7 @@ public class RunBuildAction extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        Project project = getProject(event);
+        Project project = ActionUtil.getProject(event);
 
         final JenkinsControlComponent jenkinsControlComponent = project.getComponent(JenkinsControlComponent.class);
         try {
@@ -77,12 +74,6 @@ public class RunBuildAction extends AnAction {
     @Override
     public void update(AnActionEvent event) {
         event.getPresentation().setVisible(jenkinsBrowserLogic.getSelectedJob() != null);
-    }
-
-
-    private static Project getProject(AnActionEvent event) {
-        DataContext dataContext = event.getDataContext();
-        return DataKeys.PROJECT.getData(dataContext);
     }
 
 

@@ -17,10 +17,7 @@
 package org.codinjutsu.tools.jenkins.view.action;
 
 
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.DataKeys;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import org.codinjutsu.tools.jenkins.JenkinsControlComponent;
@@ -34,15 +31,11 @@ public class OpenPluginSettingsAction extends AnAction {
     }
 
     @Override
-    public void actionPerformed(AnActionEvent e) {
-        showSettingsFor(getProject(e.getDataContext()));
+    public void actionPerformed(AnActionEvent event) {
+        showSettingsFor(ActionUtil.getProject(event));
     }
 
     private static void showSettingsFor(Project project) {
         ShowSettingsUtil.getInstance().showSettingsDialog(project, JenkinsControlComponent.class);
-    }
-
-    private static Project getProject(DataContext dataContext) {
-        return DataKeys.PROJECT.getData(dataContext);
     }
 }
