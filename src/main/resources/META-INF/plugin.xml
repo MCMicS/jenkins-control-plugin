@@ -1,7 +1,7 @@
 <idea-plugin>
     <name>Jenkins Control Plugin</name>
     <description>A Jenkins Plugin for Intellij for IDEA 10+</description>
-    <version>0.4.2</version>
+    <version>0.4.3</version>
     <vendor email="david.boissier [at] gmail [dot] com" url="http://codinjutsu.blogspot.com">David Boissier</vendor>
     <idea-version since-build="99.32"/>
 
@@ -14,13 +14,10 @@
     </project-components>
 
     <change-notes><![CDATA[
-Version 0.4.2:<br/>
+Version 0.4.3:<br/>
 <ul>
-    <li>[Upd] Support other JetBrains product</li>
-    <li>[Fix] Unsupported build parameters should not raise an error</li>
-    <li>[Fix] Regression in refreshing job</li>
-    <li>[fix] Rss toolbar Panel Layout should be fixed</li>
-    <li>[Fix] After clearing all rss entries, when clicking on update button, rss entries do not appear on the panel</li>
+    <li>[fix] Jetbrains plateform version used in Phpstorm IDE makes the plugin crash</li>
+    <li>[fix] Rss toolbar Panel Layout should be fixed (again)</li>
 </ul>
      ]]> </change-notes>
 </idea-plugin>

@@ -1,3 +1,7 @@
+Version 0.4.3:
+    * [fix] Jetbrains plateform version used in Phpstorm IDE makes the plugin crash
+    * [fix] Rss toolbar Panel Layout should be fixed (again)
+
 Version 0.4.2:
     * [Upd] Support other JetBrains product
     * [Fix] Unsupported build parameters should not raise an error

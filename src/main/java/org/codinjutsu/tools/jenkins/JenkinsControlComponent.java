@@ -120,9 +120,7 @@ public class JenkinsControlComponent
 
     private void installJenkinsBrowser() {
         ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
-        ToolWindow toolWindow = toolWindowManager.registerToolWindow(JENKINS_BROWSER,
-                true,
-                ToolWindowAnchor.RIGHT);
+        ToolWindow toolWindow = toolWindowManager.registerToolWindow(JENKINS_BROWSER, true, ToolWindowAnchor.RIGHT);
 
         jenkinsRequestManager = new JenkinsRequestManager(configuration.getCrumbFile());
         jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, jenkinsRequestManager);
