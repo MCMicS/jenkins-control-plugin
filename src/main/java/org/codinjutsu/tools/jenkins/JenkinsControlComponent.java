@@ -34,7 +34,9 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.codinjutsu.tools.jenkins.logic.JenkinsBrowserLogic;
 import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
+import org.codinjutsu.tools.jenkins.util.SwingUtils;
 import org.codinjutsu.tools.jenkins.view.JenkinsConfigurationPanel;
+import org.codinjutsu.tools.jenkins.view.action.ThreadFunctor;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
@@ -162,14 +164,23 @@ public class JenkinsControlComponent
     }
 
 
-    public void notifyInfoJenkinsToolWindow(String message, Icon icon) {
-        ToolWindowManager.getInstance(project).notifyByBalloon(JENKINS_BROWSER, MessageType.INFO,
-                message, icon, new BrowserHyperlinkListener());
+    public void notifyInfoJenkinsToolWindow(final String message, final Icon icon) {
+        SwingUtils.runInSwingThread(new ThreadFunctor() {
+            @Override
+            public void run() {
+                ToolWindowManager.getInstance(project).notifyByBalloon(JENKINS_BROWSER, MessageType.INFO,
+                        message, icon, new BrowserHyperlinkListener());
+            }
+        });
     }
 
-    public void notifyErrorJenkinsToolWindow(String message) {
-        ToolWindowManager.getInstance(project).notifyByBalloon(JENKINS_BROWSER, MessageType.ERROR,
-                message);
+    public void notifyErrorJenkinsToolWindow(final String message) {
+        SwingUtils.runInSwingThread(new ThreadFunctor() {
+            @Override
+            public void run() {
+                ToolWindowManager.getInstance(project).notifyByBalloon(JENKINS_BROWSER, MessageType.ERROR, message);
+            }
+        });
     }
 
 

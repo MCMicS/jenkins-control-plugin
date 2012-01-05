@@ -307,9 +307,8 @@ public class JenkinsBrowserLogic {
                 if (evt.getStateChange() == ItemEvent.SELECTED) {
                     try {
                         loadSelectedView();
-                    } catch (Exception e) {
-//TODO Gros KK !
-                        System.out.println("e = " + e.getMessage());
+                    } catch (Exception ex) {
+                        throw new RuntimeException(ex.getMessage(), ex);
                     }
                 }
             }
