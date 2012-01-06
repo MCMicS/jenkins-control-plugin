@@ -18,8 +18,10 @@ package org.codinjutsu.tools.jenkins.security;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -55,9 +57,15 @@ class NoSecurityClient extends AbstractSecurityClient {
         if (isCrumbDataSet()) {
             post.addRequestHeader(CRUMB_NAME, crumbValue);
         }
+
+        InputStream inputStream = null;
+
         try {
             int statusCode = httpClient.executeMethod(post);
-            String responseBody = post.getResponseBodyAsString();
+
+            inputStream = post.getResponseBodyAsStream();
+            String responseBody = IOUtils.toString(inputStream, post.getResponseCharSet());
+
             if (HttpURLConnection.HTTP_OK != statusCode) { //TODO Crappy ! need refactor
                 if (isRedirection(statusCode)) {
                     String newLocation = post.getResponseHeader("Location").getValue();
@@ -69,7 +77,9 @@ class NoSecurityClient extends AbstractSecurityClient {
                     }
 
                     statusCode = httpClient.executeMethod(post);
-                    responseBody = post.getResponseBodyAsString();
+                    inputStream = post.getResponseBodyAsStream();
+                    responseBody = IOUtils.toString(inputStream, post.getResponseCharSet());
+
                     if (HttpURLConnection.HTTP_OK != statusCode) {
                         checkResponse(statusCode, responseBody);
                     }
@@ -79,6 +89,7 @@ class NoSecurityClient extends AbstractSecurityClient {
             }
             return responseBody;
         } finally {
+            if (inputStream != null) inputStream.close();
             post.releaseConnection();
         }
     }

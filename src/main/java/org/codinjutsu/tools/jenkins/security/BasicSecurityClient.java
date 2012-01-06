@@ -20,9 +20,11 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -64,19 +66,23 @@ class BasicSecurityClient extends AbstractSecurityClient {
 
         httpClient.getParams().setAuthenticationPreemptive(true);
 
-        PostMethod postMethod = new PostMethod(jenkinsUrl.toString());
+        PostMethod post = new PostMethod(jenkinsUrl.toString());
 
         if (isCrumbDataSet()) {
-            postMethod.addRequestHeader(CRUMB_NAME, crumbValue);
+            post.addRequestHeader(CRUMB_NAME, crumbValue);
         }
 
-        postMethod.setDoAuthentication(true);
-        int responseCode = httpClient.executeMethod(postMethod);
+        post.setDoAuthentication(true);
+        int responseCode = httpClient.executeMethod(post);
         if (responseCode != HttpURLConnection.HTTP_OK) {
-            checkResponse(responseCode, postMethod.getResponseBodyAsString());
+
+            InputStream inputStream = post.getResponseBodyAsStream();
+            String responseBody = IOUtils.toString(inputStream, post.getResponseCharSet());
+            
+            checkResponse(responseCode, post.getResponseBodyAsString());
         }
 
-        postMethod.releaseConnection();
+        post.releaseConnection();
     }
 
 
@@ -89,9 +95,14 @@ class BasicSecurityClient extends AbstractSecurityClient {
             post.addRequestHeader(CRUMB_NAME, crumbValue);
         }
 
+        InputStream inputStream = null;
         try {
             int statusCode = httpClient.executeMethod(post);
-            String responseBody = post.getResponseBodyAsString();
+//            String responseBody = post.getResponseBodyAsString();
+//            String responseBody;
+            inputStream = post.getResponseBodyAsStream();
+            String responseBody = IOUtils.toString(inputStream, post.getResponseCharSet());
+
             if (HttpURLConnection.HTTP_OK != statusCode) {//TODO Crappy ! need refactor
                 if (isRedirection(statusCode)) {
                     String newLocation = post.getResponseHeader("Location").getValue();
@@ -103,7 +114,10 @@ class BasicSecurityClient extends AbstractSecurityClient {
                     }
 
                     statusCode = httpClient.executeMethod(post);
-                    responseBody = post.getResponseBodyAsString();
+
+                    inputStream = post.getResponseBodyAsStream();
+                    responseBody = IOUtils.toString(inputStream, post.getResponseCharSet());
+
                     if (HttpURLConnection.HTTP_OK != statusCode) {
                         checkResponse(statusCode, responseBody);
                     }
@@ -113,6 +127,7 @@ class BasicSecurityClient extends AbstractSecurityClient {
             }
             return responseBody;
         } finally {
+            if (inputStream != null) inputStream.close();
             post.releaseConnection();
         }
     }
