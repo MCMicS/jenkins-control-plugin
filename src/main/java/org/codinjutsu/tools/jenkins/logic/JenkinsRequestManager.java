@@ -31,6 +31,7 @@ import org.jdom.input.SAXBuilder;
 import java.net.URL;
 import java.util.*;
 
+@SuppressWarnings("unchecked")
 public class JenkinsRequestManager {
 
     private static final String JENKINS_DESCRIPTION = "description";
@@ -39,6 +40,7 @@ public class JenkinsRequestManager {
     private static final String JOB_NAME = "name";
     private static final String JOB_HEALTH = "healthReport";
     private static final String JOB_HEALTH_ICON = "iconUrl";
+    private static final String JOB_HEALTH_DESCRIPTION = "description";
     private static final String JOB_URL = "url";
     private static final String JOB_COLOR = "color";
     private static final String JOB_LAST_BUILD = "lastBuild";
@@ -101,9 +103,13 @@ public class JenkinsRequestManager {
         URL url = urlBuilder.createRssLatestUrl(configuration.getServerUrl());
 
         String inputStream = securityClient.execute(url);
-        Document doc = getXMLBuilder().build(new CharSequenceReader(inputStream));
+        try {
+            Document doc = getXMLBuilder().build(new CharSequenceReader(inputStream));
 
-        return createLatestBuildList(doc);
+            return createLatestBuildList(doc);
+        } catch (Exception e) {
+            throw new Exception("rss ouput:" + inputStream);
+        }
     }
 
 
@@ -249,10 +255,12 @@ public class JenkinsRequestManager {
         String jobUrl = jobElement.getChildText(JOB_URL);
         String inQueue = jobElement.getChildText(JOB_IS_IN_QUEUE);
 
-        String jobHealth = getJobHealth(jobElement);
+        Job job = Job.createJob(jobName, jobColor, jobUrl, inQueue);
 
-
-        Job job = Job.createJob(jobName, jobColor, jobHealth, jobUrl, inQueue);
+        Job.Health jobHealth = getJobHealth(jobElement);
+        if (jobHealth != null) {
+            job.setHealth(jobHealth);
+        }
         Element lastBuild = jobElement.getChild(JOB_LAST_BUILD);
         if (lastBuild != null) {
             job.setLastBuild(createLastBuild(lastBuild));
@@ -266,22 +274,29 @@ public class JenkinsRequestManager {
     }
 
 
-    private String getJobHealth(Element jobElement) {
-        String jobHealth = null;
+    private Job.Health getJobHealth(Element jobElement) {
+        String jobHealthLevel = null;
+        String jobHealthDescription = null;
         Element jobHealthElement = jobElement.getChild(JOB_HEALTH);
         if (jobHealthElement != null) {
-            jobHealth = jobHealthElement.getChildText(JOB_HEALTH_ICON);
-            if (!StringUtils.isEmpty(jobHealth)) {
-                if (jobHealth.endsWith(".png"))
-                    jobHealth = jobHealth.substring(0, jobHealth.lastIndexOf(".png"));
+            jobHealthLevel = jobHealthElement.getChildText(JOB_HEALTH_ICON);
+            if (StringUtils.isNotEmpty(jobHealthLevel)) {
+                if (jobHealthLevel.endsWith(".png"))
+                    jobHealthLevel = jobHealthLevel.substring(0, jobHealthLevel.lastIndexOf(".png"));
                 else {
-                    jobHealth = jobHealth.substring(0, jobHealth.lastIndexOf(".gif"));
+                    jobHealthLevel = jobHealthLevel.substring(0, jobHealthLevel.lastIndexOf(".gif"));
                 }
             } else {
-                jobHealth = null;
+                jobHealthLevel = null;
             }
+            
+            jobHealthDescription = jobHealthElement.getChildText(JOB_HEALTH_DESCRIPTION);
         }
-        return jobHealth;
+
+        if (!StringUtils.isEmpty(jobHealthLevel)) {
+            return Job.Health.createHealth(jobHealthLevel, jobHealthDescription);
+        }
+        return null;
     }
 
 

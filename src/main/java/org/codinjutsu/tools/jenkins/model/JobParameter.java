@@ -88,23 +88,6 @@ public class JobParameter {
         return values;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        return reflectionEquals(this, obj);
-    }
-
-
-    @Override
-    public int hashCode() {
-        return reflectionHashCode(this);
-    }
-
-
-    @Override
-    public String toString() {
-        return reflectionToString(this, SHORT_PREFIX_STYLE);
-    }
-
     private static JobParameterType evaluate(String paramTypeToEvaluate) {
         for (JobParameterType parameterType : JobParameterType.values()) {
             if (parameterType.name().equals(paramTypeToEvaluate)) {

@@ -3,6 +3,7 @@
     <url>http://ci.jenkins-ci.org/job/config-provider-model/</url>
     <color>blue</color>
     <healthReport>
+        <description>0 tests en échec sur un total de 24 tests</description>
         <iconUrl>health-80plus.png</iconUrl>
     </healthReport>
     <inQueue>false</inQueue>

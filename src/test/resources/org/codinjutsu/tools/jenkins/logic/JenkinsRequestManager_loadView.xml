@@ -9,6 +9,7 @@
         <color>blue</color>
         <inQueue>true</inQueue>
         <healthReport>
+            <description>0 tests en échec sur un total de 24 tests</description>
             <iconUrl>health-80plus.gif</iconUrl>
         </healthReport>
         <lastBuild>
@@ -30,6 +31,7 @@
         <color>red</color>
         <inQueue>false</inQueue>
         <healthReport>
+            <description>24 tests en échec sur un total de 24 tests</description>
             <iconUrl>health-00to19.gif</iconUrl>
         </healthReport>
         <lastBuild>
@@ -62,6 +64,7 @@
         <color>disabled</color>
         <inQueue>true</inQueue>
         <healthReport>
+            <description>0 tests en échec sur un total de 24 tests</description>
             <iconUrl>health20to39.gif</iconUrl>
         </healthReport>
         <lastBuild>

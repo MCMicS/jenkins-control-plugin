@@ -108,16 +108,14 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
 
         jenkins.setPrimaryView(View.createView("All", "http://myjenkinsserver/"));
 
-        Job mintJob = Job.createJob("mint", "blue", "health-80plus", "http://myjenkinsserver/mint", "false");
-        mintJob.setLastBuild(Build.createBuild("http://myjenkinsserver/mint/150",
-                "150",
-                BuildStatusEnum.SUCCESS.getStatus(),
-                "false"));
-        Job capriJob = Job.createJob("capri", "red", "health-00to19", "http://myjenkinsserver/capri", "false");
-        capriJob.setLastBuild(Build.createBuild("http://myjenkinsserver/capri/15",
-                "15",
-                BuildStatusEnum.FAILURE.getStatus(),
-                "true"));
+        Job mintJob = new JobBuilder().job("mint", "blue", "http://myjenkinsserver/mint", "false")
+                .lastBuild("http://myjenkinsserver/mint/150", "150", BuildStatusEnum.SUCCESS.getStatus(), "false")
+                .health("health-80plus", "0 tests en échec sur un total de 89 tests")
+                .get();
+        Job capriJob = new JobBuilder().job("capri", "red", "http://myjenkinsserver/capri", "false")
+                .lastBuild("http://myjenkinsserver/capri/15", "15", BuildStatusEnum.FAILURE.getStatus(), "true")
+                .health("health-00to19", "15 tests en échec sur un total de 50 tests")
+                .get();
 
         joblist.add(mintJob);
         joblist.add(capriJob);

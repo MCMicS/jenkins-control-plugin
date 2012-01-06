@@ -104,7 +104,13 @@
             <groupId>org.uispec4j</groupId>
             <artifactId>uispec4j</artifactId>
             <version>2.4</version>
-            <classifier>jdk15</classifier>
+            <classifier>jdk16</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.unitils</groupId>
+            <artifactId>unitils-core</artifactId>
+            <version>3.3</version>
             <scope>test</scope>
         </dependency>
 

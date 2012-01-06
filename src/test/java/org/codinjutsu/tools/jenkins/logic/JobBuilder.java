@@ -7,13 +7,18 @@ public class JobBuilder {
 
     private Job job;
 
-    public JobBuilder job(String jobName, String jobColor, String health, String jobUrl, String inQueue) {
-        job = Job.createJob(jobName, jobColor, health, jobUrl, inQueue);
+    public JobBuilder job(String jobName, String jobColor, String jobUrl, String inQueue) {
+        job = Job.createJob(jobName, jobColor, jobUrl, inQueue);
         return this;
     }
 
     public JobBuilder lastBuild(String buildUrl, String number, String status, String isBuilding) {
         job.setLastBuild(Build.createBuild(buildUrl, number, status, isBuilding));
+        return this;
+    }
+    
+    public JobBuilder health(String healthLevel, String healthDescription) {
+        job.setHealth(Job.Health.createHealth(healthLevel, healthDescription));
         return this;
     }
 

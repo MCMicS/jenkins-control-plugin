@@ -34,7 +34,8 @@ public class BuildParamDialogTest extends UISpecTestCase {
 
     private static final Job JOB_WITH_GOOD_PARAMS =
             new JobBuilder()
-                    .job("myJob", "blue", "health-80plus", "http://dummyserver/jobs/myJob", "false")
+                    .job("myJob", "blue", "http://dummyserver/jobs/myJob", "false")
+                    .health("health-80plus", "0 tests en échec sur un total de 24 tests")
                     .parameter("integrationTest", BooleanParameterDefinition.name(), "true")
                     .parameter("environment", ChoiceParameterDefinition.name(), "development",
                             "development", "integration", "acceptance", "production")
@@ -42,13 +43,15 @@ public class BuildParamDialogTest extends UISpecTestCase {
 
     private static final Job JOB_WITH_UNSUPPORTED_PARAMS =
             new JobBuilder()
-                    .job("myJob", "blue", "health-80plus", "http://dummyserver/jobs/myJob", "false")
+                    .job("myJob", "blue", "http://dummyserver/jobs/myJob", "false")
+                    .health("health-80plus", "0 tests en échec sur un total de 24 tests")
                     .parameter("run", RunParameterDefinition.name(), "blah")
                     .get();
 
     private static final Job JOB_WITH_UNKNOWN_PARAMS =
             new JobBuilder()
-                    .job("myJob", "blue", "health-80plus", "http://dummyserver/jobs/myJob", "false")
+                    .job("myJob", "blue", "http://dummyserver/jobs/myJob", "false")
+                    .health("health-80plus", "0 tests en échec sur un total de 24 tests")
                     .parameter("run", null, "blah")
                     .get();
 

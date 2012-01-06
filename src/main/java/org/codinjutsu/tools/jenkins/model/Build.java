@@ -16,10 +16,6 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
-import static org.apache.commons.lang.builder.EqualsBuilder.reflectionEquals;
-import static org.apache.commons.lang.builder.HashCodeBuilder.reflectionHashCode;
-import static org.apache.commons.lang.builder.ToStringBuilder.reflectionToString;
-import static org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 import static org.codinjutsu.tools.jenkins.model.BuildStatusEnum.SUCCESS;
 
 public class Build {
@@ -84,24 +80,6 @@ public class Build {
 
     private boolean hasNotSameSuccessThan(Build aBuild) {
         return !(this.isSuccess() && aBuild.isSuccess());
-    }
-
-
-    @Override
-    public boolean equals(Object obj) {
-        return reflectionEquals(this, obj);
-    }
-
-
-    @Override
-    public int hashCode() {
-        return reflectionHashCode(this);
-    }
-
-
-    @Override
-    public String toString() {
-        return reflectionToString(this, SHORT_PREFIX_STYLE);
     }
 
 

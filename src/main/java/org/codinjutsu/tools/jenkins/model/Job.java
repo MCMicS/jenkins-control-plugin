@@ -29,25 +29,25 @@ public class Job {
     private final String url;
 
     private String color;
-    private String health;
     private boolean inQueue;
+
+    private Health health;
 
     private Build lastBuild;
 
     private List<JobParameter> parameters = new LinkedList<JobParameter>();
 
 
-    private Job(String name, String color, String health, String url, Boolean inQueue) {
+    private Job(String name, String color, String url, Boolean inQueue) {
         this.name = name;
         this.color = color;
-        this.health = health;
         this.url = url;
         this.inQueue = inQueue;
     }
 
 
-    public static Job createJob(String jobName, String jobColor, String health, String jobUrl, String inQueue) {
-        return new Job(jobName, jobColor, health, jobUrl, Boolean.valueOf(inQueue));
+    public static Job createJob(String jobName, String jobColor, String jobUrl, String inQueue) {
+        return new Job(jobName, jobColor, jobUrl, Boolean.valueOf(inQueue));
     }
 
 
@@ -92,32 +92,44 @@ public class Job {
         this.lastBuild = lastBuild;
     }
 
-    public String getHealth() {
+    public Health getHealth() {
         return health;
+    }
+
+    public void setHealth(Health health) {
+        this.health = health;
     }
 
     public boolean hasParameters() {
         return !parameters.isEmpty();
     }
 
+
     public List<JobParameter> getParameters() {
         return parameters;
     }
 
 
-    @Override
-    public boolean equals(Object obj) {
-        return reflectionEquals(this, obj);
-    }
+    public static class Health {
 
+        private final String healthLevel;
+        private final String description;
 
-    @Override
-    public int hashCode() {
-        return reflectionHashCode(this);
-    }
+        private Health(String healthLevel, String description) {
+            this.healthLevel = healthLevel;
+            this.description = description;
+        }
 
-    @Override
-    public String toString() {
-        return reflectionToString(this, SHORT_PREFIX_STYLE);
+        public String getLevel() {
+            return healthLevel;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public static Health createHealth(String healthLevel, String healthDescription) {
+            return new Health(healthLevel, healthDescription);
+        }
     }
 }

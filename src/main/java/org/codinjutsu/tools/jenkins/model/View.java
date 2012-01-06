@@ -78,12 +78,6 @@ public class View {
         return reflectionHashCode(this);
     }
 
-
-    @Override
-    public String toString() {
-        return reflectionToString(this, SHORT_PREFIX_STYLE);
-    }
-
     public static View createView(String viewName, String viewUrl) {
         return new View(viewName, viewUrl, false);
     }

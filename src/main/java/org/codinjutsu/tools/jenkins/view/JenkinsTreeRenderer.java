@@ -77,7 +77,7 @@ class JenkinsTreeRenderer extends DefaultTreeCellRenderer {
                     expanded, leaf, row,
                     hasFocus);
 
-            setToolTipText(jobLabel);
+            setToolTipText(findHealthDescription(job));
             setFont(job);
             setIcon(buildJobIcon(job));
             return this;
@@ -142,6 +142,18 @@ class JenkinsTreeRenderer extends DefaultTreeCellRenderer {
 
 
     private static Icon findHealthIcon(Job job) {
-        return GuiUtil.loadIcon(job.getHealth() + ".png");
+        Job.Health health = job.getHealth();
+        if (health == null) {
+            return GuiUtil.loadIcon("null.png");
+        }
+        return GuiUtil.loadIcon(job.getHealth().getLevel() + ".png");
+    }
+
+    private static String findHealthDescription(Job job) {
+        Job.Health health = job.getHealth();
+        if (health == null) {
+            return "";
+        }
+        return job.getHealth().getDescription();
     }
 }

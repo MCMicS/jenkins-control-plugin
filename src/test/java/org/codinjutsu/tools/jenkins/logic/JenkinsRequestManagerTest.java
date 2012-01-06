@@ -37,6 +37,7 @@ import static org.codinjutsu.tools.jenkins.model.BuildStatusEnum.SUCCESS;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.unitils.reflectionassert.ReflectionAssert.assertReflectionEquals;
 
 public class JenkinsRequestManagerTest {
 
@@ -61,9 +62,9 @@ public class JenkinsRequestManagerTest {
         expectedViews.add(View.createView("Tools", "http://myjenkins/view/Tools/"));
         expectedViews.add(View.createView("Tous", "http://myjenkins/"));
 
-        assertThat(actualViews, equalTo(expectedViews));
+        assertReflectionEquals(expectedViews, actualViews);
 
-        assertThat(jenkins.getPrimaryView(), equalTo(View.createView("Tous", "http://myjenkins")));
+        assertReflectionEquals(View.createView("Tous", "http://myjenkins"), jenkins.getPrimaryView());
     }
 
     @Test
@@ -80,13 +81,13 @@ public class JenkinsRequestManagerTest {
 
         nestedView.addSubView(View.createNestedView("FirstSubView", "http://myjenkins/view/NestedView/view/FirstSubView/"));
         nestedView.addSubView(View.createNestedView("SecondSubView", "http://myjenkins/view/NestedView/view/SecondSubView/"));
-
         expectedViews.add(nestedView);
+
         expectedViews.add(View.createView("Tous", "http://myjenkins/"));
 
-        assertThat(actualViews, equalTo(expectedViews));
+        assertReflectionEquals(expectedViews, actualViews);
 
-        assertThat(jenkins.getPrimaryView(), equalTo(View.createView("Tous", "http://myjenkins")));
+        assertReflectionEquals(View.createView("Tous", "http://myjenkins"), jenkins.getPrimaryView());
     }
 
 
@@ -100,20 +101,23 @@ public class JenkinsRequestManagerTest {
         List<Job> expectedJobs = new LinkedList<Job>();
 
 
-        expectedJobs.add(new JobBuilder().job("sql-tools", "blue", "health-80plus", "http://myjenkins/job/sql-tools/", "true")
-                .lastBuild("http://myjenkins/job/sql-tools/15/", "15", SUCCESS.getStatus(), "false").get());
-        expectedJobs.add(new JobBuilder().job("db-utils", "grey", null, "http://myjenkins/job/db-utils/", "false").get());
-        expectedJobs.add(new JobBuilder().job("myapp", "red", "health-00to19", "http://myjenkins/job/myapp/", "false")
+        expectedJobs.add(new JobBuilder().job("sql-tools", "blue", "http://myjenkins/job/sql-tools/", "true")
+                .lastBuild("http://myjenkins/job/sql-tools/15/", "15", SUCCESS.getStatus(), "false")
+                .health("health-80plus", "0 tests en échec sur un total de 24 tests").get());
+        expectedJobs.add(new JobBuilder().job("db-utils", "grey", "http://myjenkins/job/db-utils/", "false").get());
+        expectedJobs.add(new JobBuilder().job("myapp", "red", "http://myjenkins/job/myapp/", "false")
                 .lastBuild("http://myjenkins/job/myapp/12/", "12", FAILURE.getStatus(), "true")
+                .health("health-00to19", "24 tests en échec sur un total de 24 tests")
                 .parameter("param1", "ChoiceParameterDefinition", "value1", "value1", "value2", "value3")
                 .parameter("runIntegrationTest", "BooleanParameterDefinition", null)
                 .get());
-        expectedJobs.add(new JobBuilder().job("swing-utils", "disabled", "health20to39", "http://myjenkins/job/swing-utils/", "true")
+        expectedJobs.add(new JobBuilder().job("swing-utils", "disabled", "http://myjenkins/job/swing-utils/", "true")
                 .lastBuild("http://myjenkins/job/swing-utils/5/", "5", FAILURE.getStatus(), "false")
+                .health("health20to39", "0 tests en échec sur un total de 24 tests")
                 .parameter("dummyParam", null, null)
                 .get());
 
-        assertThat(actualJobs, equalTo(expectedJobs));
+        assertReflectionEquals(expectedJobs, actualJobs);
     }
 
     @Test
@@ -123,13 +127,11 @@ public class JenkinsRequestManagerTest {
 
         Job actualJob = requestManager.loadJob("http://ci.jenkins-ci.org/job/config-provider-model/");
 
-        Job expectedJob =
-                new JobBuilder()
-                        .job("config-provider-model", "blue", "health-80plus", "http://ci.jenkins-ci.org/job/config-provider-model/", "false")
-                        .lastBuild("http://ci.jenkins-ci.org/job/config-provider-model/8/", "8", "SUCCESS", "false")
-                        .get();
-
-        assertThat(actualJob, equalTo(expectedJob));
+        assertReflectionEquals(new JobBuilder()
+                .job("config-provider-model", "blue", "http://ci.jenkins-ci.org/job/config-provider-model/", "false")
+                .lastBuild("http://ci.jenkins-ci.org/job/config-provider-model/8/", "8", "SUCCESS", "false")
+                .health("health-80plus", "0 tests en échec sur un total de 24 tests")
+                .get(), actualJob);
     }
 
     @Test
@@ -149,8 +151,8 @@ public class JenkinsRequestManagerTest {
                 {"gerrit_master", "http://ci.jenkins-ci.org/job/gerrit_master/170/", "170", FAILURE.getStatus()},
         });
 
-        assertEquals(expectedJobBuildMap.size(), actualJobBuildMap.size());
-        assertThat(actualJobBuildMap, equalTo(expectedJobBuildMap));
+
+        assertReflectionEquals(expectedJobBuildMap, actualJobBuildMap);
     }
 
     private Map<String, Build> buildLastJobResultMap(String[][] datas) {
