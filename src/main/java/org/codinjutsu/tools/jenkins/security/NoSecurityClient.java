@@ -58,8 +58,24 @@ class NoSecurityClient extends AbstractSecurityClient {
         try {
             int statusCode = httpClient.executeMethod(post);
             String responseBody = post.getResponseBodyAsString();
-            if (HttpURLConnection.HTTP_OK != statusCode) {
-                checkResponse(statusCode, responseBody);
+            if (HttpURLConnection.HTTP_OK != statusCode) { //TODO Crappy ! need refactor
+                if (isRedirection(statusCode)) {
+                    String newLocation = post.getResponseHeader("Location").getValue();
+                    post = new PostMethod(newLocation);
+                    setCrumbValueIfNeeded();
+
+                    if (isCrumbDataSet()) {
+                        post.addRequestHeader(CRUMB_NAME, crumbValue);
+                    }
+
+                    statusCode = httpClient.executeMethod(post);
+                    responseBody = post.getResponseBodyAsString();
+                    if (HttpURLConnection.HTTP_OK != statusCode) {
+                        checkResponse(statusCode, responseBody);
+                    }
+                } else {
+                    checkResponse(statusCode, responseBody);
+                }
             }
             return responseBody;
         } finally {

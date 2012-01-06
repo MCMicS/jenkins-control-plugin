@@ -78,4 +78,8 @@ abstract class AbstractSecurityClient implements SecurityClient {
     protected boolean isCrumbDataSet() {
         return crumbValue != null;
     }
+
+    boolean isRedirection(int statusCode) {
+        return statusCode / 100 == 3;
+    }
 }

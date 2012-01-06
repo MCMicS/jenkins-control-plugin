@@ -82,23 +82,38 @@ class BasicSecurityClient extends AbstractSecurityClient {
 
     public String execute(URL url) throws Exception {
         String urlStr = url.toString();
-        PostMethod postMethod = new PostMethod(urlStr);
-
+        PostMethod post = new PostMethod(urlStr);
         setCrumbValueIfNeeded();
 
         if (isCrumbDataSet()) {
-            postMethod.addRequestHeader(CRUMB_NAME, crumbValue);
+            post.addRequestHeader(CRUMB_NAME, crumbValue);
         }
 
         try {
-            int statusCode = httpClient.executeMethod(postMethod);
-            String responseBody = postMethod.getResponseBodyAsString();
-            if (HttpURLConnection.HTTP_OK != statusCode) {
-                checkResponse(postMethod.getStatusCode(), responseBody);
+            int statusCode = httpClient.executeMethod(post);
+            String responseBody = post.getResponseBodyAsString();
+            if (HttpURLConnection.HTTP_OK != statusCode) {//TODO Crappy ! need refactor
+                if (isRedirection(statusCode)) {
+                    String newLocation = post.getResponseHeader("Location").getValue();
+                    post = new PostMethod(newLocation);
+                    setCrumbValueIfNeeded();
+
+                    if (isCrumbDataSet()) {
+                        post.addRequestHeader(CRUMB_NAME, crumbValue);
+                    }
+
+                    statusCode = httpClient.executeMethod(post);
+                    responseBody = post.getResponseBodyAsString();
+                    if (HttpURLConnection.HTTP_OK != statusCode) {
+                        checkResponse(statusCode, responseBody);
+                    }
+                } else {
+                    checkResponse(post.getStatusCode(), responseBody);
+                }
             }
             return responseBody;
         } finally {
-            postMethod.releaseConnection();
+            post.releaseConnection();
         }
     }
 }
