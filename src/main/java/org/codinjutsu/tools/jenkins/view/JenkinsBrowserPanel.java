@@ -27,6 +27,7 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
+import java.util.LinkedList;
 import java.util.List;
 
 public class JenkinsBrowserPanel extends JPanel {
@@ -41,9 +42,7 @@ public class JenkinsBrowserPanel extends JPanel {
     public JenkinsBrowserPanel() {
         jobTree.setCellRenderer(new JenkinsTreeRenderer());
         jobTree.setName("jobTree");
-        viewCombo.setRenderer(new JenkinsViewComboRenderer());
         viewCombo.setName("viewCombo");
-
 
         setLayout(new BorderLayout());
         add(rootPanel, BorderLayout.CENTER);
@@ -66,7 +65,6 @@ public class JenkinsBrowserPanel extends JPanel {
             }
         }
         SwingUtils.runInSwingThread(new ThreadFunctor() {
-            @Override
             public void run() {
                 jobTree.setModel(new DefaultTreeModel(rootNode));
             }
@@ -75,8 +73,36 @@ public class JenkinsBrowserPanel extends JPanel {
 
 
     private void initViewList(List<View> views) {
-        viewCombo.setModel(new DefaultComboBoxModel(views.toArray()));
+        List<View> flattenViewList = flatViewList(views);
+
+        viewCombo.setModel(new JenkinsViewComboboxModel(flattenViewList));
+        if (hasNestedViews(views)) {
+            viewCombo.setRenderer(new JenkinsNestedViewComboRenderer());
+        } else {
+            viewCombo.setRenderer(new JenkinsViewComboRenderer());
+        }
         viewCombo.setSelectedIndex(-1);
+    }
+
+    private List<View> flatViewList(List<View> views) {
+        List<View> flattenViewList = new LinkedList<View>();
+        for (View view : views) {
+            flattenViewList.add(view);
+            if (view.hasNestedView()) {
+                for (View subView : view.getSubViews()) {
+                    flattenViewList.add(subView);
+                }
+            }
+        }
+                
+        return flattenViewList;
+    }
+
+    private static boolean hasNestedViews(List<View> views) {
+        for (View view : views) {
+            if (view.hasNestedView()) return true;
+        }
+        return false;
     }
 
 

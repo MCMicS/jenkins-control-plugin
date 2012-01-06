@@ -31,7 +31,7 @@ class UrlBuilder {
     private static final String PARAMETERIZED_BUILD = "/buildWithParameters";
     private static final String RSS_LATEST = "/rssLatest";
     private static final String TREE_PARAM = "?tree=";
-    private static final String BASIC_JENKINS_INFO = "nodeName,nodeDescription,primaryView[name,url],views[name,url]";
+    private static final String BASIC_JENKINS_INFO = "nodeName,nodeDescription,primaryView[name,url],views[name,url,views[name,url]]";
     private static final String BASIC_JOB_INFO = "name,url,color,inQueue,healthReport[iconUrl],lastBuild[url,building,result,number],property[parameterDefinitions[name,type,defaultParameterValue[value],choices]]";
     private static final String BASIC_VIEW_INFO = "name,url,jobs[" + BASIC_JOB_INFO + "]";
 

@@ -3,7 +3,7 @@
     <description>A Jenkins Plugin for Intellij for IDEA 10+</description>
     <version>0.4.3</version>
     <vendor email="david.boissier [at] gmail [dot] com" url="http://codinjutsu.blogspot.com">David Boissier</vendor>
-    <idea-version since-build="99.32"/>
+    <idea-version since-build="107.587"/>
 
     <depends>com.intellij.modules.lang</depends>
 

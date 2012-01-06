@@ -12,10 +12,10 @@
         <maven.compiler.source>1.6</maven.compiler.source>
         <maven.compiler.target>1.6</maven.compiler.target>
 
-        <intellij.sdk.name>99.32</intellij.sdk.name>
-        <intellij.sdk.version>10.0.1</intellij.sdk.version>
+        <intellij.sdk.name>107.587</intellij.sdk.name>
+        <intellij.sdk.version>10.5.2</intellij.sdk.version>
 
-        <intellij.lib.path>/home/dboissier/incubator/libs/ideaIU-10.0.1/lib</intellij.lib.path>
+        <intellij.lib.path>/home/dboissier/incubator/libs/ideaIU-10.5.2/lib</intellij.lib.path>
 
         <release.dir>file:////home/dboissier/incubator/distribution/maven/m2/inhouse</release.dir>
         <snapshot.dir>file:///home/dboissier/incubator/distribution/maven/m2/inhouse-snapshot</snapshot.dir>

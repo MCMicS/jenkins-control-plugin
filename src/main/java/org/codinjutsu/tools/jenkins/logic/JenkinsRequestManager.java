@@ -185,7 +185,16 @@ public class JenkinsRequestManager {
         for (Element element : viewElement) {
             String viewName = element.getChildText(VIEW_NAME);
             String viewUrl = element.getChildText(VIEW_URL);
-            views.add(View.createView(viewName, viewUrl));
+            View view = View.createView(viewName, viewUrl);
+            List<Element> subViewElements = element.getChildren(VIEW);
+            if (subViewElements != null && !subViewElements.isEmpty()) {
+                for (Element subViewElement : subViewElements) {
+                    String subViewName = subViewElement.getChildText(VIEW_NAME);
+                    String subViewUrl = subViewElement.getChildText(VIEW_URL);
+                    view.addSubView(View.createNestedView(subViewName, subViewUrl));
+                }
+            }
+            views.add(view);
         }
 
         return views;

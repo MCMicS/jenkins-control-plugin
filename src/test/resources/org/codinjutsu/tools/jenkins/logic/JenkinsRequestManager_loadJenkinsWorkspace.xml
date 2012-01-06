@@ -4,49 +4,6 @@
     <nodeDescription>The master Jenkins node</nodeDescription>
     <description>SIC Master (computer001)</description>
 
-    <job>
-        <name>agf-product-ontology</name>
-        <url>http://a7wt088:8080/jenkins/job/agf-product-ontology/</url>
-        <color>blue</color>
-        <inQueue>true</inQueue>
-        <lastBuild>
-            <building>false</building>
-            <result>SUCCESS</result>
-            <number>15</number>
-            <url>http://a7wt088:8080/jenkins/job/agf-product-ontology/15/</url>
-        </lastBuild>
-    </job>
-    <job>
-        <name>agf-datagen</name>
-        <url>http://a7wt088:8080/jenkins/job/agf-datagen/</url>
-        <color>grey</color>
-        <inQueue>false</inQueue>
-    </job>
-    <job>
-        <name>mint</name>
-        <url>http://a7wt088:8080/jenkins/job/mint/</url>
-        <color>red</color>
-        <inQueue>false</inQueue>
-        <lastBuild>
-            <building>true</building>
-            <result>FAILED</result>
-            <number>12</number>
-            <url>http://a7wt088:8080/jenkins/job/mint/12/</url>
-        </lastBuild>
-    </job>
-    <job>
-        <name>transbase</name>
-        <url>http://a7wt088:8080/jenkins/job/transbase/</url>
-        <color>disabled</color>
-        <inQueue>true</inQueue>
-        <lastBuild>
-            <building>false</building>
-            <result>FAILED</result>
-            <number>5</number>
-            <url>http://a7wt088:8080/jenkins/job/transbase/5/</url>
-        </lastBuild>
-    </job>
-
     <primaryView>
         <name>Tous</name>
         <url>http://myjenkins</url>

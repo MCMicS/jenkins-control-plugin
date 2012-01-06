@@ -244,12 +244,22 @@ public class JenkinsBrowserLogic {
     private View findView(String preferredView) {
         List<View> viewList = jenkins.getViews();
         for (View jenkinsView : viewList) {
-            String viewName = jenkinsView.getName();
-            if (viewName.equals(preferredView)) {
-                return jenkinsView;
+            if (jenkinsView.hasNestedView()) {
+                for (View subView : jenkinsView.getSubViews()) {
+                    String subViewName = subView.getName();
+                    if (subViewName.equals(preferredView)) {
+                        return subView;
+                    }
+                }
+            } else {
+                String viewName = jenkinsView.getName();
+                if (viewName.equals(preferredView)) {
+                    return jenkinsView;
+                }
             }
+
         }
-        return jenkins.getPrimaryView();
+        return null;
     }
 
 

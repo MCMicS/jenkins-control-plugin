@@ -16,6 +16,9 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import static org.apache.commons.lang.builder.EqualsBuilder.reflectionEquals;
 import static org.apache.commons.lang.builder.HashCodeBuilder.reflectionHashCode;
 import static org.apache.commons.lang.builder.ToStringBuilder.reflectionToString;
@@ -27,10 +30,14 @@ public class View {
 
     private final String url;
 
+    private final boolean isNested;
 
-    private View(String name, String url) {
+    private final List<View> subViews = new LinkedList<View>();
+
+    private View(String name, String url, boolean isNested) {
         this.name = name;
         this.url = url;
+        this.isNested = isNested;
     }
 
 
@@ -41,6 +48,22 @@ public class View {
 
     public String getUrl() {
         return url;
+    }
+
+    public boolean isNested() {
+        return isNested;
+    }
+
+    public boolean hasNestedView() {
+        return !subViews.isEmpty();
+    }
+
+    public List<View> getSubViews() {
+        return subViews;
+    }
+
+    public void addSubView(View subView) {
+        this.subViews.add(subView);
     }
 
 
@@ -61,8 +84,11 @@ public class View {
         return reflectionToString(this, SHORT_PREFIX_STYLE);
     }
 
-
     public static View createView(String viewName, String viewUrl) {
-        return new View(viewName, viewUrl);
+        return new View(viewName, viewUrl, false);
+    }
+
+    public static View createNestedView(String viewName, String viewUrl) {
+        return new View(viewName, viewUrl, true);
     }
 }

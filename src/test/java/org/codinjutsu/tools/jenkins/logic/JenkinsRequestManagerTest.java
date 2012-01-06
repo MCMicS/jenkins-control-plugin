@@ -66,6 +66,29 @@ public class JenkinsRequestManagerTest {
         assertThat(jenkins.getPrimaryView(), equalTo(View.createView("Tous", "http://myjenkins")));
     }
 
+    @Test
+    public void loadJenkinsWorkSpaceWithNestedViews() throws Exception {
+        Mockito.when(securityClientMock.execute(Mockito.any(URL.class)))
+                .thenReturn(IOUtils.toString(JenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadJenkinsWorkspaceWithNestedView.xml")));
+        Jenkins jenkins = requestManager.loadJenkinsWorkspace(configuration);
+
+        List<View> actualViews = jenkins.getViews();
+
+        List<View> expectedViews = new LinkedList<View>();
+        expectedViews.add(View.createView("Framework", "http://myjenkins/view/Framework/"));
+        View nestedView = View.createView("NestedView", "http://myjenkins/view/NestedView/");
+
+        nestedView.addSubView(View.createNestedView("FirstSubView", "http://myjenkins/view/NestedView/view/FirstSubView/"));
+        nestedView.addSubView(View.createNestedView("SecondSubView", "http://myjenkins/view/NestedView/view/SecondSubView/"));
+
+        expectedViews.add(nestedView);
+        expectedViews.add(View.createView("Tous", "http://myjenkins/"));
+
+        assertThat(actualViews, equalTo(expectedViews));
+
+        assertThat(jenkins.getPrimaryView(), equalTo(View.createView("Tous", "http://myjenkins")));
+    }
+
 
     @Test
     public void loadView() throws Exception {

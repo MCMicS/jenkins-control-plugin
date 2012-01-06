@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jenkins>
+    <nodeName></nodeName>
+    <nodeDescription>The master Jenkins node</nodeDescription>
+    <description>SIC Master (computer001)</description>
+
+    <primaryView>
+        <name>Tous</name>
+        <url>http://myjenkins</url>
+    </primaryView>
+    <view>
+        <name>Framework</name>
+        <url>http://myjenkins/view/Framework/</url>
+    </view>
+    <view>
+        <name>NestedView</name>
+        <url>http://myjenkins/view/NestedView/</url>
+        <view>
+            <name>FirstSubView</name>
+            <url>http://myjenkins/view/NestedView/view/FirstSubView/</url>
+        </view>
+        <view>
+            <name>SecondSubView</name>
+            <url>http://myjenkins/view/NestedView/view/SecondSubView/</url>
+        </view>
+    </view>
+    <view>
+        <name>Tous</name>
+        <url>http://myjenkins/</url>
+    </view>
+</jenkins>
