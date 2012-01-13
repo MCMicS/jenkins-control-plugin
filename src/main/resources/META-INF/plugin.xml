@@ -1,7 +1,7 @@
 <idea-plugin>
     <name>Jenkins Control Plugin</name>
     <description>A Jenkins Plugin for Intellij for IDEA 10+</description>
-    <version>0.4.3</version>
+    <version>0.4.4</version>
     <vendor email="david.boissier [at] gmail [dot] com" url="http://codinjutsu.blogspot.com">David Boissier</vendor>
     <idea-version since-build="107.587"/>
 
@@ -14,10 +14,10 @@
     </project-components>
 
     <change-notes><![CDATA[
-Version 0.4.3:<br/>
-<ul>
-    <li>[fix] Jetbrains plateform version used in Phpstorm IDE makes the plugin crash</li>
-    <li>[fix] Rss toolbar Panel Layout should be fixed (again)</li>
-</ul>
-     ]]> </change-notes>
+Version 0.4.4:
+    * [Add] Nested View support (1 level only)
+    * [Add] Job Tree : Build Description is displayed as tooltip 
+    * [Upd] Plugin SDK Migration to version 107.587 (IDEA 10.5.2)
+    * [Fix] Handle Http redirection     
+]]> </change-notes>
 </idea-plugin>

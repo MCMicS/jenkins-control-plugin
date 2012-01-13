@@ -1,6 +1,11 @@
+Version 0.4.4:
+    * [Add] Nested View support (1 level only)
+    * [Add] Job Tree : Build Description is displayed as tooltip
+    * [Upd] Plugin SDK Migration to version 107.587 (IDEA 10.5.2)
+    * [Fix] Handle Http redirection
 Version 0.4.3:
-    * [fix] Jetbrains plateform version used in Phpstorm IDE makes the plugin crash
-    * [fix] Rss toolbar Panel Layout should be fixed (again)
+    * [Fix] Jetbrains plateform version used in Phpstorm IDE makes the plugin crash
+    * [Fix] Rss toolbar Panel Layout should be fixed (again)
 
 Version 0.4.2:
     * [Upd] Support other JetBrains product
