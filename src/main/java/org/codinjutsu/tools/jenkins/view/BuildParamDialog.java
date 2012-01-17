@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2011 David Boissier
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.codinjutsu.tools.jenkins.view;
 
 import org.apache.commons.lang.StringUtils;
@@ -16,8 +32,8 @@ import java.util.*;
 import java.util.List;
 
 public class BuildParamDialog extends JDialog {
-    public static final Color LIGHT_RED_BACKGROUND = new Color(230, 150, 150);
-    public static final Color RED_BORDER = new Color(220, 0, 0);
+    private static final Color LIGHT_RED_BACKGROUND = new Color(230, 150, 150);
+    private static final Color RED_BORDER = new Color(220, 0, 0);
     private static final String MISSING_NAME_LABEL = "<Missing Name>";
     private static final Icon ERROR_ICON = GuiUtil.loadIcon("error.png");
     private JPanel contentPane;
@@ -31,7 +47,7 @@ public class BuildParamDialog extends JDialog {
     private final Job job;
     private final JenkinsConfiguration configuration;
     private final JenkinsRequestManager jenkinsManager;
-    private final BuildCallback buildCallback;
+    private final RunBuildCallback runBuildCallback;
     private Map<JobParameter, JComponent> inputFieldByParameterMap = new HashMap<JobParameter, JComponent>();
 
     private static final Set<JobParameter.JobParameterType> USUPPORTED_PARAM_TYPE = new HashSet<JobParameter.JobParameterType>();
@@ -43,11 +59,11 @@ public class BuildParamDialog extends JDialog {
         USUPPORTED_PARAM_TYPE.add(JobParameter.JobParameterType.ListSubversionTagsParameterDefinition);
     }
 
-    BuildParamDialog(Job job, JenkinsConfiguration configuration, JenkinsRequestManager jenkinsManager, BuildCallback buildCallback) {
+    BuildParamDialog(Job job, JenkinsConfiguration configuration, JenkinsRequestManager jenkinsManager, RunBuildCallback runBuildCallback) {
         this.job = job;
         this.configuration = configuration;
         this.jenkinsManager = jenkinsManager;
-        this.buildCallback = buildCallback;
+        this.runBuildCallback = runBuildCallback;
 
         contentPanel.setName("contentPanel");
 
@@ -62,10 +78,10 @@ public class BuildParamDialog extends JDialog {
         registerListeners();
     }
 
-    public static void showDialog(final Job job, final JenkinsConfiguration configuration, final JenkinsRequestManager jenkinsManager, final BuildCallback buildCallback) {
+    public static void showDialog(final Job job, final JenkinsConfiguration configuration, final JenkinsRequestManager jenkinsManager, final RunBuildCallback runBuildCallback) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                BuildParamDialog dialog = new BuildParamDialog(job, configuration, jenkinsManager, buildCallback);
+                BuildParamDialog dialog = new BuildParamDialog(job, configuration, jenkinsManager, runBuildCallback);
                 dialog.setLocationRelativeTo(null);
                 dialog.setMaximumSize(new Dimension(300, 200));
                 dialog.pack();
@@ -138,7 +154,7 @@ public class BuildParamDialog extends JDialog {
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     }
 
-    private JComponent createInputField(JobParameter jobParameter) {//TODO a transformer en visiteur ?
+    private JComponent createInputField(JobParameter jobParameter) {//TODO add wrapper
 
         JobParameter.JobParameterType jobParameterType = jobParameter.getJobParameterType();
         String defaultValue = jobParameter.getDefaultValue();
@@ -176,11 +192,11 @@ public class BuildParamDialog extends JDialog {
 //            checkInputValues();
             jenkinsManager.runParameterizedBuild(job, configuration, getParamValueMap());
             dispose();
-            buildCallback.notifyOnOk(job);
+            runBuildCallback.notifyOnOk(job);
         } catch (ConfigurationException confEx) {
             setErrorOnFeedbackPanel(confEx.getMessage());
         } catch (Exception ex) {
-            buildCallback.notifyOnError(job, ex);
+            runBuildCallback.notifyOnError(job, ex);
         }
 
     }
@@ -261,20 +277,10 @@ public class BuildParamDialog extends JDialog {
         feedbackLabel.setBorder(BorderFactory.createLineBorder(RED_BORDER));
     }
 
-    public interface BuildCallback {
+    public interface RunBuildCallback {
 
         void notifyOnOk(Job job);
 
         void notifyOnError(Job job, Exception ex);
-
-        public BuildCallback NULL = new BuildCallback() {
-            @Override
-            public void notifyOnOk(Job job) {
-            }
-
-            @Override
-            public void notifyOnError(Job job, Exception ex) {
-            }
-        };
     }
 }

@@ -17,7 +17,6 @@ import org.uispec4j.finder.ComponentMatchers;
 import java.util.Map;
 
 import static org.codinjutsu.tools.jenkins.model.JobParameter.JobParameterType.*;
-import static org.codinjutsu.tools.jenkins.view.BuildParamDialog.BuildCallback;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -28,7 +27,7 @@ public class BuildParamDialogTest extends UISpecTestCase {
     private JenkinsRequestManager requestManager;
 
     @Mock
-    private BuildCallback callback;
+    private BuildParamDialog.RunBuildCallback callbackRun;
 
     private JenkinsConfiguration configuration;
 
@@ -117,7 +116,7 @@ public class BuildParamDialogTest extends UISpecTestCase {
     }
 
     private Window createUISpecWindow(Job job) {
-        return new Window(new BuildParamDialog(job, configuration, requestManager, callback));
+        return new Window(new BuildParamDialog(job, configuration, requestManager, callbackRun));
     }
 
     public void tearDown() throws Exception {

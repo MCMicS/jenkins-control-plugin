@@ -16,15 +16,19 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
+import org.apache.commons.lang.StringUtils;
+import org.codinjutsu.tools.jenkins.util.GuiUtil;
+
+import javax.swing.*;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-
-import static org.apache.commons.lang.builder.EqualsBuilder.reflectionEquals;
-import static org.apache.commons.lang.builder.HashCodeBuilder.reflectionHashCode;
-import static org.apache.commons.lang.builder.ToStringBuilder.reflectionToString;
-import static org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE;
+import java.util.Map;
 
 public class Job {
+
+    private static final Map<String, Icon> ICON_BY_JOB_HEALTH_MAP = new HashMap<String, Icon>();
+
     private final String name;
     private final String url;
 
@@ -36,6 +40,15 @@ public class Job {
     private Build lastBuild;
 
     private List<JobParameter> parameters = new LinkedList<JobParameter>();
+
+    static {
+        ICON_BY_JOB_HEALTH_MAP.put("health-00to19", GuiUtil.loadIcon("health-00to19.png"));
+        ICON_BY_JOB_HEALTH_MAP.put("health-20to39", GuiUtil.loadIcon("health-20to39.png"));
+        ICON_BY_JOB_HEALTH_MAP.put("health-40to59", GuiUtil.loadIcon("health-40to59.png"));
+        ICON_BY_JOB_HEALTH_MAP.put("health-60to79", GuiUtil.loadIcon("health-60to79.png"));
+        ICON_BY_JOB_HEALTH_MAP.put("health-80plus", GuiUtil.loadIcon("health-80plus.png"));
+        ICON_BY_JOB_HEALTH_MAP.put("null", GuiUtil.loadIcon("null.png"));
+    }
 
 
     private Job(String name, String color, String url, Boolean inQueue) {
@@ -50,12 +63,53 @@ public class Job {
         return new Job(jobName, jobColor, jobUrl, Boolean.valueOf(inQueue));
     }
 
+    public Icon getStateIcon() {
+        return Build.getStateIcon(color);
+    }
 
-    public void updateContentWith(Job updatedJob) {
-        this.color = updatedJob.getColor();
+    public Icon getHealthIcon() {
+        if (health == null) {
+            return ICON_BY_JOB_HEALTH_MAP.get("null");
+        }
+        return ICON_BY_JOB_HEALTH_MAP.get(health.getLevel());
+    }
+
+    public String findHealthDescription() {
+        if (health == null) {
+            return "";
+        }
+        return health.getDescription();
+    }
+
+
+    public boolean updateContentWith(Job updatedJob) {
+        boolean statusChanged = false;
+        if (!StringUtils.equals(color, updatedJob.getColor())) {
+            this.color = updatedJob.getColor();
+            statusChanged = true;
+        }
+
         this.health = updatedJob.getHealth();
         this.inQueue = updatedJob.isInQueue();
+
+        if (lastBuild != null) { //TODO Crappy!! Need to refactor and Unit tests
+            if (updatedJob.getLastBuild() != null) {
+                if (updatedJob.getLastBuild().getNumber() != lastBuild.getNumber()) {
+                    statusChanged = true;
+                } else {
+                    if (!updatedJob.isInQueue() || !updatedJob.getLastBuild().isBuilding()) {
+                        statusChanged = true;
+                    }
+                }
+            }
+        } else {
+            if (updatedJob.getLastBuild() != null && (!updatedJob.getLastBuild().isBuilding() || !updatedJob.isInQueue())) {
+                statusChanged = true;
+            }
+        }
         this.lastBuild = updatedJob.getLastBuild();
+
+        return statusChanged;
     }
 
 
@@ -68,7 +122,7 @@ public class Job {
     }
 
 
-    public String getColor() {
+    String getColor() {
         return color;
     }
 
@@ -92,7 +146,7 @@ public class Job {
         this.lastBuild = lastBuild;
     }
 
-    public Health getHealth() {
+    Health getHealth() {
         return health;
     }
 

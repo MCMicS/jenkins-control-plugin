@@ -29,12 +29,7 @@ class NoSecurityClient extends AbstractSecurityClient {
 
 
     NoSecurityClient(String crumbDataFile) {
-        this(crumbDataFile, new HttpClient());
-    }
-
-
-    NoSecurityClient(String crumbDataFile, HttpClient httpClient) {
-        super(httpClient, crumbDataFile);
+        super(new HttpClient(), crumbDataFile);
     }
 
 

@@ -27,9 +27,13 @@ import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.util.HtmlUtil;
 import org.codinjutsu.tools.jenkins.view.BuildParamDialog;
 
+import javax.swing.*;
+
 public class RunBuildAction extends AnAction {
 
+    public static final Icon RUN_ICON = GuiUtil.loadIcon("toolWindowRun.png");
     private static final Logger LOG = Logger.getLogger(RunBuildAction.class.getName());
+
     private final JenkinsBrowserLogic jenkinsBrowserLogic;
 
 
@@ -50,19 +54,19 @@ public class RunBuildAction extends AnAction {
 
             JenkinsRequestManager jenkinsManager = jenkinsBrowserLogic.getJenkinsManager();
             if (job.hasParameters()) {
-                BuildParamDialog.showDialog(job, jenkinsControlComponent.getState(), jenkinsManager, new BuildParamDialog.BuildCallback() {
+                BuildParamDialog.showDialog(job, jenkinsControlComponent.getState(), jenkinsManager, new BuildParamDialog.RunBuildCallback() {
 
                     public void notifyOnOk(Job job) {
-                        notifyOngoingMessage(jenkinsControlComponent, job);
+                        notifyOnGoingMessage(jenkinsControlComponent, job);
                     }
 
                     public void notifyOnError(Job job, Exception ex) {
-                        jenkinsControlComponent.notifyErrorJenkinsToolWindow("Build cannot be run: " + ex.getMessage());
+                        jenkinsControlComponent.notifyErrorJenkinsToolWindow("Build '" + job.getName() + "' cannot be run: " + ex.getMessage());
                     }
                 });
             } else {
                 jenkinsManager.runBuild(job, jenkinsControlComponent.getState());
-                notifyOngoingMessage(jenkinsControlComponent, job);
+                notifyOnGoingMessage(jenkinsControlComponent, job);
             }
 
         } catch (Exception ex) {
@@ -77,9 +81,9 @@ public class RunBuildAction extends AnAction {
     }
 
 
-    private static void notifyOngoingMessage(JenkinsControlComponent jenkinsControlComponent, Job job) {
+    private static void notifyOnGoingMessage(JenkinsControlComponent jenkinsControlComponent, Job job) {
         jenkinsControlComponent.notifyInfoJenkinsToolWindow(HtmlUtil.createHtmlLinkMessage(
                 job.getName() + " build is on going",
-                job.getUrl()), GuiUtil.loadIcon("toolWindowRun.png"));
+                job.getUrl()));
     }
 }

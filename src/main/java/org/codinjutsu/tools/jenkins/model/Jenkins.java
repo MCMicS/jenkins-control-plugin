@@ -16,8 +16,12 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
+import org.codinjutsu.tools.jenkins.logic.JenkinsBrowserLogic;
+
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class Jenkins {
 
@@ -26,18 +30,23 @@ public class Jenkins {
     private List<View> views;
     private View primaryView;
 
-    private List<Job> jobs;
+    private Map<String, Job> jobs;
 
 
     public Jenkins(String description) {
         this.name = description;
-        this.jobs = new LinkedList<Job>();
+        this.jobs = new LinkedHashMap<String, Job>();
         this.views = new LinkedList<View>();
     }
 
 
-    public List<Job> getJobs() {
+    public Map<String, Job> getJobs() {
         return jobs;
+    }
+
+
+    public List<Job> getJobList() {
+        return new LinkedList<Job>(jobs.values());
     }
 
 
@@ -51,8 +60,21 @@ public class Jenkins {
     }
 
 
-    public void setJobs(List<Job> jobs) {
-        this.jobs = jobs;
+    public void addJobs(List<Job> jobsToAdd, boolean needToReset, JenkinsBrowserLogic.JobStatusCallback jobStatusCallback) {
+        if (needToReset) {
+            jobs.clear();
+        }
+        for (Job jobToAdd : jobsToAdd) {
+            Job job = jobs.get(jobToAdd.getName());
+            if (job != null) {
+                boolean updated = job.updateContentWith(jobToAdd);
+                if (updated) {
+                    jobStatusCallback.notifyUpdatedStatus(jobToAdd);
+                }
+            } else {
+                jobs.put(jobToAdd.getName(), jobToAdd);
+            }
+        }
     }
 
 

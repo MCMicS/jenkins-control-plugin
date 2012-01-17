@@ -33,12 +33,18 @@ import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.codinjutsu.tools.jenkins.logic.JenkinsBrowserLogic;
 import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
+import org.codinjutsu.tools.jenkins.model.Build;
+import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
+import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
+import org.codinjutsu.tools.jenkins.util.HtmlUtil;
 import org.codinjutsu.tools.jenkins.view.JenkinsConfigurationPanel;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+
+import static org.codinjutsu.tools.jenkins.view.action.RunBuildAction.RUN_ICON;
 
 @State(
         name = JenkinsControlComponent.JENKINS_CONTROL_COMPONENT_NAME,
@@ -123,7 +129,42 @@ public class JenkinsControlComponent
         ToolWindow toolWindow = toolWindowManager.registerToolWindow(JENKINS_BROWSER, true, ToolWindowAnchor.RIGHT);
 
         jenkinsRequestManager = new JenkinsRequestManager(configuration.getCrumbFile());
-        jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, jenkinsRequestManager);
+        jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, jenkinsRequestManager, new JenkinsBrowserLogic.JobStatusCallback() {
+
+            public void notifyUpdatedStatus(final Job job) {
+
+                final Build lastBuild = job.getLastBuild();
+
+                if (lastBuild == null) {
+                    return;
+                }
+
+                BuildStatusEnum status = lastBuild.getStatus();
+
+                MessageType messageType = MessageType.WARNING;
+                if (BuildStatusEnum.FAILURE.equals(status)) {
+                    messageType = MessageType.ERROR;
+                } else if (BuildStatusEnum.SUCCESS.equals(status)
+                        || BuildStatusEnum.STABLE.equals(status)) {
+                    messageType = MessageType.INFO;
+                }
+
+                final String message = job.getName() + ": " + status;
+
+                final MessageType finalMessageType = messageType;
+                GuiUtil.runInSwingThread(new Runnable() {
+                    public void run() {
+                        ToolWindowManager.getInstance(project).notifyByBalloon(JENKINS_BROWSER,
+                                finalMessageType,
+                                HtmlUtil.createHtmlLinkMessage(message, lastBuild.getUrl()),
+                                job.getStateIcon(),
+                                new BrowserHyperlinkListener());
+
+                    }
+                });
+
+            }
+        });
         jenkinsBrowserLogic.init();
 
 
@@ -162,9 +203,13 @@ public class JenkinsControlComponent
     }
 
 
-    public void notifyInfoJenkinsToolWindow(final String message, final Icon icon) {
-        ToolWindowManager.getInstance(project).notifyByBalloon(JENKINS_BROWSER, MessageType.INFO,
-                message, icon, new BrowserHyperlinkListener());
+    public void notifyInfoJenkinsToolWindow(final String message) {
+        ToolWindowManager.getInstance(project).notifyByBalloon(
+                JENKINS_BROWSER,
+                MessageType.INFO,
+                message,
+                RUN_ICON,
+                new BrowserHyperlinkListener());
     }
 
     public void notifyErrorJenkinsToolWindow(final String message) {

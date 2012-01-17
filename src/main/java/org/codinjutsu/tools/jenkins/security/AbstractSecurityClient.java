@@ -26,21 +26,21 @@ import java.net.HttpURLConnection;
 
 abstract class AbstractSecurityClient implements SecurityClient {
 
-    protected static final String BAD_CRUMB_DATA = "No valid crumb was included in the request";
-    protected static final String CRUMB_NAME = ".crumb";
-    protected static final String TEST_CONNECTION_REQUEST = "/api/xml?tree=nodeName";
+    private static final String BAD_CRUMB_DATA = "No valid crumb was included in the request";
+    static final String CRUMB_NAME = ".crumb";
+    static final String TEST_CONNECTION_REQUEST = "/api/xml?tree=nodeName";
 
-    protected final String crumbDataFile;
-    protected String crumbValue;
+    private final String crumbDataFile;
+    String crumbValue;
 
-    protected final HttpClient httpClient;
+    final HttpClient httpClient;
 
-    protected AbstractSecurityClient(HttpClient httpClient, String crumbDataFile) {
+    AbstractSecurityClient(HttpClient httpClient, String crumbDataFile) {
         this.httpClient = httpClient;
         this.crumbDataFile = crumbDataFile;
     }
 
-    protected void setCrumbValueIfNeeded() throws IOException {
+    void setCrumbValueIfNeeded() throws IOException {
         if (!isCrumbDataSet()) {
             if (StringUtils.isNotEmpty(crumbDataFile)) {
                 crumbValue = extractValueFromFile(crumbDataFile);
@@ -48,7 +48,7 @@ abstract class AbstractSecurityClient implements SecurityClient {
         }
     }
 
-    protected String extractValueFromFile(String file) throws IOException {
+    String extractValueFromFile(String file) throws IOException {
         String value = IOUtils.toString(new FileInputStream(file));
         if (StringUtils.isNotEmpty(value)) {
             value = StringUtils.removeEnd(value, "\n");
@@ -57,7 +57,7 @@ abstract class AbstractSecurityClient implements SecurityClient {
         return value;
     }
 
-    protected void checkResponse(int statusCode, String responseBody) throws AuthenticationException {
+    void checkResponse(int statusCode, String responseBody) throws AuthenticationException {
         if (statusCode == HttpURLConnection.HTTP_FORBIDDEN || statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
             if (StringUtils.contains(responseBody, BAD_CRUMB_DATA)) {
                 throw new AuthenticationException("CSRF enabled -> Missing or bad crumb data");
@@ -75,7 +75,7 @@ abstract class AbstractSecurityClient implements SecurityClient {
         }
     }
 
-    protected boolean isCrumbDataSet() {
+    boolean isCrumbDataSet() {
         return crumbValue != null;
     }
 

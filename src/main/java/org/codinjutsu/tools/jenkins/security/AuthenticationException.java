@@ -16,7 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.security;
 
-public class AuthenticationException extends Exception {
+class AuthenticationException extends Exception {
 
     public AuthenticationException(String message) {
         super(message);

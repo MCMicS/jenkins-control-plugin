@@ -16,17 +16,32 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
+import org.codinjutsu.tools.jenkins.util.GuiUtil;
+
+import javax.swing.*;
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.codinjutsu.tools.jenkins.model.BuildStatusEnum.SUCCESS;
 
 public class Build {
 
-    private final String buildUrl;
+    private static final Map<BuildStatusEnum, Icon> ICON_BY_BUILD_STATUS_MAP = new HashMap<BuildStatusEnum, Icon>();
 
+    private final String buildUrl;
     private final int number;
+    private final boolean building;
 
     private final BuildStatusEnum status;
 
-    private final boolean building;
+    static {
+        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.SUCCESS, GuiUtil.loadIcon("blue.png"));
+        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.STABLE, GuiUtil.loadIcon("blue.png"));
+        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.FAILURE, GuiUtil.loadIcon("red.png"));
+        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.UNSTABLE, GuiUtil.loadIcon("yellow.png"));
+        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.NULL, GuiUtil.loadIcon("grey.png"));
+        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.ABORTED, GuiUtil.loadIcon("grey.png"));
+    }
 
 
     private Build(String buildUrl, int number, BuildStatusEnum status, boolean isBuilding) {
@@ -34,6 +49,18 @@ public class Build {
         this.number = number;
         this.status = status;
         this.building = isBuilding;
+    }
+
+    public static Icon getStateIcon(String jobColor) {
+        BuildStatusEnum[] jobStates = BuildStatusEnum.values();
+        for (BuildStatusEnum jobState : jobStates) {
+            String stateName = jobState.getColor();
+            if (jobColor.startsWith(stateName)) {
+                return ICON_BY_BUILD_STATUS_MAP.get(jobState);
+            }
+        }
+
+        return ICON_BY_BUILD_STATUS_MAP.get(BuildStatusEnum.NULL);
     }
 
 

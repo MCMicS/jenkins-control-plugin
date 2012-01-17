@@ -37,7 +37,7 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
     private Panel uiSpecPanel;
 
     @Mock
-    JenkinsRequestManager jenkinsRequestManager;
+    private JenkinsRequestManager jenkinsRequestManager;
 
     public void testDisplayWithDefaultValues() throws Exception {
 

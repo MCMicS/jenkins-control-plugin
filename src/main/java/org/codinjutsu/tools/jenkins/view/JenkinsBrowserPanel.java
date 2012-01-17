@@ -20,8 +20,6 @@ import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.model.View;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
-import org.codinjutsu.tools.jenkins.util.SwingUtils;
-import org.codinjutsu.tools.jenkins.view.action.ThreadFunctor;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -56,7 +54,7 @@ public class JenkinsBrowserPanel extends JPanel {
 
 
     public void fillJobTree(Jenkins jenkins) {
-        List<Job> jobList = jenkins.getJobs();
+        List<Job> jobList = jenkins.getJobList();
         final DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode(jenkins);
         if (!jobList.isEmpty()) {
             for (Job job : jobList) {
@@ -64,7 +62,7 @@ public class JenkinsBrowserPanel extends JPanel {
                 rootNode.add(jobNode);
             }
         }
-        SwingUtils.runInSwingThread(new ThreadFunctor() {
+        GuiUtil.runInSwingThread(new Runnable() {
             public void run() {
                 jobTree.setModel(new DefaultTreeModel(rootNode));
             }

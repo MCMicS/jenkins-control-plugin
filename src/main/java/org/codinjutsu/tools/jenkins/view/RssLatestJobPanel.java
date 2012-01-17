@@ -19,8 +19,6 @@ package org.codinjutsu.tools.jenkins.view;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
-import org.codinjutsu.tools.jenkins.util.SwingUtils;
-import org.codinjutsu.tools.jenkins.view.action.ThreadFunctor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -32,6 +30,11 @@ import java.util.Map.Entry;
 import static org.codinjutsu.tools.jenkins.model.BuildStatusEnum.SUCCESS;
 
 public class RssLatestJobPanel {
+
+    private static final Icon OK_ICON = GuiUtil.loadIcon("accept.png");
+    private static final Icon ABORT_ICON = GuiUtil.loadIcon("aborted.png");
+    private static final Icon CANCEL_ICON = GuiUtil.loadIcon("cancel.png");
+
     private JPanel rssContentPanel;
     private JPanel rootPanel;
 
@@ -41,7 +44,7 @@ public class RssLatestJobPanel {
 
 
     public void cleanRssEntries() {
-        SwingUtils.runInSwingThread(new ThreadFunctor() {
+        GuiUtil.runInSwingThread(new Runnable() {
             public void run() {
                 rssContentPanel.invalidate();
 
@@ -69,7 +72,7 @@ public class RssLatestJobPanel {
             }
         };
 
-        SwingUtils.runInSwingThread(new ThreadFunctor() {
+        GuiUtil.runInSwingThread(new Runnable() {
             public void run() {
                 for (Entry<String, Build> entry : jobBuildByJobNameMap.entrySet()) {
                     addFinishedBuild(rssCallback, entry.getKey(), entry.getValue());
@@ -99,11 +102,11 @@ public class RssLatestJobPanel {
 
     private static Icon setIcon(Build build) {
         if (SUCCESS.equals(build.getStatus())) {
-            return GuiUtil.loadIcon("accept.png");
+            return OK_ICON;
         } else if (BuildStatusEnum.ABORTED.equals(build.getStatus())) {
-            return GuiUtil.loadIcon("aborted.png");
+            return ABORT_ICON;
         }
-        return GuiUtil.loadIcon("cancel.png");
+        return CANCEL_ICON;
     }
 
 

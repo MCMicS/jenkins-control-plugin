@@ -18,7 +18,6 @@ package org.codinjutsu.tools.jenkins.util;
 
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.IconLoader;
-import org.codinjutsu.tools.jenkins.view.action.ThreadFunctor;
 
 import javax.swing.*;
 
@@ -37,12 +36,19 @@ public class GuiUtil {
 
 
     public static void showErrorDialog(final String errorMessage, final String title) {
-        SwingUtils.runInSwingThread(new ThreadFunctor() {
-            @Override
+        runInSwingThread(new Runnable() {
             public void run() {
                 Messages.showErrorDialog(errorMessage, title);
             }
         });
 
+    }
+
+    public static void runInSwingThread(Runnable runnable) {
+        if (SwingUtilities.isEventDispatchThread()) {
+            runnable.run();
+        } else {
+            SwingUtilities.invokeLater(runnable);
+        }
     }
 }

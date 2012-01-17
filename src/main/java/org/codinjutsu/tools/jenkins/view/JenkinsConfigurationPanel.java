@@ -23,8 +23,7 @@ import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
 import org.codinjutsu.tools.jenkins.security.SecurityMode;
-import org.codinjutsu.tools.jenkins.util.SwingUtils;
-import org.codinjutsu.tools.jenkins.view.action.ThreadFunctor;
+import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.annotation.FormValidator;
 import org.codinjutsu.tools.jenkins.view.annotation.GuiField;
 import org.codinjutsu.tools.jenkins.view.validator.NotNullValidator;
@@ -38,6 +37,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
+import static org.codinjutsu.tools.jenkins.JenkinsConfiguration.RESET_STR_VALUE;
 import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.*;
 
 @SuppressWarnings({"unchecked"})
@@ -230,7 +230,7 @@ public class JenkinsConfigurationPanel {
 //                        setSecurityMode(SecurityMode, null, null, null);
 //                        connectionStatusLabel.setText("");
 //                    } catch (final AuthenticationException authEx) {
-//                        SwingUtils.runInSwingThread(new ThreadFunctor() {
+//                        GuiUtil.runInSwingThread(new Runnable() {
 //                            public void run() {
 //                                connectionStatusLabel.setForeground(CONNECTION_TEST_FAILED_COLOR);
 //                                connectionStatusLabel.setText(authEx.getMessage());
@@ -247,9 +247,9 @@ public class JenkinsConfigurationPanel {
                 rssRefreshPeriod, resetPeriodValue));
 
         enableAuthentication.addItemListener(new EnablerFieldListener(enableAuthentication,
-                username, JenkinsConfiguration.RESET_STR_VALUE));
+                username, RESET_STR_VALUE));
         enableAuthentication.addItemListener(new EnablerPasswordFileListener(enableAuthentication,
-                passwordFile, JenkinsConfiguration.RESET_STR_VALUE));
+                passwordFile));
 
         enableAuthentication.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
@@ -263,7 +263,7 @@ public class JenkinsConfigurationPanel {
     }
 
     private void setConnectionFeedbackLabel(final Color labelColor, final String labelText) {
-        SwingUtils.runInSwingThread(new ThreadFunctor() {
+        GuiUtil.runInSwingThread(new Runnable() {
             public void run() {
                 connectionStatusLabel.setForeground(labelColor);
                 connectionStatusLabel.setText(labelText);
@@ -309,21 +309,19 @@ public class JenkinsConfigurationPanel {
     private class EnablerPasswordFileListener implements ItemListener {
         private final JCheckBox enablerCheckBox;
         private final LabeledComponent<TextFieldWithBrowseButton> fieldToEnable;
-        private final String resetValue;
 
 
         private EnablerPasswordFileListener(JCheckBox enablerCheckBox,
-                                            LabeledComponent<TextFieldWithBrowseButton> fieldToEnable, String resetValue) {
+                                            LabeledComponent<TextFieldWithBrowseButton> fieldToEnable) {
             this.enablerCheckBox = enablerCheckBox;
             this.fieldToEnable = fieldToEnable;
-            this.resetValue = resetValue;
         }
 
 
         public void itemStateChanged(ItemEvent event) {
             final boolean isSelected = enablerCheckBox.isSelected();
             if (!isSelected) {
-                fieldToEnable.getComponent().setText(resetValue);
+                fieldToEnable.getComponent().setText(RESET_STR_VALUE);
             }
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {

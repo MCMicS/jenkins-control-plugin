@@ -42,7 +42,6 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
 
     private final List<Job> joblist = new ArrayList<Job>();
 
-    @Test
     public void test_displayInitialTreeAndLoadView() throws Exception {
         Mockito.when(requestManagerMock.loadJenkinsWorkspace(configuration))
                 .thenReturn(createJenkinsWorkspace());
@@ -83,7 +82,7 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
         configuration = new JenkinsConfiguration();
         configuration.setJobRefreshPeriod(60);
         configuration.setServerUrl("http://myjenkinsserver/");
-        jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, requestManagerMock) {
+        jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, requestManagerMock, JenkinsBrowserLogic.JobStatusCallback.NULL) {
             @Override
             protected void installRssActions(JPanel rssActionPanel) {
 
@@ -119,7 +118,7 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
 
         joblist.add(mintJob);
         joblist.add(capriJob);
-        jenkins.setJobs(joblist);
+        jenkins.addJobs(joblist, true, JenkinsBrowserLogic.JobStatusCallback.NULL);
 
         return jenkins;
     }

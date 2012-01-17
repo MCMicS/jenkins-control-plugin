@@ -21,12 +21,10 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.ui.PopupHandler;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
-import org.codinjutsu.tools.jenkins.model.Build;
-import org.codinjutsu.tools.jenkins.model.Jenkins;
-import org.codinjutsu.tools.jenkins.model.Job;
-import org.codinjutsu.tools.jenkins.model.View;
+import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.view.JenkinsBrowserPanel;
 import org.codinjutsu.tools.jenkins.view.action.*;
 import org.jdom.JDOMException;
@@ -53,37 +51,19 @@ public class JenkinsBrowserLogic {
     private final JenkinsBrowserPanel browserPanel;
     private final JenkinsConfiguration configuration;
     private final JenkinsRequestManager jenkinsRequestManager;
+    private final JobStatusCallback jobStatusCallback;
 
     private Jenkins jenkins;
+    private View currentView;
     private final Map<String, Build> currentBuildMap = new HashMap<String, Build>();
     private Timer jobRefreshTimer;
     private Timer rssRefreshTimer;
 
-    public JenkinsBrowserLogic(JenkinsConfiguration configuration, JenkinsRequestManager jenkinsRequestManager) {
+    public JenkinsBrowserLogic(JenkinsConfiguration configuration, JenkinsRequestManager jenkinsRequestManager, JobStatusCallback jobStatusCallback) {
         this.configuration = configuration;
         this.jenkinsRequestManager = jenkinsRequestManager;
+        this.jobStatusCallback = jobStatusCallback;
         this.browserPanel = new JenkinsBrowserPanel();
-    }
-
-    private static void installActionGroupInPopupMenu(ActionGroup group,
-                                                      JComponent component,
-                                                      ActionManager actionManager) {
-        if (actionManager == null) {
-            return;
-        }
-        PopupHandler.installPopupHandler(component, group, "POPUP", actionManager);
-    }
-
-    private static void installActionGroupInToolBar(ActionGroup actionGroup,
-                                                    JComponent component,
-                                                    ActionManager actionManager, String toolBarName) {
-        if (actionManager == null) {
-            return;
-        }
-
-        JComponent actionToolbar = ActionManager.getInstance()
-                .createActionToolbar(toolBarName, actionGroup, true).getComponent();
-        component.add(actionToolbar, BorderLayout.CENTER);
     }
 
 
@@ -109,10 +89,16 @@ public class JenkinsBrowserLogic {
 
 
     public void loadSelectedView() throws Exception {
-        View jenkinsView = getSelectedJenkinsView();
-        if (jenkinsView != null) {
-            List<Job> jobList = jenkinsRequestManager.loadJenkinsView(jenkinsView.getUrl());
-            jenkins.setJobs(jobList);
+        View selectedJenkinsView = getSelectedJenkinsView();
+        if (selectedJenkinsView != null) {
+            List<Job> jobList = jenkinsRequestManager.loadJenkinsView(selectedJenkinsView.getUrl());
+
+            boolean needToReset = false;
+            if (currentView == null || !StringUtils.equals(currentView.getName(), selectedJenkinsView.getName())) {
+                currentView = selectedJenkinsView;
+                needToReset = true;
+            }
+            jenkins.addJobs(jobList, needToReset, jobStatusCallback);
             this.browserPanel.fillJobTree(jenkins);
         } else {
             loadJenkinsWorkspace();
@@ -123,7 +109,10 @@ public class JenkinsBrowserLogic {
     public void loadSelectedJob() throws Exception {
         Job job = getSelectedJob();
         Job updatedJob = jenkinsRequestManager.loadJob(job.getUrl());
-        job.updateContentWith(updatedJob);
+        boolean statusChanged = job.updateContentWith(updatedJob);
+        if (statusChanged) {
+            jobStatusCallback.notifyUpdatedStatus(job);
+        }
     }
 
 
@@ -311,6 +300,27 @@ public class JenkinsBrowserLogic {
     }
 
 
+    private static void installActionGroupInPopupMenu(ActionGroup group,
+                                                      JComponent component,
+                                                      ActionManager actionManager) {
+        if (actionManager == null) {
+            return;
+        }
+        PopupHandler.installPopupHandler(component, group, "POPUP", actionManager);
+    }
+
+    private static void installActionGroupInToolBar(ActionGroup actionGroup,
+                                                    JComponent component,
+                                                    ActionManager actionManager, String toolBarName) {
+        if (actionManager == null) {
+            return;
+        }
+
+        JComponent actionToolbar = ActionManager.getInstance()
+                .createActionToolbar(toolBarName, actionGroup, true).getComponent();
+        component.add(actionToolbar, BorderLayout.CENTER);
+    }
+
     private void initListeners() {
         getBrowserPanel().getViewCombo().addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent evt) {
@@ -332,8 +342,8 @@ public class JenkinsBrowserLogic {
         public void run() {
             try {
                 loadSelectedView();
-            } catch (Exception e) {
-                System.out.println("e = " + e.getMessage());
+            } catch (Exception ex) {
+                throw new RuntimeException(ex.getMessage(), ex);
             }
         }
     }
@@ -345,5 +355,15 @@ public class JenkinsBrowserLogic {
         public void run() {
             refreshLatestCompletedBuilds();
         }
+    }
+
+    public interface JobStatusCallback {
+        
+        void notifyUpdatedStatus(Job job);
+
+        public static JobStatusCallback NULL = new JobStatusCallback() {
+            public void notifyUpdatedStatus(Job job) {
+            }
+        };
     }
 }
