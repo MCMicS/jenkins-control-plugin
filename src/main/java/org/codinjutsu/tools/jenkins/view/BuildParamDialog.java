@@ -48,7 +48,7 @@ public class BuildParamDialog extends JDialog {
     private final JenkinsConfiguration configuration;
     private final JenkinsRequestManager jenkinsManager;
     private final RunBuildCallback runBuildCallback;
-    private Map<JobParameter, JComponent> inputFieldByParameterMap = new HashMap<JobParameter, JComponent>();
+    private final Map<JobParameter, JComponent> inputFieldByParameterMap = new HashMap<JobParameter, JComponent>();
 
     private static final Set<JobParameter.JobParameterType> USUPPORTED_PARAM_TYPE = new HashSet<JobParameter.JobParameterType>();
 

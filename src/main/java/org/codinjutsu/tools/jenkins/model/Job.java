@@ -39,7 +39,7 @@ public class Job {
 
     private Build lastBuild;
 
-    private List<JobParameter> parameters = new LinkedList<JobParameter>();
+    private final List<JobParameter> parameters = new LinkedList<JobParameter>();
 
     static {
         ICON_BY_JOB_HEALTH_MAP.put("health-00to19", GuiUtil.loadIcon("health-00to19.png"));

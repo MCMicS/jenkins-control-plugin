@@ -29,7 +29,7 @@ public class BuildResultPanel extends JPanel {
     private JButton closeButton;
     private JPanel rootPanel;
     private JPanel buildStatusPanel;
-    private String jobName;
+    private final String jobName;
 
 
     public BuildResultPanel(String jobName, String buildMessage, Icon icon, final String buildUrl) {

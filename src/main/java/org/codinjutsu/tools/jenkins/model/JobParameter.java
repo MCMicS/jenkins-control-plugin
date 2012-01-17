@@ -43,9 +43,9 @@ public class JobParameter {
 
     private String defaultValue;
 
-    private LinkedList<String> values = new LinkedList<String>();
+    private final LinkedList<String> values = new LinkedList<String>();
 
-    public JobParameter(String name) {
+    private JobParameter(String name) {
         this.name = name;
     }
 

@@ -79,7 +79,7 @@ class BasicSecurityClient extends AbstractSecurityClient {
             InputStream inputStream = post.getResponseBodyAsStream();
             String responseBody = IOUtils.toString(inputStream, post.getResponseCharSet());
             
-            checkResponse(responseCode, post.getResponseBodyAsString());
+            checkResponse(responseCode, responseBody);
         }
 
         post.releaseConnection();

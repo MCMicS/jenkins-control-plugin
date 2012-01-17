@@ -27,10 +27,10 @@ public class Jenkins {
 
     private final String name;
 
+    private final Map<String, Job> jobs;
+
     private List<View> views;
     private View primaryView;
-
-    private Map<String, Job> jobs;
 
 
     public Jenkins(String description) {
