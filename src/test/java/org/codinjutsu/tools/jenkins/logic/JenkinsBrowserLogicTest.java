@@ -62,6 +62,8 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
 
         comboBox.select("Vue 1");
 
+        Thread.sleep(100);//waiting for the swing thread finished
+        
         getJobTree(panel);
         jobTree.contentEquals(
                 "Jenkins (master)\n" +
