@@ -16,23 +16,23 @@
 
 package org.codinjutsu.tools.jenkins.view.validator;
 
+import com.intellij.openapi.ui.LabeledComponent;
+import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 
-import javax.swing.*;
+import java.io.File;
 
-public class StrictPositiveIntegerValidator implements UIValidator<JTextField> {
-    public void validate(JTextField component) throws ConfigurationException {
-        String value = component.getText();
-        if (component.isEnabled() && StringUtils.isNotEmpty(value)) {    //TODO A revoir
-            try {
-                int intValue = Integer.parseInt(value);
-                if (intValue <= 0) {
-                    throw new NumberFormatException();
-                }
-            } catch (NumberFormatException ex) {
-                throw new ConfigurationException("'" + value + "' is not a positive integer");
-            }
+public class FileValidator implements UIValidator<LabeledComponent<TextFieldWithBrowseButton>>{
+    public void validate(LabeledComponent<TextFieldWithBrowseButton> component) throws ConfigurationException {
+        String filepath = component.getComponent().getText();
+        if (StringUtils.isEmpty(filepath)) {
+            return;
         }
+        File file = new File(filepath);
+        if (!file.exists() || !file.isFile()) {
+            throw new ConfigurationException("'" + filepath + "' is not a file");
+        }
+
     }
 }

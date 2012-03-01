@@ -67,12 +67,15 @@ public class JenkinsConfigurationPanel {
 
     private JCheckBox enableAuthentication;
     private JTextField username;
+
+    @GuiField(validators = FILE)
     private LabeledComponent<TextFieldWithBrowseButton> passwordFile;
+
+    @GuiField(validators = FILE)
     private LabeledComponent<TextFieldWithBrowseButton> crumbDataFile;
 
     private JPanel rootPanel;
 
-    //    private JButton discoverButton;
     private JButton testConnexionButton;
     private JLabel connectionStatusLabel;
 
@@ -102,9 +105,6 @@ public class JenkinsConfigurationPanel {
 
         passwordFile.getComponent().getTextField().setName("passwordFile");
         crumbDataFile.getComponent().getTextField().setName("crumbDataFile");
-
-//        discoverButton.setToolTipText("Discover the Security Configuration of your Jenkins Server");
-//        discoverButton.setIcon(GuiUtil.loadIcon("wand.png"));
 
         initListeners();
 
@@ -221,25 +221,6 @@ public class JenkinsConfigurationPanel {
                 }
             }
         });
-
-//        discoverButton.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent actionEvent) {
-//                if (StringUtils.isNotEmpty(serverUrl.getText())) {
-//                    try {
-//                        SecurityMode SecurityMode = SecurityResolver.resolve(serverUrl.getText());
-//                        setSecurityMode(SecurityMode, null, null, null);
-//                        connectionStatusLabel.setText("");
-//                    } catch (final AuthenticationException authEx) {
-//                        GuiUtil.runInSwingThread(new Runnable() {
-//                            public void run() {
-//                                connectionStatusLabel.setForeground(CONNECTION_TEST_FAILED_COLOR);
-//                                connectionStatusLabel.setText(authEx.getMessage());
-//                            }
-//                        });
-//                    }
-//                }
-//            }
-//        });
 
         enableJobAutoRefresh.addItemListener(new EnablerFieldListener(enableJobAutoRefresh,
                 jobRefreshPeriod, resetPeriodValue));

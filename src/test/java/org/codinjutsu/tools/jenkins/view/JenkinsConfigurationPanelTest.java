@@ -20,12 +20,16 @@ import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
 import org.codinjutsu.tools.jenkins.security.SecurityMode;
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.uispec4j.CheckBox;
 import org.uispec4j.Panel;
 import org.uispec4j.TextBox;
 import org.uispec4j.UISpecTestCase;
+
+import java.io.File;
 
 import static org.codinjutsu.tools.jenkins.JenkinsConfiguration.DEFAULT_BUILD_DELAY;
 import static org.codinjutsu.tools.jenkins.JenkinsConfiguration.DEFAULT_JENKINS_SERVER_URL;
@@ -35,6 +39,9 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
     private JenkinsConfigurationPanel jenkinsConfigurationPanel;
     private JenkinsConfiguration configuration;
     private Panel uiSpecPanel;
+
+    @Rule
+    private TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Mock
     private JenkinsRequestManager jenkinsRequestManager;
@@ -79,6 +86,9 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
 
 
     public void testValidationOk() throws Exception {
+        temporaryFolder.newFile("password.txt");
+        temporaryFolder.newFile("crumbData.txt");
+
 
         TextBox serverUrlBox = uiSpecPanel.getTextBox("serverUrl");
         serverUrlBox.setText("http://anotherjenkinsserver:1010/jenkins");
@@ -114,11 +124,11 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
 
         TextBox passwordFileField = uiSpecPanel.getTextBox("passwordFile");
         assertTrue(passwordFileField.isEnabled());
-        passwordFileField.setText("D:/password.txt");
+        passwordFileField.setText("password.txt");
 
         TextBox crumbDataFileField = uiSpecPanel.getTextBox("crumbDataFile");
         assertTrue(crumbDataFileField.isEnabled());
-        crumbDataFileField.setText("D:/crumbData.txt");
+        crumbDataFileField.setText("crumbData.txt");
 
         jenkinsConfigurationPanel.applyConfigurationData(configuration);
 
@@ -130,8 +140,8 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
         assertFalse(configuration.isEnableRssAutoRefresh());
         assertEquals(SecurityMode.BASIC, configuration.getSecurityMode());
         assertEquals("johndoe", configuration.getUsername());
-        assertEquals("D:/password.txt", configuration.getPasswordFile());
-        assertEquals("D:/crumbData.txt", configuration.getCrumbFile());
+        assertEquals("password.txt", configuration.getPasswordFile());
+        assertEquals("crumbData.txt", configuration.getCrumbFile());
     }
 
 
@@ -203,6 +213,8 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
     }
 
     public void testApplyAuthenticationWithInvalidUserParameters() throws Exception {
+        temporaryFolder.newFile("password.txt");
+
         CheckBox enableAuthenticationCheckBox = uiSpecPanel.getCheckBox("enableAuthentication");
         enableAuthenticationCheckBox.click();
 
@@ -223,11 +235,19 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
         }
 
         TextBox passwordTextField = uiSpecPanel.getTextBox("passwordFile");
-        passwordTextField.setText("D:/password.txt");
+        passwordTextField.setText("password");
+        try {
+            jenkinsConfigurationPanel.applyConfigurationData(configuration);
+            fail();
+        } catch (ConfigurationException ex) {
+            assertEquals("'password' is not a file", ex.getMessage());
+        }
+
+        passwordTextField.setText("password.txt");
         jenkinsConfigurationPanel.applyConfigurationData(configuration);
         assertEquals(SecurityMode.BASIC, configuration.getSecurityMode());
         assertEquals("johndoe", configuration.getUsername());
-        assertEquals("D:/password.txt", configuration.getPasswordFile());
+        assertEquals("password.txt", configuration.getPasswordFile());
 
 
         enableAuthenticationCheckBox.click();
