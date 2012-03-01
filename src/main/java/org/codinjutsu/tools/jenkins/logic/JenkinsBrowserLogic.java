@@ -353,7 +353,11 @@ public class JenkinsBrowserLogic {
 
         @Override
         public void run() {
-            refreshLatestCompletedBuilds();
+            try {
+                refreshLatestCompletedBuilds();
+            } catch (Exception ex) {
+                throw new RuntimeException(ex.getMessage(), ex);
+            }
         }
     }
 

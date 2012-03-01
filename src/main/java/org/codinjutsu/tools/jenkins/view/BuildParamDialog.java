@@ -50,14 +50,12 @@ public class BuildParamDialog extends JDialog {
     private final RunBuildCallback runBuildCallback;
     private final Map<JobParameter, JComponent> inputFieldByParameterMap = new HashMap<JobParameter, JComponent>();
 
-    private static final Set<JobParameter.JobParameterType> USUPPORTED_PARAM_TYPE = new HashSet<JobParameter.JobParameterType>();
+// UNSUPPORTED PARAMETERS
+//        FileParameterDefinition
+//        TextParameterDefinition
+//        RunParameterDefinition
+//        ListSubversionTagsParameterDefinition
 
-    static {
-        USUPPORTED_PARAM_TYPE.add(JobParameter.JobParameterType.FileParameterDefinition);
-        USUPPORTED_PARAM_TYPE.add(JobParameter.JobParameterType.TextParameterDefinition);
-        USUPPORTED_PARAM_TYPE.add(JobParameter.JobParameterType.RunParameterDefinition);
-        USUPPORTED_PARAM_TYPE.add(JobParameter.JobParameterType.ListSubversionTagsParameterDefinition);
-    }
 
     BuildParamDialog(Job job, JenkinsConfiguration configuration, JenkinsRequestManager jenkinsManager, RunBuildCallback runBuildCallback) {
         this.job = job;
