@@ -17,6 +17,7 @@
 package org.codinjutsu.tools.jenkins.security;
 
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.io.IOUtils;
 
@@ -29,7 +30,7 @@ class NoSecurityClient extends AbstractSecurityClient {
 
 
     NoSecurityClient(String crumbDataFile) {
-        super(new HttpClient(), crumbDataFile);
+        super(new HttpClient(new MultiThreadedHttpConnectionManager()), crumbDataFile);
     }
 
 
@@ -88,6 +89,4 @@ class NoSecurityClient extends AbstractSecurityClient {
             post.releaseConnection();
         }
     }
-
-
 }

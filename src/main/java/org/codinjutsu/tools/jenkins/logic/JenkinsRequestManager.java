@@ -102,14 +102,10 @@ public class JenkinsRequestManager {
     public Map<String, Build> loadJenkinsRssLatestBuilds(JenkinsConfiguration configuration) throws Exception {
         URL url = urlBuilder.createRssLatestUrl(configuration.getServerUrl());
 
-        String inputStream = securityClient.execute(url);
-        try {
-            Document doc = getXMLBuilder().build(new CharSequenceReader(inputStream));
+        String rssData = securityClient.execute(url);
+        Document doc = getXMLBuilder().build(new CharSequenceReader(rssData));
 
-            return createLatestBuildList(doc);
-        } catch (Exception e) {
-            throw new Exception("rss ouput:" + inputStream);
-        }
+        return createLatestBuildList(doc);
     }
 
 
@@ -289,7 +285,7 @@ public class JenkinsRequestManager {
             } else {
                 jobHealthLevel = null;
             }
-            
+
             jobHealthDescription = jobHealthElement.getChildText(JOB_HEALTH_DESCRIPTION);
         }
 

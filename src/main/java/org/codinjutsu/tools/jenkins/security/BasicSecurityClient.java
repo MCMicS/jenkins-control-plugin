@@ -17,6 +17,7 @@
 package org.codinjutsu.tools.jenkins.security;
 
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -37,7 +38,7 @@ class BasicSecurityClient extends AbstractSecurityClient {
 
 
     BasicSecurityClient(String username, String passwordFile, String crumbDataFile) {
-        super(new HttpClient(), crumbDataFile);
+        super(new HttpClient(new MultiThreadedHttpConnectionManager()), crumbDataFile);
         this.username = username;
         this.passwordFile = passwordFile;
     }
