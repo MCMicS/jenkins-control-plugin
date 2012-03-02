@@ -17,13 +17,14 @@
 package org.codinjutsu.tools.jenkins.view.action;
 
 import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import org.codinjutsu.tools.jenkins.JenkinsControlComponent;
 import org.codinjutsu.tools.jenkins.logic.JenkinsBrowserLogic;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
-public class RefreshNodeAction extends AnAction {
+public class RefreshNodeAction extends AnAction implements DumbAware {
 
     private final JenkinsBrowserLogic logic;
 

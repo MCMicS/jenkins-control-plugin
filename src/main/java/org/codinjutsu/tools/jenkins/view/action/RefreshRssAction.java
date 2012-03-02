@@ -18,10 +18,11 @@ package org.codinjutsu.tools.jenkins.view.action;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.project.DumbAware;
 import org.codinjutsu.tools.jenkins.logic.JenkinsBrowserLogic;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
-public class RefreshRssAction extends AnAction {
+public class RefreshRssAction extends AnAction implements DumbAware {
 
     private final JenkinsBrowserLogic logic;
 

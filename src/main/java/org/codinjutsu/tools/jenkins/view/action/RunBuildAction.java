@@ -17,6 +17,7 @@
 package org.codinjutsu.tools.jenkins.view.action;
 
 import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsControlComponent;
@@ -29,7 +30,7 @@ import org.codinjutsu.tools.jenkins.view.BuildParamDialog;
 
 import javax.swing.*;
 
-public class RunBuildAction extends AnAction {
+public class RunBuildAction extends AnAction implements DumbAware {
 
     public static final Icon RUN_ICON = GuiUtil.loadIcon("toolWindowRun.png");
     private static final Logger LOG = Logger.getLogger(RunBuildAction.class.getName());

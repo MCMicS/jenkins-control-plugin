@@ -19,10 +19,11 @@ package org.codinjutsu.tools.jenkins.view.action;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.project.DumbAware;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.JenkinsBrowserPanel;
 
-abstract class AbstractGotoWebPageAction extends AnAction {
+abstract class AbstractGotoWebPageAction extends AnAction implements DumbAware {
     final JenkinsBrowserPanel jenkinsBrowserPanel;
 
 

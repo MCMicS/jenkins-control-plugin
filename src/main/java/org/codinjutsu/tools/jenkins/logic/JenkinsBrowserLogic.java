@@ -27,6 +27,7 @@ import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.view.JenkinsBrowserPanel;
 import org.codinjutsu.tools.jenkins.view.action.*;
+import org.codinjutsu.tools.jenkins.view.action.search.OpenJobSearchPanelAction;
 import org.jdom.JDOMException;
 
 import javax.swing.*;
@@ -294,6 +295,8 @@ public class JenkinsBrowserLogic {
             actionGroup.add(new GotoLastBuildPageAction(getBrowserPanel()));
             actionGroup.addSeparator();
             actionGroup.add(new OpenPluginSettingsAction());
+
+            new OpenJobSearchPanelAction(getBrowserPanel());
         }
         installActionGroupInToolBar(actionGroup, toolBar, ActionManager.getInstance(), JENKINS_ACTIONS);
         installActionGroupInPopupMenu(actionGroup, jobTree, ActionManager.getInstance());

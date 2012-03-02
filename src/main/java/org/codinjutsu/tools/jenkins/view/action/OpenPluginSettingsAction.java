@@ -19,11 +19,12 @@ package org.codinjutsu.tools.jenkins.view.action;
 
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.options.ShowSettingsUtil;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import org.codinjutsu.tools.jenkins.JenkinsControlComponent;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
-public class OpenPluginSettingsAction extends AnAction {
+public class OpenPluginSettingsAction extends AnAction implements DumbAware {
 
 
     public OpenPluginSettingsAction() {

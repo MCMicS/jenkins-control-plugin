@@ -40,6 +40,24 @@ public class Jenkins {
     }
 
 
+    public void addJobs(List<Job> jobsToAdd, boolean needToReset, JenkinsBrowserLogic.JobStatusCallback jobStatusCallback) {
+        if (needToReset) {
+            jobs.clear();
+        }
+        for (Job jobToAdd : jobsToAdd) {
+            Job job = jobs.get(jobToAdd.getName());
+            if (job != null) {
+                boolean updated = job.updateContentWith(jobToAdd);
+                if (updated) {
+                    jobStatusCallback.notifyUpdatedStatus(jobToAdd);
+                }
+            } else {
+                jobs.put(jobToAdd.getName(), jobToAdd);
+            }
+        }
+    }
+
+
     public Map<String, Job> getJobs() {
         return jobs;
     }
@@ -57,24 +75,6 @@ public class Jenkins {
 
     public String getName() {
         return name;
-    }
-
-
-    public void addJobs(List<Job> jobsToAdd, boolean needToReset, JenkinsBrowserLogic.JobStatusCallback jobStatusCallback) {
-        if (needToReset) {
-            jobs.clear();
-        }
-        for (Job jobToAdd : jobsToAdd) {
-            Job job = jobs.get(jobToAdd.getName());
-            if (job != null) {
-                boolean updated = job.updateContentWith(jobToAdd);
-                if (updated) {
-                    jobStatusCallback.notifyUpdatedStatus(jobToAdd);
-                }
-            } else {
-                jobs.put(jobToAdd.getName(), jobToAdd);
-            }
-        }
     }
 
 

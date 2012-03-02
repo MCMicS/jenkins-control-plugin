@@ -14,26 +14,27 @@
  * limitations under the License.
  */
 
-package org.codinjutsu.tools.jenkins.view.action;
+package org.codinjutsu.tools.jenkins.view.action.search;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.DumbAware;
-import org.codinjutsu.tools.jenkins.logic.JenkinsBrowserLogic;
-import org.codinjutsu.tools.jenkins.util.GuiUtil;
+import org.codinjutsu.tools.jenkins.view.JobSearchComponent;
 
-public class CleanRssAction extends AnAction implements DumbAware {
-    private final JenkinsBrowserLogic logic;
+import java.awt.event.KeyEvent;
 
+public class CloseJobSearchPanelAction extends AnAction {
 
-    public CleanRssAction(JenkinsBrowserLogic logic) {
-        super("Clean last completed builds", "Clean last completed builds", GuiUtil.loadIcon("erase.png"));
-        this.logic = logic;
+    private final JobSearchComponent searchComponent;
+
+    public CloseJobSearchPanelAction(JobSearchComponent searchComponent) {
+        this.searchComponent = searchComponent;
+        registerCustomShortcutSet(KeyEvent.VK_ESCAPE, 0, searchComponent.getSearchField());
     }
 
-
     @Override
-    public void actionPerformed(AnActionEvent e) {
-        logic.cleanRssEntries();
+    public void actionPerformed(AnActionEvent anActionEvent) {
+        searchComponent.setVisible(false);
+        searchComponent.resetSearch();
+
     }
 }
