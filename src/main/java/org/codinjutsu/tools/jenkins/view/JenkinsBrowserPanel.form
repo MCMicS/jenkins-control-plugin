@@ -89,7 +89,7 @@
                   </grid>
                 </children>
               </grid>
-              <grid id="6c382" binding="utilityPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+              <grid id="a955b" binding="utilityPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
                 <constraints>
                   <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>

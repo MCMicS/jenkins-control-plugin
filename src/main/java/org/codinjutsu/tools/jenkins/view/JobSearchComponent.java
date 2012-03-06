@@ -16,9 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
-import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.components.panels.NonOpaquePanel;
 import org.apache.commons.lang.StringUtils;
@@ -26,8 +24,6 @@ import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.action.search.CloseJobSearchPanelAction;
-import org.codinjutsu.tools.jenkins.view.action.search.NextOccurrenceAction;
-import org.codinjutsu.tools.jenkins.view.action.search.PrevOccurrenceAction;
 import org.codinjutsu.tools.jenkins.view.util.SearchTextField;
 
 import javax.swing.*;
@@ -44,31 +40,33 @@ public class JobSearchComponent extends JPanel {
     private final JTree jobTree;
     private DefaultMutableTreeNode lastSelectedNode;
 
-    public JobSearchComponent(JenkinsBrowserPanel jenkinsBrowserPanel, boolean installSearchToolbar) {
-        this.jobTree = jenkinsBrowserPanel.getJobTree();
+    public JobSearchComponent(JTree jobTree) {
+        this.jobTree = jobTree;
 
         setLayout(new BorderLayout());
 
         NonOpaquePanel searchSubPanel = new NonOpaquePanel();
         searchField = createSearchField();
         searchSubPanel.add(searchField);
-        NonOpaquePanel closeSubPanel = new NonOpaquePanel();
-
-        JComponent searchBarComponent;
-        if (installSearchToolbar) {//TODO Crappy, need to decouple search toolbar creation from SearchComponent instanciation
-            searchBarComponent = createSearchToolBar();
-        } else {
-            searchBarComponent = new JLabel();
-        }
-
-        closeSubPanel.add(createCloseButton());
-
-        add(closeSubPanel, BorderLayout.EAST);
-        add(searchBarComponent, BorderLayout.CENTER);
         add(searchSubPanel, BorderLayout.WEST);
+
+        NonOpaquePanel closeSubPanel = new NonOpaquePanel();
+        closeSubPanel.add(createCloseButton());
+        add(closeSubPanel, BorderLayout.EAST);
 
         registerListeners();
     }
+
+    public void installSearchToolBar(ActionToolbar searchBar) {
+
+        searchBar.setLayoutPolicy(ActionToolbar.AUTO_LAYOUT_POLICY);
+        JComponent searchBarComponent = searchBar.getComponent();
+        searchBarComponent.setBorder(null);
+        searchBarComponent.setOpaque(false);
+
+        add(searchBarComponent, BorderLayout.CENTER);
+    }
+
 
     private JTextField createSearchField() {
         JTextField searchField = new SearchTextField();
@@ -86,25 +84,11 @@ public class JobSearchComponent extends JPanel {
                 }
 
                 findNextOccurrence(text);
-                searchField.requestFocus(true);
+                searchField.requestFocus();
             }
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), JComponent.WHEN_FOCUSED);
 
         new CloseJobSearchPanelAction(this);
-    }
-
-
-    public JComponent createSearchToolBar() {
-        DefaultActionGroup actionGroup = new DefaultActionGroup("search bar", false);
-        actionGroup.add(new PrevOccurrenceAction(this));
-        actionGroup.add(new NextOccurrenceAction(this));
-
-        ActionToolbar searchBar = ActionManager.getInstance().createActionToolbar("SearchBar", actionGroup, true);
-        searchBar.setLayoutPolicy(ActionToolbar.AUTO_LAYOUT_POLICY);
-        JComponent searchBarComponent = searchBar.getComponent();
-        searchBarComponent.setBorder(null);
-        searchBarComponent.setOpaque(false);
-        return searchBarComponent;
     }
 
     private Component createCloseButton() {

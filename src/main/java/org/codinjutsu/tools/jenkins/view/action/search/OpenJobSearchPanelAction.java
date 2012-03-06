@@ -25,21 +25,15 @@ import org.codinjutsu.tools.jenkins.view.JobSearchComponent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
-public class OpenJobSearchPanelAction extends AnAction {//TODO need to move search component into the JenkinsBrowserPanel
+public class OpenJobSearchPanelAction extends AnAction {
 
     private JobSearchComponent searchComponent;
 
-    public OpenJobSearchPanelAction(JenkinsBrowserPanel jenkinsBrowserPanel) {
-        this(jenkinsBrowserPanel, true);
-    }
-
-    public OpenJobSearchPanelAction(JenkinsBrowserPanel jenkinsBrowserPanel, boolean installSearchToolbar) {
-        searchComponent = new JobSearchComponent(jenkinsBrowserPanel, installSearchToolbar);
-        searchComponent.setVisible(false);
-        jenkinsBrowserPanel.addComponentToUtilityPanel(searchComponent);
+    public OpenJobSearchPanelAction(JenkinsBrowserPanel jenkinsBrowserPanel, JobSearchComponent searchComponent) {
+        this.searchComponent = searchComponent;
+        this.searchComponent.setVisible(false);
 
         registerCustomShortcutSet(KeyEvent.VK_F, SystemInfo.isMac ? InputEvent.META_MASK : InputEvent.CTRL_MASK, jenkinsBrowserPanel);
-
     }
 
     @Override

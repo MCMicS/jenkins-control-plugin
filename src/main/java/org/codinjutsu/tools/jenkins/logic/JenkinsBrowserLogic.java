@@ -18,6 +18,7 @@ package org.codinjutsu.tools.jenkins.logic;
 
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.ui.PopupHandler;
@@ -26,8 +27,11 @@ import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.view.JenkinsBrowserPanel;
+import org.codinjutsu.tools.jenkins.view.JobSearchComponent;
 import org.codinjutsu.tools.jenkins.view.action.*;
+import org.codinjutsu.tools.jenkins.view.action.search.NextOccurrenceAction;
 import org.codinjutsu.tools.jenkins.view.action.search.OpenJobSearchPanelAction;
+import org.codinjutsu.tools.jenkins.view.action.search.PrevOccurrenceAction;
 import org.jdom.JDOMException;
 
 import javax.swing.*;
@@ -75,10 +79,10 @@ public class JenkinsBrowserLogic {
 
 
     private void initView() {
-
-        installRssActions(getBrowserPanel().getRssActionPanel());
-        installBrowserActions(getBrowserPanel().getJobTree(), getBrowserPanel().getActionPanel());
-
+        browserPanel.createSearchPanel();
+        installRssActions(browserPanel.getRssActionPanel());
+        installBrowserActions(browserPanel.getJobTree(), browserPanel.getActionPanel());
+        installSearchActions(browserPanel.getSearchComponent());
         initListeners();
     }
 
@@ -295,11 +299,21 @@ public class JenkinsBrowserLogic {
             actionGroup.add(new GotoLastBuildPageAction(getBrowserPanel()));
             actionGroup.addSeparator();
             actionGroup.add(new OpenPluginSettingsAction());
-
-            new OpenJobSearchPanelAction(getBrowserPanel());
         }
         installActionGroupInToolBar(actionGroup, toolBar, ActionManager.getInstance(), JENKINS_ACTIONS);
         installActionGroupInPopupMenu(actionGroup, jobTree, ActionManager.getInstance());
+    }
+
+    protected void installSearchActions(JobSearchComponent searchComponent) {
+
+        DefaultActionGroup actionGroup = new DefaultActionGroup("search bar", false);
+        actionGroup.add(new PrevOccurrenceAction(searchComponent));
+        actionGroup.add(new NextOccurrenceAction(searchComponent));
+
+        ActionToolbar searchBar = ActionManager.getInstance().createActionToolbar("SearchBar", actionGroup, true);
+        searchComponent.installSearchToolBar(searchBar);
+
+        new OpenJobSearchPanelAction(getBrowserPanel(), getBrowserPanel().getSearchComponent());
     }
 
 

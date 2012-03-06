@@ -16,15 +16,10 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.model.View;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
-import org.codinjutsu.tools.jenkins.view.action.search.NextOccurrenceAction;
-import org.codinjutsu.tools.jenkins.view.action.search.PrevOccurrenceAction;
 
 import javax.swing.*;
 import javax.swing.tree.*;
@@ -40,6 +35,7 @@ public class JenkinsBrowserPanel extends JPanel {
     private JPanel rssActionPanel;
     private JPanel actionPanel;
     private JPanel utilityPanel;
+    private JobSearchComponent searchComponent;
 
 
     public JenkinsBrowserPanel() {
@@ -55,6 +51,11 @@ public class JenkinsBrowserPanel extends JPanel {
     public void initModel(Jenkins jenkins) {
         fillJobTree(jenkins);
         initViewList(jenkins.getViews());
+    }
+
+    public void createSearchPanel() {
+        searchComponent = new JobSearchComponent(jobTree);
+        utilityPanel.add(searchComponent, BorderLayout.CENTER);
     }
 
 
@@ -177,8 +178,7 @@ public class JenkinsBrowserPanel extends JPanel {
         return actionPanel;
     }
 
-    public void addComponentToUtilityPanel(JComponent jobSearchComponent) {
-        utilityPanel.add(jobSearchComponent);
+    public JobSearchComponent getSearchComponent() {
+        return searchComponent;
     }
-
 }
