@@ -1,8 +1,15 @@
+Version 0.5.0
+    * [Add] Job Tree : Search job panel (CTRL + F, F3 to search forward, SHIFT + F3 to search backward)
+    * [Fix] Connection issue when Job and Rss autorefresh are both enabled
+    * [Fix] Configuration Panel: File input fields have no validator
+    * [Fix] Configuration Panel: Rename 'Password' to 'Password file'
+
 Version 0.4.4:
     * [Add] Nested View support (1 level only)
     * [Add] Job Tree : Build Description is displayed as tooltip
     * [Upd] Plugin SDK Migration to version 107.587 (IDEA 10.5.2)
     * [Fix] Handle Http redirection
+
 Version 0.4.3:
     * [Fix] Jetbrains plateform version used in Phpstorm IDE makes the plugin crash
     * [Fix] Rss toolbar Panel Layout should be fixed (again)
