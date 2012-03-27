@@ -16,7 +16,7 @@ public class JobBuilder {
         job.setLastBuild(Build.createBuild(buildUrl, number, status, isBuilding));
         return this;
     }
-    
+
     public JobBuilder health(String healthLevel, String healthDescription) {
         job.setHealth(Job.Health.createHealth(healthLevel, healthDescription));
         return this;

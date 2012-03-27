@@ -29,7 +29,7 @@ import java.util.Map.Entry;
 
 import static org.codinjutsu.tools.jenkins.model.BuildStatusEnum.SUCCESS;
 
-public class RssLatestJobPanel {
+public class RssLatestJobPanel extends JPanel{
 
     private static final Icon OK_ICON = GuiUtil.loadIcon("accept.png");
     private static final Icon ABORT_ICON = GuiUtil.loadIcon("aborted.png");
@@ -37,9 +37,12 @@ public class RssLatestJobPanel {
 
     private JPanel rssContentPanel;
     private JPanel rootPanel;
+    private JPanel rssActionPanel;
 
     public RssLatestJobPanel() {
         rssContentPanel.setLayout(new BoxLayout(rssContentPanel, BoxLayout.Y_AXIS));
+        setLayout(new BorderLayout());
+        add(rootPanel, BorderLayout.CENTER);
     }
 
 
@@ -109,6 +112,9 @@ public class RssLatestJobPanel {
         return CANCEL_ICON;
     }
 
+    public JPanel getRssActionPanel() {
+        return rssActionPanel;
+    }
 
     private class ClosePanelAction implements ActionListener {
         private final RssCallback callback;

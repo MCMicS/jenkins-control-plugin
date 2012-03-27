@@ -23,10 +23,11 @@ import com.intellij.openapi.project.Project;
 
 class ActionUtil {
 
-    private ActionUtil() {}
+    private ActionUtil() {
+    }
 
     static Project getProject(AnActionEvent event) {
-            DataContext dataContext = event.getDataContext();
-            return PlatformDataKeys.PROJECT.getData(dataContext);
-        }
+        DataContext dataContext = event.getDataContext();
+        return PlatformDataKeys.PROJECT.getData(dataContext);
+    }
 }

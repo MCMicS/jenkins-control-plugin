@@ -79,6 +79,9 @@ public class JenkinsConfigurationPanel {
     private JButton testConnexionButton;
     private JLabel connectionStatusLabel;
 
+    private JRadioButton rssAsPanelRadioButton;
+    private JRadioButton rssAsNotificationRadioButton;
+
     private final FormValidator formValidator;
 
 
@@ -106,6 +109,9 @@ public class JenkinsConfigurationPanel {
         passwordFile.getComponent().getTextField().setName("passwordFile");
         crumbDataFile.getComponent().getTextField().setName("crumbDataFile");
 
+        rssAsPanelRadioButton.setName("rssAsPanelRadioButton");
+        rssAsNotificationRadioButton.setName("rssAsNotificationRadioButton");
+
         initListeners();
 
         if (installBrowserFileBrowser) {
@@ -130,7 +136,7 @@ public class JenkinsConfigurationPanel {
 
     }
 
-
+//TODO use annotation to create a guiwrapper so isModified could be simplified
     public boolean isModified(JenkinsConfiguration configuration) {
         return !configuration.getServerUrl().equals(serverUrl.getText())
                 || !(configuration.getBuildDelay() == Integer.parseInt(buildDelay.getText()))
@@ -147,6 +153,7 @@ public class JenkinsConfigurationPanel {
     }
 
 
+    //TODO use annotation to create a guiwrapper so isModified could be simplified
     public void applyConfigurationData(JenkinsConfiguration configuration) throws ConfigurationException {
         formValidator.validate();
 
@@ -241,6 +248,12 @@ public class JenkinsConfigurationPanel {
                 }
             }
         });
+
+        ButtonGroup groupButtonGroup = new ButtonGroup();
+        groupButtonGroup.add(rssAsPanelRadioButton);
+        groupButtonGroup.add(rssAsNotificationRadioButton);
+        rssAsPanelRadioButton.setSelected(true);
+
     }
 
     private void setConnectionFeedbackLabel(final Color labelColor, final String labelText) {

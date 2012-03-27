@@ -34,9 +34,6 @@ import java.util.Map;
 
 import static org.codinjutsu.tools.jenkins.model.BuildStatusEnum.FAILURE;
 import static org.codinjutsu.tools.jenkins.model.BuildStatusEnum.SUCCESS;
-import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.unitils.reflectionassert.ReflectionAssert.assertReflectionEquals;
 
 public class JenkinsRequestManagerTest {

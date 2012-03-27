@@ -28,8 +28,9 @@ import org.codinjutsu.tools.jenkins.view.util.SpringUtilities;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BuildParamDialog extends JDialog {
     private static final Color LIGHT_RED_BACKGROUND = new Color(230, 150, 150);
@@ -97,7 +98,7 @@ public class BuildParamDialog extends JDialog {
 
             String name = jobParameter.getName();
             inputField.setName(name);
-            
+
             JLabel label = new JLabel();
             label.setHorizontalAlignment(JLabel.TRAILING);
             label.setLabelFor(inputField);

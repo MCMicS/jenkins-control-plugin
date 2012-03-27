@@ -29,8 +29,6 @@ import org.uispec4j.Panel;
 import org.uispec4j.TextBox;
 import org.uispec4j.UISpecTestCase;
 
-import java.io.File;
-
 import static org.codinjutsu.tools.jenkins.JenkinsConfiguration.DEFAULT_BUILD_DELAY;
 import static org.codinjutsu.tools.jenkins.JenkinsConfiguration.DEFAULT_JENKINS_SERVER_URL;
 

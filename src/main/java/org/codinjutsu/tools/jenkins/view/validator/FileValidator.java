@@ -23,7 +23,7 @@ import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 
 import java.io.File;
 
-public class FileValidator implements UIValidator<LabeledComponent<TextFieldWithBrowseButton>>{
+public class FileValidator implements UIValidator<LabeledComponent<TextFieldWithBrowseButton>> {
     public void validate(LabeledComponent<TextFieldWithBrowseButton> component) throws ConfigurationException {
         String filepath = component.getComponent().getText();
         if (StringUtils.isEmpty(filepath)) {

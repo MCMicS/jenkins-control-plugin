@@ -129,46 +129,11 @@ public class JenkinsControlComponent
         ToolWindow toolWindow = toolWindowManager.registerToolWindow(JENKINS_BROWSER, true, ToolWindowAnchor.RIGHT);
 
         jenkinsRequestManager = new JenkinsRequestManager(configuration.getCrumbFile());
-        jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, jenkinsRequestManager, new JenkinsBrowserLogic.JobStatusCallback() {
-
-            public void notifyUpdatedStatus(final Job job) {
-
-                final Build lastBuild = job.getLastBuild();
-
-                if (lastBuild == null) {
-                    return;
-                }
-
-                BuildStatusEnum status = lastBuild.getStatus();
-
-                MessageType messageType = MessageType.WARNING;
-                if (BuildStatusEnum.FAILURE.equals(status)) {
-                    messageType = MessageType.ERROR;
-                } else if (BuildStatusEnum.SUCCESS.equals(status)
-                        || BuildStatusEnum.STABLE.equals(status)) {
-                    messageType = MessageType.INFO;
-                }
-
-                final String message = job.getName() + ": " + status;
-
-                final MessageType finalMessageType = messageType;
-                GuiUtil.runInSwingThread(new Runnable() {
-                    public void run() {
-                        ToolWindowManager.getInstance(project).notifyByBalloon(JENKINS_BROWSER,
-                                finalMessageType,
-                                HtmlUtil.createHtmlLinkMessage(message, lastBuild.getUrl()),
-                                job.getStateIcon(),
-                                new BrowserHyperlinkListener());
-
-                    }
-                });
-
-            }
-        });
+        jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, jenkinsRequestManager, new MyJobStatusCallback());
         jenkinsBrowserLogic.init();
 
 
-        JPanel yourContentPanel = jenkinsBrowserLogic.getBrowserPanel();
+        JPanel yourContentPanel = jenkinsBrowserLogic.getJenkinsPanel();
         Content content = ContentFactory.SERVICE.getInstance()
                 .createContent(yourContentPanel, JENKINS_BROWSER_TITLE, false);
         toolWindow.getContentManager().addContent(content);
@@ -223,5 +188,42 @@ public class JenkinsControlComponent
 
 
     public void disposeComponent() {
+    }
+
+    private class MyJobStatusCallback implements JenkinsBrowserLogic.JobStatusCallback {
+
+        public void notifyUpdatedStatus(final Job job) {
+
+            final Build lastBuild = job.getLastBuild();
+
+            if (lastBuild == null) {
+                return;
+            }
+
+            BuildStatusEnum status = lastBuild.getStatus();
+
+            MessageType messageType = MessageType.WARNING;
+            if (BuildStatusEnum.FAILURE.equals(status)) {
+                messageType = MessageType.ERROR;
+            } else if (BuildStatusEnum.SUCCESS.equals(status)
+                    || BuildStatusEnum.STABLE.equals(status)) {
+                messageType = MessageType.INFO;
+            }
+
+            final String message = job.getName() + ": " + status;
+
+            final MessageType finalMessageType = messageType;
+            GuiUtil.runInSwingThread(new Runnable() {
+                public void run() {
+                    ToolWindowManager.getInstance(project).notifyByBalloon(JENKINS_BROWSER,
+                            finalMessageType,
+                            HtmlUtil.createHtmlLinkMessage(message, lastBuild.getUrl()),
+                            job.getStateIcon(),
+                            new BrowserHyperlinkListener());
+
+                }
+            });
+
+        }
     }
 }

@@ -22,7 +22,8 @@ import org.codinjutsu.tools.jenkins.model.View;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
 import javax.swing.*;
-import javax.swing.tree.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,8 +32,6 @@ public class JenkinsBrowserPanel extends JPanel {
     private JComboBox viewCombo;
     private JTree jobTree;
     private JPanel rootPanel;
-    private RssLatestJobPanel rssLatestJobPanel;
-    private JPanel rssActionPanel;
     private JPanel actionPanel;
     private JPanel utilityPanel;
     private JobSearchComponent searchComponent;
@@ -132,11 +131,6 @@ public class JenkinsBrowserPanel extends JPanel {
     }
 
 
-    public RssLatestJobPanel getRssLatestJobPanel() {
-        return rssLatestJobPanel;
-    }
-
-
     public void showErrorDialog(String errorMessage, String content) {
         GuiUtil.showErrorDialog(errorMessage, content);
     }
@@ -160,11 +154,6 @@ public class JenkinsBrowserPanel extends JPanel {
 
     public JComboBox getViewCombo() {
         return viewCombo;
-    }
-
-
-    public JPanel getRssActionPanel() {
-        return rssActionPanel;
     }
 
 

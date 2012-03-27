@@ -25,8 +25,11 @@ import com.intellij.ui.PopupHandler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
-import org.codinjutsu.tools.jenkins.model.*;
-import org.codinjutsu.tools.jenkins.view.JenkinsBrowserPanel;
+import org.codinjutsu.tools.jenkins.model.Build;
+import org.codinjutsu.tools.jenkins.model.Jenkins;
+import org.codinjutsu.tools.jenkins.model.Job;
+import org.codinjutsu.tools.jenkins.model.View;
+import org.codinjutsu.tools.jenkins.view.JenkinsPanel;
 import org.codinjutsu.tools.jenkins.view.JobSearchComponent;
 import org.codinjutsu.tools.jenkins.view.action.*;
 import org.codinjutsu.tools.jenkins.view.action.search.NextOccurrenceAction;
@@ -53,7 +56,7 @@ public class JenkinsBrowserLogic {
     private static final String JENKINS_RSS_ACTIONS = "JenkinsRssActions";
     private static final String JENKINS_ACTIONS = "jenkinsBrowserActions";
 
-    private final JenkinsBrowserPanel browserPanel;
+    private final JenkinsPanel browserPanel;
     private final JenkinsConfiguration configuration;
     private final JenkinsRequestManager jenkinsRequestManager;
     private final JobStatusCallback jobStatusCallback;
@@ -68,7 +71,7 @@ public class JenkinsBrowserLogic {
         this.configuration = configuration;
         this.jenkinsRequestManager = jenkinsRequestManager;
         this.jobStatusCallback = jobStatusCallback;
-        this.browserPanel = new JenkinsBrowserPanel();
+        this.browserPanel = new JenkinsPanel();
     }
 
 
@@ -79,10 +82,10 @@ public class JenkinsBrowserLogic {
 
 
     private void initView() {
-        browserPanel.createSearchPanel();
-        installRssActions(browserPanel.getRssActionPanel());
-        installBrowserActions(browserPanel.getJobTree(), browserPanel.getActionPanel());
-        installSearchActions(browserPanel.getSearchComponent());
+        browserPanel.getJenkinsBrowserPanel().createSearchPanel();
+        installRssActions(browserPanel.getRssLatestJobPanel().getRssActionPanel());
+        installBrowserActions(browserPanel.getJenkinsBrowserPanel().getJobTree(), browserPanel.getJenkinsBrowserPanel().getActionPanel());
+        installSearchActions(browserPanel.getJenkinsBrowserPanel().getSearchComponent());
         initListeners();
     }
 
@@ -104,7 +107,7 @@ public class JenkinsBrowserLogic {
                 needToReset = true;
             }
             jenkins.addJobs(jobList, needToReset, jobStatusCallback);
-            this.browserPanel.fillJobTree(jenkins);
+            this.browserPanel.getJenkinsBrowserPanel().fillJobTree(jenkins);
         } else {
             loadJenkinsWorkspace();
         }
@@ -138,22 +141,22 @@ public class JenkinsBrowserLogic {
 
     public void cleanRssEntries() {
         currentBuildMap.clear();
-        getBrowserPanel().getRssLatestJobPanel().cleanRssEntries();
+        getJenkinsPanel().getRssLatestJobPanel().cleanRssEntries();
     }
 
 
     public Job getSelectedJob() {
-        return browserPanel.getSelectedJob();
+        return browserPanel.getJenkinsBrowserPanel().getSelectedJob();
     }
 
 
-    public JenkinsBrowserPanel getBrowserPanel() {
+    public JenkinsPanel getJenkinsPanel() {
         return browserPanel;
     }
 
 
     public Jenkins getJenkins() {
-        return getBrowserPanel().getJenkins();
+        return getJenkinsPanel().getJenkinsBrowserPanel().getJenkins();
     }
 
 
@@ -188,13 +191,13 @@ public class JenkinsBrowserLogic {
             try {
                 jenkinsRequestManager.authenticate(configuration.getServerUrl(), configuration.getSecurityMode(), configuration.getUsername(), configuration.getPasswordFile(), configuration.getCrumbFile());
                 jenkins = jenkinsRequestManager.loadJenkinsWorkspace(configuration);
-                browserPanel.initModel(jenkins);
+                browserPanel.getJenkinsBrowserPanel().initModel(jenkins);
                 String preferredView = configuration.getPreferredView();
                 View jenkinsView = findView(preferredView);
                 if (jenkinsView != null) {
-                    this.browserPanel.setSelectedView(jenkinsView);
+                    this.browserPanel.getJenkinsBrowserPanel().setSelectedView(jenkinsView);
                 } else {
-                    this.browserPanel.setSelectedView(jenkins.getPrimaryView());
+                    this.browserPanel.getJenkinsBrowserPanel().setSelectedView(jenkins.getPrimaryView());
                 }
             } catch (JDOMException domEx) {
                 String errorMessage = buildServerErrorMessage(domEx);
@@ -258,22 +261,22 @@ public class JenkinsBrowserLogic {
 
 
     private void displayConnectionErrorMsg() {
-        getBrowserPanel().setErrorMsg();
+        getJenkinsPanel().getJenkinsBrowserPanel().setErrorMsg();
     }
 
 
     private void displayFinishedBuilds(Map<String, Build> displayableFinishedBuilds) {
-        getBrowserPanel().getRssLatestJobPanel().addFinishedBuild(displayableFinishedBuilds);
+        getJenkinsPanel().getRssLatestJobPanel().addFinishedBuild(displayableFinishedBuilds);
     }
 
 
     private void showErrorDialog(String errorMessage, String title) {
-        getBrowserPanel().showErrorDialog(errorMessage, title);
+        getJenkinsPanel().getJenkinsBrowserPanel().showErrorDialog(errorMessage, title);
     }
 
 
     private View getSelectedJenkinsView() {
-        return browserPanel.getSelectedJenkinsView();
+        return browserPanel.getJenkinsBrowserPanel().getSelectedJenkinsView();
     }
 
 
@@ -295,8 +298,8 @@ public class JenkinsBrowserLogic {
             actionGroup.addSeparator();
             actionGroup.add(new RunBuildAction(this));
             actionGroup.addSeparator();
-            actionGroup.add(new GotoJobPageAction(getBrowserPanel()));
-            actionGroup.add(new GotoLastBuildPageAction(getBrowserPanel()));
+            actionGroup.add(new GotoJobPageAction(getJenkinsPanel().getJenkinsBrowserPanel()));
+            actionGroup.add(new GotoLastBuildPageAction(getJenkinsPanel().getJenkinsBrowserPanel()));
             actionGroup.addSeparator();
             actionGroup.add(new OpenPluginSettingsAction());
         }
@@ -313,7 +316,7 @@ public class JenkinsBrowserLogic {
         ActionToolbar searchBar = ActionManager.getInstance().createActionToolbar("SearchBar", actionGroup, true);
         searchComponent.installSearchToolBar(searchBar);
 
-        new OpenJobSearchPanelAction(getBrowserPanel(), getBrowserPanel().getSearchComponent());
+        new OpenJobSearchPanelAction(getJenkinsPanel().getJenkinsBrowserPanel(), getJenkinsPanel().getJenkinsBrowserPanel().getSearchComponent());
     }
 
 
@@ -339,7 +342,7 @@ public class JenkinsBrowserLogic {
     }
 
     private void initListeners() {
-        getBrowserPanel().getViewCombo().addItemListener(new ItemListener() {
+        getJenkinsPanel().getJenkinsBrowserPanel().getViewCombo().addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent evt) {
                 if (evt.getStateChange() == ItemEvent.SELECTED) {
                     try {
@@ -379,7 +382,7 @@ public class JenkinsBrowserLogic {
     }
 
     public interface JobStatusCallback {
-        
+
         void notifyUpdatedStatus(Job job);
 
         public static JobStatusCallback NULL = new JobStatusCallback() {

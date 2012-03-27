@@ -23,7 +23,6 @@ import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.model.View;
 import org.codinjutsu.tools.jenkins.view.JobSearchComponent;
-import org.codinjutsu.tools.jenkins.view.action.search.OpenJobSearchPanelAction;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -44,7 +43,6 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
 
     private JenkinsConfiguration configuration;
 
-    private final List<Job> joblist = new ArrayList<Job>();
     private Panel uiSpecPanel;
 
     public void test_displayInitialTreeAndLoadView() throws Exception {
@@ -105,13 +103,16 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
         configuration.setServerUrl("http://myjenkinsserver/");
         jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, requestManagerMock, JenkinsBrowserLogic.JobStatusCallback.NULL) {
             @Override
-            protected void installRssActions(JPanel rssActionPanel) {}
+            protected void installRssActions(JPanel rssActionPanel) {
+            }
 
             @Override
-            protected void installBrowserActions(JTree jobTree, JPanel panel) {}
+            protected void installBrowserActions(JTree jobTree, JPanel panel) {
+            }
 
             @Override
-            protected void installSearchActions(JobSearchComponent searchComponent) {}
+            protected void installSearchActions(JobSearchComponent searchComponent) {
+            }
         };
 
         Job mintJob = new JobBuilder().job("mint", "blue", "http://myjenkinsserver/mint", "false")
@@ -124,7 +125,6 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
                 .get();
 
 
-        
         Mockito.when(requestManagerMock.loadJenkinsWorkspace(configuration))
                 .thenReturn(createJenkinsWorkspace());
 
@@ -135,7 +135,7 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
                 .thenReturn(Arrays.asList(capriJob));
 
         jenkinsBrowserLogic.init();
-        uiSpecPanel = new Panel(jenkinsBrowserLogic.getBrowserPanel());
+        uiSpecPanel = new Panel(jenkinsBrowserLogic.getJenkinsPanel().getJenkinsBrowserPanel());
     }
 
 
@@ -149,7 +149,7 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
 
         jenkins.setPrimaryView(View.createView("All", "http://myjenkinsserver/"));
 
-       
+
         return jenkins;
     }
 }
