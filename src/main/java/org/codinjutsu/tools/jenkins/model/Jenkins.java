@@ -16,55 +16,38 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
-import org.codinjutsu.tools.jenkins.logic.JenkinsBrowserLogic;
-
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 public class Jenkins {
 
     private final String name;
 
-    private final Map<String, Job> jobs;
-
+    private List<Job> jobs;
     private List<View> views;
+
     private View primaryView;
 
 
     public Jenkins(String description) {
         this.name = description;
-        this.jobs = new LinkedHashMap<String, Job>();
+        this.jobs = new LinkedList<Job>();
         this.views = new LinkedList<View>();
     }
 
 
-    public void addJobs(List<Job> jobsToAdd, boolean needToReset, JenkinsBrowserLogic.JobStatusCallback jobStatusCallback) {
-        if (needToReset) {
-            jobs.clear();
-        }
-        for (Job jobToAdd : jobsToAdd) {
-            Job job = jobs.get(jobToAdd.getName());
-            if (job != null) {
-                boolean updated = job.updateContentWith(jobToAdd);
-                if (updated) {
-                    jobStatusCallback.notifyUpdatedStatus(jobToAdd);
-                }
-            } else {
-                jobs.put(jobToAdd.getName(), jobToAdd);
-            }
-        }
+    public void setJobs(List<Job> jobs) {
+        this.jobs = jobs;
     }
 
 
-    public Map<String, Job> getJobs() {
+    public List<Job> getJobs() {
         return jobs;
     }
 
 
     public List<Job> getJobList() {
-        return new LinkedList<Job>(jobs.values());
+        return jobs;
     }
 
 

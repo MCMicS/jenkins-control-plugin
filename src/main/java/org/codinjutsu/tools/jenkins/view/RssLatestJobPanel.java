@@ -24,6 +24,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -38,8 +39,10 @@ public class RssLatestJobPanel extends JPanel{
     private JPanel rssContentPanel;
     private JPanel rootPanel;
     private JPanel rssActionPanel;
+    private final boolean reverseMode;
 
-    public RssLatestJobPanel() {
+    public RssLatestJobPanel(boolean reverseMode) {
+        this.reverseMode = reverseMode;
         rssContentPanel.setLayout(new BoxLayout(rssContentPanel, BoxLayout.Y_AXIS));
         setLayout(new BorderLayout());
         add(rootPanel, BorderLayout.CENTER);
@@ -67,7 +70,11 @@ public class RssLatestJobPanel extends JPanel{
 
 
     public void addFinishedBuild(final Map<String, Build> jobBuildByJobNameMap) {
+         if( reverseMode) {
 
+         }
+        
+        
         final RssCallback rssCallback = new RssCallback() {
 
             public void onClearJobEntry(String jobName) {
@@ -89,7 +96,7 @@ public class RssLatestJobPanel extends JPanel{
 
 
     private void addFinishedBuild(RssCallback rssCallback, String jobName, Build build) {
-        String buildMessage = createLinkLabel(build);
+        String buildMessage = createLinkLabel(jobName, build);
         Icon icon = setIcon(build);
         BuildResultPanel buildResultPanel = new BuildResultPanel(jobName, buildMessage, icon, build.getUrl());
         buildResultPanel.getCloseButton()
@@ -98,8 +105,8 @@ public class RssLatestJobPanel extends JPanel{
     }
 
 
-    private static String createLinkLabel(Build build) {
-        return "Build #" + build.getNumber() + " " + build.getStatusValue();
+    private static String createLinkLabel(String jobName, Build build) {
+        return jobName + " #" + build.getNumber() + " " + build.getStatusValue();
     }
 
 

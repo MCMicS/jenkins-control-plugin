@@ -82,34 +82,11 @@ public class Job {
     }
 
 
-    public boolean updateContentWith(Job updatedJob) {
-        boolean statusChanged = false;
-        if (!StringUtils.equals(color, updatedJob.getColor())) {
-            this.color = updatedJob.getColor();
-            statusChanged = true;
-        }
-
+    public void updateContentWith(Job updatedJob) {
+        this.color = updatedJob.getColor();
         this.health = updatedJob.getHealth();
         this.inQueue = updatedJob.isInQueue();
-
-        if (lastBuild != null) { //TODO Crappy!! Need to refactor and Unit tests
-            if (updatedJob.getLastBuild() != null) {
-                if (updatedJob.getLastBuild().getNumber() != lastBuild.getNumber()) {
-                    statusChanged = true;
-                } else {
-                    if (!updatedJob.isInQueue() || !updatedJob.getLastBuild().isBuilding()) {
-                        statusChanged = true;
-                    }
-                }
-            }
-        } else {
-            if (updatedJob.getLastBuild() != null && (!updatedJob.getLastBuild().isBuilding() || !updatedJob.isInQueue())) {
-                statusChanged = true;
-            }
-        }
         this.lastBuild = updatedJob.getLastBuild();
-
-        return statusChanged;
     }
 
 

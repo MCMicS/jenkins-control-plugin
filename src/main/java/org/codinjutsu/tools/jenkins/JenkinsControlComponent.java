@@ -24,26 +24,30 @@ import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageType;
-import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowAnchor;
-import com.intellij.openapi.wm.ToolWindowManager;
+import com.intellij.openapi.ui.popup.Balloon;
+import com.intellij.openapi.ui.popup.BalloonBuilder;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.wm.*;
 import com.intellij.ui.BrowserHyperlinkListener;
+import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.codinjutsu.tools.jenkins.logic.JenkinsBrowserLogic;
 import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
 import org.codinjutsu.tools.jenkins.model.Build;
-import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
-import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.util.HtmlUtil;
-import org.codinjutsu.tools.jenkins.view.JenkinsConfigurationPanel;
+import org.codinjutsu.tools.jenkins.view.*;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
+import java.awt.*;
+import java.util.concurrent.TimeUnit;
+
+import static org.codinjutsu.tools.jenkins.JenkinsConfiguration.Layout.SINGLE;
 import static org.codinjutsu.tools.jenkins.view.action.RunBuildAction.RUN_ICON;
 
 @State(
@@ -58,7 +62,7 @@ public class JenkinsControlComponent
 
     private static final String JENKINS_BROWSER = "jenkinsBrowser";
     private static final String JENKINS_BROWSER_TITLE = "Jenkins Browser";
-    private static final String JENKINS_BROWSER_ICON = "jenkins_logo_16x16.png";
+    private static final String JENKINS_BROWSER_ICON = "jenkins_logo.png";
 
     private final JenkinsConfiguration configuration;
     private JenkinsConfigurationPanel configurationPanel;
@@ -120,22 +124,63 @@ public class JenkinsControlComponent
 
 
     public void projectOpened() {
-        installJenkinsBrowser();
+        installJenkinsPanel();
     }
 
-
-    private void installJenkinsBrowser() {
+    private void installJenkinsPanel() {
         ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
         ToolWindow toolWindow = toolWindowManager.registerToolWindow(JENKINS_BROWSER, true, ToolWindowAnchor.RIGHT);
 
         jenkinsRequestManager = new JenkinsRequestManager(configuration.getCrumbFile());
-        jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, jenkinsRequestManager, new MyJobStatusCallback());
+        JenkinsPanel jenkinsPanel;
+
+        JenkinsBrowserPanel browserPanel = new JenkinsBrowserPanel();
+        RssLatestJobPanel rssLatestJobPanel = new RssLatestJobPanel(false);
+        JenkinsBrowserLogic.JobStatusCallback jobStatusCallback;
+        if (configuration.getLayout() == SINGLE) {
+            jenkinsPanel = JenkinsPanel.onePanel(browserPanel, rssLatestJobPanel);
+            jobStatusCallback = new JenkinsBrowserLogic.JobStatusCallback() {
+                public void notifyOnBuildFailure(final String jobName, final Build build) {
+                    GuiUtil.runInSwingThread(new Runnable() {
+                        public void run() {
+                            ToolWindowManager.getInstance(project)
+                                    .notifyByBalloon(JENKINS_BROWSER,
+                                            MessageType.ERROR,
+                                            HtmlUtil.createHtmlLinkMessage(jobName + "#" + build.getNumber() + ": FAILED", build.getUrl()),
+                                            null,
+                                            new BrowserHyperlinkListener());
+
+                        }
+                    });
+                }
+            };
+        } else {
+            final StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
+            final JenkinsRssWidget jenkinsRssWidget = new JenkinsRssWidget(project, rssLatestJobPanel);
+            statusBar.addWidget(jenkinsRssWidget);
+            jenkinsRssWidget.install(statusBar);
+
+            jenkinsPanel = JenkinsPanel.browserOnly(browserPanel);
+            jobStatusCallback = new JenkinsBrowserLogic.JobStatusCallback() {
+                public void notifyOnBuildFailure(final String jobName, final Build build) {
+                    GuiUtil.runInSwingThread(new Runnable() {
+                        public void run() {
+                            BalloonBuilder balloonBuilder = JBPopupFactory.getInstance().createHtmlTextBalloonBuilder(jobName + "#" + build.getNumber() + ": FAILED", MessageType.ERROR, null);
+                            Balloon balloon = balloonBuilder.setFadeoutTime(TimeUnit.SECONDS.toMillis(1)).createBalloon();
+                            balloon.show(new RelativePoint(jenkinsRssWidget.getComponent(), new Point(0, 0)), Balloon.Position.above);
+                        }
+                    });
+                }
+            };
+
+
+        }
+        jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, jenkinsRequestManager, browserPanel, rssLatestJobPanel, jobStatusCallback);
         jenkinsBrowserLogic.init();
 
 
-        JPanel yourContentPanel = jenkinsBrowserLogic.getJenkinsPanel();
         Content content = ContentFactory.SERVICE.getInstance()
-                .createContent(yourContentPanel, JENKINS_BROWSER_TITLE, false);
+                .createContent(jenkinsPanel, JENKINS_BROWSER_TITLE, false);
         toolWindow.getContentManager().addContent(content);
         toolWindow.setIcon(GuiUtil.loadIcon(JENKINS_BROWSER_ICON));
     }
@@ -188,42 +233,5 @@ public class JenkinsControlComponent
 
 
     public void disposeComponent() {
-    }
-
-    private class MyJobStatusCallback implements JenkinsBrowserLogic.JobStatusCallback {
-
-        public void notifyUpdatedStatus(final Job job) {
-
-            final Build lastBuild = job.getLastBuild();
-
-            if (lastBuild == null) {
-                return;
-            }
-
-            BuildStatusEnum status = lastBuild.getStatus();
-
-            MessageType messageType = MessageType.WARNING;
-            if (BuildStatusEnum.FAILURE.equals(status)) {
-                messageType = MessageType.ERROR;
-            } else if (BuildStatusEnum.SUCCESS.equals(status)
-                    || BuildStatusEnum.STABLE.equals(status)) {
-                messageType = MessageType.INFO;
-            }
-
-            final String message = job.getName() + ": " + status;
-
-            final MessageType finalMessageType = messageType;
-            GuiUtil.runInSwingThread(new Runnable() {
-                public void run() {
-                    ToolWindowManager.getInstance(project).notifyByBalloon(JENKINS_BROWSER,
-                            finalMessageType,
-                            HtmlUtil.createHtmlLinkMessage(message, lastBuild.getUrl()),
-                            job.getStateIcon(),
-                            new BrowserHyperlinkListener());
-
-                }
-            });
-
-        }
     }
 }

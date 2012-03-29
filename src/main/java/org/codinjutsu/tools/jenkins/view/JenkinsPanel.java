@@ -6,27 +6,38 @@ import java.awt.*;
 public class JenkinsPanel extends JPanel {
 
 
-    private final JenkinsBrowserPanel jenkinsBrowserPanel;
-    private final RssLatestJobPanel rssLatestJobPanel;
+    private JenkinsBrowserPanel browserPanel;
+    private RssLatestJobPanel rssLatestJobPanel;
 
-    public JenkinsPanel() {
+    public static JenkinsPanel onePanel(JenkinsBrowserPanel jenkinsBrowserPanel, RssLatestJobPanel rssLatestJobPanel) {
+        return new JenkinsPanel(jenkinsBrowserPanel, rssLatestJobPanel);
+    }
+
+    public static JenkinsPanel browserOnly(JenkinsBrowserPanel jenkinsBrowserPanel) {
+        return new JenkinsPanel(jenkinsBrowserPanel);
+    }
+
+    private JenkinsPanel(JenkinsBrowserPanel jenkinsBrowserPanel) {
         setLayout(new BorderLayout());
+        add(jenkinsBrowserPanel, BorderLayout.CENTER);
+    }
+
+    public JenkinsPanel(JenkinsBrowserPanel jenkinsBrowserPanel, RssLatestJobPanel rssLatestJobPanel) {
+        setLayout(new BorderLayout());
+
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        jenkinsBrowserPanel = new JenkinsBrowserPanel();
         splitPane.setTopComponent(jenkinsBrowserPanel);
-        rssLatestJobPanel = new RssLatestJobPanel();
         splitPane.setBottomComponent(rssLatestJobPanel);
         splitPane.setDividerLocation(600);
 
         add(splitPane, BorderLayout.CENTER);
     }
 
-    public JenkinsBrowserPanel getJenkinsBrowserPanel() {
-        return jenkinsBrowserPanel;
+    public JenkinsBrowserPanel getBrowserPanel() {
+        return browserPanel;
     }
 
     public RssLatestJobPanel getRssLatestJobPanel() {
         return rssLatestJobPanel;
     }
-
 }

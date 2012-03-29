@@ -50,8 +50,6 @@ public class BuildResultPanel extends JPanel {
 
         closeButton.setIcon(GuiUtil.loadIcon("cross.png"));
 
-        rootPanel.setBorder(BorderFactory.createTitledBorder(jobName));
-
         setLayout(new BorderLayout());
         add(rootPanel, BorderLayout.CENTER);
     }

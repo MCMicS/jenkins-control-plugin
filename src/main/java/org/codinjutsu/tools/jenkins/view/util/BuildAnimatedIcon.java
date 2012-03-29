@@ -30,8 +30,12 @@ public class BuildAnimatedIcon extends AnimatedIcon {
     private static final int INTER_CYCLE_GAP = 100;
     private static final int MAX_REPEAT_COUNT = 5;
 
-    private static final Icon[] SMALL_ICONS = {GuiUtil.loadIcon("red.png"), GuiUtil.loadIcon("null.png")};
-    private static final Icon SMALL_PASSIVE_ICON = GuiUtil.loadIcon("grey.png");
+    private static final Icon[] SMALL_ICONS = {
+            new ProcessIcon(GuiUtil.loadIcon("red.png"), null),
+            new ProcessIcon(GuiUtil.loadIcon("null.png"), null)
+    };
+
+    private static final Icon SMALL_PASSIVE_ICON = GuiUtil.loadIcon("jenkins_logo.png");
     private boolean myUseMask;
 
     public BuildAnimatedIcon(@NonNls String name) {
@@ -42,7 +46,6 @@ public class BuildAnimatedIcon extends AnimatedIcon {
         super(name);
 
         init(icons, passive, CYCLE_LENGTH, INTER_CYCLE_GAP, MAX_REPEAT_COUNT);
-
         setUseMask(false);
     }
 
@@ -60,18 +63,6 @@ public class BuildAnimatedIcon extends AnimatedIcon {
 
         if (icon instanceof ProcessIcon) {
             ((ProcessIcon) icon).setLayerEnabled(0, false);
-        }
-    }
-
-    public void updateLocation(JComponent container) {
-        final Rectangle rec = container.getVisibleRect();
-
-        final Dimension iconSize = getPreferredSize();
-
-        final Rectangle newBounds = new Rectangle(rec.x + rec.width - iconSize.width, rec.y, iconSize.width, iconSize.height);
-        if (!newBounds.equals(getBounds())) {
-            setBounds(newBounds);
-            container.repaint();
         }
     }
 

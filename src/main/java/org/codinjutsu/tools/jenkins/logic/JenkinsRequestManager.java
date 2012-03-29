@@ -298,7 +298,7 @@ public class JenkinsRequestManager {
 
     private Map<String, Build> createLatestBuildList(Document doc) {
 
-        Map<String, Build> buildMap = new HashMap<String, Build>();
+        Map<String, Build> buildMap = new LinkedHashMap<String, Build>();
         Element rootElement = doc.getRootElement();
         List<Element> elements = rootElement.getChildren(RSS_ENTRY, rootElement.getNamespace());
         for (Element element : elements) {

@@ -18,6 +18,8 @@ package org.codinjutsu.tools.jenkins;
 
 import org.codinjutsu.tools.jenkins.security.SecurityMode;
 
+import static org.codinjutsu.tools.jenkins.JenkinsConfiguration.Layout.SEPARATED;
+
 public class JenkinsConfiguration {
 
     public static final String DEFAULT_JENKINS_SERVER_URL = "http://dummyjenkinsserver";
@@ -44,6 +46,12 @@ public class JenkinsConfiguration {
     private boolean enableRssAutoRefresh = false;
 
     private String preferredView = "";
+
+    private Layout layout = SEPARATED;
+
+    public enum Layout {
+        SINGLE, SEPARATED
+    }
 
 
     public String getServerUrl() {
@@ -151,5 +159,9 @@ public class JenkinsConfiguration {
 
     public void setCrumbFile(String crumbFile) {
         this.crumbFile = crumbFile;
+    }
+
+    public Layout getLayout() {
+        return layout;
     }
 }

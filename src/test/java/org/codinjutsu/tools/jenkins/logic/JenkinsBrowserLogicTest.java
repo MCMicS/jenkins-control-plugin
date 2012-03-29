@@ -22,26 +22,22 @@ import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.model.View;
+import org.codinjutsu.tools.jenkins.view.JenkinsBrowserPanel;
 import org.codinjutsu.tools.jenkins.view.JobSearchComponent;
+import org.codinjutsu.tools.jenkins.view.RssLatestJobPanel;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.uispec4j.*;
 
 import javax.swing.*;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 
 public class JenkinsBrowserLogicTest extends UISpecTestCase {
 
     @Mock
     private JenkinsRequestManager requestManagerMock;
-
-    private JenkinsBrowserLogic jenkinsBrowserLogic;
-
-    private JenkinsConfiguration configuration;
 
     private Panel uiSpecPanel;
 
@@ -98,10 +94,10 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
     @Override
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        configuration = new JenkinsConfiguration();
+        JenkinsConfiguration configuration = new JenkinsConfiguration();
         configuration.setJobRefreshPeriod(60);
         configuration.setServerUrl("http://myjenkinsserver/");
-        jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, requestManagerMock, JenkinsBrowserLogic.JobStatusCallback.NULL) {
+        JenkinsBrowserLogic jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, requestManagerMock, new JenkinsBrowserPanel(), new RssLatestJobPanel(false), JenkinsBrowserLogic.JobStatusCallback.NULL) {
             @Override
             protected void installRssActions(JPanel rssActionPanel) {
             }
@@ -135,7 +131,7 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
                 .thenReturn(Arrays.asList(capriJob));
 
         jenkinsBrowserLogic.init();
-        uiSpecPanel = new Panel(jenkinsBrowserLogic.getJenkinsPanel().getJenkinsBrowserPanel());
+        uiSpecPanel = new Panel(jenkinsBrowserLogic.getJenkinsBrowserPanel());
     }
 
 
