@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 David Boissier
+ * Copyright (c) 2012 David Boissier
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ public class BuildResultPanel extends JPanel {
         buildStatusPanel.add(buildStatusLabel, BorderLayout.CENTER);
 
         closeButton.setIcon(GuiUtil.loadIcon("cross.png"));
-
+        closeButton.setBorder(BorderFactory.createEmptyBorder());
         setLayout(new BorderLayout());
         add(rootPanel, BorderLayout.CENTER);
     }

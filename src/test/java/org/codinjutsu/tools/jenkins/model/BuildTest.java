@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 David Boissier
+ * Copyright (c) 2012 David Boissier
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,18 +18,23 @@ package org.codinjutsu.tools.jenkins.model;
 
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.codinjutsu.tools.jenkins.model.BuildStatusEnum.*;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class BuildTest {
 
     @Test
     public void test_isAfter() throws Exception {
-        Build aBuild = createBuild("815", SUCCESS);
-        Build anotherBuild = createBuild("814", FAILURE);
+        Build aBuild = build("815");
+        Build anotherBuild = build("814");
 
         assertThat(aBuild.isAfter(anotherBuild), equalTo(TRUE));
         assertThat(anotherBuild.isAfter(aBuild), equalTo(FALSE));
@@ -39,42 +44,30 @@ public class BuildTest {
 
     @Test
     public void test_isDisplayable() throws Exception {
-        Build currentBuild = createBuild("815", ABORTED);
-        Build newBuild = createBuild("815", ABORTED);
+        Build currentBuild = build("815");
+        Build newBuild = build("815");
+        assertFalse(newBuild.isAfter(currentBuild));
 
-        assertThat(newBuild.isDisplayable(currentBuild), equalTo(FALSE));
+        newBuild = build("816");
+        assertTrue(newBuild.isAfter(currentBuild));
 
-        currentBuild = createBuild("815", SUCCESS);
-        newBuild = createBuild("816", FAILURE);
-
-        assertThat(newBuild.isDisplayable(currentBuild), equalTo(TRUE));
-
-        currentBuild = createBuild("815", SUCCESS);
-        newBuild = createBuild("816", ABORTED);
-
-        assertThat(newBuild.isDisplayable(currentBuild), equalTo(TRUE));
-
-        currentBuild = createBuild("815", SUCCESS);
-        newBuild = createBuild("816", SUCCESS);
-
-        assertThat(newBuild.isDisplayable(currentBuild), equalTo(FALSE));
-
-        currentBuild = createBuild("815", FAILURE);
-        newBuild = createBuild("816", FAILURE);
-
-        assertThat(newBuild.isDisplayable(currentBuild), equalTo(TRUE));
-
-        currentBuild = createBuild("815", FAILURE);
-        newBuild = createBuild("816", SUCCESS);
-
-        assertThat(newBuild.isDisplayable(currentBuild), equalTo(TRUE));
     }
 
 
-    private static Build createBuild(String buildNumber, BuildStatusEnum statusEnum) {
-        return Build.createBuild("http://jenkinsserver/agf-sql/815",
+    private static Build build(String buildNumber) {
+        return Build.createBuildFromRss("http://jenkinsserver/agf-sql/815",
                 buildNumber,
-                statusEnum.getStatus(),
-                "true");
+                SUCCESS.getStatus(),
+                "true", "2011-03-16T14:28:59Z", "a message");
+    }
+
+
+
+    public static Map<String, Build> buildLastJobResultMap(String[][] datas) {
+        Map<String, Build> expectedJobBuildMap = new HashMap<String, Build>();
+        for (String[] data : datas) {
+            expectedJobBuildMap.put(data[0], Build.createBuildFromRss(data[1], data[2], data[3], "false", data[4], data[5]));
+        }
+        return expectedJobBuildMap;
     }
 }

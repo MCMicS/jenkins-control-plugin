@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 David Boissier
+ * Copyright (c) 2012 David Boissier
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -135,7 +135,7 @@ public class JenkinsControlComponent
         JenkinsPanel jenkinsPanel;
 
         JenkinsBrowserPanel browserPanel = new JenkinsBrowserPanel();
-        RssLatestJobPanel rssLatestJobPanel = new RssLatestJobPanel(false);
+        RssLatestBuildPanel rssLatestJobPanel = new RssLatestBuildPanel();
         JenkinsBrowserLogic.JobStatusCallback jobStatusCallback;
         if (configuration.getLayout() == SINGLE) {
             jenkinsPanel = JenkinsPanel.onePanel(browserPanel, rssLatestJobPanel);

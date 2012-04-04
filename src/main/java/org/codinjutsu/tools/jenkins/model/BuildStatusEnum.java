@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 David Boissier
+ * Copyright (c) 2012 David Boissier
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,21 @@ public enum BuildStatusEnum {
     BuildStatusEnum(String status, String color) {
         this.status = status;
         this.color = color;
+    }
+
+    public static BuildStatusEnum parseStatus(String status) {
+        BuildStatusEnum buildStatusEnum;
+        try {
+            if (status == null || "null".equals(status)) {
+                status = "NULL";
+            }
+            buildStatusEnum = valueOf(status.toUpperCase());
+
+        } catch (IllegalArgumentException ex) {
+            System.out.println("Unkown status : " + status);
+            buildStatusEnum = NULL;
+        }
+        return buildStatusEnum;
     }
 
 

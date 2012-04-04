@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 David Boissier
+ * Copyright (c) 2012 David Boissier
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,8 @@ import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.view.JenkinsBrowserPanel;
-import org.codinjutsu.tools.jenkins.view.JenkinsPanel;
 import org.codinjutsu.tools.jenkins.view.JobSearchComponent;
-import org.codinjutsu.tools.jenkins.view.RssLatestJobPanel;
+import org.codinjutsu.tools.jenkins.view.RssLatestBuildPanel;
 import org.codinjutsu.tools.jenkins.view.action.*;
 import org.codinjutsu.tools.jenkins.view.action.search.NextOccurrenceAction;
 import org.codinjutsu.tools.jenkins.view.action.search.OpenJobSearchPanelAction;
@@ -64,11 +63,10 @@ public class JenkinsBrowserLogic {
     private Timer jobRefreshTimer;
     private Timer rssRefreshTimer;
     private final JenkinsBrowserPanel jenkinsBrowserPanel;
-    private final RssLatestJobPanel rssLatestJobPanel;
+    private final RssLatestBuildPanel rssLatestJobPanel;
 
 
-
-    public JenkinsBrowserLogic(JenkinsConfiguration configuration, JenkinsRequestManager jenkinsRequestManager, JenkinsBrowserPanel jenkinsBrowserPanel, RssLatestJobPanel rssLatestJobPanel, JobStatusCallback jobStatusCallback) {
+    public JenkinsBrowserLogic(JenkinsConfiguration configuration, JenkinsRequestManager jenkinsRequestManager, JenkinsBrowserPanel jenkinsBrowserPanel, RssLatestBuildPanel rssLatestJobPanel, JobStatusCallback jobStatusCallback) {
         this.configuration = configuration;
         this.jenkinsRequestManager = jenkinsRequestManager;
         this.jenkinsBrowserPanel = jenkinsBrowserPanel;
@@ -94,6 +92,8 @@ public class JenkinsBrowserLogic {
 
     public void reloadConfiguration() {
         loadJenkinsWorkspace();
+        loadLatestCompletedBuilds();
+        cleanRssEntries();
         initTimers();
     }
 
@@ -117,18 +117,10 @@ public class JenkinsBrowserLogic {
     }
 
 
-    public void refreshLatestCompletedBuilds() {
+    public void loadLatestCompletedBuilds() {
         try {
-            if (jenkins != null && !jenkins.getJobs().isEmpty()) {
-                Map<String, Build> latestBuild = jenkinsRequestManager.loadJenkinsRssLatestBuilds(
-                        configuration);
-                Map<String, Build> finishedBuilds = addLatestBuilds(latestBuild);
-                Entry<String, Build> firstFailedBuild = getFirstFailedBuild(finishedBuilds);
-                if (firstFailedBuild != null) {
-                    jobStatusCallback.notifyOnBuildFailure(firstFailedBuild.getKey(), firstFailedBuild.getValue());
-                }
-                displayFinishedBuilds(finishedBuilds);
-            }
+            Map<String, Build> latestBuild = jenkinsRequestManager.loadJenkinsRssLatestBuilds(configuration);
+            displayFinishedBuilds(latestBuild);
         } catch (Exception domEx) {
             String errorMessage = buildServerErrorMessage(domEx);
             LOG.error(errorMessage, domEx);
@@ -148,7 +140,6 @@ public class JenkinsBrowserLogic {
 
 
     public void cleanRssEntries() {
-        currentBuildMap.clear();
         rssLatestJobPanel.cleanRssEntries();
     }
 
@@ -167,13 +158,13 @@ public class JenkinsBrowserLogic {
     }
 
 
-    Map<String, Build> addLatestBuilds(Map<String, Build> latestBuildMap) {
+    private Map<String, Build> addLatestBuilds(Map<String, Build> latestBuildMap) {
         Map<String, Build> newBuildMap = new HashMap<String, Build>();
         for (Entry<String, Build> entry : latestBuildMap.entrySet()) {
             String jobName = entry.getKey();
             Build newBuild = entry.getValue();
             Build currentBuild = currentBuildMap.get(jobName);
-            if (!currentBuildMap.containsKey(jobName) || newBuild.isDisplayable(currentBuild)) {
+            if (!currentBuildMap.containsKey(jobName) || newBuild.isAfter(currentBuild)) {
                 currentBuildMap.put(jobName, newBuild);
                 newBuildMap.put(jobName, newBuild);
             }
@@ -267,8 +258,16 @@ public class JenkinsBrowserLogic {
     }
 
 
-    private void displayFinishedBuilds(Map<String, Build> displayableFinishedBuilds) {
-        rssLatestJobPanel.addFinishedBuild(displayableFinishedBuilds);
+    private void displayFinishedBuilds(Map<String, Build> latestBuild) {
+        Map<String, Build> finishedBuilds = addLatestBuilds(latestBuild);
+
+        rssLatestJobPanel.addFinishedBuild(finishedBuilds);
+
+        Entry<String, Build> firstFailedBuild = getFirstFailedBuild(finishedBuilds);
+        if (firstFailedBuild != null) {
+            jobStatusCallback.notifyOnBuildFailure(firstFailedBuild.getKey(), firstFailedBuild.getValue());
+        }
+
     }
 
 
@@ -320,7 +319,7 @@ public class JenkinsBrowserLogic {
         new OpenJobSearchPanelAction(jenkinsBrowserPanel, jenkinsBrowserPanel.getSearchComponent());
     }
 
-    public RssLatestJobPanel getRssLatestJobPanel() {
+    public RssLatestBuildPanel getRssLatestJobPanel() {
         return rssLatestJobPanel;
     }
 
@@ -383,7 +382,7 @@ public class JenkinsBrowserLogic {
         @Override
         public void run() {
             try {
-                refreshLatestCompletedBuilds();
+                loadLatestCompletedBuilds();
             } catch (Exception ex) {
                 throw new RuntimeException(ex.getMessage(), ex);
             }

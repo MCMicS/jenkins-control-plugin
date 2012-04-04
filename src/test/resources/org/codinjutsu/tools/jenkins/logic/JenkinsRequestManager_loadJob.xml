@@ -8,6 +8,7 @@
     </healthReport>
     <inQueue>false</inQueue>
     <lastBuild>
+        <id>2012-04-02_16-26-29</id>
         <building>false</building>
         <number>8</number>
         <result>SUCCESS</result>

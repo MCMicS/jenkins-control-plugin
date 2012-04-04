@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2012 David Boissier
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.codinjutsu.tools.jenkins.view;
 
 import com.intellij.openapi.project.Project;
@@ -21,7 +37,7 @@ import java.awt.event.MouseEvent;
 public class JenkinsRssWidget extends JPanel implements CustomStatusBarWidget, StatusBarWidget.Multiframe {
 
     private final Project project;
-    private final RssLatestJobPanel rssLatestJobPanel;
+    private final RssLatestBuildPanel rssLatestJobPanel;
     private final JPanel myRefreshAndInfoPanel = new JPanel();
     private StatusBar myStatusBar;
     private BuildAnimatedIcon buildIcon;
@@ -29,11 +45,11 @@ public class JenkinsRssWidget extends JPanel implements CustomStatusBarWidget, S
     private final Alarm myRefreshAlarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD);
     private JBPopup myPopup;
 
-    public JenkinsRssWidget(Project project, RssLatestJobPanel rssLatestJobPanel) {
+    public JenkinsRssWidget(Project project, RssLatestBuildPanel rssLatestBuildPanel) {
         this.project = project;
-        this.rssLatestJobPanel = rssLatestJobPanel;
-        rssLatestJobPanel.setMinimumSize(new Dimension(100, 100));
-        rssLatestJobPanel.setMaximumSize(new Dimension(150, 300));
+        this.rssLatestJobPanel = rssLatestBuildPanel;
+        rssLatestBuildPanel.setMinimumSize(new Dimension(100, 100));
+        rssLatestBuildPanel.setMaximumSize(new Dimension(150, 300));
 
         setOpaque(false);
 
@@ -134,7 +150,7 @@ public class JenkinsRssWidget extends JPanel implements CustomStatusBarWidget, S
                 .setResizable(true)
                 .setDimensionServiceKey(null, "JenkinsRssPopupWindow", true)
                 .setMinSize(getMinSize())
-                .setCancelOnClickOutside(false)
+                .setCancelOnClickOutside(true)
                 .setRequestFocus(false)
                 .setBelongsToGlobalPopupStack(false)
                 .setLocateByContent(true)

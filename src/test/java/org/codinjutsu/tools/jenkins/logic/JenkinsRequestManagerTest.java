@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 David Boissier
+ * Copyright (c) 2012 David Boissier
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,17 +99,17 @@ public class JenkinsRequestManagerTest {
 
 
         expectedJobs.add(new JobBuilder().job("sql-tools", "blue", "http://myjenkins/job/sql-tools/", "true")
-                .lastBuild("http://myjenkins/job/sql-tools/15/", "15", SUCCESS.getStatus(), "false")
+                .lastBuild("http://myjenkins/job/sql-tools/15/", "15", SUCCESS.getStatus(), "false", "2012-04-02_15-26-29")
                 .health("health-80plus", "0 tests en échec sur un total de 24 tests").get());
         expectedJobs.add(new JobBuilder().job("db-utils", "grey", "http://myjenkins/job/db-utils/", "false").get());
         expectedJobs.add(new JobBuilder().job("myapp", "red", "http://myjenkins/job/myapp/", "false")
-                .lastBuild("http://myjenkins/job/myapp/12/", "12", FAILURE.getStatus(), "true")
+                .lastBuild("http://myjenkins/job/myapp/12/", "12", FAILURE.getStatus(), "true", "2012-04-02_16-26-29")
                 .health("health-00to19", "24 tests en échec sur un total de 24 tests")
                 .parameter("param1", "ChoiceParameterDefinition", "value1", "value1", "value2", "value3")
                 .parameter("runIntegrationTest", "BooleanParameterDefinition", null)
                 .get());
         expectedJobs.add(new JobBuilder().job("swing-utils", "disabled", "http://myjenkins/job/swing-utils/", "true")
-                .lastBuild("http://myjenkins/job/swing-utils/5/", "5", FAILURE.getStatus(), "false")
+                .lastBuild("http://myjenkins/job/swing-utils/5/", "5", FAILURE.getStatus(), "false", "2012-04-02_10-26-29")
                 .health("health20to39", "0 tests en échec sur un total de 24 tests")
                 .parameter("dummyParam", null, null)
                 .get());
@@ -126,7 +126,7 @@ public class JenkinsRequestManagerTest {
 
         assertReflectionEquals(new JobBuilder()
                 .job("config-provider-model", "blue", "http://ci.jenkins-ci.org/job/config-provider-model/", "false")
-                .lastBuild("http://ci.jenkins-ci.org/job/config-provider-model/8/", "8", "SUCCESS", "false")
+                .lastBuild("http://ci.jenkins-ci.org/job/config-provider-model/8/", "8", "SUCCESS", "false", "2012-04-02_16-26-29")
                 .health("health-80plus", "0 tests en échec sur un total de 24 tests")
                 .get(), actualJob);
     }
@@ -138,27 +138,21 @@ public class JenkinsRequestManagerTest {
 
         Map<String, Build> actualJobBuildMap = requestManager.loadJenkinsRssLatestBuilds(configuration);
 
-        Map<String, Build> expectedJobBuildMap = buildLastJobResultMap(new String[][]{
-                {"infra_main_svn_to_git", "http://ci.jenkins-ci.org/job/infra_main_svn_to_git/351/", "351", BuildStatusEnum.SUCCESS.getStatus()},
-                {"TESTING-HUDSON-7434", "http://ci.jenkins-ci.org/job/TESTING-HUDSON-7434/2/", "2", BuildStatusEnum.FAILURE.getStatus()},
-                {"infa_release.rss", "http://ci.jenkins-ci.org/job/infa_release.rss/139/", "139", BuildStatusEnum.SUCCESS.getStatus()},
-                {"infra_jenkins-ci.org_webcontents", "http://ci.jenkins-ci.org/job/infra_jenkins-ci.org_webcontents/2/", "2", BuildStatusEnum.SUCCESS.getStatus()},
-                {"plugins_subversion", "http://ci.jenkins-ci.org/job/plugins_subversion/58/", "58", BuildStatusEnum.FAILURE.getStatus()},
-                {"hudson_metrics_wip", "http://ci.jenkins-ci.org/job/hudson_metrics_wip/6/", "6", BuildStatusEnum.ABORTED.getStatus()},
-                {"gerrit_master", "http://ci.jenkins-ci.org/job/gerrit_master/170/", "170", FAILURE.getStatus()},
+        Map<String, Build> expectedJobBuildMap = BuildTest.buildLastJobResultMap(new String[][]{
+                {"infra_main_svn_to_git", "http://ci.jenkins-ci.org/job/infra_main_svn_to_git/351/", "351", BuildStatusEnum.SUCCESS.getStatus(), "2010-11-21T17:01:51Z", "infra_main_svn_to_git #351 (stable)"},
+                {"TESTING-HUDSON-7434", "http://ci.jenkins-ci.org/job/TESTING-HUDSON-7434/2/", "2", BuildStatusEnum.FAILURE.getStatus(), "2011-03-02T05:27:56Z", "TESTING-HUDSON-7434 #2 (broken for a long time)"},
+                {"infa_release.rss", "http://ci.jenkins-ci.org/job/infa_release.rss/139/", "139", BuildStatusEnum.SUCCESS.getStatus(), "2011-03-16T20:30:51Z", "infa_release.rss #139 (stable)"},
+                {"infra_jenkins-ci.org_webcontents", "http://ci.jenkins-ci.org/job/infra_jenkins-ci.org_webcontents/2/", "2", BuildStatusEnum.SUCCESS.getStatus(), "2011-02-02T00:49:58Z", "infra_jenkins-ci.org_webcontents #2 (back to normal)"},
+                {"plugins_subversion", "http://ci.jenkins-ci.org/job/plugins_subversion/58/", "58", BuildStatusEnum.FAILURE.getStatus(), "2011-03-16T12:22:08Z", "plugins_subversion #58 (2 tests are still failing)"},
+                {"hudson_metrics_wip", "http://ci.jenkins-ci.org/job/hudson_metrics_wip/6/", "6", BuildStatusEnum.ABORTED.getStatus(), "2010-10-26T19:51:56Z", "hudson_metrics_wip #6 (aborted)"},
+                {"gerrit_master", "http://ci.jenkins-ci.org/job/gerrit_master/170/", "170", FAILURE.getStatus(), "2011-03-16T14:28:59Z", "gerrit_master #170 (broken since build #165)"},
         });
 
 
         assertReflectionEquals(expectedJobBuildMap, actualJobBuildMap);
     }
 
-    private Map<String, Build> buildLastJobResultMap(String[][] datas) {
-        Map<String, Build> expectedJobBuildMap = new HashMap<String, Build>();
-        for (String[] data : datas) {
-            expectedJobBuildMap.put(data[0], Build.createBuild(data[1], data[2], data[3], "false"));
-        }
-        return expectedJobBuildMap;
-    }
+
 
     @Before
     public void setUp() {

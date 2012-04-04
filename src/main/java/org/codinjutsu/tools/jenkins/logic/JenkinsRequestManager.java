@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 David Boissier
+ * Copyright (c) 2012 David Boissier
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,7 @@ public class JenkinsRequestManager {
 
     private static final String VIEW_URL = "url";
     private static final String BUILD_IS_BUILDING = "building";
+    private static final String BUILD_ID = "id";
     private static final String BUILD_RESULT = "result";
     private static final String BUILD_URL = "url";
     private static final String BUILD_NUMBER = "number";
@@ -68,6 +69,7 @@ public class JenkinsRequestManager {
     private static final String RSS_TITLE = "title";
     private static final String RSS_LINK = "link";
     private static final String RSS_LINK_HREF = "href";
+    private static final String RSS_PUBLISHED = "published";
 
     private final UrlBuilder urlBuilder;
 
@@ -164,7 +166,8 @@ public class JenkinsRequestManager {
         String isSuccess = jobLastBuild.getChildText(BUILD_RESULT);
         String number = jobLastBuild.getChildText(BUILD_NUMBER);
         String buildUrl = jobLastBuild.getChildText(BUILD_URL);
-        return Build.createBuild(buildUrl, number, isSuccess, isBuilding);
+        String date = jobLastBuild.getChildText(BUILD_ID);
+        return Build.createBuildFromWorkspace(buildUrl, number, isSuccess, isBuilding, date);
     }
 
 
@@ -300,22 +303,22 @@ public class JenkinsRequestManager {
 
         Map<String, Build> buildMap = new LinkedHashMap<String, Build>();
         Element rootElement = doc.getRootElement();
+
         List<Element> elements = rootElement.getChildren(RSS_ENTRY, rootElement.getNamespace());
         for (Element element : elements) {
             String title = element.getChildText(RSS_TITLE, rootElement.getNamespace());
+            String publishedBuild = element.getChildText(RSS_PUBLISHED, rootElement.getNamespace());
             String jobName = RssUtil.extractBuildJob(title);
             String number = RssUtil.extractBuildNumber(title);
             BuildStatusEnum status = RssUtil.extractStatus(title);
             Element linkElement = element.getChild(RSS_LINK, rootElement.getNamespace());
             String link = linkElement.getAttributeValue(RSS_LINK_HREF);
 
-            Build currentBuild = buildMap.get(jobName);
             if (!BuildStatusEnum.NULL.equals(status)) {
-                Build newBuild = Build.createBuild(link, number, status.getStatus(), Boolean.FALSE.toString());
-                if (currentBuild == null || newBuild.isAfter(currentBuild)) {
-                    buildMap.put(jobName, newBuild);
-                }
+                buildMap.put(jobName, Build.createBuildFromRss(link, number, status.getStatus(), Boolean.FALSE.toString(), publishedBuild, title));
+
             }
+
         }
 
         return buildMap;

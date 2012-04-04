@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 David Boissier
+ * Copyright (c) 2012 David Boissier
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,6 @@ public class RefreshRssAction extends AnAction implements DumbAware {
 
     @Override
     public void actionPerformed(AnActionEvent e) {
-        logic.refreshLatestCompletedBuilds();
+        logic.loadLatestCompletedBuilds();
     }
 }

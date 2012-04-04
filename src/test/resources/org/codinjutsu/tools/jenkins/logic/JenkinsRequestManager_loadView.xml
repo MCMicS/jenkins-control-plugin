@@ -13,6 +13,7 @@
             <iconUrl>health-80plus.gif</iconUrl>
         </healthReport>
         <lastBuild>
+            <id>2012-04-02_15-26-29</id>
             <building>false</building>
             <result>SUCCESS</result>
             <number>15</number>
@@ -35,6 +36,7 @@
             <iconUrl>health-00to19.gif</iconUrl>
         </healthReport>
         <lastBuild>
+            <id>2012-04-02_16-26-29</id>
             <building>true</building>
             <result>FAILURE</result>
             <number>12</number>
@@ -68,6 +70,7 @@
             <iconUrl>health20to39.gif</iconUrl>
         </healthReport>
         <lastBuild>
+            <id>2012-04-02_10-26-29</id>
             <building>false</building>
             <result>FAILURE</result>
             <number>5</number>
