@@ -32,6 +32,7 @@ Configuration steps:
   -  If you want the plugin to refresh periodically the Jenkins workspace, you can set a timeout value
   -  You can also specify a build start delay (in sec.) that will be set when launching a build.
   -  You can specify a preferred view at Start Up.
+  -  [New] You can change the UI layout. Either as now or else the Rss Panel is located on the status bar. Caution : You need to restart your IDE if you modify the plugin UI Layout.
   -  Save your configuration by clicking on the OK or Apply Button
 
 Usage:

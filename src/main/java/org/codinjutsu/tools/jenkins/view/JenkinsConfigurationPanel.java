@@ -37,6 +37,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
+import static org.codinjutsu.tools.jenkins.JenkinsConfiguration.Layout.*;
 import static org.codinjutsu.tools.jenkins.JenkinsConfiguration.RESET_STR_VALUE;
 import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.*;
 
@@ -149,7 +150,15 @@ public class JenkinsConfigurationPanel {
                 || !(configuration.getUsername().equals(username.getText()))
                 || !(configuration.getPasswordFile().equals(passwordFile.getComponent().getText()))
                 || !(configuration.getCrumbFile().equals(crumbDataFile.getComponent().getText()))
+                || !(configuration.getLayout() == getLayoutValue())
                 ;
+    }
+
+    private JenkinsConfiguration.Layout getLayoutValue() {
+        if (rssAsPanelRadioButton.isSelected()) {
+            return SINGLE;
+        }
+        return SEPARATED;
     }
 
 
@@ -170,6 +179,7 @@ public class JenkinsConfigurationPanel {
         configuration.setUsername(username.getText());
         configuration.setPasswordFile(passwordFile.getComponent().getText());
         configuration.setCrumbFile(crumbDataFile.getComponent().getText());
+        configuration.setLayout(getLayoutValue());
     }
 
     public void loadConfigurationData(JenkinsConfiguration configuration) {
@@ -188,7 +198,17 @@ public class JenkinsConfigurationPanel {
 
         preferredView.setText(configuration.getPreferredView());
 
+        setLayoutValue(configuration.getLayout());
+
         setSecurityMode(configuration.getSecurityMode(), configuration.getUsername(), configuration.getPasswordFile(), configuration.getCrumbFile());
+    }
+
+    private void setLayoutValue(JenkinsConfiguration.Layout layout) {
+        if (layout == SINGLE) {
+            rssAsPanelRadioButton.setSelected(true);
+        } else {
+            rssAsNotificationRadioButton.setSelected(true);
+        }
     }
 
 
@@ -253,7 +273,6 @@ public class JenkinsConfigurationPanel {
         groupButtonGroup.add(rssAsPanelRadioButton);
         groupButtonGroup.add(rssAsNotificationRadioButton);
         rssAsPanelRadioButton.setSelected(true);
-
     }
 
     private void setConnectionFeedbackLabel(final Color labelColor, final String labelText) {

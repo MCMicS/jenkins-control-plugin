@@ -31,7 +31,7 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="21c89" class="javax.swing.JTextArea" binding="rssLatestBuildLogTextArea">
+              <component id="e4e7b" class="javax.swing.JTextPane" binding="rssTextPane">
                 <constraints/>
                 <properties/>
               </component>

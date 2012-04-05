@@ -35,6 +35,6 @@ public class RefreshRssAction extends AnAction implements DumbAware {
 
     @Override
     public void actionPerformed(AnActionEvent e) {
-        logic.loadLatestCompletedBuilds();
+        logic.loadLatestBuilds();
     }
 }

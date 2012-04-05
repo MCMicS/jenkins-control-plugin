@@ -30,7 +30,7 @@ import org.uispec4j.TextBox;
 import org.uispec4j.UISpecTestCase;
 
 import static org.codinjutsu.tools.jenkins.JenkinsConfiguration.DEFAULT_BUILD_DELAY;
-import static org.codinjutsu.tools.jenkins.JenkinsConfiguration.DEFAULT_JENKINS_SERVER_URL;
+import static org.codinjutsu.tools.jenkins.JenkinsConfiguration.DUMMY_JENKINS_SERVER_URL;
 
 public class JenkinsConfigurationPanelTest extends UISpecTestCase {
 
@@ -47,7 +47,7 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
     public void testDisplayWithDefaultValues() throws Exception {
 
         TextBox serverUrlBox = uiSpecPanel.getTextBox("serverUrl");
-        serverUrlBox.textEquals(DEFAULT_JENKINS_SERVER_URL).check();
+        serverUrlBox.textEquals(DUMMY_JENKINS_SERVER_URL).check();
 
         TextBox buildDelayBox = uiSpecPanel.getTextBox("buildDelay");
         buildDelayBox.textEquals(Integer.toString(DEFAULT_BUILD_DELAY)).check();

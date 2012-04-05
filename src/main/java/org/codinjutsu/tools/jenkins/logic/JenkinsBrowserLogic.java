@@ -92,7 +92,7 @@ public class JenkinsBrowserLogic {
 
     public void reloadConfiguration() {
         loadJenkinsWorkspace();
-        loadLatestCompletedBuilds();
+        loadAnReturnNewLatestBuilds();
         cleanRssEntries();
         initTimers();
     }
@@ -116,17 +116,6 @@ public class JenkinsBrowserLogic {
         job.updateContentWith(updatedJob);
     }
 
-
-    public void loadLatestCompletedBuilds() {
-        try {
-            Map<String, Build> latestBuild = jenkinsRequestManager.loadJenkinsRssLatestBuilds(configuration);
-            displayFinishedBuilds(latestBuild);
-        } catch (Exception domEx) {
-            String errorMessage = buildServerErrorMessage(domEx);
-            LOG.error(errorMessage, domEx);
-            showErrorDialog(errorMessage, "Error during parsing Rss Data");
-        }
-    }
 
     private Entry<String, Build> getFirstFailedBuild(Map<String, Build> finishedBuilds) {
         for (Entry<String, Build> buildByJobName : finishedBuilds.entrySet()) {
@@ -158,7 +147,16 @@ public class JenkinsBrowserLogic {
     }
 
 
-    private Map<String, Build> addLatestBuilds(Map<String, Build> latestBuildMap) {
+    private Map<String, Build> loadAnReturnNewLatestBuilds() {
+        Map<String, Build> latestBuildMap;
+        try {
+            latestBuildMap = jenkinsRequestManager.loadJenkinsRssLatestBuilds(configuration);
+        } catch (Exception ex) {
+            LOG.error(ex.getMessage(), ex);
+            displayConnectionErrorMsg();
+            return new HashMap<String, Build>();
+        }
+
         Map<String, Build> newBuildMap = new HashMap<String, Build>();
         for (Entry<String, Build> entry : latestBuildMap.entrySet()) {
             String jobName = entry.getKey();
@@ -258,9 +256,7 @@ public class JenkinsBrowserLogic {
     }
 
 
-    private void displayFinishedBuilds(Map<String, Build> latestBuild) {
-        Map<String, Build> finishedBuilds = addLatestBuilds(latestBuild);
-
+    private void displayFinishedBuilds(Map<String, Build> finishedBuilds) {
         rssLatestJobPanel.addFinishedBuild(finishedBuilds);
 
         Entry<String, Build> firstFailedBuild = getFirstFailedBuild(finishedBuilds);
@@ -363,6 +359,11 @@ public class JenkinsBrowserLogic {
         });
     }
 
+    public void loadLatestBuilds() {
+        Map<String, Build> finishedBuilds = loadAnReturnNewLatestBuilds();
+        displayFinishedBuilds(finishedBuilds);
+    }
+
 
     private class JobRefreshTimerTask extends TimerTask {
 
@@ -382,7 +383,7 @@ public class JenkinsBrowserLogic {
         @Override
         public void run() {
             try {
-                loadLatestCompletedBuilds();
+                loadLatestBuilds();
             } catch (Exception ex) {
                 throw new RuntimeException(ex.getMessage(), ex);
             }

@@ -16,19 +16,18 @@
 
 package org.codinjutsu.tools.jenkins;
 
+import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.security.SecurityMode;
-
-import static org.codinjutsu.tools.jenkins.JenkinsConfiguration.Layout.SEPARATED;
 
 public class JenkinsConfiguration {
 
-    public static final String DEFAULT_JENKINS_SERVER_URL = "http://dummyjenkinsserver";
+    public static final String DUMMY_JENKINS_SERVER_URL = "http://dummyjenkinsserver";
     public static final int DEFAULT_BUILD_DELAY = 0;
     public static final int RESET_PERIOD_VALUE = 0;
 
     public static final String RESET_STR_VALUE = "";
 
-    private String serverUrl = DEFAULT_JENKINS_SERVER_URL;
+    private String serverUrl = DUMMY_JENKINS_SERVER_URL;
 
     private int delay = DEFAULT_BUILD_DELAY;
 
@@ -47,7 +46,7 @@ public class JenkinsConfiguration {
 
     private String preferredView = "";
 
-    private Layout layout = SEPARATED;
+    private Layout layout = Layout.SINGLE;
 
     public enum Layout {
         SINGLE, SEPARATED
@@ -65,8 +64,7 @@ public class JenkinsConfiguration {
 
 
     public boolean isServerUrlSet() {
-        return serverUrl != null && serverUrl.length() != 0 &&
-                !JenkinsConfiguration.DEFAULT_JENKINS_SERVER_URL.equals(serverUrl);
+        return StringUtils.isNotEmpty(serverUrl) && !JenkinsConfiguration.DUMMY_JENKINS_SERVER_URL.equals(serverUrl);
     }
 
 
@@ -163,5 +161,9 @@ public class JenkinsConfiguration {
 
     public Layout getLayout() {
         return layout;
+    }
+
+    public void setLayout(Layout layout) {
+        this.layout = layout;
     }
 }

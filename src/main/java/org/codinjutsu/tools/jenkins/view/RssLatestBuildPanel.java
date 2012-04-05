@@ -16,36 +16,63 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
+import com.intellij.ide.BrowserUtil;
 import org.codinjutsu.tools.jenkins.model.Build;
-import org.codinjutsu.tools.jenkins.util.DateUtil;
+import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
+import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
 import javax.swing.*;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
 import java.awt.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Map;
 
-import static org.codinjutsu.tools.jenkins.util.DateUtil.LOG_DATE_FORMAT;
+import static org.codinjutsu.tools.jenkins.util.DateUtil.LOG_DATE_IN_HOUR_FORMAT;
 import static org.codinjutsu.tools.jenkins.util.DateUtil.format;
 
 public class RssLatestBuildPanel extends JPanel {
     private JPanel rssActionPanel;
-    private JTextArea rssLatestBuildLogTextArea;
+
     private JPanel rootPanel;
+    private JTextPane rssTextPane;
+    private final HTMLEditorKit htmlEditorKit;
+    private HTMLDocument htmlDocument;
 
     public RssLatestBuildPanel() {
 
-        rssLatestBuildLogTextArea.setName("rssContent");
-        rssLatestBuildLogTextArea.setEditable(false);
+        rssTextPane.setName("rssContent");
+        htmlEditorKit = new HTMLEditorKit();
+        htmlDocument = new HTMLDocument();
+        rssTextPane.setEditable(false);
+        rssTextPane.setBackground(Color.WHITE);
+        rssTextPane.setEditorKit(htmlEditorKit);
+        rssTextPane.setDocument(htmlDocument);
+        rssTextPane.addHyperlinkListener(new HyperlinkListener() {
+            @Override
+            public void hyperlinkUpdate(HyperlinkEvent hyperlinkEvent) {
+                HyperlinkEvent.EventType eventType = hyperlinkEvent.getEventType();
+                if (HyperlinkEvent.EventType.ACTIVATED.equals(eventType)) {
+                    BrowserUtil.launchBrowser(hyperlinkEvent.getURL().toString());
+                }
+            }
+        });
 
         setLayout(new BorderLayout());
         add(rootPanel, BorderLayout.CENTER);
     }
 
     public void cleanRssEntries() {
-        rssLatestBuildLogTextArea.setText("");
+        htmlDocument = new HTMLDocument();
+        rssTextPane.setDocument(htmlDocument);
     }
 
     public void addFinishedBuild(final Map<String, Build> buildByJobNameMap) {
-        ArrayList<Build> buildToSortByDateDescending = new ArrayList<Build>(buildByJobNameMap.values());
+        final ArrayList<Build> buildToSortByDateDescending = new ArrayList<Build>(buildByJobNameMap.values());
 
         Collections.sort(buildToSortByDateDescending, new Comparator<Build>() {
             @Override
@@ -54,12 +81,37 @@ public class RssLatestBuildPanel extends JPanel {
             }
         });
 
-        StringBuilder stringBuilder = new StringBuilder();
-        for (Build build : buildToSortByDateDescending) {
-            stringBuilder.append(format(build.getBuildDate(), LOG_DATE_FORMAT)).append(" ").append(build.getMessage() + "\n");
+
+        GuiUtil.runInSwingThread(new Runnable() {
+            @Override
+            public void run() {
+                for (Build build : buildToSortByDateDescending) {
+                    appendHtmlText(buildMessage(build));
+                }
+                rssTextPane.setCaretPosition(htmlDocument.getLength());
+            }
+        });
+    }
+
+    private void appendHtmlText(String textToAppend) {
+        try {
+            htmlEditorKit.insertHTML(htmlDocument, htmlDocument.getLength(), textToAppend, 0, 0, null);
+        } catch (Exception e) {
+            e.printStackTrace();//todo
         }
 
-        rssLatestBuildLogTextArea.append(stringBuilder.toString());
+    }
+
+    private static String buildMessage(Build build) {
+        String message = format(build.getBuildDate(), LOG_DATE_IN_HOUR_FORMAT) + " ";
+        BuildStatusEnum buildStatus = build.getStatus();
+        String statusColor = buildStatus.getColor().toLowerCase();
+        String buildMessage = build.getMessage();
+        if (buildStatus != BuildStatusEnum.SUCCESS && buildStatus != BuildStatusEnum.STABLE) {
+            return message + "<a" + " href='" + build.getUrl() + "' style='color:" + statusColor + "'>" + buildMessage + "</a><br/>";
+        }
+        return message + "<font color='" + statusColor + "'>" + buildMessage + "</font><br/>";
+
     }
 
     public JPanel getRssActionPanel() {

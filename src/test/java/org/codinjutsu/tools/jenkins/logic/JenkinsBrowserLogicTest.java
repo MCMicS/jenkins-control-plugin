@@ -22,7 +22,6 @@ import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.view.JenkinsBrowserPanel;
 import org.codinjutsu.tools.jenkins.view.JobSearchComponent;
 import org.codinjutsu.tools.jenkins.view.RssLatestBuildPanel;
-import org.codinjutsu.tools.jenkins.view.RssLatestJobPanel;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.uispec4j.*;
@@ -30,8 +29,6 @@ import org.uispec4j.*;
 import javax.swing.*;
 
 import static java.util.Arrays.asList;
-import static org.mockito.Mockito.only;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
@@ -95,17 +92,21 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
         rssContent.textIsEmpty().check();
 
         when(requestManagerMock.loadJenkinsRssLatestBuilds(configuration)).thenReturn(BuildTest.buildLastJobResultMap(new String[][]{
-                {"infra_main_svn_to_git", "http://ci.jenkins-ci.org/job/infra_main_svn_to_git/352/", "352", BuildStatusEnum.FAILURE.getStatus(), "2010-11-22T17:01:51Z", "infra_main_svn_to_git #351 (broken)"}, // new build but fail
+                {"infra_main_svn_to_git", "http://ci.jenkins-ci.org/job/infra_main_svn_to_git/352/", "352", BuildStatusEnum.FAILURE.getStatus(), "2012-03-03T17:01:51Z", "infra_main_svn_to_git #351 (broken)"}, // new build but fail
                 {"infra_jenkins-ci.org_webcontents", "http://ci.jenkins-ci.org/job/infra_jenkins-ci.org_webcontents/2/", "2", BuildStatusEnum.SUCCESS.getStatus(), "2011-02-02T00:49:58Z", "infra_jenkins-ci.org_webcontents #2 (back to normal)"}, // unchanged
-                {"infa_release.rss", "http://ci.jenkins-ci.org/job/infa_release.rss/140/", "140", BuildStatusEnum.SUCCESS.getStatus(), "2011-03-16T20:30:51Z", "infa_release.rss #140 (back to normal)"}, // new build but success
-                {"TESTING-HUDSON-7434", "http://ci.jenkins-ci.org/job/TESTING-HUDSON-7434/3/", "3", BuildStatusEnum.FAILURE.getStatus(), "2011-03-03T05:27:56Z", "TESTING-HUDSON-7434 #3 (broken for a long time)"}, //new build but still fail
+                {"infa_release.rss", "http://ci.jenkins-ci.org/job/infa_release.rss/140/", "140", BuildStatusEnum.SUCCESS.getStatus(), "2012-03-03T20:30:51Z", "infa_release.rss #140 (back to normal)"}, // new build but success
+                {"TESTING-HUDSON-7434", "http://ci.jenkins-ci.org/job/TESTING-HUDSON-7434/3/", "3", BuildStatusEnum.FAILURE.getStatus(), "2012-03-03T05:27:56Z", "TESTING-HUDSON-7434 #3 (broken for a long time)"}, //new build but still fail
         }));
-        jenkinsBrowserLogic.loadLatestCompletedBuilds();
-
+        jenkinsBrowserLogic.loadLatestBuilds();
         assertTrue(rssContent.textContains(
-                "2010-11-22 17:01:51 infra_main_svn_to_git #351 (broken)\n" +
-                "2011-03-03 05:27:56 TESTING-HUDSON-7434 #3 (broken for a long time)\n" +
-                "2011-03-16 20:30:51 infa_release.rss #140 (back to normal)\n")
+                "<html>\n" +
+                        "  <head>\n" +
+                        "  </head>\n" +
+                        "  <body>" +
+                        "05:27:56 <font color=\"red\"><a href=\"http://ci.jenkins-ci.org/job/TESTING-HUDSON-7434/3/\">TESTING-HUDSON-7434 #3 (broken for a long time)</a></font><br>\n" +
+                        "17:01:51 <font color=\"red\"><a href=\"http://ci.jenkins-ci.org/job/infra_main_svn_to_git/352/\">infra_main_svn_to_git #351 (broken)</a></font><br>\n" +
+                        "20:30:51 <font color=\"blue\">infa_release.rss #140 (back to normal)</font><br></body>\n" +
+                        "</html>")
         );
 
         jenkinsBrowserLogic.cleanRssEntries();
