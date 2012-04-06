@@ -199,8 +199,14 @@ public class JenkinsControlComponent
     public void apply() throws ConfigurationException {
         if (configurationPanel != null) {
             try {
+                boolean layoutModified = configurationPanel.isLayoutModified(configuration);
                 configurationPanel.applyConfigurationData(configuration);
+                if (layoutModified) {
+                    JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), "You need to restart your IDE to apply the new UI Layout.", "UI Layout Modification", JOptionPane.INFORMATION_MESSAGE);
+                }
+
                 jenkinsBrowserLogic.reloadConfiguration();
+
             } catch (org.codinjutsu.tools.jenkins.exception.ConfigurationException ex) {
                 throw new ConfigurationException(ex.getMessage());
             }

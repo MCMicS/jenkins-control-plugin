@@ -82,6 +82,7 @@ public class JenkinsConfigurationPanel {
 
     private JRadioButton rssAsPanelRadioButton;
     private JRadioButton rssAsNotificationRadioButton;
+    private JLabel feebackLabel;
 
     private final FormValidator formValidator;
 
@@ -272,6 +273,7 @@ public class JenkinsConfigurationPanel {
         ButtonGroup groupButtonGroup = new ButtonGroup();
         groupButtonGroup.add(rssAsPanelRadioButton);
         groupButtonGroup.add(rssAsNotificationRadioButton);
+
         rssAsPanelRadioButton.setSelected(true);
     }
 
@@ -290,6 +292,10 @@ public class JenkinsConfigurationPanel {
 
         crumbDataFile.getComponent().addBrowseFolderListener("Jenkins User Crumb File", "", null,
                 new FileChooserDescriptor(true, false, false, false, false, false));
+    }
+
+    public boolean isLayoutModified(JenkinsConfiguration configuration) {
+        return configuration.getLayout() != getLayoutValue();
     }
 
     private class EnablerFieldListener implements ItemListener {

@@ -148,16 +148,26 @@ public class JenkinsRssWidget extends JPanel implements CustomStatusBarWidget, S
                 .createComponentPopupBuilder(rssLatestJobPanel, rssLatestJobPanel)
                 .setMovable(true)
                 .setResizable(true)
+                .setTitle("RSS Latest Builds")
                 .setDimensionServiceKey(null, "JenkinsRssPopupWindow", true)
                 .setMinSize(getMinSize())
                 .setCancelOnClickOutside(true)
                 .setRequestFocus(false)
-                .setBelongsToGlobalPopupStack(false)
+                .setBelongsToGlobalPopupStack(true)
                 .setLocateByContent(true)
                 .setCancelButton(new MinimizeButton("Hide"))
                 .createPopup();
 
-
+/* builder.setMovable(true);
+        builder.setResizable(true);
+        builder.setTitle(IdeBundle.message("progress.window.title"));
+        builder.setDimensionServiceKey(null, "ProcessPopupWindow", true);
+        builder.setMinSize(getMinSize());
+        builder.setCancelOnClickOutside(false);
+        builder.setRequestFocus(requestFocus);
+        builder.setBelongsToGlobalPopupStack(false);
+        builder.setLocateByContent(true);
+        */
         myPopup.showInScreenCoordinates(rssLatestJobPanel, new Point(point.getPoint()));
     }
 

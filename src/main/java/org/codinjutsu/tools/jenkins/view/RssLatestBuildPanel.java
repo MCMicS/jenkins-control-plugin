@@ -40,17 +40,26 @@ public class RssLatestBuildPanel extends JPanel {
 
     private JPanel rootPanel;
     private JTextPane rssTextPane;
-    private final HTMLEditorKit htmlEditorKit;
+    private HTMLEditorKit htmlEditorKit;
     private HTMLDocument htmlDocument;
 
     public RssLatestBuildPanel() {
 
+        initRssPane();
+
+        setLayout(new BorderLayout());
+        add(rootPanel, BorderLayout.CENTER);
+    }
+
+    private void initRssPane() {
         rssTextPane.setName("rssContent");
         htmlEditorKit = new HTMLEditorKit();
         htmlDocument = new HTMLDocument();
+
         rssTextPane.setEditable(false);
         rssTextPane.setBackground(Color.WHITE);
         rssTextPane.setEditorKit(htmlEditorKit);
+        htmlEditorKit.install(rssTextPane);
         rssTextPane.setDocument(htmlDocument);
         rssTextPane.addHyperlinkListener(new HyperlinkListener() {
             @Override
@@ -61,9 +70,6 @@ public class RssLatestBuildPanel extends JPanel {
                 }
             }
         });
-
-        setLayout(new BorderLayout());
-        add(rootPanel, BorderLayout.CENTER);
     }
 
     public void cleanRssEntries() {
@@ -81,7 +87,6 @@ public class RssLatestBuildPanel extends JPanel {
             }
         });
 
-
         GuiUtil.runInSwingThread(new Runnable() {
             @Override
             public void run() {
@@ -96,8 +101,8 @@ public class RssLatestBuildPanel extends JPanel {
     private void appendHtmlText(String textToAppend) {
         try {
             htmlEditorKit.insertHTML(htmlDocument, htmlDocument.getLength(), textToAppend, 0, 0, null);
-        } catch (Exception e) {
-            e.printStackTrace();//todo
+        } catch (Exception ex) {
+            throw new IllegalStateException(ex.getMessage(), ex);
         }
 
     }
@@ -107,10 +112,12 @@ public class RssLatestBuildPanel extends JPanel {
         BuildStatusEnum buildStatus = build.getStatus();
         String statusColor = buildStatus.getColor().toLowerCase();
         String buildMessage = build.getMessage();
+        String coloredLinkText = "<font color='" + statusColor + "'>" + buildMessage + "</font>";
+
         if (buildStatus != BuildStatusEnum.SUCCESS && buildStatus != BuildStatusEnum.STABLE) {
-            return message + "<a" + " href='" + build.getUrl() + "' style='color:" + statusColor + "'>" + buildMessage + "</a><br/>";
+            return message + "<a" + " href='" + build.getUrl() + "'>" + coloredLinkText + "</a><br/>";
         }
-        return message + "<font color='" + statusColor + "'>" + buildMessage + "</font><br/>";
+        return message + coloredLinkText + "<br/>";
 
     }
 
