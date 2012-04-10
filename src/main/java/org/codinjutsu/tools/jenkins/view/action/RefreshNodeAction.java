@@ -22,8 +22,13 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import org.codinjutsu.tools.jenkins.JenkinsControlComponent;
 import org.codinjutsu.tools.jenkins.logic.JenkinsBrowserLogic;
+import org.codinjutsu.tools.jenkins.logic.JobRefreshTask;
+import org.codinjutsu.tools.jenkins.logic.RssRefreshTask;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class RefreshNodeAction extends AnAction implements DumbAware {
 
@@ -45,7 +50,9 @@ public class RefreshNodeAction extends AnAction implements DumbAware {
             if (logic.getSelectedJob() != null) {
                 logic.loadSelectedJob();
             } else {
-                logic.loadSelectedView();
+                ExecutorService executor = Executors.newSingleThreadExecutor();
+                executor.submit(new JobRefreshTask(logic));
+                executor.shutdown();
             }
         } catch (Exception ex) {
             jenkinsControlComponent.notifyErrorJenkinsToolWindow("Unable to refresh: " + ex.getMessage());

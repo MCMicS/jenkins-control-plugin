@@ -20,7 +20,12 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
 import org.codinjutsu.tools.jenkins.logic.JenkinsBrowserLogic;
+import org.codinjutsu.tools.jenkins.logic.RssRefreshTask;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class RefreshRssAction extends AnAction implements DumbAware {
 
@@ -35,6 +40,8 @@ public class RefreshRssAction extends AnAction implements DumbAware {
 
     @Override
     public void actionPerformed(AnActionEvent e) {
-        logic.loadLatestBuilds();
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.submit(new RssRefreshTask(logic));
+        executor.shutdown();
     }
 }

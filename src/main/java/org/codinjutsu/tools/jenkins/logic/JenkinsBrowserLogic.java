@@ -42,6 +42,10 @@ import java.util.*;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Timer;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class JenkinsBrowserLogic {
 
@@ -90,10 +94,24 @@ public class JenkinsBrowserLogic {
     }
 
 
-    public void reloadConfiguration() {
-        loadJenkinsWorkspace();
-        loadAnReturnNewLatestBuilds();
+    public void reloadConfiguration() { //TODO see how to centralize thread creation
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                loadJenkinsWorkspace();
+            }
+        });
+        executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                loadAnReturnNewLatestBuilds();
+            }
+        });
+        executor.shutdown();
+
         cleanRssEntries();
+
         initTimers();
     }
 
@@ -213,18 +231,13 @@ public class JenkinsBrowserLogic {
             rssRefreshTimer.cancel();
         }
 
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
         if (configuration.isEnableJobAutoRefresh()) {
-            jobRefreshTimer = new Timer();
-            jobRefreshTimer.schedule(new JobRefreshTimerTask(),
-                    MINUTES,
-                    configuration.getJobRefreshPeriod() * MINUTES);
+            executor.scheduleAtFixedRate(new JobRefreshTask(this), 1, configuration.getJobRefreshPeriod(), TimeUnit.MINUTES);
         }
 
         if (configuration.isEnableRssAutoRefresh()) {
-            rssRefreshTimer = new Timer();
-            rssRefreshTimer.schedule(new RssRefreshTimerTask(),
-                    MINUTES,
-                    configuration.getRssRefreshPeriod() * MINUTES);
+            executor.scheduleAtFixedRate(new RssRefreshTask(this), 1, configuration.getRssRefreshPeriod(), TimeUnit.MINUTES);
         }
     }
 
@@ -364,31 +377,6 @@ public class JenkinsBrowserLogic {
         displayFinishedBuilds(finishedBuilds);
     }
 
-
-    private class JobRefreshTimerTask extends TimerTask {
-
-        @Override
-        public void run() {
-            try {
-                loadSelectedView();
-            } catch (Exception ex) {
-                throw new RuntimeException(ex.getMessage(), ex);
-            }
-        }
-    }
-
-
-    private class RssRefreshTimerTask extends TimerTask {
-
-        @Override
-        public void run() {
-            try {
-                loadLatestBuilds();
-            } catch (Exception ex) {
-                throw new RuntimeException(ex.getMessage(), ex);
-            }
-        }
-    }
 
     public interface JobStatusCallback {
 

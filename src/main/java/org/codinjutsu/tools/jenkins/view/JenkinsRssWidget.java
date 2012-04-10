@@ -26,7 +26,7 @@ import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.util.Alarm;
 import com.intellij.util.ui.UIUtil;
-import org.codinjutsu.tools.jenkins.view.util.BuildAnimatedIcon;
+import org.codinjutsu.tools.jenkins.view.util.BuilStatusIcon;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -40,7 +40,7 @@ public class JenkinsRssWidget extends JPanel implements CustomStatusBarWidget, S
     private final RssLatestBuildPanel rssLatestJobPanel;
     private final JPanel myRefreshAndInfoPanel = new JPanel();
     private StatusBar myStatusBar;
-    private BuildAnimatedIcon buildIcon;
+    private BuilStatusIcon buildIcon;
 
     private final Alarm myRefreshAlarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD);
     private JBPopup myPopup;
@@ -58,37 +58,11 @@ public class JenkinsRssWidget extends JPanel implements CustomStatusBarWidget, S
     }
 
     private void init() {
-//        buildIcon = new BuildAnimatedIcon("Updating rss") {
-//            protected Icon getPassiveIcon() {
-//                return myEmptyRefreshIcon;
-//            }
-//
-//            @Override
-//            public Dimension getPreferredSize() {
-//                if (!isRunning()) return new Dimension(0, 0);
-//                return super.getPreferredSize();
-//            }
-//
-//            @Override
-//            public void paint(Graphics g) {
-//                g.translate(0, -1);
-//                super.paint(g);
-//                g.translate(0, 1);
-//            }
-//        };
-//
-//        buildIcon.setPaintPassiveIcon(false);
-//        myEmptyRefreshIcon = new EmptyIcon(0, buildIcon.getPreferredSize().height);
-
-
         myRefreshAndInfoPanel.setLayout(new BorderLayout());
         myRefreshAndInfoPanel.setOpaque(false);
         myRefreshAndInfoPanel.add(rssLatestJobPanel, BorderLayout.CENTER);
 
-        buildIcon = new BuildAnimatedIcon("Rss entries");
-        buildIcon.setUseMask(false);
-        buildIcon.setOpaque(false);
-
+        buildIcon = new BuilStatusIcon();
         buildIcon.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -116,11 +90,6 @@ public class JenkinsRssWidget extends JPanel implements CustomStatusBarWidget, S
         myRefreshAlarm.cancelAllRequests();
         myRefreshAlarm.addRequest(new Runnable() {
             public void run() {
-                if (visible) {
-                    buildIcon.resume();
-                } else {
-                    buildIcon.suspend();
-                }
                 buildIcon.revalidate();
                 buildIcon.repaint();
             }
@@ -151,23 +120,13 @@ public class JenkinsRssWidget extends JPanel implements CustomStatusBarWidget, S
                 .setTitle("RSS Latest Builds")
                 .setDimensionServiceKey(null, "JenkinsRssPopupWindow", true)
                 .setMinSize(getMinSize())
-                .setCancelOnClickOutside(true)
+                .setCancelOnClickOutside(false)
                 .setRequestFocus(false)
                 .setBelongsToGlobalPopupStack(true)
                 .setLocateByContent(true)
                 .setCancelButton(new MinimizeButton("Hide"))
                 .createPopup();
 
-/* builder.setMovable(true);
-        builder.setResizable(true);
-        builder.setTitle(IdeBundle.message("progress.window.title"));
-        builder.setDimensionServiceKey(null, "ProcessPopupWindow", true);
-        builder.setMinSize(getMinSize());
-        builder.setCancelOnClickOutside(false);
-        builder.setRequestFocus(requestFocus);
-        builder.setBelongsToGlobalPopupStack(false);
-        builder.setLocateByContent(true);
-        */
         myPopup.showInScreenCoordinates(rssLatestJobPanel, new Point(point.getPoint()));
     }
 
