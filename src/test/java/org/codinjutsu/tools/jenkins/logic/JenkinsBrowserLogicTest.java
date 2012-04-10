@@ -165,6 +165,7 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
         }));
 
         jenkinsBrowserLogic.init();
+        Thread.sleep(500);
         uiSpecBrowserPanel = new Panel(jenkinsBrowserLogic.getJenkinsBrowserPanel());
         uiSpecRssPanel = new Panel(jenkinsBrowserLogic.getRssLatestJobPanel());
     }
