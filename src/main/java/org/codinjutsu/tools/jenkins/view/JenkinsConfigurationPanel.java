@@ -63,8 +63,6 @@ public class JenkinsConfigurationPanel {
     @GuiField(validators = {NOTNULL, STRICT_POSITIVE_INTEGER})
     private JTextField rssRefreshPeriod;
 
-    private JTextField preferredView;
-
     private JCheckBox enableAuthentication;
     private JTextField username;
 
@@ -99,7 +97,6 @@ public class JenkinsConfigurationPanel {
         jobRefreshPeriod.setName("jobRefreshPeriod");
         enableRssAutoRefresh.setName("enableRssAutoRefresh");
         rssRefreshPeriod.setName("rssRefreshPeriod");
-        preferredView.setName("preferredView");
         enableAuthentication.setName("enableAuthentication");
         username.setName("username");
 
@@ -138,7 +135,6 @@ public class JenkinsConfigurationPanel {
                 || !(configuration.getJobRefreshPeriod() == Integer.parseInt(jobRefreshPeriod.getText()))
                 || !(configuration.isEnableRssAutoRefresh() == enableRssAutoRefresh.isSelected())
                 || !(configuration.getRssRefreshPeriod() == Integer.parseInt(rssRefreshPeriod.getText()))
-                || !(configuration.getPreferredView().equals(preferredView.getText()))
                 || !(configuration.getSecurityMode() == securityMode)
                 || !(configuration.getUsername().equals(username.getText()))
                 || !(configuration.getPasswordFile().equals(passwordFile.getComponent().getText()))
@@ -158,7 +154,6 @@ public class JenkinsConfigurationPanel {
         configuration.setEnableRssAutoRefresh(enableRssAutoRefresh.isSelected());
         configuration.setRssRefreshPeriod(Integer.valueOf(rssRefreshPeriod.getText()));
         configuration.setRssRefreshPeriod(Integer.valueOf(rssRefreshPeriod.getText()));
-        configuration.setPreferredView(preferredView.getText());
         configuration.setSecurityMode(securityMode);
 
         configuration.setUsername(username.getText());
@@ -179,8 +174,6 @@ public class JenkinsConfigurationPanel {
         enableRssAutoRefresh.setSelected(rssAutoRefresh);
         rssRefreshPeriod.setText(String.valueOf(configuration.getRssRefreshPeriod()));
         rssRefreshPeriod.setEnabled(rssAutoRefresh);
-
-        preferredView.setText(configuration.getPreferredView());
 
         setSecurityMode(configuration.getSecurityMode(), configuration.getUsername(), configuration.getPasswordFile(), configuration.getCrumbFile());
     }

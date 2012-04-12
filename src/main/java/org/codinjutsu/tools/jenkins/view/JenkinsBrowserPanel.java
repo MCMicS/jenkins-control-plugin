@@ -75,16 +75,20 @@ public class JenkinsBrowserPanel extends JPanel {
     }
 
 
-    private void initViewList(List<View> views) {
-        List<View> flattenViewList = flatViewList(views);
+    private void initViewList(final List<View> views) {
+        final List<View> flattenViewList = flatViewList(views);
 
-        viewCombo.setModel(new JenkinsViewComboboxModel(flattenViewList));
-        if (hasNestedViews(views)) {
-            viewCombo.setRenderer(new JenkinsNestedViewComboRenderer());
-        } else {
-            viewCombo.setRenderer(new JenkinsViewComboRenderer());
-        }
-        viewCombo.setSelectedIndex(-1);
+        GuiUtil.runInSwingThread(new Runnable() {
+            public void run() {
+                viewCombo.setModel(new JenkinsViewComboboxModel(flattenViewList));
+                if (hasNestedViews(views)) {
+                    viewCombo.setRenderer(new JenkinsNestedViewComboRenderer());
+                } else {
+                    viewCombo.setRenderer(new JenkinsViewComboRenderer());
+                }
+                viewCombo.setSelectedIndex(-1);
+            }
+        });
     }
 
     private List<View> flatViewList(List<View> views) {

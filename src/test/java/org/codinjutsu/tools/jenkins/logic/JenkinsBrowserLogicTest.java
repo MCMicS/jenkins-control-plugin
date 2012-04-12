@@ -69,7 +69,7 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
         Tree jobTree = getJobTree(uiSpecBrowserPanel);
         jobTree.selectionIsEmpty().check();
 
-        Thread.sleep(100);//waiting for the swing thread finished
+        Thread.sleep(500);//waiting for the swing thread finished
 
         uiSpecBrowserPanel.pressKey(Key.control(Key.F));
 

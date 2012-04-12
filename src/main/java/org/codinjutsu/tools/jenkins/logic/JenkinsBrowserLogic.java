@@ -94,12 +94,14 @@ public class JenkinsBrowserLogic {
 
 
     public void reloadConfiguration() { //TODO see how to centralize thread creation
+        loadJenkinsWorkspace();
         ExecutorService executor = Executors.newFixedThreadPool(2);
         executor.submit(new Runnable() {
             @Override
             public void run() {
-                loadJenkinsWorkspace();
-                loadAnReturnNewLatestBuilds();
+
+                JenkinsBrowserLogic.this.jenkinsBrowserPanel.setSelectedView(jenkins.getPrimaryView());
+                loadAndReturnNewLatestBuilds();
             }
         });
 
@@ -108,20 +110,6 @@ public class JenkinsBrowserLogic {
         cleanRssEntries();
 
         initTimers();
-    }
-
-
-    public void loadSelectedView() throws Exception {
-        View jenkinsView = getSelectedJenkinsView();
-        if (jenkinsView != null) {
-            List<Job> jobList = jenkinsRequestManager.loadJenkinsView(jenkinsView.getUrl());
-            jenkins.setJobs(jobList);
-            this.jenkinsBrowserPanel.fillJobTree(jenkins);
-        } else {
-            loadJenkinsWorkspace();
-        }
-
-        jobViewCallback.doAfterLoadingJobs(jenkins);
     }
 
 
@@ -152,17 +140,17 @@ public class JenkinsBrowserLogic {
         return jenkinsBrowserPanel.getSelectedJob();
     }
 
+
     public Jenkins getJenkins() {
         return jenkinsBrowserPanel.getJenkins();
     }
-
 
     public JenkinsRequestManager getJenkinsManager() {
         return jenkinsRequestManager;
     }
 
 
-    private Map<String, Build> loadAnReturnNewLatestBuilds() {
+    private Map<String, Build> loadAndReturnNewLatestBuilds() {
         Map<String, Build> latestBuildMap;
         try {
             latestBuildMap = jenkinsRequestManager.loadJenkinsRssLatestBuilds(configuration);
@@ -198,13 +186,6 @@ public class JenkinsBrowserLogic {
                 jenkinsRequestManager.authenticate(configuration.getServerUrl(), configuration.getSecurityMode(), configuration.getUsername(), configuration.getPasswordFile(), configuration.getCrumbFile());
                 jenkins = jenkinsRequestManager.loadJenkinsWorkspace(configuration);
                 jenkinsBrowserPanel.initModel(jenkins);
-                String preferredView = configuration.getPreferredView();
-                View jenkinsView = findView(preferredView);
-                if (jenkinsView != null) {
-                    this.jenkinsBrowserPanel.setSelectedView(jenkinsView);
-                } else {
-                    this.jenkinsBrowserPanel.setSelectedView(jenkins.getPrimaryView());
-                }
             } catch (JDOMException domEx) {
                 String errorMessage = buildServerErrorMessage(domEx);
                 LOG.error(errorMessage, domEx);
@@ -219,6 +200,21 @@ public class JenkinsBrowserLogic {
     }
 
 
+    public void loadSelectedView() throws Exception {
+        View jenkinsView = getSelectedJenkinsView();
+        if (jenkinsView != null) {
+            List<Job> jobList = jenkinsRequestManager.loadJenkinsView(jenkinsView.getUrl());
+            jenkins.setJobs(jobList);
+            this.jenkinsBrowserPanel.fillJobTree(jenkins);
+        } else {
+            loadJenkinsWorkspace();
+            this.jenkinsBrowserPanel.setSelectedView(jenkins.getPrimaryView());
+        }
+
+        jobViewCallback.doAfterLoadingJobs(jenkins);
+    }
+
+
     private void initTimers() {
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(2);
 
@@ -229,28 +225,6 @@ public class JenkinsBrowserLogic {
         if (configuration.isEnableRssAutoRefresh()) {
             executorService.scheduleAtFixedRate(new RssRefreshTask(this), 1, configuration.getRssRefreshPeriod(), TimeUnit.MINUTES);
         }
-    }
-
-
-    private View findView(String preferredView) {
-        List<View> viewList = jenkins.getViews();
-        for (View jenkinsView : viewList) {
-            if (jenkinsView.hasNestedView()) {
-                for (View subView : jenkinsView.getSubViews()) {
-                    String subViewName = subView.getName();
-                    if (subViewName.equals(preferredView)) {
-                        return subView;
-                    }
-                }
-            } else {
-                String viewName = jenkinsView.getName();
-                if (viewName.equals(preferredView)) {
-                    return jenkinsView;
-                }
-            }
-
-        }
-        return null;
     }
 
 
@@ -363,7 +337,7 @@ public class JenkinsBrowserLogic {
     }
 
     public void loadLatestBuilds() {
-        Map<String, Build> finishedBuilds = loadAnReturnNewLatestBuilds();
+        Map<String, Build> finishedBuilds = loadAndReturnNewLatestBuilds();
         displayFinishedBuilds(finishedBuilds);
     }
 

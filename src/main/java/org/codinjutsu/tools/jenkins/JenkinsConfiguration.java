@@ -44,9 +44,6 @@ public class JenkinsConfiguration {
     private boolean enableJobAutoRefresh = false;
     private boolean enableRssAutoRefresh = false;
 
-    private String preferredView = "";
-
-
     public String getServerUrl() {
         return serverUrl;
     }
@@ -109,16 +106,6 @@ public class JenkinsConfiguration {
 
     public void setEnableRssAutoRefresh(boolean enableRssAutoRefresh) {
         this.enableRssAutoRefresh = enableRssAutoRefresh;
-    }
-
-
-    public String getPreferredView() {
-        return preferredView;
-    }
-
-
-    public void setPreferredView(String preferredView) {
-        this.preferredView = preferredView;
     }
 
     public String getUsername() {

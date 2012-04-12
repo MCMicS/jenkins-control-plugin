@@ -61,7 +61,6 @@ public class JenkinsRssWidget extends JPanel implements CustomStatusBarWidget, S
                 removeAll();
                 add(buildIcon, BorderLayout.CENTER);
                 validate();
-                repaint();
             }
         });
     }
