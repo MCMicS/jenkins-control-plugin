@@ -74,4 +74,14 @@ public class Jenkins {
     public View getPrimaryView() {
         return primaryView;
     }
+
+    public int getTotalBrokenBuilds() {
+        int result = 0;
+        for (Job job : jobs) {
+            if (job.isBroken()) {
+                result++;
+            }
+        }
+        return result;
+    }
 }

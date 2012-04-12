@@ -37,6 +37,8 @@ public class JobSearchComponent extends JPanel {
 
     private final JTextField searchField;
 
+    private final JLabel infoLabel;
+
     private final JTree jobTree;
     private DefaultMutableTreeNode lastSelectedNode;
 
@@ -51,10 +53,18 @@ public class JobSearchComponent extends JPanel {
         add(searchSubPanel, BorderLayout.WEST);
 
         NonOpaquePanel closeSubPanel = new NonOpaquePanel();
+        infoLabel = createLabelWithBoldFont();
+        closeSubPanel.add(infoLabel, BorderLayout.WEST);
         closeSubPanel.add(createCloseButton());
         add(closeSubPanel, BorderLayout.EAST);
 
         registerListeners();
+    }
+
+    private JLabel createLabelWithBoldFont() {
+        JLabel label = new JLabel();
+        label.setFont(label.getFont().deriveFont(Font.BOLD));
+        return label;
     }
 
     public void installSearchToolBar(ActionToolbar searchBar) {
@@ -131,8 +141,8 @@ public class JobSearchComponent extends JPanel {
         findOccurrence(text, backwardMovement);
     }
 
-    private void findOccurrence(String text, SearchMovement forwardMovement) {
-        DefaultMutableTreeNode currentNode = getStartingNode(forwardMovement);
+    private void findOccurrence(String text, SearchMovement searchMovement) {
+        DefaultMutableTreeNode currentNode = getStartingNode(searchMovement);
         boolean foundNode = false;
         while (currentNode != null) {
             Object userObject = currentNode.getUserObject();
@@ -147,12 +157,10 @@ public class JobSearchComponent extends JPanel {
                 jobTree.scrollPathToVisible(pathToSelect);
                 foundNode = true;
             }
-            currentNode = forwardMovement.get(currentNode);
+            currentNode = searchMovement.get(currentNode);
         }
 
-        if (foundNode) {
-// TODO            System.out.println("No more found" );
-        }
+        infoLabel.setText(!foundNode ? "No matches" : "");
     }
 
 

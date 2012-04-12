@@ -140,6 +140,10 @@ public class Job {
         return parameters;
     }
 
+    public boolean isBroken() {
+        return lastBuild != null && lastBuild.getStatus() == BuildStatusEnum.FAILURE;
+    }
+
 
     public static class Health {
 

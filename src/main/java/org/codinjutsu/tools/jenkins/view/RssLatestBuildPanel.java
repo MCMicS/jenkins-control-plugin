@@ -104,20 +104,19 @@ public class RssLatestBuildPanel extends JPanel {
         } catch (Exception ex) {
             throw new IllegalStateException(ex.getMessage(), ex);
         }
-
     }
 
     private static String buildMessage(Build build) {
-        String message = format(build.getBuildDate(), LOG_DATE_IN_HOUR_FORMAT) + " ";
+        String time = format(build.getBuildDate(), LOG_DATE_IN_HOUR_FORMAT);
         BuildStatusEnum buildStatus = build.getStatus();
         String statusColor = buildStatus.getColor().toLowerCase();
         String buildMessage = build.getMessage();
-        String coloredLinkText = "<font color='" + statusColor + "'>" + buildMessage + "</font>";
+        String coloredLinkText = String.format("<font color='%s'>%s</font>", statusColor, buildMessage);
 
         if (buildStatus != BuildStatusEnum.SUCCESS && buildStatus != BuildStatusEnum.STABLE) {
-            return message + "<a" + " href='" + build.getUrl() + "'>" + coloredLinkText + "</a><br/>";
+            return String.format("%s <a href='%s'>%s</a><br/>", time, build.getUrl(), coloredLinkText);
         }
-        return message + coloredLinkText + "<br/>";
+        return String.format("%s %s<br/>", time, coloredLinkText);
 
     }
 
