@@ -38,17 +38,14 @@ import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
-import org.codinjutsu.tools.jenkins.util.HtmlUtil;
 import org.codinjutsu.tools.jenkins.view.*;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-
 import java.awt.*;
 import java.util.concurrent.TimeUnit;
 
-import static org.codinjutsu.tools.jenkins.JenkinsConfiguration.Layout.SINGLE;
 import static org.codinjutsu.tools.jenkins.view.action.RunBuildAction.RUN_ICON;
 
 @State(
@@ -133,68 +130,42 @@ public class JenkinsControlComponent
         ToolWindow toolWindow = toolWindowManager.registerToolWindow(JENKINS_BROWSER, true, ToolWindowAnchor.RIGHT);
 
         jenkinsRequestManager = new JenkinsRequestManager(configuration.getCrumbFile());
-        JenkinsPanel jenkinsPanel;
 
         JenkinsBrowserPanel browserPanel = new JenkinsBrowserPanel();
         RssLatestBuildPanel rssLatestJobPanel = new RssLatestBuildPanel();
-        JenkinsBrowserLogic.JobStatusCallback jobStatusCallback;
-        if (configuration.getLayout() == SINGLE) {
-            jenkinsPanel = JenkinsPanel.onePanel(browserPanel, rssLatestJobPanel);
-            jobStatusCallback = new JenkinsBrowserLogic.JobStatusCallback() {
-                public void notifyOnBuildFailure(final String jobName, final Build build) {
-                    GuiUtil.runInSwingThread(new Runnable() {
-                        public void run() {
-                            ToolWindowManager.getInstance(project)
-                                    .notifyByBalloon(JENKINS_BROWSER,
-                                            MessageType.ERROR,
-                                            HtmlUtil.createHtmlLinkMessage(jobName + "#" + build.getNumber() + ": FAILED", build.getUrl()),
-                                            null,
-                                            new BrowserHyperlinkListener());
 
-                        }
-                    });
-                }
-            };
+        final JenkinsRssWidget jenkinsRssWidget = new JenkinsRssWidget(project);
 
-            jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, jenkinsRequestManager, browserPanel, rssLatestJobPanel, jobStatusCallback);
-            jenkinsBrowserLogic.init();
+        JenkinsBrowserLogic.RssBuildStatusCallback rssBuildStatusCallback = new JenkinsBrowserLogic.RssBuildStatusCallback() {
+            public void notifyOnBuildFailure(final String jobName, final Build build) {
+                GuiUtil.runInSwingThread(new Runnable() {
+                    public void run() {
+                        BalloonBuilder balloonBuilder = JBPopupFactory.getInstance().createHtmlTextBalloonBuilder(jobName + "#" + build.getNumber() + ": FAILED", MessageType.ERROR, null);
+                        Balloon balloon = balloonBuilder.setFadeoutTime(TimeUnit.SECONDS.toMillis(1)).createBalloon();
+                        balloon.show(new RelativePoint(jenkinsRssWidget.getComponent(), new Point(0, 0)), Balloon.Position.above);
+                    }
+                });
+            }
+        };
 
-        } else {
-            final JenkinsRssWidget jenkinsRssWidget = new JenkinsRssWidget(project, rssLatestJobPanel);
+        JenkinsBrowserLogic.JobViewCallback jobViewCallback = new JenkinsBrowserLogic.JobViewCallback() {
+            @Override
+            public void doAfterLoadingJobs(Jenkins jenkins) {
+                jenkinsRssWidget.updateIcon(jenkins.getTotalBrokenBuilds());
+            }
+        };
 
-            jenkinsPanel = JenkinsPanel.browserOnly(browserPanel);
-            jobStatusCallback = new JenkinsBrowserLogic.JobStatusCallback() {
-                public void notifyOnBuildFailure(final String jobName, final Build build) {
-                    GuiUtil.runInSwingThread(new Runnable() {
-                        public void run() {
-                            BalloonBuilder balloonBuilder = JBPopupFactory.getInstance().createHtmlTextBalloonBuilder(jobName + "#" + build.getNumber() + ": FAILED", MessageType.ERROR, null);
-                            Balloon balloon = balloonBuilder.setFadeoutTime(TimeUnit.SECONDS.toMillis(1)).createBalloon();
-                            balloon.show(new RelativePoint(jenkinsRssWidget.getComponent(), new Point(0, 0)), Balloon.Position.above);
-                        }
-                    });
-                }
-            };
+        jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, jenkinsRequestManager, browserPanel, rssLatestJobPanel, rssBuildStatusCallback, jobViewCallback);
+        jenkinsBrowserLogic.init();
 
 
-            jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, jenkinsRequestManager, browserPanel, rssLatestJobPanel, jobStatusCallback);
-
-            jenkinsBrowserLogic.installWidgetCallBack(new JenkinsBrowserLogic.ViewLoadCallback() {
-                @Override
-                public void doAfterLoadingJobs(Jenkins jenkins) {
-                    jenkinsRssWidget.updateIcon(jenkins.getTotalBrokenBuilds());
-                }
-            });
-            jenkinsBrowserLogic.init();
-
-
-            final StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
-            statusBar.addWidget(jenkinsRssWidget);
-            jenkinsRssWidget.install(statusBar);
-        }
+        final StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
+        statusBar.addWidget(jenkinsRssWidget);
+        jenkinsRssWidget.install(statusBar);
 
 
         Content content = ContentFactory.SERVICE.getInstance()
-                .createContent(jenkinsPanel, JENKINS_BROWSER_TITLE, false);
+                .createContent(JenkinsPanel.onePanel(browserPanel, rssLatestJobPanel), JENKINS_BROWSER_TITLE, false);
         toolWindow.getContentManager().addContent(content);
         toolWindow.setIcon(GuiUtil.loadIcon(JENKINS_BROWSER_ICON));
     }
@@ -213,12 +184,7 @@ public class JenkinsControlComponent
     public void apply() throws ConfigurationException {
         if (configurationPanel != null) {
             try {
-                boolean layoutModified = configurationPanel.isLayoutModified(configuration);
                 configurationPanel.applyConfigurationData(configuration);
-                if (layoutModified) {
-                    JOptionPane.showMessageDialog(JOptionPane.getRootFrame(), "You need to restart your IDE to apply the new UI Layout.", "UI Layout Modification", JOptionPane.INFORMATION_MESSAGE);
-                }
-
                 jenkinsBrowserLogic.reloadConfiguration();
 
             } catch (org.codinjutsu.tools.jenkins.exception.ConfigurationException ex) {

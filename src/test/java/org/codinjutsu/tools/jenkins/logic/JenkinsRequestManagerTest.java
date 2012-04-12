@@ -27,7 +27,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.net.URL;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;

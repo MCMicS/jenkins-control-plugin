@@ -37,7 +37,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
-import static org.codinjutsu.tools.jenkins.JenkinsConfiguration.Layout.*;
 import static org.codinjutsu.tools.jenkins.JenkinsConfiguration.RESET_STR_VALUE;
 import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.*;
 
@@ -80,10 +79,6 @@ public class JenkinsConfigurationPanel {
     private JButton testConnexionButton;
     private JLabel connectionStatusLabel;
 
-    private JRadioButton rssAsPanelRadioButton;
-    private JRadioButton rssAsNotificationRadioButton;
-    private JLabel feebackLabel;
-
     private final FormValidator formValidator;
 
 
@@ -111,9 +106,6 @@ public class JenkinsConfigurationPanel {
         passwordFile.getComponent().getTextField().setName("passwordFile");
         crumbDataFile.getComponent().getTextField().setName("crumbDataFile");
 
-        rssAsPanelRadioButton.setName("rssAsPanelRadioButton");
-        rssAsNotificationRadioButton.setName("rssAsNotificationRadioButton");
-
         initListeners();
 
         if (installBrowserFileBrowser) {
@@ -138,7 +130,7 @@ public class JenkinsConfigurationPanel {
 
     }
 
-//TODO use annotation to create a guiwrapper so isModified could be simplified
+    //TODO use annotation to create a guiwrapper so isModified could be simplified
     public boolean isModified(JenkinsConfiguration configuration) {
         return !configuration.getServerUrl().equals(serverUrl.getText())
                 || !(configuration.getBuildDelay() == Integer.parseInt(buildDelay.getText()))
@@ -151,15 +143,7 @@ public class JenkinsConfigurationPanel {
                 || !(configuration.getUsername().equals(username.getText()))
                 || !(configuration.getPasswordFile().equals(passwordFile.getComponent().getText()))
                 || !(configuration.getCrumbFile().equals(crumbDataFile.getComponent().getText()))
-                || !(configuration.getLayout() == getLayoutValue())
                 ;
-    }
-
-    private JenkinsConfiguration.Layout getLayoutValue() {
-        if (rssAsPanelRadioButton.isSelected()) {
-            return SINGLE;
-        }
-        return SEPARATED;
     }
 
 
@@ -180,7 +164,6 @@ public class JenkinsConfigurationPanel {
         configuration.setUsername(username.getText());
         configuration.setPasswordFile(passwordFile.getComponent().getText());
         configuration.setCrumbFile(crumbDataFile.getComponent().getText());
-        configuration.setLayout(getLayoutValue());
     }
 
     public void loadConfigurationData(JenkinsConfiguration configuration) {
@@ -199,19 +182,8 @@ public class JenkinsConfigurationPanel {
 
         preferredView.setText(configuration.getPreferredView());
 
-        setLayoutValue(configuration.getLayout());
-
         setSecurityMode(configuration.getSecurityMode(), configuration.getUsername(), configuration.getPasswordFile(), configuration.getCrumbFile());
     }
-
-    private void setLayoutValue(JenkinsConfiguration.Layout layout) {
-        if (layout == SINGLE) {
-            rssAsPanelRadioButton.setSelected(true);
-        } else {
-            rssAsNotificationRadioButton.setSelected(true);
-        }
-    }
-
 
     private void setSecurityMode(SecurityMode securityMode, @Nullable String usernameValue, @Nullable String passwordFileValue, @Nullable String crumbFile) {
         boolean isEnableAuthentication = SecurityMode.BASIC.equals(securityMode);
@@ -269,12 +241,6 @@ public class JenkinsConfigurationPanel {
                 }
             }
         });
-
-        ButtonGroup groupButtonGroup = new ButtonGroup();
-        groupButtonGroup.add(rssAsPanelRadioButton);
-        groupButtonGroup.add(rssAsNotificationRadioButton);
-
-        rssAsPanelRadioButton.setSelected(true);
     }
 
     private void setConnectionFeedbackLabel(final Color labelColor, final String labelText) {
@@ -292,10 +258,6 @@ public class JenkinsConfigurationPanel {
 
         crumbDataFile.getComponent().addBrowseFolderListener("Jenkins User Crumb File", "", null,
                 new FileChooserDescriptor(true, false, false, false, false, false));
-    }
-
-    public boolean isLayoutModified(JenkinsConfiguration configuration) {
-        return configuration.getLayout() != getLayoutValue();
     }
 
     private class EnablerFieldListener implements ItemListener {

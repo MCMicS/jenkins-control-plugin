@@ -23,7 +23,6 @@ import com.intellij.openapi.project.Project;
 import org.codinjutsu.tools.jenkins.JenkinsControlComponent;
 import org.codinjutsu.tools.jenkins.logic.JenkinsBrowserLogic;
 import org.codinjutsu.tools.jenkins.logic.JobRefreshTask;
-import org.codinjutsu.tools.jenkins.logic.RssRefreshTask;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 

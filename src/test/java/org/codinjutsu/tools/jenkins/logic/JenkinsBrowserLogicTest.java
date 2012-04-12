@@ -127,7 +127,7 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
         configuration = new JenkinsConfiguration();
         configuration.setJobRefreshPeriod(60);
         configuration.setServerUrl("http://myjenkinsserver/");
-        jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, requestManagerMock, new JenkinsBrowserPanel(), new RssLatestBuildPanel(), JenkinsBrowserLogic.JobStatusCallback.NULL) {
+        jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, requestManagerMock, new JenkinsBrowserPanel(), new RssLatestBuildPanel(), JenkinsBrowserLogic.RssBuildStatusCallback.NULL, JenkinsBrowserLogic.JobViewCallback.NULL) {
             @Override
             protected void installRssActions(JPanel rssActionPanel) {
             }

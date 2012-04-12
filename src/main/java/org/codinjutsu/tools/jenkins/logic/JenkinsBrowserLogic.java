@@ -58,22 +58,23 @@ public class JenkinsBrowserLogic {
     private final JenkinsConfiguration configuration;
     private final JenkinsRequestManager jenkinsRequestManager;
 
-    private final JobStatusCallback jobStatusCallback;
+    private final RssBuildStatusCallback rssBuildStatusCallback;
 
     private Jenkins jenkins;
     private final Map<String, Build> currentBuildMap = new HashMap<String, Build>();
     private final JenkinsBrowserPanel jenkinsBrowserPanel;
     private final RssLatestBuildPanel rssLatestJobPanel;
 
-    private ViewLoadCallback viewLoadCallback = ViewLoadCallback.NULL;
+    private JobViewCallback jobViewCallback = JobViewCallback.NULL;
 
 
-    public JenkinsBrowserLogic(JenkinsConfiguration configuration, JenkinsRequestManager jenkinsRequestManager, JenkinsBrowserPanel jenkinsBrowserPanel, RssLatestBuildPanel rssLatestJobPanel, JobStatusCallback jobStatusCallback) {
+    public JenkinsBrowserLogic(JenkinsConfiguration configuration, JenkinsRequestManager jenkinsRequestManager, JenkinsBrowserPanel jenkinsBrowserPanel, RssLatestBuildPanel rssLatestJobPanel, RssBuildStatusCallback rssBuildStatusCallback, JobViewCallback jobViewCallback) {
         this.configuration = configuration;
         this.jenkinsRequestManager = jenkinsRequestManager;
         this.jenkinsBrowserPanel = jenkinsBrowserPanel;
         this.rssLatestJobPanel = rssLatestJobPanel;
-        this.jobStatusCallback = jobStatusCallback;
+        this.rssBuildStatusCallback = rssBuildStatusCallback;
+        this.jobViewCallback = jobViewCallback;
     }
 
 
@@ -120,7 +121,7 @@ public class JenkinsBrowserLogic {
             loadJenkinsWorkspace();
         }
 
-        viewLoadCallback.doAfterLoadingJobs(jenkins);
+        jobViewCallback.doAfterLoadingJobs(jenkins);
     }
 
 
@@ -263,7 +264,7 @@ public class JenkinsBrowserLogic {
 
         Entry<String, Build> firstFailedBuild = getFirstFailedBuild(finishedBuilds);
         if (firstFailedBuild != null) {
-            jobStatusCallback.notifyOnBuildFailure(firstFailedBuild.getKey(), firstFailedBuild.getValue());
+            rssBuildStatusCallback.notifyOnBuildFailure(firstFailedBuild.getKey(), firstFailedBuild.getValue());
         }
 
     }
@@ -366,26 +367,21 @@ public class JenkinsBrowserLogic {
         displayFinishedBuilds(finishedBuilds);
     }
 
-    public void installWidgetCallBack(ViewLoadCallback viewLoadCallback) {
-        this.viewLoadCallback = viewLoadCallback;
-    }
-
-
-    public interface JobStatusCallback {
+    public interface RssBuildStatusCallback {
 
         void notifyOnBuildFailure(String jobName, Build build);
 
-        public static JobStatusCallback NULL = new JobStatusCallback() {
+        public static RssBuildStatusCallback NULL = new RssBuildStatusCallback() {
             public void notifyOnBuildFailure(String jobName, Build build) {
             }
         };
     }
 
-    public interface ViewLoadCallback {
+    public interface JobViewCallback {
 
         void doAfterLoadingJobs(Jenkins jenkins);
 
-        ViewLoadCallback NULL = new ViewLoadCallback() {
+        JobViewCallback NULL = new JobViewCallback() {
             @Override
             public void doAfterLoadingJobs(Jenkins jenkins) {
             }

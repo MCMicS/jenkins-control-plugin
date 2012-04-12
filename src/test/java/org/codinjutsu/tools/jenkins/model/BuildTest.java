@@ -23,11 +23,9 @@ import java.util.Map;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
-import static org.codinjutsu.tools.jenkins.model.BuildStatusEnum.*;
+import static org.codinjutsu.tools.jenkins.model.BuildStatusEnum.SUCCESS;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class BuildTest {
 

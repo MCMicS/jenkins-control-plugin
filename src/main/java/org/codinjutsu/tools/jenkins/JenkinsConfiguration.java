@@ -46,12 +46,6 @@ public class JenkinsConfiguration {
 
     private String preferredView = "";
 
-    private Layout layout = Layout.SINGLE;
-
-    public enum Layout {
-        SINGLE, SEPARATED
-    }
-
 
     public String getServerUrl() {
         return serverUrl;
@@ -157,13 +151,5 @@ public class JenkinsConfiguration {
 
     public void setCrumbFile(String crumbFile) {
         this.crumbFile = crumbFile;
-    }
-
-    public Layout getLayout() {
-        return layout;
-    }
-
-    public void setLayout(Layout layout) {
-        this.layout = layout;
     }
 }
