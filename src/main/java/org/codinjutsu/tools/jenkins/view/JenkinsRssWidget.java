@@ -26,7 +26,8 @@ import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.util.Alarm;
 import com.intellij.util.ui.UIUtil;
-import org.codinjutsu.tools.jenkins.view.util.BuilStatusIcon;
+import org.codinjutsu.tools.jenkins.util.GuiUtil;
+import org.codinjutsu.tools.jenkins.view.util.BuildStatusIcon;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -40,9 +41,7 @@ public class JenkinsRssWidget extends JPanel implements CustomStatusBarWidget, S
     private final RssLatestBuildPanel rssLatestJobPanel;
     private final JPanel myRefreshAndInfoPanel = new JPanel();
     private StatusBar myStatusBar;
-    private BuilStatusIcon buildIcon;
 
-    private final Alarm myRefreshAlarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD);
     private JBPopup myPopup;
 
     public JenkinsRssWidget(Project project, RssLatestBuildPanel rssLatestBuildPanel) {
@@ -62,8 +61,14 @@ public class JenkinsRssWidget extends JPanel implements CustomStatusBarWidget, S
         myRefreshAndInfoPanel.setOpaque(false);
         myRefreshAndInfoPanel.add(rssLatestJobPanel, BorderLayout.CENTER);
 
-        buildIcon = new BuilStatusIcon();
-        buildIcon.addMouseListener(new MouseAdapter() {
+        BuildStatusIcon buildIcon = createStatusIcon(0);
+        setLayout(new BorderLayout());
+        add(buildIcon, BorderLayout.CENTER);
+    }
+
+    private BuildStatusIcon createStatusIcon(int remainingBrokenBuilds) {
+        BuildStatusIcon buildStatusIcon = BuildStatusIcon.createIcon(remainingBrokenBuilds);
+        buildStatusIcon.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 handle(e);
@@ -75,25 +80,23 @@ public class JenkinsRssWidget extends JPanel implements CustomStatusBarWidget, S
             }
         });
 
-        buildIcon.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        buildIcon.setBorder(WidgetBorder.INSTANCE);
-        buildIcon.setToolTipText("See last builds");
-
-        setLayout(new BorderLayout());
-        add(buildIcon, BorderLayout.CENTER);
-
-
-        setRefreshVisible(false);
+        buildStatusIcon.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        buildStatusIcon.setBorder(WidgetBorder.INSTANCE);
+        return buildStatusIcon;
     }
 
-    public void setRefreshVisible(final boolean visible) {
-        myRefreshAlarm.cancelAllRequests();
-        myRefreshAlarm.addRequest(new Runnable() {
+    public void updateIcon(int nbRemainingBrokenBuilds) {
+        final BuildStatusIcon buildIcon = createStatusIcon(nbRemainingBrokenBuilds);
+        GuiUtil.runInSwingThread(new Runnable() {
+            @Override
             public void run() {
-                buildIcon.revalidate();
-                buildIcon.repaint();
+                invalidate();
+                removeAll();
+                add(buildIcon, BorderLayout.CENTER);
+                validate();
+                repaint();
             }
-        }, visible ? 100 : 300);
+        });
     }
 
     private void handle(MouseEvent e) {

@@ -36,6 +36,7 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.codinjutsu.tools.jenkins.logic.JenkinsBrowserLogic;
 import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
 import org.codinjutsu.tools.jenkins.model.Build;
+import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.util.HtmlUtil;
 import org.codinjutsu.tools.jenkins.view.*;
@@ -154,11 +155,12 @@ public class JenkinsControlComponent
                     });
                 }
             };
+
+            jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, jenkinsRequestManager, browserPanel, rssLatestJobPanel, jobStatusCallback);
+            jenkinsBrowserLogic.init();
+
         } else {
-            final StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
             final JenkinsRssWidget jenkinsRssWidget = new JenkinsRssWidget(project, rssLatestJobPanel);
-            statusBar.addWidget(jenkinsRssWidget);
-            jenkinsRssWidget.install(statusBar);
 
             jenkinsPanel = JenkinsPanel.browserOnly(browserPanel);
             jobStatusCallback = new JenkinsBrowserLogic.JobStatusCallback() {
@@ -174,9 +176,21 @@ public class JenkinsControlComponent
             };
 
 
+            jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, jenkinsRequestManager, browserPanel, rssLatestJobPanel, jobStatusCallback);
+
+            jenkinsBrowserLogic.installWidgetCallBack(new JenkinsBrowserLogic.ViewLoadCallback() {
+                @Override
+                public void doAfterLoadingJobs(Jenkins jenkins) {
+                    jenkinsRssWidget.updateIcon(jenkins.getTotalBrokenBuilds());
+                }
+            });
+            jenkinsBrowserLogic.init();
+
+
+            final StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
+            statusBar.addWidget(jenkinsRssWidget);
+            jenkinsRssWidget.install(statusBar);
         }
-        jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, jenkinsRequestManager, browserPanel, rssLatestJobPanel, jobStatusCallback);
-        jenkinsBrowserLogic.init();
 
 
         Content content = ContentFactory.SERVICE.getInstance()

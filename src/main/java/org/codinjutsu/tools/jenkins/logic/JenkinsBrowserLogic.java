@@ -38,10 +38,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Timer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -51,8 +51,6 @@ public class JenkinsBrowserLogic {
 
     private static final Logger LOG = Logger.getLogger(JenkinsBrowserLogic.class);
 
-    private static final int MILLISECONDS = 1000;
-    private static final int MINUTES = 60 * MILLISECONDS;
     private static final String JENKINS_JOB_ACTION_GROUP = "JenkinsJobGroup";
     private static final String JENKINS_RSS_ACTIONS = "JenkinsRssActions";
     private static final String JENKINS_ACTIONS = "jenkinsBrowserActions";
@@ -64,10 +62,10 @@ public class JenkinsBrowserLogic {
 
     private Jenkins jenkins;
     private final Map<String, Build> currentBuildMap = new HashMap<String, Build>();
-    private Timer jobRefreshTimer;
-    private Timer rssRefreshTimer;
     private final JenkinsBrowserPanel jenkinsBrowserPanel;
     private final RssLatestBuildPanel rssLatestJobPanel;
+
+    private ViewLoadCallback viewLoadCallback = ViewLoadCallback.NULL;
 
 
     public JenkinsBrowserLogic(JenkinsConfiguration configuration, JenkinsRequestManager jenkinsRequestManager, JenkinsBrowserPanel jenkinsBrowserPanel, RssLatestBuildPanel rssLatestJobPanel, JobStatusCallback jobStatusCallback) {
@@ -100,14 +98,10 @@ public class JenkinsBrowserLogic {
             @Override
             public void run() {
                 loadJenkinsWorkspace();
-            }
-        });
-        executor.submit(new Runnable() {
-            @Override
-            public void run() {
                 loadAnReturnNewLatestBuilds();
             }
         });
+
         executor.shutdown();
 
         cleanRssEntries();
@@ -125,6 +119,8 @@ public class JenkinsBrowserLogic {
         } else {
             loadJenkinsWorkspace();
         }
+
+        viewLoadCallback.doAfterLoadingJobs(jenkins);
     }
 
 
@@ -223,21 +219,14 @@ public class JenkinsBrowserLogic {
 
 
     private void initTimers() {
-        if (jobRefreshTimer != null) {
-            jobRefreshTimer.cancel();
-        }
+        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(2);
 
-        if (rssRefreshTimer != null) {
-            rssRefreshTimer.cancel();
-        }
-
-        ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
         if (configuration.isEnableJobAutoRefresh()) {
-            executor.scheduleAtFixedRate(new JobRefreshTask(this), 1, configuration.getJobRefreshPeriod(), TimeUnit.MINUTES);
+            executorService.scheduleAtFixedRate(new JobRefreshTask(this), 1, configuration.getJobRefreshPeriod(), TimeUnit.MINUTES);
         }
 
         if (configuration.isEnableRssAutoRefresh()) {
-            executor.scheduleAtFixedRate(new RssRefreshTask(this), 1, configuration.getRssRefreshPeriod(), TimeUnit.MINUTES);
+            executorService.scheduleAtFixedRate(new RssRefreshTask(this), 1, configuration.getRssRefreshPeriod(), TimeUnit.MINUTES);
         }
     }
 
@@ -377,6 +366,10 @@ public class JenkinsBrowserLogic {
         displayFinishedBuilds(finishedBuilds);
     }
 
+    public void installWidgetCallBack(ViewLoadCallback viewLoadCallback) {
+        this.viewLoadCallback = viewLoadCallback;
+    }
+
 
     public interface JobStatusCallback {
 
@@ -384,6 +377,17 @@ public class JenkinsBrowserLogic {
 
         public static JobStatusCallback NULL = new JobStatusCallback() {
             public void notifyOnBuildFailure(String jobName, Build build) {
+            }
+        };
+    }
+
+    public interface ViewLoadCallback {
+
+        void doAfterLoadingJobs(Jenkins jenkins);
+
+        ViewLoadCallback NULL = new ViewLoadCallback() {
+            @Override
+            public void doAfterLoadingJobs(Jenkins jenkins) {
             }
         };
     }
