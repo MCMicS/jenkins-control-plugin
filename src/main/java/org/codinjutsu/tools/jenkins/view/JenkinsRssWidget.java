@@ -20,6 +20,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.CustomStatusBarWidget;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.StatusBarWidget;
+import com.intellij.ui.components.panels.NonOpaquePanel;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.util.BuildStatusIcon;
 import org.jetbrains.annotations.NotNull;
@@ -27,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.*;
 
-public class JenkinsRssWidget extends JPanel implements CustomStatusBarWidget, StatusBarWidget.Multiframe {
+public class JenkinsRssWidget extends NonOpaquePanel implements CustomStatusBarWidget, StatusBarWidget.Multiframe {
 
     private final Project project;
     private StatusBar myStatusBar;
@@ -35,12 +36,6 @@ public class JenkinsRssWidget extends JPanel implements CustomStatusBarWidget, S
     public JenkinsRssWidget(Project project) {
         this.project = project;
 
-        setOpaque(false);
-
-        init();
-    }
-
-    private void init() {
         BuildStatusIcon buildStatusIcon = createStatusIcon(0);
         setLayout(new BorderLayout());
         add(buildStatusIcon, BorderLayout.CENTER);

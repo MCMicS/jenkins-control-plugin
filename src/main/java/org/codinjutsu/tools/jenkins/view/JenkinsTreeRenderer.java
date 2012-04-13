@@ -51,6 +51,7 @@ class JenkinsTreeRenderer extends DefaultTreeCellRenderer {
             } else {
                 setIcon(GuiUtil.loadIcon("server_error.png"));
             }
+            setToolTipText(jenkins.getServerUrl());
             setFont(getFont().deriveFont(Font.ITALIC));
 
             return this;

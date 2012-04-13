@@ -27,10 +27,12 @@ public class Jenkins {
     private List<View> views;
 
     private View primaryView;
+    private String serverUrl;
 
 
-    public Jenkins(String description) {
+    public Jenkins(String description, String serverUrl) {
         this.name = description;
+        this.serverUrl = serverUrl;
         this.jobs = new LinkedList<Job>();
         this.views = new LinkedList<View>();
     }
@@ -73,6 +75,10 @@ public class Jenkins {
 
     public View getPrimaryView() {
         return primaryView;
+    }
+
+    public String getServerUrl() {
+        return serverUrl;
     }
 
     public int getTotalBrokenBuilds() {

@@ -98,7 +98,7 @@ public class JenkinsRequestManager {
 
         Document doc = getXMLBuilder().build(new CharSequenceReader(input));
 
-        Jenkins jenkins = createJenkins(doc);
+        Jenkins jenkins = createJenkins(doc, configuration.getServerUrl());
         jenkins.setPrimaryView(createPreferredView(doc));
         jenkins.setViews(createJenkinsViews(doc));
 
@@ -168,7 +168,7 @@ public class JenkinsRequestManager {
     }
 
 
-    private Jenkins createJenkins(Document doc) {
+    private Jenkins createJenkins(Document doc, String serverUrl) {
         Element jenkinsElement = doc.getRootElement();
         if (!StringUtils.equals(JENKINS_ROOT_TAG, jenkinsElement.getName())
                 && !StringUtils.equals(HUDSON_ROOT_TAG, jenkinsElement.getName())) {
@@ -178,7 +178,7 @@ public class JenkinsRequestManager {
         if (description == null) {
             description = "";
         }
-        return new Jenkins(description);
+        return new Jenkins(description,serverUrl);
     }
 
 

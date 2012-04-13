@@ -238,7 +238,7 @@ public class JenkinsBrowserLogic {
 
 
     private void displayConnectionErrorMsg() {
-        jenkinsBrowserPanel.setErrorMsg();
+        jenkinsBrowserPanel.setErrorMsg(configuration.getServerUrl());
     }
 
 
@@ -370,7 +370,7 @@ public class JenkinsBrowserLogic {
         @Override
         public void run() {
             try {
-                loadLatestBuilds(false);
+                loadLatestBuilds(true);
             } catch (Exception ex) {
                 throw new RuntimeException(ex.getMessage(), ex);
             }

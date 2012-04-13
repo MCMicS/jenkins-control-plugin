@@ -114,7 +114,7 @@ public class Job {
         return inQueue;
     }
 
-    private boolean isBuildable() {
+    public boolean isBuildable() {
         return buildable;
     }
 

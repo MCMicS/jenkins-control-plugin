@@ -17,6 +17,7 @@
 package org.codinjutsu.tools.jenkins.view;
 
 import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.components.panels.NonOpaquePanel;
 import org.apache.commons.lang.StringUtils;
@@ -24,7 +25,6 @@ import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.action.search.CloseJobSearchPanelAction;
-import org.codinjutsu.tools.jenkins.view.util.SearchTextField;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -41,6 +41,7 @@ public class JobSearchComponent extends JPanel {
 
     private final JTree jobTree;
     private DefaultMutableTreeNode lastSelectedNode;
+    private final Color defaultBackground;
 
     public JobSearchComponent(JTree jobTree) {
         this.jobTree = jobTree;
@@ -49,6 +50,7 @@ public class JobSearchComponent extends JPanel {
 
         NonOpaquePanel searchSubPanel = new NonOpaquePanel();
         searchField = createSearchField();
+        defaultBackground = searchField.getBackground();
         searchSubPanel.add(searchField);
         add(searchSubPanel, BorderLayout.WEST);
 
@@ -79,7 +81,8 @@ public class JobSearchComponent extends JPanel {
 
 
     private JTextField createSearchField() {
-        JTextField searchField = new SearchTextField();
+        JTextField searchField = new JTextField();
+        searchField.setColumns(15);
         searchField.setName("searchField");
         return searchField;
     }
@@ -125,6 +128,13 @@ public class JobSearchComponent extends JPanel {
             public DefaultMutableTreeNode get(DefaultMutableTreeNode node) {
                 return node.getNextNode();
             }
+
+            @Override
+            public DefaultMutableTreeNode getFirst(TreeModel model, DefaultMutableTreeNode rootNode) {
+                return (DefaultMutableTreeNode) model.getChild(rootNode, 0);
+            }
+
+
         };
 
         findOccurrence(text, forwardMovement);
@@ -135,6 +145,11 @@ public class JobSearchComponent extends JPanel {
         SearchMovement backwardMovement = new SearchMovement() {
             public DefaultMutableTreeNode get(DefaultMutableTreeNode node) {
                 return node.getPreviousNode();
+            }
+
+            @Override
+            public DefaultMutableTreeNode getFirst(TreeModel model, DefaultMutableTreeNode rootNode) {
+                return (DefaultMutableTreeNode) model.getChild(rootNode, (model.getChildCount(rootNode) - 1));
             }
         };
 
@@ -160,21 +175,29 @@ public class JobSearchComponent extends JPanel {
             currentNode = searchMovement.get(currentNode);
         }
 
+        updateFeebackComponent(foundNode);
+    }
+
+    private void updateFeebackComponent(boolean foundNode) {
+        searchField.setBackground(!foundNode ? MessageType.ERROR.getPopupBackground() : defaultBackground);
         infoLabel.setText(!foundNode ? "No matches" : "");
+        if (!foundNode) {
+            lastSelectedNode = null;
+        }
     }
 
 
-    private DefaultMutableTreeNode getStartingNode(SearchMovement forwardMovement) {
+    private DefaultMutableTreeNode getStartingNode(SearchMovement searchMovement) {
         if (lastSelectedNode != null) {
-            return forwardMovement.get(lastSelectedNode);
+            return searchMovement.get(lastSelectedNode);
         }
 
         TreeModel model = jobTree.getModel();
-        Object rootNode = model.getRoot();
+        DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) model.getRoot();
         if (model.getChildCount(rootNode) == 0) {
             return null;
         }
-        return (DefaultMutableTreeNode) model.getChild(rootNode, 0);
+        return searchMovement.getFirst(model, rootNode);
 
     }
 
@@ -184,17 +207,18 @@ public class JobSearchComponent extends JPanel {
 
     public void resetSearch() {
         searchField.setText("");
+        updateFeebackComponent(true);
         lastSelectedNode = null;
     }
 
     interface SearchMovement {
 
         DefaultMutableTreeNode get(DefaultMutableTreeNode node);
+
+        DefaultMutableTreeNode getFirst(TreeModel model, DefaultMutableTreeNode rootNode);
     }
 
     public boolean hasMatches() {
         return lastSelectedNode != null;
     }
-
-
 }
