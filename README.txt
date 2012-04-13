@@ -8,7 +8,7 @@ Description : This plugin allows to view the content of your Jenkins Continous I
 
 Plugin Compatibility :
 
-This plugin was built with JDK 1.6 and ideaIU-10.0.1 version. Jenkins 1.437 was use for manual testing.
+This plugin was built with JDK 1.6 and ideaIU-10.5.0 version. Jenkins CIs of jenkins-ci and apache.org are used for manual testing.
 
 Installation steps:
 
@@ -26,14 +26,11 @@ Configuration steps:
        - Depending on the level of security of your profile you may have authenticate yourself first
        - Type the followind URL in the address bar of your browser: <jenkins_url>/crumbIssuer/api/xml
        - Save the crumb data value in a local file
-       - Come back to the Jnenkins Configuration Plugin and select the crumb file you have just saved
+       - Come back to the Jenkins Configuration Plugin and select the crumb file you have just saved
      To make sure your security parameters are correct, you can test by clicking on the 'Test Connection' button.
 
-  -  If you want the plugin to refresh periodically the Jenkins workspace, you can set a timeout value
+  -  If you want the plugin to refresh periodically the Jenkins workspace or Rss Feed reader, you can set a timeout value
   -  You can also specify a build start delay (in sec.) that will be set when launching a build.
-  -  You can specify a preferred view at Start Up.
-  -  [New] You can change the UI layout. Either as now or else the Rss Panel is located on the status bar. Caution : You need to restart your IDE if you modify the plugin UI Layout.
-  -  Save your configuration by clicking on the OK or Apply Button
 
 Usage:
 
