@@ -5,7 +5,7 @@
 
     <groupId>org.codinjutsu.tools.jenkins</groupId>
     <artifactId>jenkins-control-plugin</artifactId>
-    <version>0.4.5-SNAPSHOT</version>
+    <version>0.5.0-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -36,11 +36,6 @@
             <name>David Boissier</name>
             <email>david [dot] boissier [at] gmail [dot] com</email>
             <organization>Codinjutsu</organization>
-            <timezone>+1</timezone>
-        </developer>
-        <developer>
-            <name>Sébastian Le Merdy</name>
-            <email>sebastian [dot] lemerdy [at] gmail [dot] com</email>
             <timezone>+1</timezone>
         </developer>
     </developers>
