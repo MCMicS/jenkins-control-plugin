@@ -171,8 +171,8 @@ public class JenkinsRequestManager {
     private Jenkins createJenkins(Document doc) {
         Element jenkinsElement = doc.getRootElement();
         if (!StringUtils.equals(JENKINS_ROOT_TAG, jenkinsElement.getName())
-                &&  StringUtils.equals(HUDSON_ROOT_TAG, jenkinsElement.getName())) {
-            throw new ConfigurationException("The root tag is should be 'hudson'. Actual : " + jenkinsElement.getName());
+                && !StringUtils.equals(HUDSON_ROOT_TAG, jenkinsElement.getName())) {
+            throw new ConfigurationException("The root tag is should be 'hudson'. Actual : '" + jenkinsElement.getName() + "'");
         }
         String description = jenkinsElement.getChildText(JENKINS_DESCRIPTION);
         if (description == null) {
