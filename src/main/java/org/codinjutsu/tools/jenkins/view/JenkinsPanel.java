@@ -38,6 +38,7 @@ public class JenkinsPanel extends JPanel {
         setLayout(new BorderLayout());
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        splitPane.setOneTouchExpandable(true);
         splitPane.setTopComponent(jenkinsBrowserPanel);
         splitPane.setBottomComponent(rssLatestJobPanel);
         splitPane.setDividerLocation(600);
