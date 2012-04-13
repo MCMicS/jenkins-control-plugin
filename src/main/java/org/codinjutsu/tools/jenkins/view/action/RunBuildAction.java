@@ -79,7 +79,8 @@ public class RunBuildAction extends AnAction implements DumbAware {
 
     @Override
     public void update(AnActionEvent event) {
-        event.getPresentation().setVisible(jenkinsBrowserLogic.getSelectedJob() != null);
+        Job selectedJob = jenkinsBrowserLogic.getSelectedJob();
+        event.getPresentation().setVisible(selectedJob != null && selectedJob.isBuildable());
     }
 
 

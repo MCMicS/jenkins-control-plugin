@@ -169,7 +169,7 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
     }
 
     private Jenkins createJenkinsWorkspace() {
-        Jenkins jenkins = new Jenkins("(master)");
+        Jenkins jenkins = new Jenkins("(master)", "http://myjenkinsserver");
 
         jenkins.setViews(asList(
                 View.createView("Vue 1", "http://myjenkinsserver/vue1"),

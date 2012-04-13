@@ -19,6 +19,7 @@ package org.codinjutsu.tools.jenkins.view.action.search;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
+import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.JobSearchComponent;
 
@@ -42,7 +43,7 @@ public class NextOccurrenceAction extends AnAction implements DumbAware {
 
     @Override
     public void update(final AnActionEvent e) {
-        e.getPresentation().setEnabled(jobSearchComponent.hasMatches());
+        e.getPresentation().setEnabled(StringUtils.isNotEmpty(jobSearchComponent.getSearchField().getText()));
     }
 
 }
