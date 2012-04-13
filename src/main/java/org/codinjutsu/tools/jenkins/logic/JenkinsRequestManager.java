@@ -16,9 +16,11 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.CharSequenceReader;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
+import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.security.SecurityClient;
 import org.codinjutsu.tools.jenkins.security.SecurityClientFactory;
@@ -44,6 +46,7 @@ public class JenkinsRequestManager {
     private static final String JOB_URL = "url";
     private static final String JOB_COLOR = "color";
     private static final String JOB_LAST_BUILD = "lastBuild";
+    private static final String JOB_IS_BUILDABLE = "buildable";
     private static final String JOB_IS_IN_QUEUE = "inQueue";
 
     private static final String VIEW = "view";
@@ -69,10 +72,12 @@ public class JenkinsRequestManager {
     private static final String RSS_TITLE = "title";
     private static final String RSS_LINK = "link";
     private static final String RSS_LINK_HREF = "href";
+
     private static final String RSS_PUBLISHED = "published";
+    private static final String JENKINS_ROOT_TAG = "jenkins";
+    private static final String HUDSON_ROOT_TAG = "hudson";
 
     private final UrlBuilder urlBuilder;
-
     private SecurityClient securityClient;
 
 
@@ -105,31 +110,43 @@ public class JenkinsRequestManager {
         URL url = urlBuilder.createRssLatestUrl(configuration.getServerUrl());
 
         String rssData = securityClient.execute(url);
-        Document doc = getXMLBuilder().build(new CharSequenceReader(rssData));
-
-        return createLatestBuildList(doc);
+        CharSequenceReader rssDataReader = new CharSequenceReader(rssData);
+        try {
+            Document doc = getXMLBuilder().build(rssDataReader);
+            return createLatestBuildList(doc);
+        } finally {
+            IOUtils.closeQuietly(rssDataReader);
+        }
     }
 
 
     public List<Job> loadJenkinsView(String viewUrl) throws Exception {
         URL url = urlBuilder.createViewUrl(viewUrl);
 
-        String inputStream = securityClient.execute(url);
-        Document doc = getXMLBuilder().build(new CharSequenceReader(inputStream));
-
-        return createJenkinsJobs(doc);
+        String jenkinsViewData = securityClient.execute(url);
+        CharSequenceReader jenkinsViewDataReader = new CharSequenceReader(jenkinsViewData);
+        try {
+            Document doc = getXMLBuilder().build(jenkinsViewDataReader);
+            return createJenkinsJobs(doc);
+        } finally {
+            IOUtils.closeQuietly(jenkinsViewDataReader);
+        }
     }
 
 
     public Job loadJob(String jenkinsJobUrl) throws Exception {
         URL url = urlBuilder.createJobUrl(jenkinsJobUrl);
 
-        String inputStream = securityClient.execute(url);
-        Document doc = getXMLBuilder().build(new CharSequenceReader(inputStream));
+        String jenkinsJobData = securityClient.execute(url);
+        CharSequenceReader jenkinsJobDataReader = new CharSequenceReader(jenkinsJobData);
 
-        Element jobElement = doc.getRootElement();
-
-        return createJob(jobElement);
+        try {
+            Document doc = getXMLBuilder().build(jenkinsJobDataReader);
+            Element jobElement = doc.getRootElement();
+            return createJob(jobElement);
+        } finally {
+            IOUtils.closeQuietly(jenkinsJobDataReader);
+        }
     }
 
 
@@ -153,6 +170,10 @@ public class JenkinsRequestManager {
 
     private Jenkins createJenkins(Document doc) {
         Element jenkinsElement = doc.getRootElement();
+        if (!StringUtils.equals(JENKINS_ROOT_TAG, jenkinsElement.getName())
+                &&  StringUtils.equals(HUDSON_ROOT_TAG, jenkinsElement.getName())) {
+            throw new ConfigurationException("The root tag is should be 'hudson'. Actual : " + jenkinsElement.getName());
+        }
         String description = jenkinsElement.getChildText(JENKINS_DESCRIPTION);
         if (description == null) {
             description = "";
@@ -253,8 +274,9 @@ public class JenkinsRequestManager {
         String jobColor = jobElement.getChildText(JOB_COLOR);
         String jobUrl = jobElement.getChildText(JOB_URL);
         String inQueue = jobElement.getChildText(JOB_IS_IN_QUEUE);
+        String buildable = jobElement.getChildText(JOB_IS_BUILDABLE);
 
-        Job job = Job.createJob(jobName, jobColor, jobUrl, inQueue);
+        Job job = Job.createJob(jobName, jobColor, jobUrl, inQueue, buildable);
 
         Job.Health jobHealth = getJobHealth(jobElement);
         if (jobHealth != null) {

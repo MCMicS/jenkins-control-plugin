@@ -102,6 +102,6 @@ class JenkinsTreeRenderer extends DefaultTreeCellRenderer {
 
 
     private static String buildLabel(Jenkins jenkins) {
-        return new StringBuilder("Jenkins ").append(jenkins.getName()).toString();
+        return "Jenkins " + jenkins.getName();
     }
 }

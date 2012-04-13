@@ -68,22 +68,24 @@ class BasicSecurityClient extends AbstractSecurityClient {
         httpClient.getParams().setAuthenticationPreemptive(true);
 
         PostMethod post = new PostMethod(jenkinsUrl.toString());
+        try {
+            if (isCrumbDataSet()) {
+                post.addRequestHeader(CRUMB_NAME, crumbValue);
+            }
 
-        if (isCrumbDataSet()) {
-            post.addRequestHeader(CRUMB_NAME, crumbValue);
+            post.setDoAuthentication(true);
+            int responseCode = httpClient.executeMethod(post);
+            if (responseCode != HttpURLConnection.HTTP_OK) {
+
+                InputStream inputStream = post.getResponseBodyAsStream();
+                String responseBody = IOUtils.toString(inputStream, post.getResponseCharSet());
+
+                checkResponse(responseCode, responseBody);
+            }
+        } finally {
+            post.releaseConnection();
         }
 
-        post.setDoAuthentication(true);
-        int responseCode = httpClient.executeMethod(post);
-        if (responseCode != HttpURLConnection.HTTP_OK) {
-
-            InputStream inputStream = post.getResponseBodyAsStream();
-            String responseBody = IOUtils.toString(inputStream, post.getResponseCharSet());
-
-            checkResponse(responseCode, responseBody);
-        }
-
-        post.releaseConnection();
     }
 
 
@@ -99,8 +101,6 @@ class BasicSecurityClient extends AbstractSecurityClient {
         InputStream inputStream = null;
         try {
             int statusCode = httpClient.executeMethod(post);
-//            String responseBody = post.getResponseBodyAsString();
-//            String responseBody;
             inputStream = post.getResponseBodyAsStream();
             String responseBody = IOUtils.toString(inputStream, post.getResponseCharSet());
 
@@ -128,7 +128,7 @@ class BasicSecurityClient extends AbstractSecurityClient {
             }
             return responseBody;
         } finally {
-            if (inputStream != null) inputStream.close();
+            IOUtils.closeQuietly(inputStream);
             post.releaseConnection();
         }
     }

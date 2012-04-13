@@ -26,7 +26,7 @@ import java.awt.event.KeyEvent;
 
 public class NextOccurrenceAction extends AnAction implements DumbAware {
 
-    private JobSearchComponent jobSearchComponent;
+    private final JobSearchComponent jobSearchComponent;
 
     public NextOccurrenceAction(JobSearchComponent jobSearchComponent) {
         super("Search Next", "Search the next occurrence", GuiUtil.loadIcon("next.png"));

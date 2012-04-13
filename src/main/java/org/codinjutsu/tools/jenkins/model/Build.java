@@ -33,7 +33,7 @@ public class Build {
     private final Date buildDate;
     private final int number;
     private final boolean building;
-    private String message;
+    private final String message;
 
     private final BuildStatusEnum status;
 
@@ -104,7 +104,7 @@ public class Build {
 
 
     public static Build createBuildFromWorkspace(String buildUrl, String number, String status, String isBuilding, String buildDate) {
-        return createBuild(buildUrl, number, status, isBuilding, buildDate, DateUtil.WORKSPACE_DATE_FORMAT, null);
+        return createBuild(buildUrl, number, status, isBuilding, buildDate, DateUtil.WORKSPACE_DATE_FORMAT, "Dummy message");
     }
 
     public static Build createBuildFromRss(String buildUrl, String number, String status, String isBuilding, String buildDate, String message) {
@@ -112,7 +112,7 @@ public class Build {
     }
 
 
-    public static Build createBuild(String buildUrl, String number, String status, String isBuilding, String buildDate, SimpleDateFormat simpleDateFormat, String message) {
+    private static Build createBuild(String buildUrl, String number, String status, String isBuilding, String buildDate, SimpleDateFormat simpleDateFormat, String message) {
         BuildStatusEnum buildStatusEnum = BuildStatusEnum.parseStatus(status);
         Date date = DateUtil.parseDate(buildDate, simpleDateFormat);
 

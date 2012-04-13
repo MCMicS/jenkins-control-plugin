@@ -27,7 +27,7 @@ import java.awt.event.KeyEvent;
 
 public class OpenJobSearchPanelAction extends AnAction {
 
-    private JobSearchComponent searchComponent;
+    private final JobSearchComponent searchComponent;
 
     public OpenJobSearchPanelAction(JenkinsBrowserPanel jenkinsBrowserPanel, JobSearchComponent searchComponent) {
         this.searchComponent = searchComponent;

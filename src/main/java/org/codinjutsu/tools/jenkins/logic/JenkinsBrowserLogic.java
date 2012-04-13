@@ -25,6 +25,7 @@ import com.intellij.ui.PopupHandler;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.model.*;
+import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.JenkinsBrowserPanel;
 import org.codinjutsu.tools.jenkins.view.JobSearchComponent;
 import org.codinjutsu.tools.jenkins.view.RssLatestBuildPanel;
@@ -32,24 +33,22 @@ import org.codinjutsu.tools.jenkins.view.action.*;
 import org.codinjutsu.tools.jenkins.view.action.search.NextOccurrenceAction;
 import org.codinjutsu.tools.jenkins.view.action.search.OpenJobSearchPanelAction;
 import org.codinjutsu.tools.jenkins.view.action.search.PrevOccurrenceAction;
-import org.jdom.JDOMException;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.Timer;
 
 public class JenkinsBrowserLogic {
 
     private static final Logger LOG = Logger.getLogger(JenkinsBrowserLogic.class);
+
+    private static final int MILLISECONDS = 1000;
+    private static final int MINUTES = 60 * MILLISECONDS;
 
     private static final String JENKINS_JOB_ACTION_GROUP = "JenkinsJobGroup";
     private static final String JENKINS_RSS_ACTIONS = "JenkinsRssActions";
@@ -62,6 +61,8 @@ public class JenkinsBrowserLogic {
 
     private Jenkins jenkins;
     private final Map<String, Build> currentBuildMap = new HashMap<String, Build>();
+    private Timer jobRefreshTimer;
+    private Timer rssRefreshTimer;
     private final JenkinsBrowserPanel jenkinsBrowserPanel;
     private final RssLatestBuildPanel rssLatestJobPanel;
 
@@ -79,33 +80,25 @@ public class JenkinsBrowserLogic {
 
 
     public void init() {
-        initView();
+        initGui();
         reloadConfiguration();
-    }
-
-
-    private void initView() {
-        jenkinsBrowserPanel.createSearchPanel();
-        installRssActions(rssLatestJobPanel.getRssActionPanel());
-        installBrowserActions(jenkinsBrowserPanel.getJobTree(), jenkinsBrowserPanel.getActionPanel());
-        installSearchActions(jenkinsBrowserPanel.getSearchComponent());
         initListeners();
     }
 
 
-    public void reloadConfiguration() { //TODO see how to centralize thread creation
+    private void initGui() {
+        jenkinsBrowserPanel.createSearchPanel();
+        installRssActions(rssLatestJobPanel.getRssActionPanel());
+        installBrowserActions(jenkinsBrowserPanel.getJobTree(), jenkinsBrowserPanel.getActionPanel());
+        installSearchActions(jenkinsBrowserPanel.getSearchComponent());
+    }
+
+
+    public void reloadConfiguration() {
         loadJenkinsWorkspace();
-        ExecutorService executor = Executors.newFixedThreadPool(2);
-        executor.submit(new Runnable() {
-            @Override
-            public void run() {
 
-                JenkinsBrowserLogic.this.jenkinsBrowserPanel.setSelectedView(jenkins.getPrimaryView());
-                loadAndReturnNewLatestBuilds();
-            }
-        });
-
-        executor.shutdown();
+        loadSelectedView();
+        loadLatestBuilds(false);
 
         cleanRssEntries();
 
@@ -185,14 +178,11 @@ public class JenkinsBrowserLogic {
             try {
                 jenkinsRequestManager.authenticate(configuration.getServerUrl(), configuration.getSecurityMode(), configuration.getUsername(), configuration.getPasswordFile(), configuration.getCrumbFile());
                 jenkins = jenkinsRequestManager.loadJenkinsWorkspace(configuration);
-                jenkinsBrowserPanel.initModel(jenkins);
-            } catch (JDOMException domEx) {
-                String errorMessage = buildServerErrorMessage(domEx);
-                LOG.error(errorMessage, domEx);
-                showErrorDialog(errorMessage, "Error during parsing workspace");
+                jenkinsBrowserPanel.fillData(jenkins);
             } catch (Exception ex) {
-                LOG.error(buildServerErrorMessage(ex), ex);
-                displayConnectionErrorMsg();
+                String errorMessage = buildServerErrorMessage(ex);
+                LOG.error(errorMessage, ex);
+                showParsingErrorDialog(errorMessage);
             }
         } else {
             displayConnectionErrorMsg();
@@ -200,30 +190,49 @@ public class JenkinsBrowserLogic {
     }
 
 
-    public void loadSelectedView() throws Exception {
-        View jenkinsView = getSelectedJenkinsView();
-        if (jenkinsView != null) {
-            List<Job> jobList = jenkinsRequestManager.loadJenkinsView(jenkinsView.getUrl());
-            jenkins.setJobs(jobList);
-            this.jenkinsBrowserPanel.fillJobTree(jenkins);
-        } else {
-            loadJenkinsWorkspace();
-            this.jenkinsBrowserPanel.setSelectedView(jenkins.getPrimaryView());
-        }
+    public void loadSelectedView() {
+        GuiUtil.runInSwingThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    View jenkinsView = getSelectedJenkinsView();
+                    if (jenkinsView == null) {
+                        if (jenkins == null) {
+                            return;
+                        }
+                        jenkinsView = jenkins.getPrimaryView();
+                    }
 
-        jobViewCallback.doAfterLoadingJobs(jenkins);
+                    List<Job> jobList = jenkinsRequestManager.loadJenkinsView(jenkinsView.getUrl());
+                    jenkins.setJobs(jobList);
+                    jenkinsBrowserPanel.fillJobTree(jenkins);
+
+                    jobViewCallback.doAfterLoadingJobs(jenkins);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
     }
 
 
     private void initTimers() {
-        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(2);
+        if (jobRefreshTimer != null) {
+            jobRefreshTimer.cancel();
+        }
+
+        if (rssRefreshTimer != null) {
+            rssRefreshTimer.cancel();
+        }
 
         if (configuration.isEnableJobAutoRefresh()) {
-            executorService.scheduleAtFixedRate(new JobRefreshTask(this), 1, configuration.getJobRefreshPeriod(), TimeUnit.MINUTES);
+            jobRefreshTimer = new Timer();
+            jobRefreshTimer.schedule(new JobRefreshTimerTask(), MINUTES, configuration.getJobRefreshPeriod() * MINUTES);
         }
 
         if (configuration.isEnableRssAutoRefresh()) {
-            executorService.scheduleAtFixedRate(new RssRefreshTask(this), 1, configuration.getRssRefreshPeriod(), TimeUnit.MINUTES);
+            rssRefreshTimer = new Timer();
+            rssRefreshTimer.schedule(new RssRefreshTimerTask(), MINUTES, configuration.getRssRefreshPeriod() * MINUTES);
         }
     }
 
@@ -233,19 +242,8 @@ public class JenkinsBrowserLogic {
     }
 
 
-    private void displayFinishedBuilds(Map<String, Build> finishedBuilds) {
-        rssLatestJobPanel.addFinishedBuild(finishedBuilds);
-
-        Entry<String, Build> firstFailedBuild = getFirstFailedBuild(finishedBuilds);
-        if (firstFailedBuild != null) {
-            rssBuildStatusCallback.notifyOnBuildFailure(firstFailedBuild.getKey(), firstFailedBuild.getValue());
-        }
-
-    }
-
-
-    private void showErrorDialog(String errorMessage, String title) {
-        jenkinsBrowserPanel.showErrorDialog(errorMessage, title);
+    private void showParsingErrorDialog(String errorMessage) {
+        jenkinsBrowserPanel.showErrorDialog(errorMessage, "Error during parsing workspace");
     }
 
 
@@ -336,9 +334,47 @@ public class JenkinsBrowserLogic {
         });
     }
 
-    public void loadLatestBuilds() {
-        Map<String, Build> finishedBuilds = loadAndReturnNewLatestBuilds();
-        displayFinishedBuilds(finishedBuilds);
+    public void loadLatestBuilds(final boolean shouldDisplayResult) {
+        GuiUtil.runInSwingThread(new Runnable() {
+            @Override
+            public void run() {
+                Map<String, Build> finishedBuilds = loadAndReturnNewLatestBuilds();
+                if (!shouldDisplayResult) {
+                    return;
+                }
+                rssLatestJobPanel.addFinishedBuild(finishedBuilds);
+
+                Entry<String, Build> firstFailedBuild = getFirstFailedBuild(finishedBuilds);
+                if (firstFailedBuild != null) {
+                    rssBuildStatusCallback.notifyOnBuildFailure(firstFailedBuild.getKey(), firstFailedBuild.getValue());
+                }
+            }
+        });
+    }
+
+    private class JobRefreshTimerTask extends TimerTask {
+
+        @Override
+        public void run() {
+            try {
+                loadSelectedView();
+            } catch (Exception ex) {
+                throw new RuntimeException(ex.getMessage(), ex);
+            }
+        }
+    }
+
+
+    private class RssRefreshTimerTask extends TimerTask {
+
+        @Override
+        public void run() {
+            try {
+                loadLatestBuilds(false);
+            } catch (Exception ex) {
+                throw new RuntimeException(ex.getMessage(), ex);
+            }
+        }
     }
 
     public interface RssBuildStatusCallback {

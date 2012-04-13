@@ -27,7 +27,7 @@ import java.awt.event.KeyEvent;
 
 public class PrevOccurrenceAction extends AnAction implements DumbAware {
 
-    private JobSearchComponent jobSearchComponent;
+    private final JobSearchComponent jobSearchComponent;
 
     public PrevOccurrenceAction(JobSearchComponent jobSearchComponent) {
         super("Search Previous", "Search the previous occurrence", GuiUtil.loadIcon("previous.png"));

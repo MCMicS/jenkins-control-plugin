@@ -19,7 +19,7 @@ package org.codinjutsu.tools.jenkins.exception;
 /**
  *
  */
-public class ConfigurationException extends Exception {
+public class ConfigurationException extends RuntimeException {
 
     public ConfigurationException(String message) {
         super(message);

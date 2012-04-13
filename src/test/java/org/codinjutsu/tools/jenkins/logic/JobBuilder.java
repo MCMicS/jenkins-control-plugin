@@ -23,8 +23,8 @@ public class JobBuilder {
 
     private Job job;
 
-    public JobBuilder job(String jobName, String jobColor, String jobUrl, String inQueue) {
-        job = Job.createJob(jobName, jobColor, jobUrl, inQueue);
+    public JobBuilder job(String jobName, String jobColor, String jobUrl, String inQueue, String buildable) {
+        job = Job.createJob(jobName, jobColor, jobUrl, inQueue, buildable);
         return this;
     }
 

@@ -23,8 +23,8 @@ public class DateUtil {
         return date;
     }
 
-    public static String format(Date date, SimpleDateFormat dateFormat) {
+    public static String formatDateInTime(Date date) {
 
-        return dateFormat.format(date);
+        return LOG_DATE_IN_HOUR_FORMAT.format(date);
     }
 }

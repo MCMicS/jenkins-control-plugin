@@ -25,16 +25,16 @@ public class JenkinsPanel extends JPanel {
         return new JenkinsPanel(jenkinsBrowserPanel, rssLatestJobPanel);
     }
 
-    public static JenkinsPanel browserOnly(JenkinsBrowserPanel jenkinsBrowserPanel) {
-        return new JenkinsPanel(jenkinsBrowserPanel);
-    }
+//    public static JenkinsPanel browserOnly(JenkinsBrowserPanel jenkinsBrowserPanel) {
+//        return new JenkinsPanel(jenkinsBrowserPanel);
+//    }
+//
+//    private JenkinsPanel(JenkinsBrowserPanel jenkinsBrowserPanel) {
+//        setLayout(new BorderLayout());
+//        add(jenkinsBrowserPanel, BorderLayout.CENTER);
+//    }
 
-    private JenkinsPanel(JenkinsBrowserPanel jenkinsBrowserPanel) {
-        setLayout(new BorderLayout());
-        add(jenkinsBrowserPanel, BorderLayout.CENTER);
-    }
-
-    public JenkinsPanel(JenkinsBrowserPanel jenkinsBrowserPanel, RssLatestBuildPanel rssLatestJobPanel) {
+    private JenkinsPanel(JenkinsBrowserPanel jenkinsBrowserPanel, RssLatestBuildPanel rssLatestJobPanel) {
         setLayout(new BorderLayout());
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);

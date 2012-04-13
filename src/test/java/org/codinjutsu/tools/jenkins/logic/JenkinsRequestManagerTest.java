@@ -97,17 +97,17 @@ public class JenkinsRequestManagerTest {
         List<Job> expectedJobs = new LinkedList<Job>();
 
 
-        expectedJobs.add(new JobBuilder().job("sql-tools", "blue", "http://myjenkins/job/sql-tools/", "true")
+        expectedJobs.add(new JobBuilder().job("sql-tools", "blue", "http://myjenkins/job/sql-tools/", "true", "true")
                 .lastBuild("http://myjenkins/job/sql-tools/15/", "15", SUCCESS.getStatus(), "false", "2012-04-02_15-26-29")
                 .health("health-80plus", "0 tests en echec sur un total de 24 tests").get());
-        expectedJobs.add(new JobBuilder().job("db-utils", "grey", "http://myjenkins/job/db-utils/", "false").get());
-        expectedJobs.add(new JobBuilder().job("myapp", "red", "http://myjenkins/job/myapp/", "false")
+        expectedJobs.add(new JobBuilder().job("db-utils", "grey", "http://myjenkins/job/db-utils/", "false", "true").get());
+        expectedJobs.add(new JobBuilder().job("myapp", "red", "http://myjenkins/job/myapp/", "false", "true")
                 .lastBuild("http://myjenkins/job/myapp/12/", "12", FAILURE.getStatus(), "true", "2012-04-02_16-26-29")
                 .health("health-00to19", "24 tests en echec sur un total de 24 tests")
                 .parameter("param1", "ChoiceParameterDefinition", "value1", "value1", "value2", "value3")
                 .parameter("runIntegrationTest", "BooleanParameterDefinition", null)
                 .get());
-        expectedJobs.add(new JobBuilder().job("swing-utils", "disabled", "http://myjenkins/job/swing-utils/", "true")
+        expectedJobs.add(new JobBuilder().job("swing-utils", "disabled", "http://myjenkins/job/swing-utils/", "true", "false")
                 .lastBuild("http://myjenkins/job/swing-utils/5/", "5", FAILURE.getStatus(), "false", "2012-04-02_10-26-29")
                 .health("health20to39", "0 tests en echec sur un total de 24 tests")
                 .parameter("dummyParam", null, null)
@@ -124,7 +124,7 @@ public class JenkinsRequestManagerTest {
         Job actualJob = requestManager.loadJob("http://ci.jenkins-ci.org/job/config-provider-model/");
 
         assertReflectionEquals(new JobBuilder()
-                .job("config-provider-model", "blue", "http://ci.jenkins-ci.org/job/config-provider-model/", "false")
+                .job("config-provider-model", "blue", "http://ci.jenkins-ci.org/job/config-provider-model/", "false", "true")
                 .lastBuild("http://ci.jenkins-ci.org/job/config-provider-model/8/", "8", "SUCCESS", "false", "2012-04-02_16-26-29")
                 .health("health-80plus", "0 tests en echec sur un total de 24 tests")
                 .get(), actualJob);

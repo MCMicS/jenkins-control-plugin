@@ -8,6 +8,7 @@
         <url>http://myjenkins/job/sql-tools/</url>
         <color>blue</color>
         <inQueue>true</inQueue>
+        <buildable>true</buildable>
         <healthReport>
             <description>0 tests en echec sur un total de 24 tests</description>
             <iconUrl>health-80plus.gif</iconUrl>
@@ -24,12 +25,14 @@
         <name>db-utils</name>
         <url>http://myjenkins/job/db-utils/</url>
         <color>grey</color>
+        <buildable>true</buildable>
         <inQueue>false</inQueue>
     </job>
     <job>
         <name>myapp</name>
         <url>http://myjenkins/job/myapp/</url>
         <color>red</color>
+        <buildable>true</buildable>
         <inQueue>false</inQueue>
         <healthReport>
             <description>24 tests en echec sur un total de 24 tests</description>
@@ -64,6 +67,7 @@
         <name>swing-utils</name>
         <url>http://myjenkins/job/swing-utils/</url>
         <color>disabled</color>
+        <buildable>false</buildable>
         <inQueue>true</inQueue>
         <healthReport>
             <description>0 tests en echec sur un total de 24 tests</description>

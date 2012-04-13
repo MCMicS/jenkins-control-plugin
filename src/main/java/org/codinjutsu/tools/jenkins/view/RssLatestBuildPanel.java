@@ -19,7 +19,6 @@ package org.codinjutsu.tools.jenkins.view;
 import com.intellij.ide.BrowserUtil;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
-import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
 import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
@@ -32,8 +31,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
 
-import static org.codinjutsu.tools.jenkins.util.DateUtil.LOG_DATE_IN_HOUR_FORMAT;
-import static org.codinjutsu.tools.jenkins.util.DateUtil.format;
+import static org.codinjutsu.tools.jenkins.util.DateUtil.formatDateInTime;
 
 public class RssLatestBuildPanel extends JPanel {
     private JPanel rssActionPanel;
@@ -87,15 +85,10 @@ public class RssLatestBuildPanel extends JPanel {
             }
         });
 
-        GuiUtil.runInSwingThread(new Runnable() {
-            @Override
-            public void run() {
-                for (Build build : buildToSortByDateDescending) {
-                    appendHtmlText(buildMessage(build));
-                }
-                rssTextPane.setCaretPosition(htmlDocument.getLength());
-            }
-        });
+        for (Build build : buildToSortByDateDescending) {
+            appendHtmlText(buildMessage(build));
+        }
+        rssTextPane.setCaretPosition(htmlDocument.getLength());
     }
 
     private void appendHtmlText(String textToAppend) {
@@ -107,7 +100,7 @@ public class RssLatestBuildPanel extends JPanel {
     }
 
     private static String buildMessage(Build build) {
-        String time = format(build.getBuildDate(), LOG_DATE_IN_HOUR_FORMAT);
+        String time = formatDateInTime(build.getBuildDate());
         BuildStatusEnum buildStatus = build.getStatus();
         String statusColor = buildStatus.getColor().toLowerCase();
         String buildMessage = build.getMessage();

@@ -23,7 +23,7 @@ import java.awt.*;
 
 //Note from the author: This class was originally cloned from https://github.com/codjo/codjo-gui-toolkit
 public class SearchTextField extends JTextField {
-    private Icon imageIcon;
+    private final Icon imageIcon;
     private static final int ARC_SIZE = 10;
     private static final Color FROM_COLOR = Color.GRAY;
     private static final Color TO_COLOR = new Color(220, 220, 220);

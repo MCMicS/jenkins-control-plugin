@@ -67,14 +67,14 @@ public class UrlBuilderTest {
     @Test
     public void createViewUrl() throws Exception {
         URL url = urlBuilder.createViewUrl("http://localhost:8080/jenkins/My%20View");
-        assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/My%20View/api/xml?tree=name,url,jobs%5Bname,url,color,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Bid,url,building,result,number%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,choices%5D%5D%5D"));
+        assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/My%20View/api/xml?tree=name,url,jobs%5Bname,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Bid,url,building,result,number%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,choices%5D%5D%5D"));
     }
 
 
     @Test
     public void createJobUrl() throws Exception {
         URL url = urlBuilder.createJobUrl("http://localhost:8080/jenkins/my%20Job");
-        assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/my%20Job/api/xml?tree=name,url,color,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Bid,url,building,result,number%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,choices%5D%5D"));
+        assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/my%20Job/api/xml?tree=name,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Bid,url,building,result,number%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,choices%5D%5D"));
     }
 
 

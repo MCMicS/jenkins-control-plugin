@@ -33,6 +33,7 @@ public class Job {
 
     private String color;
     private boolean inQueue;
+    private final boolean buildable;
 
     private Health health;
 
@@ -50,16 +51,17 @@ public class Job {
     }
 
 
-    private Job(String name, String color, String url, Boolean inQueue) {
+    private Job(String name, String color, String url, Boolean inQueue, Boolean buildable) {
         this.name = name;
         this.color = color;
         this.url = url;
         this.inQueue = inQueue;
+        this.buildable = buildable;
     }
 
 
-    public static Job createJob(String jobName, String jobColor, String jobUrl, String inQueue) {
-        return new Job(jobName, jobColor, jobUrl, Boolean.valueOf(inQueue));
+    public static Job createJob(String jobName, String jobColor, String jobUrl, String inQueue, String buildable) {
+        return new Job(jobName, jobColor, jobUrl, Boolean.valueOf(inQueue), Boolean.valueOf(buildable));
     }
 
     public Icon getStateIcon() {
@@ -112,6 +114,9 @@ public class Job {
         return inQueue;
     }
 
+    private boolean isBuildable() {
+        return buildable;
+    }
 
     public Build getLastBuild() {
         return lastBuild;
@@ -140,7 +145,7 @@ public class Job {
     }
 
     public boolean isBroken() {
-        return lastBuild != null && lastBuild.getStatus() == BuildStatusEnum.FAILURE;
+        return isBuildable() && lastBuild != null && lastBuild.getStatus() == BuildStatusEnum.FAILURE;
     }
 
 

@@ -47,9 +47,9 @@ public class JenkinsBrowserPanel extends JPanel {
     }
 
 
-    public void initModel(Jenkins jenkins) {
+    public void fillData(Jenkins jenkins) {
+        fillViewCombo(jenkins);
         fillJobTree(jenkins);
-        initViewList(jenkins.getViews());
     }
 
     public void createSearchPanel() {
@@ -67,26 +67,21 @@ public class JenkinsBrowserPanel extends JPanel {
                 rootNode.add(jobNode);
             }
         }
-        GuiUtil.runInSwingThread(new Runnable() {
-            public void run() {
-                jobTree.setModel(new DefaultTreeModel(rootNode));
-            }
-        });
+        jobTree.setModel(new DefaultTreeModel(rootNode));
     }
 
 
-    private void initViewList(final List<View> views) {
-        final List<View> flattenViewList = flatViewList(views);
-
+    private void fillViewCombo(final Jenkins jenkins) {
         GuiUtil.runInSwingThread(new Runnable() {
             public void run() {
-                viewCombo.setModel(new JenkinsViewComboboxModel(flattenViewList));
+                List<View> views = jenkins.getViews();
+                viewCombo.setModel(new JenkinsViewComboboxModel(flatViewList(views)));
                 if (hasNestedViews(views)) {
                     viewCombo.setRenderer(new JenkinsNestedViewComboRenderer());
                 } else {
                     viewCombo.setRenderer(new JenkinsViewComboRenderer());
                 }
-                viewCombo.setSelectedIndex(-1);
+                setSelectedView(jenkins.getPrimaryView());
             }
         });
     }
@@ -113,7 +108,7 @@ public class JenkinsBrowserPanel extends JPanel {
     }
 
 
-    public void setSelectedView(View view) {
+    private void setSelectedView(View view) {
         viewCombo.setSelectedItem(view);
     }
 

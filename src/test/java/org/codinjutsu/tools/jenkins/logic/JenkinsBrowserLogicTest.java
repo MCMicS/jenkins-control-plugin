@@ -57,8 +57,6 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
 
         comboBox.select("Vue 1");
 
-        Thread.sleep(100);//waiting for the swing thread finished
-
         getJobTree(uiSpecBrowserPanel);
         jobTree.contentEquals(
                 "Jenkins (master)\n" +
@@ -69,7 +67,7 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
         Tree jobTree = getJobTree(uiSpecBrowserPanel);
         jobTree.selectionIsEmpty().check();
 
-        Thread.sleep(500);//waiting for the swing thread finished
+//        Thread.sleep(500);//waiting for the swing thread finished
 
         uiSpecBrowserPanel.pressKey(Key.control(Key.F));
 
@@ -97,7 +95,7 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
                 {"infa_release.rss", "http://ci.jenkins-ci.org/job/infa_release.rss/140/", "140", BuildStatusEnum.SUCCESS.getStatus(), "2012-03-03T20:30:51Z", "infa_release.rss #140 (back to normal)"}, // new build but success
                 {"TESTING-HUDSON-7434", "http://ci.jenkins-ci.org/job/TESTING-HUDSON-7434/3/", "3", BuildStatusEnum.FAILURE.getStatus(), "2012-03-03T05:27:56Z", "TESTING-HUDSON-7434 #3 (broken for a long time)"}, //new build but still fail
         }));
-        jenkinsBrowserLogic.loadLatestBuilds();
+        jenkinsBrowserLogic.loadLatestBuilds(true);
         assertTrue(rssContent.textContains(
                 "<html>\n" +
                         "  <head>\n" +
@@ -141,11 +139,11 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
             }
         };
 
-        Job mintJob = new JobBuilder().job("mint", "blue", "http://myjenkinsserver/mint", "false")
+        Job mintJob = new JobBuilder().job("mint", "blue", "http://myjenkinsserver/mint", "false", "true")
                 .lastBuild("http://myjenkinsserver/mint/150", "150", BuildStatusEnum.SUCCESS.getStatus(), "false", "2012-04-02_10-26-29")
                 .health("health-80plus", "0 tests en échec sur un total de 89 tests")
                 .get();
-        Job capriJob = new JobBuilder().job("capri", "red", "http://myjenkinsserver/capri", "false")
+        Job capriJob = new JobBuilder().job("capri", "red", "http://myjenkinsserver/capri", "false", "true")
                 .lastBuild("http://myjenkinsserver/capri/15", "15", BuildStatusEnum.FAILURE.getStatus(), "true", "2012-04-01_10-26-29")
                 .health("health-00to19", "15 tests en échec sur un total de 50 tests")
                 .get();

@@ -138,13 +138,9 @@ public class JenkinsControlComponent
 
         JenkinsBrowserLogic.RssBuildStatusCallback rssBuildStatusCallback = new JenkinsBrowserLogic.RssBuildStatusCallback() {
             public void notifyOnBuildFailure(final String jobName, final Build build) {
-                GuiUtil.runInSwingThread(new Runnable() {
-                    public void run() {
-                        BalloonBuilder balloonBuilder = JBPopupFactory.getInstance().createHtmlTextBalloonBuilder(jobName + "#" + build.getNumber() + ": FAILED", MessageType.ERROR, null);
-                        Balloon balloon = balloonBuilder.setFadeoutTime(TimeUnit.SECONDS.toMillis(1)).createBalloon();
-                        balloon.show(new RelativePoint(jenkinsRssWidget.getComponent(), new Point(0, 0)), Balloon.Position.above);
-                    }
-                });
+                BalloonBuilder balloonBuilder = JBPopupFactory.getInstance().createHtmlTextBalloonBuilder(jobName + "#" + build.getNumber() + ": FAILED", MessageType.ERROR, null);
+                Balloon balloon = balloonBuilder.setFadeoutTime(TimeUnit.SECONDS.toMillis(1)).createBalloon();
+                balloon.show(new RelativePoint(jenkinsRssWidget.getComponent(), new Point(0, 0)), Balloon.Position.above);
             }
         };
 
