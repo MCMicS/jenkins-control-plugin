@@ -20,7 +20,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.CustomStatusBarWidget;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.StatusBarWidget;
-import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.util.BuildStatusIcon;
 import org.jetbrains.annotations.NotNull;
 
@@ -54,15 +53,11 @@ public class JenkinsRssWidget extends JPanel implements CustomStatusBarWidget, S
 
     public void updateIcon(int nbRemainingBrokenBuilds) {
         final BuildStatusIcon buildIcon = createStatusIcon(nbRemainingBrokenBuilds);
-        GuiUtil.runInSwingThread(new Runnable() {
-            @Override
-            public void run() {
-                invalidate();
-                removeAll();
-                add(buildIcon, BorderLayout.CENTER);
-                validate();
-            }
-        });
+
+        invalidate();
+        removeAll();
+        add(buildIcon, BorderLayout.CENTER);
+        validate();
     }
 
     @NotNull
