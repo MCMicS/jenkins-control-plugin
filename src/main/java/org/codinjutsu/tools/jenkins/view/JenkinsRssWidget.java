@@ -34,7 +34,6 @@ public class JenkinsRssWidget extends NonOpaquePanel implements CustomStatusBarW
 
     public JenkinsRssWidget(Project project) {
         this.project = project;
-        
         BuildStatusIcon buildStatusIcon = createStatusIcon(0);
         setLayout(new BorderLayout());
         add(buildStatusIcon, BorderLayout.CENTER);

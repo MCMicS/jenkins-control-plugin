@@ -217,8 +217,4 @@ public class JobSearchComponent extends JPanel {
 
         DefaultMutableTreeNode getFirst(TreeModel model, DefaultMutableTreeNode rootNode);
     }
-
-    public boolean hasMatches() {
-        return lastSelectedNode != null;
-    }
 }
