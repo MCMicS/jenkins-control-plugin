@@ -95,6 +95,11 @@ public class JenkinsBrowserLogic {
 
 
     public void reloadConfiguration() {
+        if (!configuration.isServerUrlSet()) {
+            displayConnectionErrorMsg();
+            return;
+        }
+
         loadJenkinsWorkspace();
 
         loadSelectedView();
@@ -174,18 +179,14 @@ public class JenkinsBrowserLogic {
 
 
     private void loadJenkinsWorkspace() {
-        if (configuration.isServerUrlSet()) {
-            try {
-                jenkinsRequestManager.authenticate(configuration.getServerUrl(), configuration.getSecurityMode(), configuration.getUsername(), configuration.getPasswordFile(), configuration.getCrumbFile());
-                jenkins = jenkinsRequestManager.loadJenkinsWorkspace(configuration);
-                jenkinsBrowserPanel.fillData(jenkins);
-            } catch (Exception ex) {
-                String errorMessage = buildServerErrorMessage(ex);
-                LOG.error(errorMessage, ex);
-                showParsingErrorDialog(errorMessage);
-            }
-        } else {
-            displayConnectionErrorMsg();
+        try {
+            jenkinsRequestManager.authenticate(configuration.getServerUrl(), configuration.getSecurityMode(), configuration.getUsername(), configuration.getPasswordFile(), configuration.getCrumbFile());
+            jenkins = jenkinsRequestManager.loadJenkinsWorkspace(configuration);
+            jenkinsBrowserPanel.fillData(jenkins);
+        } catch (Exception ex) {
+            String errorMessage = buildServerErrorMessage(ex);
+            LOG.error(errorMessage, ex);
+            showParsingErrorDialog(errorMessage);
         }
     }
 
