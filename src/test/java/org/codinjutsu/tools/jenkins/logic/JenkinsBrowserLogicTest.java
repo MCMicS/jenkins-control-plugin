@@ -168,7 +168,7 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
         prepareMock();
 
         jenkinsBrowserLogic.init();
-        Thread.sleep(500);
+        Thread.sleep(800);
     }
 
     private void prepareMock() throws Exception {
