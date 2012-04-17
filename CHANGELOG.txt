@@ -1,3 +1,7 @@
+Version 0.5.1
+    * [Fix] Regression : When the server url is not set (or set to a dummy url), the plugin should not try to connect
+    * [Fix] Browser Panel : OneTouch Expandable should be accessible
+
 Version 0.5.0
     * [Add] Job Tree : Search job panel (CTRL + F, F3 to search forward, SHIFT + F3 to search backward, the search feature is cyclic)
     * [Add] Jenkins Widget that displays either a red icon when the number of the broken builds > 0 or else a blue icon.

@@ -41,8 +41,9 @@ Up part - Job view
     You can select some view by selecting of them in the combo box.
     When you right click on a job some options are available such as Launch a Build, View The Job's Page and View the Last Build Results.
 Down part - Rss View
-    To get the last rss feeds, you have to click on the Rss icon button, a list will appear and you will be able to clear each of them or all of them.
-
+    To get the last rss feeds, you have to click on the Rss icon button, a list will appear and you will be able to go to the broken build web page.
+[new] A small widget appears on the status bar. It indicates the overall status of the selected view. When there is no broken build then the icon color is blue.
+Else, a red ico is displayed with the remaining broken builds. If the job auto-refresh is enabled then the widget updates itself.
 
 Limitations :
 
