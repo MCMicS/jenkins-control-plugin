@@ -100,6 +100,13 @@ public class JenkinsBrowserLogic {
             return;
         }
 
+        try {
+            jenkinsRequestManager.authenticate(configuration.getServerUrl(), configuration.getSecurityMode(), configuration.getUsername(), configuration.getPasswordFile(), configuration.getCrumbFile());
+        } catch (Exception ex) {
+            displayConnectionErrorMsg();
+            return;
+        }
+
         loadJenkinsWorkspace();
 
         loadSelectedView();

@@ -19,6 +19,7 @@ package org.codinjutsu.tools.jenkins.logic;
 
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.model.*;
+import org.codinjutsu.tools.jenkins.security.SecurityMode;
 import org.codinjutsu.tools.jenkins.view.JenkinsBrowserPanel;
 import org.codinjutsu.tools.jenkins.view.JobSearchComponent;
 import org.codinjutsu.tools.jenkins.view.RssLatestBuildPanel;
@@ -29,6 +30,10 @@ import org.uispec4j.*;
 import javax.swing.*;
 
 import static java.util.Arrays.asList;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 
@@ -57,6 +62,22 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
         Tree jobTree = getJobTree(uiSpecBrowserPanel);
         jobTree.contentEquals("Jenkins (Unable to connect. Check Jenkins Plugin Settings.)\n").check();
     }
+
+    public void test_displayWithAuthenticationFailure() throws Exception {
+        //todo need to refactor this
+        createConfiguration("http://anyserver");
+        createLogic();
+        doThrow(new Exception("fail")).when(requestManagerMock).authenticate(anyString(), any(SecurityMode.class), anyString(), anyString(), anyString());
+
+        this.jenkinsBrowserLogic.init();
+        Thread.sleep(500);
+
+        initUI();
+
+        Tree jobTree = getJobTree(uiSpecBrowserPanel);
+        jobTree.contentEquals("Jenkins (Unable to connect. Check Jenkins Plugin Settings.)\n").check();
+    }
+
 
     public void test_displayInitialTreeAndLoadView() throws Exception {
         init("http://myjenkinsserver/");
@@ -114,6 +135,9 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
                 {"TESTING-HUDSON-7434", "http://ci.jenkins-ci.org/job/TESTING-HUDSON-7434/3/", "3", BuildStatusEnum.FAILURE.getStatus(), "2012-03-03T05:27:56Z", "TESTING-HUDSON-7434 #3 (broken for a long time)"}, //new build but still fail
         }));
         jenkinsBrowserLogic.loadLatestBuilds(true);
+
+        Thread.sleep(500);
+
         assertTrue(rssContent.textContains(
                 "<html>\n" +
                         "  <head>\n" +
@@ -151,6 +175,15 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
     }
 
     private void initLogic() throws Exception {
+        createLogic();
+
+        prepareMock();
+
+        jenkinsBrowserLogic.init();
+        Thread.sleep(800);
+    }
+
+    private void createLogic() {
         jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, requestManagerMock, new JenkinsBrowserPanel(), new RssLatestBuildPanel(), JenkinsBrowserLogic.RssBuildStatusCallback.NULL, JenkinsBrowserLogic.JobViewCallback.NULL) {
             @Override
             protected void installRssActions(JPanel rssActionPanel) {
@@ -164,11 +197,6 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
             protected void installSearchActions(JobSearchComponent searchComponent) {
             }
         };
-
-        prepareMock();
-
-        jenkinsBrowserLogic.init();
-        Thread.sleep(800);
     }
 
     private void prepareMock() throws Exception {
@@ -181,6 +209,7 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
                 .health("health-00to19", "15 tests en échec sur un total de 50 tests")
                 .get();
 
+        doNothing().when(requestManagerMock).authenticate(anyString(), any(SecurityMode.class), anyString(), anyString(), anyString());
 
         when(requestManagerMock.loadJenkinsWorkspace(configuration)).thenReturn(createJenkinsWorkspace());
 
