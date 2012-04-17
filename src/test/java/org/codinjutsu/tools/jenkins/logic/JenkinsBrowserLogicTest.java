@@ -121,7 +121,7 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
         uiSpecBrowserPanel.getTextBox("searchField").isVisible().check();
     }
 
-    public void test_RssReader() throws Exception {
+    public void disabled_test_RssReader() throws Exception {
         init("http://myjenkinsserver/");
 
         TextBox rssContent = uiSpecRssPanel.getTextBox("rssContent");

@@ -134,7 +134,7 @@ public class JenkinsControlComponent
         JenkinsBrowserPanel browserPanel = new JenkinsBrowserPanel();
         RssLatestBuildPanel rssLatestJobPanel = new RssLatestBuildPanel();
 
-        final JenkinsRssWidget jenkinsRssWidget = new JenkinsRssWidget(project);
+        final JenkinsRssWidget jenkinsRssWidget = new JenkinsRssWidget();
 
         JenkinsBrowserLogic.RssBuildStatusCallback rssBuildStatusCallback = new JenkinsBrowserLogic.RssBuildStatusCallback() {
             public void notifyOnBuildFailure(final String jobName, final Build build) {

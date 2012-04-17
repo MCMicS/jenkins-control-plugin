@@ -27,13 +27,11 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.*;
 
-public class JenkinsRssWidget extends NonOpaquePanel implements CustomStatusBarWidget, StatusBarWidget.Multiframe {
+public class JenkinsRssWidget extends NonOpaquePanel implements CustomStatusBarWidget {
 
-    private final Project project;
     private StatusBar myStatusBar;
 
-    public JenkinsRssWidget(Project project) {
-        this.project = project;
+    public JenkinsRssWidget() {
         BuildStatusIcon buildStatusIcon = createStatusIcon(0);
         setLayout(new BorderLayout());
         add(buildStatusIcon, BorderLayout.CENTER);
@@ -69,10 +67,6 @@ public class JenkinsRssWidget extends NonOpaquePanel implements CustomStatusBarW
 
     public void dispose() {
         myStatusBar = null;
-    }
-
-    public StatusBarWidget copy() {
-        return new JenkinsRssWidget(project);
     }
 
     public JComponent getComponent() {
