@@ -43,7 +43,23 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
     private Panel uiSpecBrowserPanel;
     private Panel uiSpecRssPanel;
 
+
+    public void test_displayWithEmptyServerUrl() throws Exception {
+        init("");
+
+        Tree jobTree = getJobTree(uiSpecBrowserPanel);
+        jobTree.contentEquals("Jenkins (Unable to connect. Check Jenkins Plugin Settings.)\n").check();
+    }
+
+    public void test_displayWithDummyServerUrl() throws Exception {
+        init(JenkinsConfiguration.DUMMY_JENKINS_SERVER_URL);
+
+        Tree jobTree = getJobTree(uiSpecBrowserPanel);
+        jobTree.contentEquals("Jenkins (Unable to connect. Check Jenkins Plugin Settings.)\n").check();
+    }
+
     public void test_displayInitialTreeAndLoadView() throws Exception {
+        init("http://myjenkinsserver/");
 
         ComboBox comboBox = uiSpecBrowserPanel.getComboBox("viewCombo");
         comboBox.contains("Vue 1", "All").check();
@@ -64,10 +80,10 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
     }
 
     public void test_displaySearchJobPanel() throws Exception {
+        init("http://myjenkinsserver/");
+
         Tree jobTree = getJobTree(uiSpecBrowserPanel);
         jobTree.selectionIsEmpty().check();
-
-//        Thread.sleep(500);//waiting for the swing thread finished
 
         uiSpecBrowserPanel.pressKey(Key.control(Key.F));
 
@@ -85,6 +101,8 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
     }
 
     public void test_RssReader() throws Exception {
+        init("http://myjenkinsserver/");
+
         TextBox rssContent = uiSpecRssPanel.getTextBox("rssContent");
 
         rssContent.textIsEmpty().check();
@@ -122,9 +140,17 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
     @Override
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        configuration = new JenkinsConfiguration();
-        configuration.setJobRefreshPeriod(60);
-        configuration.setServerUrl("http://myjenkinsserver/");
+
+    }
+
+    private void init(String serverUrl) throws Exception {
+        createConfiguration(serverUrl);
+
+        initLogic();
+        initUI();
+    }
+
+    private void initLogic() throws Exception {
         jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, requestManagerMock, new JenkinsBrowserPanel(), new RssLatestBuildPanel(), JenkinsBrowserLogic.RssBuildStatusCallback.NULL, JenkinsBrowserLogic.JobViewCallback.NULL) {
             @Override
             protected void installRssActions(JPanel rssActionPanel) {
@@ -139,6 +165,13 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
             }
         };
 
+        prepareMock();
+
+        jenkinsBrowserLogic.init();
+        Thread.sleep(500);
+    }
+
+    private void prepareMock() throws Exception {
         Job mintJob = new JobBuilder().job("mint", "blue", "http://myjenkinsserver/mint", "false", "true")
                 .lastBuild("http://myjenkinsserver/mint/150", "150", BuildStatusEnum.SUCCESS.getStatus(), "false", "2012-04-02_10-26-29")
                 .health("health-80plus", "0 tests en échec sur un total de 89 tests")
@@ -161,11 +194,17 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
                 {"infa_release.rss", "http://ci.jenkins-ci.org/job/infa_release.rss/139/", "139", BuildStatusEnum.FAILURE.getStatus(), "2011-03-16T20:30:51Z", "infa_release.rss #139 (broken)"},
                 {"TESTING-HUDSON-7434", "http://ci.jenkins-ci.org/job/TESTING-HUDSON-7434/2/", "2", BuildStatusEnum.FAILURE.getStatus(), "2011-03-02T05:27:56Z", "TESTING-HUDSON-7434 #2 (broken for a long time)"},
         }));
+    }
 
-        jenkinsBrowserLogic.init();
-        Thread.sleep(500);
+    private void initUI() {
         uiSpecBrowserPanel = new Panel(jenkinsBrowserLogic.getJenkinsBrowserPanel());
         uiSpecRssPanel = new Panel(jenkinsBrowserLogic.getRssLatestJobPanel());
+    }
+
+    private void createConfiguration(String serverUrl) {
+        configuration = new JenkinsConfiguration();
+        configuration.setJobRefreshPeriod(60);
+        configuration.setServerUrl(serverUrl);
     }
 
     private Jenkins createJenkinsWorkspace() {
