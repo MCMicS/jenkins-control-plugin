@@ -1,3 +1,8 @@
+Version 0.5.2
+    * [Upd] Improvment in handling Connection Exception
+    * [Add] Widget : when clicking on the status icon, a popup is displayed with builds status summary info
+    * [Fix] Widget should not be duplicated when opening new Project Window
+
 Version 0.5.1
     * [Fix] Regression : When the server url is not set (or set to a dummy url), the plugin should not try to connect
     * [Fix] Browser Panel : OneTouch Expandable should be accessible

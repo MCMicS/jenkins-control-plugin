@@ -17,6 +17,7 @@
 <ul>Version 0.5.2
     <li>[Upd] Improvment in handling Connection Exception</li>
     <li>[Add] Widget : when clicking on the status icon, a popup is displayed with builds status summary info</li>
+    <li>[Fix] Widget should not be duplicated when opening new Project Window</li>
 </ul>
 <ul>Version 0.5.1
     <li>[Fix] Regression : When the server url is not set (or set to a dummy url), the plugin should not try to connect</li>
