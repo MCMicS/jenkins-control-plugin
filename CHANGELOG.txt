@@ -1,4 +1,5 @@
 Version 0.5.2
+#	modified:   pom.xml
     * [Upd] Improvment in handling Connection Exception
     * [Add] Widget : when clicking on the status icon, a popup is displayed with builds status summary info
     * [Fix] Widget should not be duplicated when opening new Project Window
