@@ -24,13 +24,15 @@ import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.uispec4j.CheckBox;
-import org.uispec4j.Panel;
-import org.uispec4j.TextBox;
-import org.uispec4j.UISpecTestCase;
+import org.uispec4j.*;
+
+import java.net.MalformedURLException;
 
 import static org.codinjutsu.tools.jenkins.JenkinsConfiguration.DEFAULT_BUILD_DELAY;
 import static org.codinjutsu.tools.jenkins.JenkinsConfiguration.DUMMY_JENKINS_SERVER_URL;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doThrow;
 
 public class JenkinsConfigurationPanelTest extends UISpecTestCase {
 
@@ -143,27 +145,6 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
     }
 
 
-    public void testApplyConfigWithEmptyParamValueShouldFail() throws Exception {
-
-        TextBox serverUrlBox = uiSpecPanel.getTextBox("serverUrl");
-        serverUrlBox.setText("");
-        try {
-            jenkinsConfigurationPanel.applyConfigurationData(configuration);
-            fail();
-        } catch (ConfigurationException ex) {
-            assertEquals("'serverUrl' must be set", ex.getMessage());
-        }
-
-        serverUrlBox.setText(null);
-        try {
-            jenkinsConfigurationPanel.applyConfigurationData(configuration);
-            fail();
-        } catch (ConfigurationException ex) {
-            assertEquals("'serverUrl' must be set", ex.getMessage());
-        }
-    }
-
-
     public void testApplyConfigWithMalformedUrlShouldFail() throws Exception {
 
         TextBox serverUrlBox = uiSpecPanel.getTextBox("serverUrl");
@@ -177,6 +158,32 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
         }
     }
 
+    public void testConnectionWithEmptyServerUrlShouldFail() throws Exception {
+        TextBox serverUrlBox = uiSpecPanel.getTextBox("serverUrl");
+        serverUrlBox.setText("");
+
+        Button connexionButton = uiSpecPanel.getButton("testConnexionButton");
+
+        connexionButton.click();
+
+        TextBox connectionStatusLabel = uiSpecPanel.getTextBox("connectionStatusLabel");
+        connectionStatusLabel.textEquals("Fail: 'serverUrl' must be set").check();
+    }
+
+    public void testConnectionWithMalformedServerUrlShouldFail() throws Exception {
+        doThrow(new MalformedURLException("ouch")).when(jenkinsRequestManager).authenticate(anyString(), any(SecurityMode.class), anyString(), anyString(), anyString());
+
+
+        TextBox serverUrlBox = uiSpecPanel.getTextBox("serverUrl");
+        serverUrlBox.setText("htp:///bisous");
+
+        Button connexionButton = uiSpecPanel.getButton("testConnexionButton");
+
+        connexionButton.click();
+
+        TextBox connectionStatusLabel = uiSpecPanel.getTextBox("connectionStatusLabel");
+        connectionStatusLabel.textEquals("Fail: ouch").check();
+    }
 
     public void testApplyConfigWithInvalidIntegerShouldFail() throws Exception {
 

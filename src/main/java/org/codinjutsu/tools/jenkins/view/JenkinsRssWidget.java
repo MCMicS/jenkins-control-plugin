@@ -16,22 +16,34 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
-import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.popup.JBPopup;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.ui.popup.util.MinimizeButton;
 import com.intellij.openapi.wm.CustomStatusBarWidget;
 import com.intellij.openapi.wm.StatusBar;
-import com.intellij.openapi.wm.StatusBarWidget;
+import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.components.panels.NonOpaquePanel;
+import com.intellij.util.ui.UIUtil;
+import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
 import org.codinjutsu.tools.jenkins.view.util.BuildStatusIcon;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class JenkinsRssWidget extends NonOpaquePanel implements CustomStatusBarWidget {
 
     private StatusBar myStatusBar;
 
+    private final BuildSummaryPanel buildStatusSummaryPanel;
+
+    private JBPopup myPopup;
+
     public JenkinsRssWidget() {
+        this.buildStatusSummaryPanel = new BuildSummaryPanel();
+
         BuildStatusIcon buildStatusIcon = createStatusIcon(0);
         setLayout(new BorderLayout());
         add(buildStatusIcon, BorderLayout.CENTER);
@@ -39,17 +51,73 @@ public class JenkinsRssWidget extends NonOpaquePanel implements CustomStatusBarW
 
     private BuildStatusIcon createStatusIcon(int remainingBrokenBuilds) {
         BuildStatusIcon buildStatusIcon = BuildStatusIcon.createIcon(remainingBrokenBuilds);
+        buildStatusIcon.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                handle(e);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                handle(e);
+            }
+        });
+
+        buildStatusIcon.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         buildStatusIcon.setBorder(WidgetBorder.INSTANCE);
         return buildStatusIcon;
     }
 
-    public void updateIcon(int nbRemainingBrokenBuilds) {
-        final BuildStatusIcon buildIcon = createStatusIcon(nbRemainingBrokenBuilds);
+    public void updateInformation(BuildStatusAggregator buildStatusAggregator) {
+        buildStatusSummaryPanel.setInformation(buildStatusAggregator);
+
+        final BuildStatusIcon buildIcon = createStatusIcon(buildStatusAggregator.getNbBrokenBuilds());
 
         invalidate();
         removeAll();
         add(buildIcon, BorderLayout.CENTER);
         validate();
+    }
+
+    private void handle(MouseEvent e) {
+        if (myPopup != null && myPopup.isVisible()) {
+            if (!myPopup.isFocused()) {
+                myPopup.setRequestFocus(true);
+            }
+            return;
+
+        }
+        if (UIUtil.isActionClick(e, MouseEvent.MOUSE_PRESSED)) {
+            Point point = new Point(e.getX(), e.getY());
+            final Dimension dimension = buildStatusSummaryPanel.getPreferredSize();
+            point = new Point(point.x - dimension.width, point.y - dimension.height);
+            showRssPanel(new RelativePoint(e.getComponent(), point));
+        }
+    }
+
+    public void showRssPanel(RelativePoint point) {
+        myPopup = JBPopupFactory.getInstance()
+                .createComponentPopupBuilder(buildStatusSummaryPanel, buildStatusSummaryPanel)
+                .setMovable(true)
+                .setResizable(true)
+                .setTitle("Build Status summary")
+                .setDimensionServiceKey(null, "JenkinsBuildStatusPopupWindow", true)
+                .setMinSize(getMinSize())
+                .setCancelOnClickOutside(false)
+                .setRequestFocus(false)
+                .setBelongsToGlobalPopupStack(true)
+                .setLocateByContent(true)
+                .setCancelButton(new MinimizeButton("Hide"))
+                .createPopup();
+
+        myPopup.showInScreenCoordinates(buildStatusSummaryPanel, new Point(point.getPoint()));
+    }
+
+    private Dimension getMinSize() {
+        final Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
+        size.width *= 0.1d;
+        size.height *= 0.1d;
+        return size;
     }
 
     @NotNull

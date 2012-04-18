@@ -213,9 +213,10 @@ public class JenkinsBrowserLogic {
 
                     List<Job> jobList = jenkinsRequestManager.loadJenkinsView(jenkinsView.getUrl());
                     jenkins.setJobs(jobList);
-                    jenkinsBrowserPanel.fillJobTree(jenkins);
+                    BuildStatusAggregator buildStatusAggregator = new BuildStatusAggregator();
+                    jenkinsBrowserPanel.fillJobTree(jenkins, buildStatusAggregator);
 
-                    jobViewCallback.doAfterLoadingJobs(jenkins);
+                    jobViewCallback.doAfterLoadingJobs(buildStatusAggregator);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -397,11 +398,11 @@ public class JenkinsBrowserLogic {
 
     public interface JobViewCallback {
 
-        void doAfterLoadingJobs(Jenkins jenkins);
+        void doAfterLoadingJobs(BuildStatusAggregator buildStatusAggregator);
 
         JobViewCallback NULL = new JobViewCallback() {
             @Override
-            public void doAfterLoadingJobs(Jenkins jenkins) {
+            public void doAfterLoadingJobs(BuildStatusAggregator buildStatusAggregator) {
             }
         };
     }

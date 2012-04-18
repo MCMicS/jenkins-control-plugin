@@ -31,6 +31,8 @@ public class RssUtil {
 
     private static final Pattern FAILED_MATCHER = Pattern.compile("failing|broken");
 
+    private static final Pattern UNSTABLE_MATCHER = Pattern.compile("unstable");
+
     private static final Pattern ABORTED_MATCHER = Pattern.compile("aborted");
 
     private RssUtil() {
@@ -77,7 +79,12 @@ public class RssUtil {
             return;
         }
 
-        statusVisitor.visitUnkown();
+        if (matches(rssEntryTitle, UNSTABLE_MATCHER)) {
+            statusVisitor.visitUnstable();
+            return;
+        }
+
+        statusVisitor.visitUnknown();
     }
 
     private static boolean matches(String rssEntryTitle, Pattern pattern) {

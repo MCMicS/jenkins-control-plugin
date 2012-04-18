@@ -33,10 +33,10 @@ import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
 import org.codinjutsu.tools.jenkins.logic.JenkinsBrowserLogic;
 import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
 import org.codinjutsu.tools.jenkins.model.Build;
-import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.*;
 import org.jetbrains.annotations.Nls;
@@ -68,6 +68,7 @@ public class JenkinsControlComponent
     private final Project project;
     private JenkinsBrowserLogic jenkinsBrowserLogic;
     private JenkinsRequestManager jenkinsRequestManager;
+    private JenkinsRssWidget jenkinsRssWidget;
 
 
     public JenkinsControlComponent(Project project) {
@@ -134,7 +135,7 @@ public class JenkinsControlComponent
         JenkinsBrowserPanel browserPanel = new JenkinsBrowserPanel();
         RssLatestBuildPanel rssLatestJobPanel = new RssLatestBuildPanel();
 
-        final JenkinsRssWidget jenkinsRssWidget = new JenkinsRssWidget();
+        jenkinsRssWidget = new JenkinsRssWidget();
 
         JenkinsBrowserLogic.RssBuildStatusCallback rssBuildStatusCallback = new JenkinsBrowserLogic.RssBuildStatusCallback() {
             public void notifyOnBuildFailure(final String jobName, final Build build) {
@@ -146,8 +147,8 @@ public class JenkinsControlComponent
 
         JenkinsBrowserLogic.JobViewCallback jobViewCallback = new JenkinsBrowserLogic.JobViewCallback() {
             @Override
-            public void doAfterLoadingJobs(Jenkins jenkins) {
-                jenkinsRssWidget.updateIcon(jenkins.getTotalBrokenBuilds());
+            public void doAfterLoadingJobs(BuildStatusAggregator buildStatusAggregator) {
+                jenkinsRssWidget.updateInformation(buildStatusAggregator);
             }
         };
 
@@ -215,5 +216,6 @@ public class JenkinsControlComponent
 
 
     public void disposeComponent() {
+        jenkinsRssWidget.dispose();
     }
 }

@@ -16,34 +16,39 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
-import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
+public class BuildStatusAggregator implements BuildStatusVisitor {
 
-public class RssBuildStatusVisitor implements BuildStatusVisitor {
+    private int nbBrokenBuilds = 0;
 
-    private BuildStatusEnum buildStatusEnum;
+    private int nbSucceededBuilds = 0;
 
+    private int nbUnstableBuilds = 0;
 
     public void visitFailed() {
-        buildStatusEnum = BuildStatusEnum.FAILURE;
+        nbBrokenBuilds++;
     }
 
     public void visitSuccess() {
-        buildStatusEnum = BuildStatusEnum.SUCCESS;
+        nbSucceededBuilds++;
     }
 
     public void visitUnstable() {
-        buildStatusEnum = BuildStatusEnum.UNSTABLE;
+        nbUnstableBuilds++;
     }
 
-    public void visitUnknown() {
-        buildStatusEnum = BuildStatusEnum.NULL;
+    public void visitUnknown() {}
+
+    public void visitAborted() {}
+
+    public int getNbBrokenBuilds() {
+        return nbBrokenBuilds;
     }
 
-    public void visitAborted() {
-        buildStatusEnum = BuildStatusEnum.ABORTED;
+    public int getNbSucceededBuilds() {
+        return nbSucceededBuilds;
     }
 
-    public BuildStatusEnum getStatus() {
-        return buildStatusEnum;
+    public int getNbUnstableBuilds() {
+        return nbUnstableBuilds;
     }
 }

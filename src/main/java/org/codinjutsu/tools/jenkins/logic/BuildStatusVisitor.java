@@ -22,8 +22,22 @@ public interface BuildStatusVisitor {
 
     void visitSuccess();
 
-    void visitUnkown();
+    void visitUnstable();
+
+    void visitUnknown();
 
     void visitAborted();
 
+    public BuildStatusVisitor NULL = new BuildStatusVisitor() {
+
+        public void visitFailed() {}
+
+        public void visitSuccess() {}
+
+        public void visitUnstable() {}
+
+        public void visitUnknown() {}
+
+        public void visitAborted() {}
+    };
 }

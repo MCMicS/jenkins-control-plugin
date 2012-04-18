@@ -16,9 +16,9 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
-import org.codinjutsu.tools.jenkins.model.Jenkins;
-import org.codinjutsu.tools.jenkins.model.Job;
-import org.codinjutsu.tools.jenkins.model.View;
+import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
+import org.codinjutsu.tools.jenkins.logic.BuildStatusVisitor;
+import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
 import javax.swing.*;
@@ -49,7 +49,7 @@ public class JenkinsBrowserPanel extends JPanel {
 
     public void fillData(Jenkins jenkins) {
         fillViewCombo(jenkins);
-        fillJobTree(jenkins);
+        fillJobTree(jenkins, BuildStatusVisitor.NULL);
     }
 
     public void createSearchPanel() {
@@ -58,16 +58,46 @@ public class JenkinsBrowserPanel extends JPanel {
     }
 
 
-    public void fillJobTree(Jenkins jenkins) {
+    public void fillJobTree(Jenkins jenkins, BuildStatusVisitor buildStatusVisitor) {
         List<Job> jobList = jenkins.getJobList();
         final DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode(jenkins);
         if (!jobList.isEmpty()) {
             for (Job job : jobList) {
                 DefaultMutableTreeNode jobNode = new DefaultMutableTreeNode(job);
                 rootNode.add(jobNode);
+                visit(buildStatusVisitor, job);
             }
         }
         jobTree.setModel(new DefaultTreeModel(rootNode));
+    }
+
+    private void visit(BuildStatusVisitor buildStatusVisitor, Job job) {
+        Build lastBuild = job.getLastBuild();
+        if (lastBuild != null) {
+            BuildStatusEnum status = lastBuild.getStatus();
+            if (BuildStatusEnum.FAILURE == status || BuildStatusEnum.STABLE == status) {
+                buildStatusVisitor.visitFailed();
+                return;
+            }
+            if (BuildStatusEnum.SUCCESS == status) {
+                buildStatusVisitor.visitSuccess();
+                return;
+            }
+            if (BuildStatusEnum.UNSTABLE == status) {
+                buildStatusVisitor.visitUnstable();
+                return;
+            }
+            if (BuildStatusEnum.ABORTED == status) {
+                buildStatusVisitor.visitAborted();
+                return;
+            }
+            if (BuildStatusEnum.NULL == status) {
+                buildStatusVisitor.visitUnknown();
+                return;
+            }
+        }
+
+        buildStatusVisitor.visitUnknown();
     }
 
 

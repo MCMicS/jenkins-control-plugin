@@ -47,7 +47,7 @@ public class JenkinsConfigurationPanel {
     private static final Color CONNECTION_TEST_FAILED_COLOR = new Color(165, 0, 0);
 
 
-    @GuiField(validators = {NOTNULL, URL})
+    @GuiField(validators = {URL})
     private JTextField serverUrl;
 
     @GuiField(validators = {NOTNULL, POSITIVE_INTEGER})
@@ -102,6 +102,9 @@ public class JenkinsConfigurationPanel {
 
         passwordFile.getComponent().getTextField().setName("passwordFile");
         crumbDataFile.getComponent().getTextField().setName("crumbDataFile");
+
+        testConnexionButton.setName("testConnexionButton");
+        connectionStatusLabel.setName("connectionStatusLabel");
 
         initListeners();
 
@@ -206,6 +209,7 @@ public class JenkinsConfigurationPanel {
         testConnexionButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
                 try {
+                    new NotNullValidator().validate(serverUrl);
                     jenkinsRequestManager.authenticate(
                             serverUrl.getText(), securityMode, username.getText(), passwordFile.getComponent().getText(), crumbDataFile.getComponent().getText());
                     setConnectionFeedbackLabel(CONNECTION_TEST_SUCCESSFUL_COLOR, "Successful");
