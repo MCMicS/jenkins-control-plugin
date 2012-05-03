@@ -72,7 +72,7 @@ public class JenkinsBrowserPanel extends JPanel {
 
     private void visit(Job job, BuildStatusVisitor buildStatusVisitor) {
         Build lastBuild = job.getLastBuild();
-        if (lastBuild != null) {
+        if (job.isBuildable() && lastBuild != null) {
             BuildStatusEnum status = lastBuild.getStatus();
             if (BuildStatusEnum.FAILURE == status) {
                 buildStatusVisitor.visitFailed();

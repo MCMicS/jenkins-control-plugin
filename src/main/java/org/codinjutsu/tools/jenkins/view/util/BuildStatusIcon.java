@@ -21,6 +21,7 @@ import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
 
 public abstract class BuildStatusIcon extends JComponent {
 
@@ -29,11 +30,28 @@ public abstract class BuildStatusIcon extends JComponent {
 
     protected abstract String getTooltipText();
 
-    public static BuildStatusIcon createIcon(int remainingBrokenBuilds) {
-        if (remainingBrokenBuilds == 0) {
-            return new NoBrokenBuildIcon();
+    public static JComponent createIcon(int nbBrokenBuilds, int nbUnstableBuilds, MouseAdapter mouseAdapter) {
+        if (nbBrokenBuilds == 0 && nbUnstableBuilds == 0) {
+            NoBrokenBuildIcon noBrokenBuildIcon = new NoBrokenBuildIcon();
+            noBrokenBuildIcon.addMouseListener(mouseAdapter);
+            return noBrokenBuildIcon;
         }
-        return new BrokenBuildIcon(remainingBrokenBuilds);
+        BrokenBuildIcon brokenBuildIcon = new BrokenBuildIcon(nbBrokenBuilds);
+        brokenBuildIcon.addMouseListener(mouseAdapter);
+        if (nbBrokenBuilds > 0 && nbUnstableBuilds == 0) {
+            return brokenBuildIcon;
+        }
+        UnstableBuildIcon unstableBuildIcon = new UnstableBuildIcon(nbUnstableBuilds);
+        unstableBuildIcon.addMouseListener(mouseAdapter);
+        if (nbBrokenBuilds == 0 && nbUnstableBuilds > 0) {
+            return unstableBuildIcon;
+        }
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+        panel.add(brokenBuildIcon);
+        panel.add(unstableBuildIcon);
+        return panel;
     }
 
     private BuildStatusIcon() {
@@ -65,11 +83,51 @@ public abstract class BuildStatusIcon extends JComponent {
     }
 
 
-    private static class BrokenBuildIcon extends BuildStatusIcon {
+    private static class UnstableBuildIcon extends AbstractUnSuccessfullIcon {
+
+        private static final Icon YELLOW_ICON = GuiUtil.loadIcon("yellow.png");
+
+        private static final String NB_UNSTABLE_BUILD_MESSAGE = "%d remaining unstable builds";
+
+        private UnstableBuildIcon(int nbUnstableBuilds) {
+            super(nbUnstableBuilds);
+        }
+
+        @Override
+        protected String getTooltipTemplateText() {
+            return NB_UNSTABLE_BUILD_MESSAGE;
+        }
+
+        @Override
+        protected Icon getIcon() {
+            return YELLOW_ICON;
+        }
+    }
+
+
+    private static class BrokenBuildIcon extends AbstractUnSuccessfullIcon {
 
         private static final Icon EXCLAMATION_ICON = GuiUtil.loadIcon("red.png");
 
         private static final String REMAINING_BROKEN_BUILD_MESSAGE = "%d remaining broken builds";
+
+        protected BrokenBuildIcon(int nbUnsuccessfulBuilds) {
+            super(nbUnsuccessfulBuilds);
+        }
+
+        @Override
+        protected String getTooltipTemplateText() {
+            return REMAINING_BROKEN_BUILD_MESSAGE;
+        }
+
+        @Override
+        protected Icon getIcon() {
+            return EXCLAMATION_ICON;
+        }
+    }
+
+    private static abstract class AbstractUnSuccessfullIcon extends BuildStatusIcon {
+
 
         private final int remainingBrokenBuilds;
 
@@ -78,27 +136,25 @@ public abstract class BuildStatusIcon extends JComponent {
         private final int numberWith;
 
 
-        private BrokenBuildIcon(int remainingBrokenBuilds) {
-            this.remainingBrokenBuilds = remainingBrokenBuilds;
-            numberWith = String.valueOf(remainingBrokenBuilds).length() * PIXEL_WIDTH;
+        protected AbstractUnSuccessfullIcon(int nbUnsuccessfulBuilds) {
+            this.remainingBrokenBuilds = nbUnsuccessfulBuilds;
+            numberWith = String.valueOf(nbUnsuccessfulBuilds).length() * PIXEL_WIDTH;
         }
 
-        @Override
-        protected Icon getIcon() {
-            return EXCLAMATION_ICON;
-        }
 
         @Override
         protected String getTooltipText() {
-            return String.format(REMAINING_BROKEN_BUILD_MESSAGE, remainingBrokenBuilds);
+            return String.format(getTooltipTemplateText(), remainingBrokenBuilds);
         }
+
+        protected abstract String getTooltipTemplateText();
 
 
         public Dimension getPreferredSize() {
             final Insets insets = getInsets();
             return new Dimension(
-                    EXCLAMATION_ICON.getIconWidth() + insets.left + insets.right + numberWith,
-                    EXCLAMATION_ICON.getIconHeight() + insets.top + insets.bottom
+                    getIcon().getIconWidth() + insets.left + insets.right + numberWith,
+                    getIcon().getIconHeight() + insets.top + insets.bottom
             );
         }
 
@@ -113,8 +169,8 @@ public abstract class BuildStatusIcon extends JComponent {
             Font originalFont = g.getFont();
             Color originalColor = g.getColor();
             g.setFont(calcFont());
-            y += EXCLAMATION_ICON.getIconHeight() - g.getFontMetrics().getDescent();
-            x += EXCLAMATION_ICON.getIconWidth();
+            y += getIcon().getIconHeight() - g.getFontMetrics().getDescent();
+            x += getIcon().getIconWidth();
 
             g.setColor(Color.BLACK);
             g.drawString(String.valueOf(remainingBrokenBuilds), x, y);
@@ -124,7 +180,7 @@ public abstract class BuildStatusIcon extends JComponent {
         }
 
         private Font calcFont() {
-            return getFont().deriveFont(Font.BOLD).deriveFont((float) EXCLAMATION_ICON.getIconHeight() * 3 / 5);
+            return getFont().deriveFont(Font.BOLD).deriveFont((float) getIcon().getIconHeight() * 3 / 5);
         }
     }
 

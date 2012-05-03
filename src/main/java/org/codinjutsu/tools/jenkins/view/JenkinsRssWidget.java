@@ -44,14 +44,13 @@ public class JenkinsRssWidget extends NonOpaquePanel implements CustomStatusBarW
     public JenkinsRssWidget() {
         this.buildStatusSummaryPanel = new BuildSummaryPanel();
 
-        BuildStatusIcon buildStatusIcon = createStatusIcon(0);
+        JComponent buildStatusIcon = createStatusIcon(0, 0);
         setLayout(new BorderLayout());
         add(buildStatusIcon, BorderLayout.CENTER);
     }
 
-    private BuildStatusIcon createStatusIcon(int remainingBrokenBuilds) {
-        BuildStatusIcon buildStatusIcon = BuildStatusIcon.createIcon(remainingBrokenBuilds);
-        buildStatusIcon.addMouseListener(new MouseAdapter() {
+    private JComponent createStatusIcon(int nbBrokenBuilds, int nbUnstableBuilds) {
+        MouseAdapter mouseAdapter = new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 handle(e);
@@ -61,7 +60,8 @@ public class JenkinsRssWidget extends NonOpaquePanel implements CustomStatusBarW
             public void mouseReleased(MouseEvent e) {
                 handle(e);
             }
-        });
+        };
+        JComponent buildStatusIcon = BuildStatusIcon.createIcon(nbBrokenBuilds, nbUnstableBuilds, mouseAdapter);
 
         buildStatusIcon.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         buildStatusIcon.setBorder(WidgetBorder.INSTANCE);
@@ -71,7 +71,7 @@ public class JenkinsRssWidget extends NonOpaquePanel implements CustomStatusBarW
     public void updateInformation(BuildStatusAggregator buildStatusAggregator) {
         buildStatusSummaryPanel.setInformation(buildStatusAggregator);
 
-        final BuildStatusIcon buildIcon = createStatusIcon(buildStatusAggregator.getNbBrokenBuilds());
+        final JComponent buildIcon = createStatusIcon(buildStatusAggregator.getNbBrokenBuilds(), buildStatusAggregator.getNbUnstableBuilds());
 
         invalidate();
         removeAll();
