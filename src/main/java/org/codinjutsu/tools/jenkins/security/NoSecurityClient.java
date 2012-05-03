@@ -17,9 +17,11 @@
 package org.codinjutsu.tools.jenkins.security;
 
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.io.IOUtils;
+import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,17 +36,12 @@ class NoSecurityClient extends AbstractSecurityClient {
     }
 
 
-    public void connect(URL jenkinsURL) throws Exception {
-        try {
-            URL url = new URL(jenkinsURL.toString() + TEST_CONNECTION_REQUEST);
-            execute(url);
-        } catch (IOException e) {
-            throw new AuthenticationException("Failed to connect to " + jenkinsURL, e);
-        }
+    public void connect(URL url) {
+        execute(url);
     }
 
 
-    public String execute(URL url) throws Exception {
+    public String execute(URL url) {
         String urlStr = url.toString();
         PostMethod post = new PostMethod(urlStr);
 
@@ -84,8 +81,13 @@ class NoSecurityClient extends AbstractSecurityClient {
                 }
             }
             return responseBody;
+        } catch (HttpException httpEx) {
+            throw new ConfigurationException(String.format("Error during method execution %s", url.toString()), httpEx);
+        } catch (IOException ioEx) {
+            throw new ConfigurationException(String.format("Error during method execution %s", url.toString()), ioEx);
         } finally {
-            if (inputStream != null) inputStream.close();
+            if (inputStream != null)
+                IOUtils.closeQuietly(inputStream);
             post.releaseConnection();
         }
     }

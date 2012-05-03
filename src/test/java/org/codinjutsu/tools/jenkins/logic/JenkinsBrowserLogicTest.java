@@ -19,6 +19,7 @@ package org.codinjutsu.tools.jenkins.logic;
 
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.model.*;
+import org.codinjutsu.tools.jenkins.security.AuthenticationException;
 import org.codinjutsu.tools.jenkins.security.SecurityMode;
 import org.codinjutsu.tools.jenkins.view.JenkinsBrowserPanel;
 import org.codinjutsu.tools.jenkins.view.JobSearchComponent;
@@ -67,7 +68,7 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
         //todo need to refactor this
         createConfiguration("http://anyserver");
         createLogic();
-        doThrow(new Exception("fail")).when(requestManagerMock).authenticate(anyString(), any(SecurityMode.class), anyString(), anyString(), anyString());
+        doThrow(new AuthenticationException("fail")).when(requestManagerMock).authenticate(anyString(), any(SecurityMode.class), anyString(), anyString(), anyString());
 
         this.jenkinsBrowserLogic.init();
         Thread.sleep(500);

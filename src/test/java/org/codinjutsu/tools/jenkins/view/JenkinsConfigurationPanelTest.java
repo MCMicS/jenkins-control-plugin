@@ -19,6 +19,7 @@ package org.codinjutsu.tools.jenkins.view;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
+import org.codinjutsu.tools.jenkins.security.AuthenticationException;
 import org.codinjutsu.tools.jenkins.security.SecurityMode;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
@@ -170,8 +171,8 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
         connectionStatusLabel.textEquals("Fail: 'serverUrl' must be set").check();
     }
 
-    public void testConnectionWithMalformedServerUrlShouldFail() throws Exception {
-        doThrow(new MalformedURLException("ouch")).when(jenkinsRequestManager).authenticate(anyString(), any(SecurityMode.class), anyString(), anyString(), anyString());
+    public void testConnectionWithAuthenticationExceptionThrownShouldFail() throws Exception {
+        doThrow(new AuthenticationException("ouch")).when(jenkinsRequestManager).authenticate(anyString(), any(SecurityMode.class), anyString(), anyString(), anyString());
 
 
         TextBox serverUrlBox = uiSpecPanel.getTextBox("serverUrl");

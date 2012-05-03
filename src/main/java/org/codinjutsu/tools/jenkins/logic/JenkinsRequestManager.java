@@ -28,8 +28,10 @@ import org.codinjutsu.tools.jenkins.security.SecurityMode;
 import org.codinjutsu.tools.jenkins.util.RssUtil;
 import org.jdom.Document;
 import org.jdom.Element;
+import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
@@ -92,27 +94,35 @@ public class JenkinsRequestManager {
     }
 
 
-    public Jenkins loadJenkinsWorkspace(JenkinsConfiguration configuration) throws Exception {
+    public Jenkins loadJenkinsWorkspace(JenkinsConfiguration configuration) {
         URL url = urlBuilder.createJenkinsWorkspaceUrl(configuration);
         String input = securityClient.execute(url);
 
-        Document doc = getXMLBuilder().build(new CharSequenceReader(input));
+        CharSequenceReader jenkinsJobDataReader = new CharSequenceReader(input);
+        try {
+            Document doc = buildDocument(jenkinsJobDataReader);
 
-        Jenkins jenkins = createJenkins(doc, configuration.getServerUrl());
-        jenkins.setPrimaryView(createPreferredView(doc));
-        jenkins.setViews(createJenkinsViews(doc));
+            Jenkins jenkins = createJenkins(doc, configuration.getServerUrl());
+            jenkins.setPrimaryView(createPreferredView(doc));
+            jenkins.setViews(createJenkinsViews(doc));
 
-        return jenkins;
+            return jenkins;
+        } finally {
+            IOUtils.closeQuietly(jenkinsJobDataReader);
+        }
+
+
     }
 
 
-    public Map<String, Build> loadJenkinsRssLatestBuilds(JenkinsConfiguration configuration) throws Exception {
+    public Map<String, Build> loadJenkinsRssLatestBuilds(JenkinsConfiguration configuration) {
         URL url = urlBuilder.createRssLatestUrl(configuration.getServerUrl());
 
         String rssData = securityClient.execute(url);
         CharSequenceReader rssDataReader = new CharSequenceReader(rssData);
         try {
-            Document doc = getXMLBuilder().build(rssDataReader);
+            Document doc = buildDocument(rssDataReader);
+
             return createLatestBuildList(doc);
         } finally {
             IOUtils.closeQuietly(rssDataReader);
@@ -120,13 +130,13 @@ public class JenkinsRequestManager {
     }
 
 
-    public List<Job> loadJenkinsView(String viewUrl) throws Exception {
+    public List<Job> loadJenkinsView(String viewUrl) {
         URL url = urlBuilder.createViewUrl(viewUrl);
 
         String jenkinsViewData = securityClient.execute(url);
         CharSequenceReader jenkinsViewDataReader = new CharSequenceReader(jenkinsViewData);
         try {
-            Document doc = getXMLBuilder().build(jenkinsViewDataReader);
+            Document doc = buildDocument(jenkinsViewDataReader);
             return createJenkinsJobs(doc);
         } finally {
             IOUtils.closeQuietly(jenkinsViewDataReader);
@@ -134,14 +144,14 @@ public class JenkinsRequestManager {
     }
 
 
-    public Job loadJob(String jenkinsJobUrl) throws Exception {
+    public Job loadJob(String jenkinsJobUrl) {
         URL url = urlBuilder.createJobUrl(jenkinsJobUrl);
 
         String jenkinsJobData = securityClient.execute(url);
         CharSequenceReader jenkinsJobDataReader = new CharSequenceReader(jenkinsJobData);
 
         try {
-            Document doc = getXMLBuilder().build(jenkinsJobDataReader);
+            Document doc = buildDocument(jenkinsJobDataReader);
             Element jobElement = doc.getRootElement();
             return createJob(jobElement);
         } finally {
@@ -149,22 +159,32 @@ public class JenkinsRequestManager {
         }
     }
 
+    private Document buildDocument(CharSequenceReader jenkinsJobDataReader) {
+        try {
+            return getXMLBuilder().build(jenkinsJobDataReader);
+        } catch (JDOMException e) {
+            throw new RuntimeException("Unexpected xml document:", e);
+        } catch (IOException e) {
+            throw new RuntimeException("Error during parsing document:", e);
+        }
+    }
 
-    public void runBuild(Job job, JenkinsConfiguration configuration) throws Exception {
+
+    public void runBuild(Job job, JenkinsConfiguration configuration) {
         URL url = urlBuilder.createRunJobUrl(job.getUrl(), configuration);
         securityClient.execute(url);
     }
 
 
-    public void runParameterizedBuild(Job job, JenkinsConfiguration configuration, Map<String, String> paramValueMap) throws Exception {
+    public void runParameterizedBuild(Job job, JenkinsConfiguration configuration, Map<String, String> paramValueMap) {
         URL url = urlBuilder.createRunParameterizedJobUrl(job.getUrl(), configuration, paramValueMap);
         securityClient.execute(url);
     }
 
 
-    public void authenticate(final String serverUrl, SecurityMode securityMode, final String username, final String passwordFile, String crumbDataFilename) throws Exception {
+    public void authenticate(final String serverUrl, SecurityMode securityMode, final String username, final String passwordFile, String crumbDataFilename) {
         securityClient = SecurityClientFactory.create(securityMode, username, passwordFile, crumbDataFilename);
-        securityClient.connect(new URL(serverUrl));
+        securityClient.connect(urlBuilder.createAuthenticationUrl(serverUrl));
     }
 
 

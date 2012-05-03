@@ -17,6 +17,7 @@
 package org.codinjutsu.tools.jenkins.security;
 
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
@@ -44,9 +45,7 @@ class BasicSecurityClient extends AbstractSecurityClient {
     }
 
 
-    public void connect(URL jenkinsURL) throws Exception {
-        URL url = new URL(jenkinsURL.toString() + TEST_CONNECTION_REQUEST);
-
+    public void connect(URL url) {
         setCrumbValueIfNeeded();
 
         if (StringUtils.isNotEmpty(passwordFile)) {
@@ -56,7 +55,7 @@ class BasicSecurityClient extends AbstractSecurityClient {
         doAuthentication(url);
     }
 
-    private void doAuthentication(URL jenkinsUrl) throws IOException, AuthenticationException {
+    private void doAuthentication(URL jenkinsUrl) throws AuthenticationException {
 
         if (username != null && password != null) {
             httpClient.getState().setCredentials(
@@ -82,6 +81,10 @@ class BasicSecurityClient extends AbstractSecurityClient {
 
                 checkResponse(responseCode, responseBody);
             }
+        } catch (HttpException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         } finally {
             post.releaseConnection();
         }
@@ -89,7 +92,7 @@ class BasicSecurityClient extends AbstractSecurityClient {
     }
 
 
-    public String execute(URL url) throws Exception {
+    public String execute(URL url) {
         String urlStr = url.toString();
         PostMethod post = new PostMethod(urlStr);
         setCrumbValueIfNeeded();
@@ -127,6 +130,10 @@ class BasicSecurityClient extends AbstractSecurityClient {
                 }
             }
             return responseBody;
+        } catch (HttpException httpEx) {
+            throw new RuntimeException(httpEx);
+        } catch (IOException ioEx) {
+            throw new RuntimeException(ioEx);
         } finally {
             IOUtils.closeQuietly(inputStream);
             post.releaseConnection();

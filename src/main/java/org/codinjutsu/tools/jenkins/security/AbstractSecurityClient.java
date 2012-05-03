@@ -19,8 +19,10 @@ package org.codinjutsu.tools.jenkins.security;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 
@@ -28,7 +30,6 @@ abstract class AbstractSecurityClient implements SecurityClient {
 
     private static final String BAD_CRUMB_DATA = "No valid crumb was included in the request";
     static final String CRUMB_NAME = ".crumb";
-    static final String TEST_CONNECTION_REQUEST = "/api/xml?tree=nodeName";
 
     private final String crumbDataFile;
     String crumbValue;
@@ -40,7 +41,7 @@ abstract class AbstractSecurityClient implements SecurityClient {
         this.crumbDataFile = crumbDataFile;
     }
 
-    void setCrumbValueIfNeeded() throws IOException {
+    void setCrumbValueIfNeeded() {
         if (!isCrumbDataSet()) {
             if (StringUtils.isNotEmpty(crumbDataFile)) {
                 crumbValue = extractValueFromFile(crumbDataFile);
@@ -48,13 +49,18 @@ abstract class AbstractSecurityClient implements SecurityClient {
         }
     }
 
-    String extractValueFromFile(String file) throws IOException {
-        String value = IOUtils.toString(new FileInputStream(file));
-        if (StringUtils.isNotEmpty(value)) {
-            value = StringUtils.removeEnd(value, "\n");
+    String extractValueFromFile(String file) {
+        try {
+            String value = IOUtils.toString(new FileInputStream(file));
+            if (StringUtils.isNotEmpty(value)) {
+                value = StringUtils.removeEnd(value, "\n");
+            }
+            return value;
+        } catch (FileNotFoundException e) {
+            throw new ConfigurationException(String.format("Crumb file '%s' not found", file));
+        } catch (IOException e) {
+            throw new IllegalStateException(String.format("Unable to read '%s'", file), e);
         }
-
-        return value;
     }
 
     void checkResponse(int statusCode, String responseBody) throws AuthenticationException {

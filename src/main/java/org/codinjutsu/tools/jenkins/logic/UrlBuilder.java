@@ -34,34 +34,75 @@ class UrlBuilder {
     private static final String BASIC_JENKINS_INFO = "nodeName,nodeDescription,primaryView[name,url],views[name,url,views[name,url]]";
     private static final String BASIC_JOB_INFO = "name,url,color,buildable,inQueue,healthReport[description,iconUrl],lastBuild[id,url,building,result,number],property[parameterDefinitions[name,type,defaultParameterValue[value],choices]]";
     private static final String BASIC_VIEW_INFO = "name,url,jobs[" + BASIC_JOB_INFO + "]";
+    public static final String TEST_CONNECTION_REQUEST = "/api/xml?tree=nodeName";
 
-    public URL createRunJobUrl(String jobBuildUrl, JenkinsConfiguration configuration)
-            throws MalformedURLException, URIException {
-        return new URL(jobBuildUrl + URIUtil.encodePathQuery(BUILD + "?delay=" + configuration.getBuildDelay() + "sec"));
+    public URL createRunJobUrl(String jobBuildUrl, JenkinsConfiguration configuration) {
+        try {
+            return new URL(jobBuildUrl + URIUtil.encodePathQuery(BUILD + "?delay=" + configuration.getBuildDelay() + "sec"));
+        } catch (MalformedURLException malformedURLEx) {
+            throw new IllegalArgumentException("URL is malformed : " + malformedURLEx);
+        } catch (URIException uriEx) {
+            throw new IllegalArgumentException("Error during URL creation: " + uriEx);
+        }
     }
 
-    public URL createRunParameterizedJobUrl(String jobUrl, JenkinsConfiguration configuration, Map<String, String> paramValueMap) throws MalformedURLException, URIException {
+    public URL createRunParameterizedJobUrl(String jobUrl, JenkinsConfiguration configuration, Map<String, String> paramValueMap) {
         StringBuilder strBuilder = new StringBuilder(PARAMETERIZED_BUILD + "?delay=" + configuration.getBuildDelay() + "sec");
         for (Map.Entry<String, String> valueByName : paramValueMap.entrySet()) {
             strBuilder.append("&").append(valueByName.getKey()).append("=").append(valueByName.getValue());
         }
-        return new URL(jobUrl + URIUtil.encodePathQuery(strBuilder.toString()));
+        try {
+            return new URL(jobUrl + URIUtil.encodePathQuery(strBuilder.toString()));
+        } catch (MalformedURLException malformedURLEx) {
+            throw new IllegalArgumentException("URL is malformed : " + malformedURLEx);
+        } catch (URIException uriEx) {
+            throw new IllegalArgumentException("Error during URL creation: " + uriEx);
+        }
     }
 
-    public URL createJenkinsWorkspaceUrl(JenkinsConfiguration configuration)
-            throws MalformedURLException, URIException {
-        return new URL(URIUtil.encodePathQuery(configuration.getServerUrl() + API_XML + TREE_PARAM + BASIC_JENKINS_INFO));
+    public URL createJenkinsWorkspaceUrl(JenkinsConfiguration configuration) {
+        try {
+            return new URL(URIUtil.encodePathQuery(configuration.getServerUrl() + API_XML + TREE_PARAM + BASIC_JENKINS_INFO));
+        } catch (MalformedURLException malformedURLEx) {
+            throw new IllegalArgumentException("URL is malformed : " + malformedURLEx);
+        } catch (URIException uriEx) {
+            throw new IllegalArgumentException("Error during URL creation: " + uriEx);
+        }
     }
 
-    public URL createViewUrl(String viewUrl) throws MalformedURLException, URIException {
-        return new URL(viewUrl + URIUtil.encodePathQuery(API_XML + TREE_PARAM + BASIC_VIEW_INFO));
+    public URL createViewUrl(String viewUrl) {
+        try {
+            return new URL(viewUrl + URIUtil.encodePathQuery(API_XML + TREE_PARAM + BASIC_VIEW_INFO));
+        } catch (MalformedURLException malformedURLEx) {
+            throw new IllegalArgumentException("URL is malformed : " + malformedURLEx);
+        } catch (URIException uriEx) {
+            throw new IllegalArgumentException("Error during URL creation: " + uriEx);
+        }
     }
 
-    public URL createJobUrl(String jobUrl) throws MalformedURLException, URIException {
-        return new URL(jobUrl + URIUtil.encodePathQuery(API_XML + TREE_PARAM + BASIC_JOB_INFO));
+    public URL createJobUrl(String jobUrl) {
+        try {
+            return new URL(jobUrl + URIUtil.encodePathQuery(API_XML + TREE_PARAM + BASIC_JOB_INFO));
+        } catch (MalformedURLException malformedURLEx) {
+            throw new IllegalArgumentException("URL is malformed : ", malformedURLEx);
+        } catch (URIException uriEx) {
+            throw new IllegalArgumentException("Error during URL creation: ", uriEx);
+        }
     }
 
-    public URL createRssLatestUrl(String serverUrl) throws MalformedURLException {
-        return new URL(serverUrl + RSS_LATEST);
+    public URL createRssLatestUrl(String serverUrl) {
+        try {
+            return new URL(serverUrl + RSS_LATEST);
+        } catch (MalformedURLException malformedURLEx) {
+            throw new IllegalArgumentException("URL is malformed : ", malformedURLEx);
+        }
+    }
+
+    public URL createAuthenticationUrl(String serverUrl) {
+        try {
+            return new URL(serverUrl + TEST_CONNECTION_REQUEST);
+        } catch (MalformedURLException malformedUrlEx) {
+            throw new IllegalArgumentException("URL is malformed : ", malformedUrlEx);
+        }
     }
 }

@@ -118,7 +118,7 @@ public class JenkinsBrowserLogic {
     }
 
 
-    public void loadSelectedJob() throws Exception {
+    public void loadSelectedJob() {
         Job job = getSelectedJob();
         Job updatedJob = jenkinsRequestManager.loadJob(job.getUrl());
         job.updateContentWith(updatedJob);
@@ -156,14 +156,8 @@ public class JenkinsBrowserLogic {
 
 
     private Map<String, Build> loadAndReturnNewLatestBuilds() {
-        Map<String, Build> latestBuildMap;
-        try {
-            latestBuildMap = jenkinsRequestManager.loadJenkinsRssLatestBuilds(configuration);
-        } catch (Exception ex) {
-            LOG.error(ex.getMessage(), ex);
-            displayConnectionErrorMsg();
-            return new HashMap<String, Build>();
-        }
+        Map<String, Build> latestBuildMap = new HashMap<String, Build>();
+        latestBuildMap = jenkinsRequestManager.loadJenkinsRssLatestBuilds(configuration);
 
         Map<String, Build> newBuildMap = new HashMap<String, Build>();
         for (Entry<String, Build> entry : latestBuildMap.entrySet()) {
@@ -186,15 +180,9 @@ public class JenkinsBrowserLogic {
 
 
     private void loadJenkinsWorkspace() {
-        try {
-            jenkinsRequestManager.authenticate(configuration.getServerUrl(), configuration.getSecurityMode(), configuration.getUsername(), configuration.getPasswordFile(), configuration.getCrumbFile());
-            jenkins = jenkinsRequestManager.loadJenkinsWorkspace(configuration);
-            jenkinsBrowserPanel.fillData(jenkins);
-        } catch (Exception ex) {
-            String errorMessage = buildServerErrorMessage(ex);
-            LOG.error(errorMessage, ex);
-            showParsingErrorDialog(errorMessage);
-        }
+        jenkinsRequestManager.authenticate(configuration.getServerUrl(), configuration.getSecurityMode(), configuration.getUsername(), configuration.getPasswordFile(), configuration.getCrumbFile());
+        jenkins = jenkinsRequestManager.loadJenkinsWorkspace(configuration);
+        jenkinsBrowserPanel.fillData(jenkins);
     }
 
 
@@ -251,11 +239,6 @@ public class JenkinsBrowserLogic {
     }
 
 
-    private void showParsingErrorDialog(String errorMessage) {
-        jenkinsBrowserPanel.showErrorDialog(errorMessage, "Error during parsing workspace");
-    }
-
-
     private View getSelectedJenkinsView() {
         return jenkinsBrowserPanel.getSelectedJenkinsView();
     }
@@ -302,7 +285,6 @@ public class JenkinsBrowserLogic {
     public RssLatestBuildPanel getRssLatestJobPanel() {
         return rssLatestJobPanel;
     }
-
 
     public JenkinsBrowserPanel getJenkinsBrowserPanel() {
         return jenkinsBrowserPanel;
