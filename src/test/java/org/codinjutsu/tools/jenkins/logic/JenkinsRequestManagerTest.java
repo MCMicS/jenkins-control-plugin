@@ -18,12 +18,13 @@ package org.codinjutsu.tools.jenkins.logic;
 
 import org.apache.commons.io.IOUtils;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
+import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.model.*;
+import org.codinjutsu.tools.jenkins.security.AuthenticationException;
 import org.codinjutsu.tools.jenkins.security.SecurityClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.net.URL;
@@ -33,6 +34,9 @@ import java.util.Map;
 
 import static org.codinjutsu.tools.jenkins.model.BuildStatusEnum.FAILURE;
 import static org.codinjutsu.tools.jenkins.model.BuildStatusEnum.SUCCESS;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 import static org.unitils.reflectionassert.ReflectionAssert.assertReflectionEquals;
 
 public class JenkinsRequestManagerTest {
@@ -47,7 +51,7 @@ public class JenkinsRequestManagerTest {
 
     @Test
     public void loadJenkinsWorkSpace() throws Exception {
-        Mockito.when(securityClientMock.execute(Mockito.any(URL.class)))
+        when(securityClientMock.execute(any(URL.class)))
                 .thenReturn(IOUtils.toString(JenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadJenkinsWorkspace.xml")));
         Jenkins jenkins = requestManager.loadJenkinsWorkspace(configuration);
 
@@ -65,7 +69,7 @@ public class JenkinsRequestManagerTest {
 
     @Test
     public void loadJenkinsWorkSpaceWithNestedViews() throws Exception {
-        Mockito.when(securityClientMock.execute(Mockito.any(URL.class)))
+        when(securityClientMock.execute(any(URL.class)))
                 .thenReturn(IOUtils.toString(JenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadJenkinsWorkspaceWithNestedView.xml")));
         Jenkins jenkins = requestManager.loadJenkinsWorkspace(configuration);
 
@@ -89,7 +93,7 @@ public class JenkinsRequestManagerTest {
 
     @Test
     public void loadView() throws Exception {
-        Mockito.when(securityClientMock.execute(Mockito.any(URL.class)))
+        when(securityClientMock.execute(any(URL.class)))
                 .thenReturn(IOUtils.toString(JenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadView.xml")));
 
         List<Job> actualJobs = requestManager.loadJenkinsView("http://myjenkins/");
@@ -118,7 +122,7 @@ public class JenkinsRequestManagerTest {
 
     @Test
     public void loadJob() throws Exception {
-        Mockito.when(securityClientMock.execute(Mockito.any(URL.class)))
+        when(securityClientMock.execute(any(URL.class)))
                 .thenReturn(IOUtils.toString(JenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadJob.xml")));
 
         Job actualJob = requestManager.loadJob("http://ci.jenkins-ci.org/job/config-provider-model/");
@@ -132,7 +136,7 @@ public class JenkinsRequestManagerTest {
 
     @Test
     public void buildLatestBuildList() throws Exception {
-        Mockito.when(securityClientMock.execute(Mockito.any(URL.class)))
+        when(securityClientMock.execute(any(URL.class)))
                 .thenReturn(IOUtils.toString(JenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRss.xml")));
 
         Map<String, Build> actualJobBuildMap = requestManager.loadJenkinsRssLatestBuilds(configuration);
@@ -150,7 +154,6 @@ public class JenkinsRequestManagerTest {
 
         assertReflectionEquals(expectedJobBuildMap, actualJobBuildMap);
     }
-
 
 
     @Before

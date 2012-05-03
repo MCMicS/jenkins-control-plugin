@@ -22,7 +22,6 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.ui.PopupHandler;
-import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
@@ -44,8 +43,6 @@ import java.util.Map.Entry;
 import java.util.Timer;
 
 public class JenkinsBrowserLogic {
-
-    private static final Logger LOG = Logger.getLogger(JenkinsBrowserLogic.class);
 
     private static final int MILLISECONDS = 1000;
     private static final int MINUTES = 60 * MILLISECONDS;
@@ -156,9 +153,7 @@ public class JenkinsBrowserLogic {
 
 
     private Map<String, Build> loadAndReturnNewLatestBuilds() {
-        Map<String, Build> latestBuildMap = new HashMap<String, Build>();
-        latestBuildMap = jenkinsRequestManager.loadJenkinsRssLatestBuilds(configuration);
-
+        Map<String, Build> latestBuildMap = jenkinsRequestManager.loadJenkinsRssLatestBuilds(configuration);
         Map<String, Build> newBuildMap = new HashMap<String, Build>();
         for (Entry<String, Build> entry : latestBuildMap.entrySet()) {
             String jobName = entry.getKey();
@@ -171,11 +166,6 @@ public class JenkinsBrowserLogic {
         }
 
         return newBuildMap;
-    }
-
-
-    String buildServerErrorMessage(Exception ex) {
-        return "Server Url=" + configuration.getServerUrl() + "\n" + ex.getMessage();
     }
 
 

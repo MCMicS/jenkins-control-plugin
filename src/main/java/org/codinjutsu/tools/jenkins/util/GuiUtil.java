@@ -35,15 +35,6 @@ public class GuiUtil {
     }
 
 
-    public static void showErrorDialog(final String errorMessage, final String title) {
-        runInSwingThread(new Runnable() {
-            public void run() {
-                Messages.showErrorDialog(errorMessage, title);
-            }
-        });
-
-    }
-
     public static void runInSwingThread(Runnable runnable) {
         if (SwingUtilities.isEventDispatchThread()) {
             runnable.run();

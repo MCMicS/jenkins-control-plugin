@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
+import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
 import org.codinjutsu.tools.jenkins.logic.JobBuilder;
@@ -24,12 +25,10 @@ import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.uispec4j.ComboBox;
-import org.uispec4j.TextBox;
-import org.uispec4j.UISpecTestCase;
-import org.uispec4j.Window;
+import org.uispec4j.*;
 import org.uispec4j.finder.ComponentMatchers;
 
+import javax.swing.*;
 import java.util.Map;
 
 import static org.codinjutsu.tools.jenkins.model.JobParameter.JobParameterType.*;
@@ -54,6 +53,7 @@ public class BuildParamDialogTest extends UISpecTestCase {
                     .parameter("integrationTest", BooleanParameterDefinition.name(), "true")
                     .parameter("environment", ChoiceParameterDefinition.name(), "development",
                             "development", "integration", "acceptance", "production")
+                    .parameter("message", StringParameterDefinition.name(), "")
                     .get();
 
     private static final Job JOB_WITH_UNSUPPORTED_PARAMS =
@@ -81,6 +81,7 @@ public class BuildParamDialogTest extends UISpecTestCase {
         ComboBox envCombo = uispecDialog.getComboBox("environment");
         assertTrue(envCombo.contains("development", "integration", "acceptance", "production"));
         assertTrue(envCombo.selectionEquals("development"));
+        assertTrue(StringUtils.isEmpty(uispecDialog.findSwingComponent(JTextField.class).getText()));
 
         assertTrue(uispecDialog.getButton("OK").isEnabled());
 
@@ -98,9 +99,10 @@ public class BuildParamDialogTest extends UISpecTestCase {
         verify(requestManager, times(1)).runParameterizedBuild(any(Job.class), any(JenkinsConfiguration.class), paramMap.capture());
 
         Map expectedParamMapValue = paramMap.getValue();
-        assertEquals(2, expectedParamMapValue.size());
+        assertEquals(3, expectedParamMapValue.size());
         assertEquals("false", expectedParamMapValue.get("integrationTest"));
         assertEquals("acceptance", expectedParamMapValue.get("environment"));
+        assertEquals("", expectedParamMapValue.get("message"));
     }
 
     public void testUnsupportedParams() throws Exception {

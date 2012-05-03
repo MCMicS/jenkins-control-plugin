@@ -24,6 +24,7 @@ import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -81,10 +82,10 @@ class BasicSecurityClient extends AbstractSecurityClient {
 
                 checkResponse(responseCode, responseBody);
             }
-        } catch (HttpException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (HttpException httpEx) {
+            throw new ConfigurationException(String.format("Error during method execution %s", jenkinsUrl.toString()), httpEx);
+        } catch (IOException ioEx) {
+            throw new ConfigurationException(String.format("Error during method execution %s", jenkinsUrl.toString()), ioEx);
         } finally {
             post.releaseConnection();
         }
@@ -131,9 +132,9 @@ class BasicSecurityClient extends AbstractSecurityClient {
             }
             return responseBody;
         } catch (HttpException httpEx) {
-            throw new RuntimeException(httpEx);
+            throw new ConfigurationException(String.format("Error during method execution %s", url.toString()), httpEx);
         } catch (IOException ioEx) {
-            throw new RuntimeException(ioEx);
+            throw new ConfigurationException(String.format("Error during method execution %s", url.toString()), ioEx);
         } finally {
             IOUtils.closeQuietly(inputStream);
             post.releaseConnection();

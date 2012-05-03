@@ -18,7 +18,6 @@ package org.codinjutsu.tools.jenkins.view;
 
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
-import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
@@ -33,15 +32,12 @@ import java.util.List;
 import java.util.Map;
 
 public class BuildParamDialog extends JDialog {
-    private static final Color LIGHT_RED_BACKGROUND = new Color(230, 150, 150);
-    private static final Color RED_BORDER = new Color(220, 0, 0);
     private static final String MISSING_NAME_LABEL = "<Missing Name>";
     private static final Icon ERROR_ICON = GuiUtil.loadIcon("error.png");
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
     private JPanel contentPanel;
-    private JLabel feedbackLabel;
 
     private boolean hasError = false;
 
@@ -71,8 +67,6 @@ public class BuildParamDialog extends JDialog {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
-
-        feedbackLabel.setOpaque(true);
 
         registerListeners();
     }
@@ -188,12 +182,9 @@ public class BuildParamDialog extends JDialog {
 
     private void onOK() {
         try {
-//            checkInputValues();
             jenkinsManager.runParameterizedBuild(job, configuration, getParamValueMap());
             dispose();
             runBuildCallback.notifyOnOk(job);
-        } catch (ConfigurationException confEx) {
-            setErrorOnFeedbackPanel(confEx.getMessage());
         } catch (Exception ex) {
             runBuildCallback.notifyOnError(job, ex);
         }
@@ -236,17 +227,6 @@ public class BuildParamDialog extends JDialog {
         return comboBox;
     }
 
-//    private void checkInputValues() throws Exception {
-//
-//        NotNullValidator notNullValidator = new NotNullValidator();
-//        for (Map.Entry<JobParameter, JComponent> componentByJobParameterEntry : inputFieldByParameterMap.entrySet()) {
-//            JComponent component = componentByJobParameterEntry.getValue();
-//            if (component instanceof JTextField) {
-//                notNullValidator.validate((JTextField) component);
-//            }
-//        }
-//    }
-
     private Map<String, String> getParamValueMap() {//TODO transformer en visiteur
         HashMap<String, String> valueByNameMap = new HashMap<String, String>();
         for (Map.Entry<JobParameter, JComponent> inputFieldByParameter : inputFieldByParameterMap.entrySet()) {
@@ -268,12 +248,6 @@ public class BuildParamDialog extends JDialog {
             }
         }
         return valueByNameMap;
-    }
-
-    private void setErrorOnFeedbackPanel(String message) {
-        feedbackLabel.setText(message);
-        feedbackLabel.setBackground(LIGHT_RED_BACKGROUND);
-        feedbackLabel.setBorder(BorderFactory.createLineBorder(RED_BORDER));
     }
 
     public interface RunBuildCallback {

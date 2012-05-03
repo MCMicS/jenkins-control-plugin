@@ -84,10 +84,6 @@ public class Build {
     }
 
 
-    public String getStatusValue() {
-        return status.getStatus();
-    }
-
     public Date getBuildDate() {
         return buildDate;
     }

@@ -159,10 +159,6 @@ public class JenkinsBrowserPanel extends JPanel {
     }
 
 
-    public void showErrorDialog(String errorMessage, String content) {
-        GuiUtil.showErrorDialog(errorMessage, content);
-    }
-
     public Jenkins getJenkins() {
         DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) jobTree.getLastSelectedPathComponent();
         if (treeNode != null) {

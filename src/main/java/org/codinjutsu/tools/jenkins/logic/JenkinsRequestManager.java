@@ -182,8 +182,8 @@ public class JenkinsRequestManager {
     }
 
 
-    public void authenticate(final String serverUrl, SecurityMode securityMode, final String username, final String passwordFile, String crumbDataFilename) {
-        securityClient = SecurityClientFactory.create(securityMode, username, passwordFile, crumbDataFilename);
+    public void authenticate(final String serverUrl, SecurityMode securityMode, final String username, final String passwordFile, String crumbDataFile) {
+        securityClient = SecurityClientFactory.create(securityMode, username, passwordFile, crumbDataFile);
         securityClient.connect(urlBuilder.createAuthenticationUrl(serverUrl));
     }
 
