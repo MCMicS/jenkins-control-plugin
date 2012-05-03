@@ -84,6 +84,12 @@ public class UrlBuilderTest {
         assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/rssLatest"));
     }
 
+    @Test
+    public void createAuthenticationUrl() throws Exception {
+        URL url = urlBuilder.createAuthenticationUrl("http://localhost:8080/jenkins");
+        assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/api/xml?tree=nodeName"));
+    }
+
     @Before
     public void setUp() {
         configuration = new JenkinsConfiguration();

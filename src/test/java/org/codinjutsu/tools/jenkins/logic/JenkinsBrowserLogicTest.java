@@ -48,6 +48,7 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
 
     private Panel uiSpecBrowserPanel;
     private Panel uiSpecRssPanel;
+    private MyJobViewCallback jobViewCallback;
 
 
     public void test_displayWithEmptyServerUrl() throws Exception {
@@ -93,12 +94,20 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
                         "  mint #150\n" +
                         "  capri #15 (running) #(bold)\n").check();
 
+        assertEquals(1, jobViewCallback.buildStatusAggregator.getNbSucceededBuilds());
+        assertEquals(0, jobViewCallback.buildStatusAggregator.getNbUnstableBuilds());
+        assertEquals(1, jobViewCallback.buildStatusAggregator.getNbBrokenBuilds());
+
         comboBox.select("Vue 1");
 
         getJobTree(uiSpecBrowserPanel);
         jobTree.contentEquals(
                 "Jenkins (master)\n" +
                         "  capri #15 (running) #(bold)\n").check();
+
+        assertEquals(0, jobViewCallback.buildStatusAggregator.getNbSucceededBuilds());
+        assertEquals(0, jobViewCallback.buildStatusAggregator.getNbUnstableBuilds());
+        assertEquals(1, jobViewCallback.buildStatusAggregator.getNbBrokenBuilds());
     }
 
     public void test_displaySearchJobPanel() throws Exception {
@@ -185,7 +194,8 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
     }
 
     private void createLogic() {
-        jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, requestManagerMock, new JenkinsBrowserPanel(), new RssLatestBuildPanel(), JenkinsBrowserLogic.RssBuildStatusCallback.NULL, JenkinsBrowserLogic.JobViewCallback.NULL) {
+        jobViewCallback = new MyJobViewCallback();
+        jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, requestManagerMock, new JenkinsBrowserPanel(), new RssLatestBuildPanel(), JenkinsBrowserLogic.RssBuildStatusCallback.NULL, jobViewCallback) {
             @Override
             protected void installRssActions(JPanel rssActionPanel) {
             }
@@ -249,5 +259,15 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
 
 
         return jenkins;
+    }
+
+    private static class MyJobViewCallback implements JenkinsBrowserLogic.JobViewCallback {
+
+        private BuildStatusAggregator buildStatusAggregator;
+
+        @Override
+        public void doAfterLoadingJobs(BuildStatusAggregator buildStatusAggregator) {
+            this.buildStatusAggregator = buildStatusAggregator;
+        }
     }
 }

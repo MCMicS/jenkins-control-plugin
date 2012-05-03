@@ -16,7 +16,6 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
-import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusVisitor;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
@@ -65,17 +64,17 @@ public class JenkinsBrowserPanel extends JPanel {
             for (Job job : jobList) {
                 DefaultMutableTreeNode jobNode = new DefaultMutableTreeNode(job);
                 rootNode.add(jobNode);
-                visit(buildStatusVisitor, job);
+                visit(job, buildStatusVisitor);
             }
         }
         jobTree.setModel(new DefaultTreeModel(rootNode));
     }
 
-    private void visit(BuildStatusVisitor buildStatusVisitor, Job job) {
+    private void visit(Job job, BuildStatusVisitor buildStatusVisitor) {
         Build lastBuild = job.getLastBuild();
         if (lastBuild != null) {
             BuildStatusEnum status = lastBuild.getStatus();
-            if (BuildStatusEnum.FAILURE == status || BuildStatusEnum.STABLE == status) {
+            if (BuildStatusEnum.FAILURE == status) {
                 buildStatusVisitor.visitFailed();
                 return;
             }
