@@ -31,6 +31,8 @@ public abstract class BuildStatusIcon extends JComponent {
     protected abstract String getTooltipText();
 
     public static JComponent createIcon(int nbBrokenBuilds, int nbUnstableBuilds, MouseAdapter mouseAdapter) {
+        //TODO crappy need refactor this
+
         if (nbBrokenBuilds == 0 && nbUnstableBuilds == 0) {
             NoBrokenBuildIcon noBrokenBuildIcon = new NoBrokenBuildIcon();
             noBrokenBuildIcon.addMouseListener(mouseAdapter);

@@ -47,7 +47,7 @@ public class JenkinsConfigurationPanel {
     private static final Color CONNECTION_TEST_FAILED_COLOR = new Color(165, 0, 0);
 
 
-    @GuiField(validators = {URL})
+    @GuiField(validators = URL)
     private JTextField serverUrl;
 
     @GuiField(validators = {NOTNULL, POSITIVE_INTEGER})
@@ -64,6 +64,7 @@ public class JenkinsConfigurationPanel {
     private JTextField rssRefreshPeriod;
 
     private JCheckBox enableAuthentication;
+
     private JTextField username;
 
     @GuiField(validators = FILE)
