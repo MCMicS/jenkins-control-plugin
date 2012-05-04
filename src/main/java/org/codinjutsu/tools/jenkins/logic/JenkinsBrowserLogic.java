@@ -193,7 +193,7 @@ public class JenkinsBrowserLogic {
                     jenkins.setJobs(jobList);
                     BuildStatusAggregator buildStatusAggregator = new BuildStatusAggregator();
                     jenkinsBrowserPanel.fillJobTree(jenkins, buildStatusAggregator);
-
+                    buildStatusAggregator.setNbJobs(jobList.size());
                     jobViewCallback.doAfterLoadingJobs(buildStatusAggregator);
                 } catch (Exception e) {
                     throw new RuntimeException(e);

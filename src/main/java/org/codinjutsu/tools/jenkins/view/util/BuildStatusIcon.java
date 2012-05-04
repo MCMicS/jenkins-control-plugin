@@ -16,49 +16,49 @@
 
 package org.codinjutsu.tools.jenkins.view.util;
 
+import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.util.ui.UIUtil;
+import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
+import java.awt.event.MouseListener;
 
-public abstract class BuildStatusIcon extends JComponent {
+public class BuildStatusIcon extends JComponent {
 
 
-    protected abstract Icon getIcon();
+    private final Icon icon;
 
-    protected abstract String getTooltipText();
+    private final String toolTipText;
 
-    public static JComponent createIcon(int nbBrokenBuilds, int nbUnstableBuilds, MouseAdapter mouseAdapter) {
-        //TODO crappy need refactor this
-
-        if (nbBrokenBuilds == 0 && nbUnstableBuilds == 0) {
-            NoBrokenBuildIcon noBrokenBuildIcon = new NoBrokenBuildIcon();
-            noBrokenBuildIcon.addMouseListener(mouseAdapter);
-            return noBrokenBuildIcon;
-        }
-        BrokenBuildIcon brokenBuildIcon = new BrokenBuildIcon(nbBrokenBuilds);
-        brokenBuildIcon.addMouseListener(mouseAdapter);
-        if (nbBrokenBuilds > 0 && nbUnstableBuilds == 0) {
-            return brokenBuildIcon;
-        }
-        UnstableBuildIcon unstableBuildIcon = new UnstableBuildIcon(nbUnstableBuilds);
-        unstableBuildIcon.addMouseListener(mouseAdapter);
-        if (nbBrokenBuilds == 0 && nbUnstableBuilds > 0) {
-            return unstableBuildIcon;
+    public static JComponent createIcon(BuildStatusAggregator aggregator, MouseAdapter mouseAdapter) {
+        if (aggregator.hasNoResults()) {
+            return new BuildStatusIcon(GuiUtil.loadIcon("grey.png"), "No builds", mouseAdapter);
         }
 
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-        panel.add(brokenBuildIcon);
-        panel.add(unstableBuildIcon);
-        return panel;
+        int nbBrokenBuilds = aggregator.getNbBrokenBuilds();
+        if (nbBrokenBuilds > 0) {
+            return new BuildStatusIcon(GuiUtil.loadIcon("red.png"), String.format("%d broken builds", nbBrokenBuilds), mouseAdapter);
+        }
+
+        int nbUnstableBuilds = aggregator.getNbUnstableBuilds();
+        if (nbUnstableBuilds > 0) {
+            return new BuildStatusIcon(GuiUtil.loadIcon("yellow.png"), String.format("%d unstable builds", nbUnstableBuilds), mouseAdapter);
+        }
+
+        return new BuildStatusIcon(GuiUtil.loadIcon("blue.png"), "No broken builds", mouseAdapter);
     }
 
-    private BuildStatusIcon() {
+    private BuildStatusIcon(Icon icon, String toolTipText, MouseListener mouseListener) {
+        this.icon = icon;
+        this.toolTipText = toolTipText;
+        addMouseListener(mouseListener);
         UIUtil.removeQuaquaVisualMarginsIn(this);
         setOpaque(false);
+        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        setBorder(StatusBarWidget.WidgetBorder.INSTANCE);
     }
 
     public Dimension getMinimumSize() {
@@ -69,153 +69,28 @@ public abstract class BuildStatusIcon extends JComponent {
         return getPreferredSize();
     }
 
+    public Dimension getPreferredSize() {
+        final Insets insets = getInsets();
+        return new Dimension(
+                icon.getIconWidth() + insets.left + insets.right,
+                icon.getIconHeight() + insets.top + insets.bottom
+        );
+    }
+
     protected void paintComponent(Graphics g) {
 
         g.setColor(UIUtil.getPanelBackground());
         g.fillRect(0, 0, getWidth(), getHeight());
 
-        doPaintComponent(g);
+        final Dimension size = getSize();
+        int x = (size.width - icon.getIconWidth()) / 2;
+        int y = (size.height - icon.getIconHeight()) / 2;
+        paintIcon(g, icon, x, y);
+        setToolTipText(toolTipText);
     }
-
-    protected abstract void doPaintComponent(Graphics g);
 
 
     protected void paintIcon(Graphics g, Icon icon, int x, int y) {
         icon.paintIcon(this, g, x, y);
-    }
-
-
-    private static class UnstableBuildIcon extends AbstractUnSuccessfullIcon {
-
-        private static final Icon YELLOW_ICON = GuiUtil.loadIcon("yellow.png");
-
-        private static final String NB_UNSTABLE_BUILD_MESSAGE = "%d remaining unstable builds";
-
-        private UnstableBuildIcon(int nbUnstableBuilds) {
-            super(nbUnstableBuilds);
-        }
-
-        @Override
-        protected String getTooltipTemplateText() {
-            return NB_UNSTABLE_BUILD_MESSAGE;
-        }
-
-        @Override
-        protected Icon getIcon() {
-            return YELLOW_ICON;
-        }
-    }
-
-
-    private static class BrokenBuildIcon extends AbstractUnSuccessfullIcon {
-
-        private static final Icon EXCLAMATION_ICON = GuiUtil.loadIcon("red.png");
-
-        private static final String REMAINING_BROKEN_BUILD_MESSAGE = "%d remaining broken builds";
-
-        protected BrokenBuildIcon(int nbUnsuccessfulBuilds) {
-            super(nbUnsuccessfulBuilds);
-        }
-
-        @Override
-        protected String getTooltipTemplateText() {
-            return REMAINING_BROKEN_BUILD_MESSAGE;
-        }
-
-        @Override
-        protected Icon getIcon() {
-            return EXCLAMATION_ICON;
-        }
-    }
-
-    private static abstract class AbstractUnSuccessfullIcon extends BuildStatusIcon {
-
-
-        private final int remainingBrokenBuilds;
-
-        private static final int PIXEL_WIDTH = 8;
-
-        private final int numberWith;
-
-
-        protected AbstractUnSuccessfullIcon(int nbUnsuccessfulBuilds) {
-            this.remainingBrokenBuilds = nbUnsuccessfulBuilds;
-            numberWith = String.valueOf(nbUnsuccessfulBuilds).length() * PIXEL_WIDTH;
-        }
-
-
-        @Override
-        protected String getTooltipText() {
-            return String.format(getTooltipTemplateText(), remainingBrokenBuilds);
-        }
-
-        protected abstract String getTooltipTemplateText();
-
-
-        public Dimension getPreferredSize() {
-            final Insets insets = getInsets();
-            return new Dimension(
-                    getIcon().getIconWidth() + insets.left + insets.right + numberWith,
-                    getIcon().getIconHeight() + insets.top + insets.bottom
-            );
-        }
-
-        protected void doPaintComponent(Graphics g) {
-            final Dimension size = getSize();
-
-            int x = (size.width - getIcon().getIconWidth() - numberWith) / 2;
-            int y = (size.height - getIcon().getIconHeight()) / 2;
-            paintIcon(g, getIcon(), x, y);
-            setToolTipText(getTooltipText());
-
-            Font originalFont = g.getFont();
-            Color originalColor = g.getColor();
-            g.setFont(calcFont());
-            y += getIcon().getIconHeight() - g.getFontMetrics().getDescent();
-            x += getIcon().getIconWidth();
-
-            g.setColor(Color.BLACK);
-            g.drawString(String.valueOf(remainingBrokenBuilds), x, y);
-
-            g.setFont(originalFont);
-            g.setColor(originalColor);
-        }
-
-        private Font calcFont() {
-            return getFont().deriveFont(Font.BOLD).deriveFont((float) getIcon().getIconHeight() * 3 / 5);
-        }
-    }
-
-    private static class NoBrokenBuildIcon extends BuildStatusIcon {
-
-        private static final Icon INFORMATION_ICON = GuiUtil.loadIcon("blue.png");
-
-        private static final String NO_BROKEN_BUILDS = "No broken builds";
-
-        @Override
-        protected Icon getIcon() {
-            return INFORMATION_ICON;
-        }
-
-        @Override
-        protected String getTooltipText() {
-            return NO_BROKEN_BUILDS;
-        }
-
-        public Dimension getPreferredSize() {
-            final Insets insets = getInsets();
-            return new Dimension(
-                    getIcon().getIconWidth() + insets.left + insets.right,
-                    getIcon().getIconHeight() + insets.top + insets.bottom
-            );
-        }
-
-        protected void doPaintComponent(Graphics g) {
-            final Dimension size = getSize();
-            int x = (size.width - getIcon().getIconWidth()) / 2;
-            int y = (size.height - getIcon().getIconHeight()) / 2;
-            paintIcon(g, getIcon(), x, y);
-            setToolTipText(getTooltipText());
-        }
     }
 }

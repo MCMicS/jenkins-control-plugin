@@ -24,6 +24,8 @@ public class BuildStatusAggregator implements BuildStatusVisitor {
 
     private int nbUnstableBuilds = 0;
 
+    private int nbJobs = 0;
+
     public void visitFailed() {
         nbBrokenBuilds++;
     }
@@ -50,5 +52,13 @@ public class BuildStatusAggregator implements BuildStatusVisitor {
 
     public int getNbUnstableBuilds() {
         return nbUnstableBuilds;
+    }
+
+    public boolean hasNoResults() {
+        return nbJobs == 0;
+    }
+
+    public void setNbJobs(int nbJobs) {
+        this.nbJobs = nbJobs;
     }
 }

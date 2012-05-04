@@ -33,7 +33,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class JenkinsRssWidget extends NonOpaquePanel implements CustomStatusBarWidget {
+public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidget {
 
     private StatusBar myStatusBar;
 
@@ -41,16 +41,16 @@ public class JenkinsRssWidget extends NonOpaquePanel implements CustomStatusBarW
 
     private JBPopup myPopup;
 
-    public JenkinsRssWidget() {
+    public JenkinsWidget() {
         this.buildStatusSummaryPanel = new BuildSummaryPanel();
 
-        JComponent buildStatusIcon = createStatusIcon(0, 0);
+        JComponent buildStatusIcon = createStatusIcon(new BuildStatusAggregator());
         setLayout(new BorderLayout());
         add(buildStatusIcon, BorderLayout.CENTER);
     }
 
-    private JComponent createStatusIcon(int nbBrokenBuilds, int nbUnstableBuilds) {
-        MouseAdapter mouseAdapter = new MouseAdapter() {
+    private JComponent createStatusIcon(BuildStatusAggregator aggregator) {
+        return BuildStatusIcon.createIcon(aggregator, new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 handle(e);
@@ -60,18 +60,13 @@ public class JenkinsRssWidget extends NonOpaquePanel implements CustomStatusBarW
             public void mouseReleased(MouseEvent e) {
                 handle(e);
             }
-        };
-        JComponent buildStatusIcon = BuildStatusIcon.createIcon(nbBrokenBuilds, nbUnstableBuilds, mouseAdapter);
-
-        buildStatusIcon.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        buildStatusIcon.setBorder(WidgetBorder.INSTANCE);
-        return buildStatusIcon;
+        });
     }
 
     public void updateInformation(BuildStatusAggregator buildStatusAggregator) {
         buildStatusSummaryPanel.setInformation(buildStatusAggregator);
 
-        final JComponent buildIcon = createStatusIcon(buildStatusAggregator.getNbBrokenBuilds(), buildStatusAggregator.getNbUnstableBuilds());
+        final JComponent buildIcon = createStatusIcon(buildStatusAggregator);
 
         invalidate();
         removeAll();
@@ -122,7 +117,7 @@ public class JenkinsRssWidget extends NonOpaquePanel implements CustomStatusBarW
 
     @NotNull
     public String ID() {
-        return JenkinsRssWidget.class.getName();
+        return JenkinsWidget.class.getName();
     }
 
     public WidgetPresentation getPresentation(@NotNull PlatformType platformType) {

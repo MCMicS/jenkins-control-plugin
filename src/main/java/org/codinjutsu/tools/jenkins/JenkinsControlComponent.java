@@ -68,7 +68,7 @@ public class JenkinsControlComponent
     private final Project project;
     private JenkinsBrowserLogic jenkinsBrowserLogic;
     private JenkinsRequestManager jenkinsRequestManager;
-    private JenkinsRssWidget jenkinsRssWidget;
+    private JenkinsWidget jenkinsWidget;
 
 
     public JenkinsControlComponent(Project project) {
@@ -135,20 +135,20 @@ public class JenkinsControlComponent
         JenkinsBrowserPanel browserPanel = new JenkinsBrowserPanel();
         RssLatestBuildPanel rssLatestJobPanel = new RssLatestBuildPanel();
 
-        jenkinsRssWidget = new JenkinsRssWidget();
+        jenkinsWidget = new JenkinsWidget();
 
         JenkinsBrowserLogic.RssBuildStatusCallback rssBuildStatusCallback = new JenkinsBrowserLogic.RssBuildStatusCallback() {
             public void notifyOnBuildFailure(final String jobName, final Build build) {
                 BalloonBuilder balloonBuilder = JBPopupFactory.getInstance().createHtmlTextBalloonBuilder(jobName + "#" + build.getNumber() + ": FAILED", MessageType.ERROR, null);
                 Balloon balloon = balloonBuilder.setFadeoutTime(TimeUnit.SECONDS.toMillis(1)).createBalloon();
-                balloon.show(new RelativePoint(jenkinsRssWidget.getComponent(), new Point(0, 0)), Balloon.Position.above);
+                balloon.show(new RelativePoint(jenkinsWidget.getComponent(), new Point(0, 0)), Balloon.Position.above);
             }
         };
 
         JenkinsBrowserLogic.JobViewCallback jobViewCallback = new JenkinsBrowserLogic.JobViewCallback() {
             @Override
             public void doAfterLoadingJobs(BuildStatusAggregator buildStatusAggregator) {
-                jenkinsRssWidget.updateInformation(buildStatusAggregator);
+                jenkinsWidget.updateInformation(buildStatusAggregator);
             }
         };
 
@@ -157,8 +157,8 @@ public class JenkinsControlComponent
 
 
         final StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
-        statusBar.addWidget(jenkinsRssWidget);
-        jenkinsRssWidget.install(statusBar);
+        statusBar.addWidget(jenkinsWidget);
+        jenkinsWidget.install(statusBar);
 
 
         Content content = ContentFactory.SERVICE.getInstance()
@@ -216,6 +216,6 @@ public class JenkinsControlComponent
 
 
     public void disposeComponent() {
-        jenkinsRssWidget.dispose();
+        jenkinsWidget.dispose();
     }
 }
