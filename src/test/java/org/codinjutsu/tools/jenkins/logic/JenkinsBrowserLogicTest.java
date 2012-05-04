@@ -55,14 +55,14 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
         init("");
 
         Tree jobTree = getJobTree(uiSpecBrowserPanel);
-        jobTree.contentEquals("Jenkins (Unable to connect. Check Jenkins Plugin Settings.)\n").check();
+        jobTree.contentEquals("Jenkins (Missing configuration. Check Jenkins Plugin Settings.)\n").check();
     }
 
     public void test_displayWithDummyServerUrl() throws Exception {
         init(JenkinsConfiguration.DUMMY_JENKINS_SERVER_URL);
 
         Tree jobTree = getJobTree(uiSpecBrowserPanel);
-        jobTree.contentEquals("Jenkins (Unable to connect. Check Jenkins Plugin Settings.)\n").check();
+        jobTree.contentEquals("Jenkins (Missing configuration. Check Jenkins Plugin Settings.)\n").check();
     }
 
     public void test_displayWithAuthenticationFailure() throws Exception {

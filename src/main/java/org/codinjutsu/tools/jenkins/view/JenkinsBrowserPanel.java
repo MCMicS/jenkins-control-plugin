@@ -181,9 +181,8 @@ public class JenkinsBrowserPanel extends JPanel {
     }
 
 
-    public void setErrorMsg(String serverUrl) {
-        DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode(new Jenkins(
-                "(Unable to connect. Check Jenkins Plugin Settings.)", serverUrl));
+    public void setErrorMsg(String serverUrl, String description) {
+        DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode(new Jenkins(description, serverUrl));
         jobTree.setModel(new DefaultTreeModel(rootNode));
     }
 

@@ -93,7 +93,8 @@ public class JenkinsBrowserLogic {
 
     public void reloadConfiguration() {
         if (!configuration.isServerUrlSet()) {
-            displayConnectionErrorMsg();
+            jobViewCallback.doAfterLoadingJobs(new BuildStatusAggregator());
+            displayMissingConfiguration();
             return;
         }
 
@@ -224,8 +225,14 @@ public class JenkinsBrowserLogic {
     }
 
 
+    private void displayMissingConfiguration() {
+        jenkinsBrowserPanel.setErrorMsg(configuration.getServerUrl(), "(Missing configuration. Check Jenkins Plugin Settings.)");
+    }
+
+
+
     private void displayConnectionErrorMsg() {
-        jenkinsBrowserPanel.setErrorMsg(configuration.getServerUrl());
+        jenkinsBrowserPanel.setErrorMsg(configuration.getServerUrl(), "(Unable to connect. Check Jenkins Plugin Settings.)");
     }
 
 
