@@ -27,7 +27,7 @@ import java.util.Map;
 
 public class Build {
 
-    private static final Map<BuildStatusEnum, Icon> ICON_BY_BUILD_STATUS_MAP = new HashMap<BuildStatusEnum, Icon>();
+    public static final Map<BuildStatusEnum, Icon> ICON_BY_BUILD_STATUS_MAP = new HashMap<BuildStatusEnum, Icon>();
 
     private final String url;
     private final Date buildDate;

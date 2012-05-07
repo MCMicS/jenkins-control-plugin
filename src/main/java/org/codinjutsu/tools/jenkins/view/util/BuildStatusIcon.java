@@ -16,15 +16,13 @@
 
 package org.codinjutsu.tools.jenkins.view.util;
 
-import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.util.ui.UIUtil;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
-import org.codinjutsu.tools.jenkins.util.GuiUtil;
+import org.codinjutsu.tools.jenkins.model.Build;
+import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseListener;
 
 public class BuildStatusIcon extends JComponent {
 
@@ -33,32 +31,30 @@ public class BuildStatusIcon extends JComponent {
 
     private final String toolTipText;
 
-    public static JComponent createIcon(BuildStatusAggregator aggregator, MouseAdapter mouseAdapter) {
+    public static JComponent createIcon(BuildStatusAggregator aggregator) {
         if (aggregator.hasNoResults()) {
-            return new BuildStatusIcon(GuiUtil.loadIcon("grey.png"), "No builds", mouseAdapter);
+            return new BuildStatusIcon(Build.ICON_BY_BUILD_STATUS_MAP.get(BuildStatusEnum.NULL), "No builds");
         }
 
         int nbBrokenBuilds = aggregator.getNbBrokenBuilds();
         if (nbBrokenBuilds > 0) {
-            return new BuildStatusIcon(GuiUtil.loadIcon("red.png"), String.format("%d broken builds", nbBrokenBuilds), mouseAdapter);
+            return new BuildStatusIcon(Build.ICON_BY_BUILD_STATUS_MAP.get(BuildStatusEnum.FAILURE), String.format("%d broken builds", nbBrokenBuilds));
         }
 
         int nbUnstableBuilds = aggregator.getNbUnstableBuilds();
         if (nbUnstableBuilds > 0) {
-            return new BuildStatusIcon(GuiUtil.loadIcon("yellow.png"), String.format("%d unstable builds", nbUnstableBuilds), mouseAdapter);
+            return new BuildStatusIcon(Build.ICON_BY_BUILD_STATUS_MAP.get(BuildStatusEnum.UNSTABLE), String.format("%d unstable builds", nbUnstableBuilds));
         }
 
-        return new BuildStatusIcon(GuiUtil.loadIcon("blue.png"), "No broken builds", mouseAdapter);
+        return new BuildStatusIcon(Build.ICON_BY_BUILD_STATUS_MAP.get(BuildStatusEnum.SUCCESS), "No broken builds");
     }
 
-    private BuildStatusIcon(Icon icon, String toolTipText, MouseListener mouseListener) {
+    private BuildStatusIcon(Icon icon, String toolTipText) {
         this.icon = icon;
         this.toolTipText = toolTipText;
-        addMouseListener(mouseListener);
         UIUtil.removeQuaquaVisualMarginsIn(this);
         setOpaque(false);
-        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        setBorder(StatusBarWidget.WidgetBorder.INSTANCE);
+
     }
 
     public Dimension getMinimumSize() {

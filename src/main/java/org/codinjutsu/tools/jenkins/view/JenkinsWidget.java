@@ -21,6 +21,7 @@ import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.util.MinimizeButton;
 import com.intellij.openapi.wm.CustomStatusBarWidget;
 import com.intellij.openapi.wm.StatusBar;
+import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.components.panels.NonOpaquePanel;
 import com.intellij.util.ui.UIUtil;
@@ -50,7 +51,8 @@ public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidg
     }
 
     private JComponent createStatusIcon(BuildStatusAggregator aggregator) {
-        return BuildStatusIcon.createIcon(aggregator, new MouseAdapter() {
+        JComponent statusIcon = BuildStatusIcon.createIcon(aggregator);
+        statusIcon.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 handle(e);
@@ -61,6 +63,11 @@ public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidg
                 handle(e);
             }
         });
+
+        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        setBorder(StatusBarWidget.WidgetBorder.INSTANCE);
+
+        return statusIcon;
     }
 
     public void updateInformation(BuildStatusAggregator buildStatusAggregator) {
