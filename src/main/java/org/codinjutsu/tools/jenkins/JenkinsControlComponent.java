@@ -16,13 +16,16 @@
 
 package org.codinjutsu.tools.jenkins;
 
+import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.project.DumbAwareRunnable;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.startup.StartupManager;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.popup.Balloon;
 import com.intellij.openapi.ui.popup.BalloonBuilder;
@@ -37,6 +40,7 @@ import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
 import org.codinjutsu.tools.jenkins.logic.JenkinsBrowserLogic;
 import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
 import org.codinjutsu.tools.jenkins.model.Build;
+import org.codinjutsu.tools.jenkins.model.View;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.*;
 import org.jetbrains.annotations.Nls;
@@ -44,6 +48,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.concurrent.TimeUnit;
 
 import static org.codinjutsu.tools.jenkins.view.action.RunBuildAction.RUN_ICON;
@@ -152,9 +158,22 @@ public class JenkinsControlComponent
             }
         };
 
+        configuration.getBrowserPreferences().setLastSelectedView(PropertiesComponent.getInstance(project).getValue("last_selected_view"));
         jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, jenkinsRequestManager, browserPanel, rssLatestJobPanel, rssBuildStatusCallback, jobViewCallback);
-        jenkinsBrowserLogic.init();
+        jenkinsBrowserLogic.getJenkinsBrowserPanel().getViewCombo().addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent itemEvent) {
+                View selectedView = (View) jenkinsBrowserLogic.getJenkinsBrowserPanel().getViewCombo().getSelectedItem();
+                PropertiesComponent.getInstance(project).setValue("last_selected_view", selectedView.getName());
+            }
+        });
 
+        StartupManager.getInstance(project).registerPostStartupActivity(new DumbAwareRunnable() {
+            @Override
+            public void run() {
+                jenkinsBrowserLogic.init();
+            }
+        });
 
         final StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
         statusBar.addWidget(jenkinsWidget);
@@ -163,12 +182,16 @@ public class JenkinsControlComponent
 
         Content content = ContentFactory.SERVICE.getInstance()
                 .createContent(JenkinsPanel.onePanel(browserPanel, rssLatestJobPanel), JENKINS_BROWSER_TITLE, false);
-        toolWindow.getContentManager().addContent(content);
+        toolWindow.getContentManager().
+
+                addContent(content);
+
         toolWindow.setIcon(GuiUtil.loadIcon(JENKINS_BROWSER_ICON));
     }
 
 
     public void projectClosed() {
+        jenkinsBrowserLogic.dispose();
         ToolWindowManager.getInstance(project).unregisterToolWindow(JENKINS_BROWSER);
     }
 

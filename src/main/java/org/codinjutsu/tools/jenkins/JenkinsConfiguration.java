@@ -17,6 +17,7 @@
 package org.codinjutsu.tools.jenkins;
 
 import org.apache.commons.lang.StringUtils;
+import org.codinjutsu.tools.jenkins.model.BrowserPreferences;
 import org.codinjutsu.tools.jenkins.security.SecurityMode;
 
 public class JenkinsConfiguration {
@@ -43,6 +44,9 @@ public class JenkinsConfiguration {
 
     private boolean enableJobAutoRefresh = false;
     private boolean enableRssAutoRefresh = false;
+
+    private BrowserPreferences browserPreferences = new BrowserPreferences();
+
 
     public String getServerUrl() {
         return serverUrl;
@@ -138,5 +142,9 @@ public class JenkinsConfiguration {
 
     public void setCrumbFile(String crumbFile) {
         this.crumbFile = crumbFile;
+    }
+
+    public BrowserPreferences getBrowserPreferences() {
+        return browserPreferences;
     }
 }

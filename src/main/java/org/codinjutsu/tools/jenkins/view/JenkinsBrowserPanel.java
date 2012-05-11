@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
+import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusVisitor;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
@@ -156,6 +157,16 @@ public class JenkinsBrowserPanel extends JPanel {
 
     public View getSelectedJenkinsView() {
         return (View) viewCombo.getSelectedItem();
+    }
+
+    public void getViewByName(String name) {
+        for (int i = 0; i < viewCombo.getItemCount(); i++) {
+            View view = (View) viewCombo.getItemAt(i);
+            if (StringUtils.equals(name, view.getName())) {
+                viewCombo.setSelectedItem(view);
+                return;
+            }
+        }
     }
 
 

@@ -16,12 +16,14 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.ui.PopupHandler;
+import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
@@ -42,7 +44,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Timer;
 
-public class JenkinsBrowserLogic {
+public class JenkinsBrowserLogic implements Disposable {
 
     private static final int MILLISECONDS = 1000;
     private static final int MINUTES = 60 * MILLISECONDS;
@@ -107,7 +109,13 @@ public class JenkinsBrowserLogic {
 
         loadJenkinsWorkspace();
 
+        String lastSelectedViewName = configuration.getBrowserPreferences().getLastSelectedView();
+        if (StringUtils.isNotEmpty(lastSelectedViewName)) {
+            jenkinsBrowserPanel.getViewByName(lastSelectedViewName);
+        }
+
         loadSelectedView();
+
         loadLatestBuilds(false);
 
         cleanRssEntries();
@@ -190,7 +198,11 @@ public class JenkinsBrowserLogic {
                         jenkinsView = jenkins.getPrimaryView();
                     }
 
+                    configuration.getBrowserPreferences().setLastSelectedView(jenkinsView.getName());
                     List<Job> jobList = jenkinsRequestManager.loadJenkinsView(jenkinsView.getUrl());
+
+                    getBrowserPreferences().setLastSelectedView(jenkinsView.getName());
+
                     jenkins.setJobs(jobList);
                     BuildStatusAggregator buildStatusAggregator = new BuildStatusAggregator();
                     jenkinsBrowserPanel.fillJobTree(jenkins, buildStatusAggregator);
@@ -205,13 +217,7 @@ public class JenkinsBrowserLogic {
 
 
     private void initTimers() {
-        if (jobRefreshTimer != null) {
-            jobRefreshTimer.cancel();
-        }
-
-        if (rssRefreshTimer != null) {
-            rssRefreshTimer.cancel();
-        }
+        cancelCurrentTimers();
 
         if (configuration.isEnableJobAutoRefresh()) {
             jobRefreshTimer = new Timer();
@@ -221,6 +227,16 @@ public class JenkinsBrowserLogic {
         if (configuration.isEnableRssAutoRefresh()) {
             rssRefreshTimer = new Timer();
             rssRefreshTimer.schedule(new RssRefreshTimerTask(), MINUTES, configuration.getRssRefreshPeriod() * MINUTES);
+        }
+    }
+
+    private void cancelCurrentTimers() {
+        if (jobRefreshTimer != null) {
+            jobRefreshTimer.cancel();
+        }
+
+        if (rssRefreshTimer != null) {
+            rssRefreshTimer.cancel();
         }
     }
 
@@ -257,6 +273,7 @@ public class JenkinsBrowserLogic {
             actionGroup.add(new RefreshNodeAction(this));
             actionGroup.addSeparator();
             actionGroup.add(new RunBuildAction(this));
+            actionGroup.add(new AddJobToFavoriteAction(this));
             actionGroup.addSeparator();
             actionGroup.add(new GotoJobPageAction(jenkinsBrowserPanel));
             actionGroup.add(new GotoLastBuildPageAction(jenkinsBrowserPanel));
@@ -338,6 +355,15 @@ public class JenkinsBrowserLogic {
                 }
             }
         });
+    }
+
+    public BrowserPreferences getBrowserPreferences() {
+        return configuration.getBrowserPreferences();
+    }
+
+    @Override
+    public void dispose() {
+        cancelCurrentTimers();
     }
 
     private class JobRefreshTimerTask extends TimerTask {

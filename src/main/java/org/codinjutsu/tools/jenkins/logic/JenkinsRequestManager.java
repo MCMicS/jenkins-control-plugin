@@ -96,22 +96,15 @@ public class JenkinsRequestManager {
 
     public Jenkins loadJenkinsWorkspace(JenkinsConfiguration configuration) {
         URL url = urlBuilder.createJenkinsWorkspaceUrl(configuration);
-        String input = securityClient.execute(url);
+        String jenkinsWorkspaceData = securityClient.execute(url);
 
-        CharSequenceReader jenkinsJobDataReader = new CharSequenceReader(input);
-        try {
-            Document doc = buildDocument(jenkinsJobDataReader);
+        Document doc = buildDocument(jenkinsWorkspaceData);
 
-            Jenkins jenkins = createJenkins(doc, configuration.getServerUrl());
-            jenkins.setPrimaryView(createPreferredView(doc));
-            jenkins.setViews(createJenkinsViews(doc));
+        Jenkins jenkins = createJenkins(doc, configuration.getServerUrl());
+        jenkins.setPrimaryView(createPreferredView(doc));
+        jenkins.setViews(createJenkinsViews(doc));
 
-            return jenkins;
-        } finally {
-            IOUtils.closeQuietly(jenkinsJobDataReader);
-        }
-
-
+        return jenkins;
     }
 
 
@@ -119,28 +112,17 @@ public class JenkinsRequestManager {
         URL url = urlBuilder.createRssLatestUrl(configuration.getServerUrl());
 
         String rssData = securityClient.execute(url);
-        CharSequenceReader rssDataReader = new CharSequenceReader(rssData);
-        try {
-            Document doc = buildDocument(rssDataReader);
+        Document doc = buildDocument(rssData);
 
-            return createLatestBuildList(doc);
-        } finally {
-            IOUtils.closeQuietly(rssDataReader);
-        }
+        return createLatestBuildList(doc);
     }
 
 
     public List<Job> loadJenkinsView(String viewUrl) {
         URL url = urlBuilder.createViewUrl(viewUrl);
-
         String jenkinsViewData = securityClient.execute(url);
-        CharSequenceReader jenkinsViewDataReader = new CharSequenceReader(jenkinsViewData);
-        try {
-            Document doc = buildDocument(jenkinsViewDataReader);
-            return createJenkinsJobs(doc);
-        } finally {
-            IOUtils.closeQuietly(jenkinsViewDataReader);
-        }
+        Document doc = buildDocument(jenkinsViewData);
+        return createJenkinsJobs(doc);
     }
 
 
@@ -148,24 +130,21 @@ public class JenkinsRequestManager {
         URL url = urlBuilder.createJobUrl(jenkinsJobUrl);
 
         String jenkinsJobData = securityClient.execute(url);
-        CharSequenceReader jenkinsJobDataReader = new CharSequenceReader(jenkinsJobData);
-
-        try {
-            Document doc = buildDocument(jenkinsJobDataReader);
-            Element jobElement = doc.getRootElement();
-            return createJob(jobElement);
-        } finally {
-            IOUtils.closeQuietly(jenkinsJobDataReader);
-        }
+        Document doc = buildDocument(jenkinsJobData);
+        Element jobElement = doc.getRootElement();
+        return createJob(jobElement);
     }
 
-    private Document buildDocument(CharSequenceReader jenkinsJobDataReader) {
+    private Document buildDocument(String jenkinsXmlData) {
+        CharSequenceReader jenkinsDataReader = new CharSequenceReader(jenkinsXmlData);
         try {
-            return getXMLBuilder().build(jenkinsJobDataReader);
+            return getXMLBuilder().build(jenkinsDataReader);
         } catch (JDOMException e) {
-            throw new RuntimeException("Unexpected xml document:", e);
+            throw new RuntimeException("Unexpected xml document. Actual :\n " + jenkinsXmlData, e);
         } catch (IOException e) {
-            throw new RuntimeException("Error during parsing document:", e);
+            throw new RuntimeException("Error during parsing document : " + jenkinsXmlData, e);
+        } finally {
+            IOUtils.closeQuietly(jenkinsDataReader);
         }
     }
 
@@ -198,7 +177,7 @@ public class JenkinsRequestManager {
         if (description == null) {
             description = "";
         }
-        return new Jenkins(description,serverUrl);
+        return new Jenkins(description, serverUrl);
     }
 
 

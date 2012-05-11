@@ -27,31 +27,37 @@ import java.awt.*;
 public class BuildStatusIcon extends JComponent {
 
 
-    private final Icon icon;
+    private static final int PIXEL_WIDTH = 8;
 
+    private final Icon icon;
     private final String toolTipText;
+
+    private final int numberToDisplay;
+    private final int numberWith;
 
     public static JComponent createIcon(BuildStatusAggregator aggregator) {
         if (aggregator.hasNoResults()) {
-            return new BuildStatusIcon(Build.ICON_BY_BUILD_STATUS_MAP.get(BuildStatusEnum.NULL), "No builds");
+            return new BuildStatusIcon(Build.ICON_BY_BUILD_STATUS_MAP.get(BuildStatusEnum.NULL), "No builds", 0);
         }
 
         int nbBrokenBuilds = aggregator.getNbBrokenBuilds();
         if (nbBrokenBuilds > 0) {
-            return new BuildStatusIcon(Build.ICON_BY_BUILD_STATUS_MAP.get(BuildStatusEnum.FAILURE), String.format("%d broken builds", nbBrokenBuilds));
+            return new BuildStatusIcon(Build.ICON_BY_BUILD_STATUS_MAP.get(BuildStatusEnum.FAILURE), String.format("%d broken builds", nbBrokenBuilds), nbBrokenBuilds);
         }
 
         int nbUnstableBuilds = aggregator.getNbUnstableBuilds();
         if (nbUnstableBuilds > 0) {
-            return new BuildStatusIcon(Build.ICON_BY_BUILD_STATUS_MAP.get(BuildStatusEnum.UNSTABLE), String.format("%d unstable builds", nbUnstableBuilds));
+            return new BuildStatusIcon(Build.ICON_BY_BUILD_STATUS_MAP.get(BuildStatusEnum.UNSTABLE), String.format("%d unstable builds", nbUnstableBuilds), nbUnstableBuilds);
         }
 
-        return new BuildStatusIcon(Build.ICON_BY_BUILD_STATUS_MAP.get(BuildStatusEnum.SUCCESS), "No broken builds");
+        return new BuildStatusIcon(Build.ICON_BY_BUILD_STATUS_MAP.get(BuildStatusEnum.SUCCESS), "No broken builds", 0);
     }
 
-    private BuildStatusIcon(Icon icon, String toolTipText) {
+    private BuildStatusIcon(Icon icon, String toolTipText, int numberToDisplay) {
         this.icon = icon;
         this.toolTipText = toolTipText;
+        this.numberToDisplay = numberToDisplay;
+        this.numberWith = numberToDisplay == 0 ? 0 : String.valueOf(numberToDisplay).length() * PIXEL_WIDTH;
         UIUtil.removeQuaquaVisualMarginsIn(this);
         setOpaque(false);
 
@@ -68,7 +74,7 @@ public class BuildStatusIcon extends JComponent {
     public Dimension getPreferredSize() {
         final Insets insets = getInsets();
         return new Dimension(
-                icon.getIconWidth() + insets.left + insets.right,
+                icon.getIconWidth() + insets.left + insets.right + numberWith,
                 icon.getIconHeight() + insets.top + insets.bottom
         );
     }
@@ -79,14 +85,35 @@ public class BuildStatusIcon extends JComponent {
         g.fillRect(0, 0, getWidth(), getHeight());
 
         final Dimension size = getSize();
-        int x = (size.width - icon.getIconWidth()) / 2;
+        int x = (size.width - icon.getIconWidth() - numberWith) / 2;
         int y = (size.height - icon.getIconHeight()) / 2;
         paintIcon(g, icon, x, y);
         setToolTipText(toolTipText);
+
+        if (numberToDisplay > 0) {
+            Font originalFont = g.getFont();
+            Color originalColor = g.getColor();
+            g.setFont(calcFont());
+            y += icon.getIconHeight() - g.getFontMetrics().getDescent();
+            x += icon.getIconWidth();
+
+            g.setColor(Color.BLACK);
+            g.drawString(String.valueOf(numberToDisplay), x, y);
+
+            g.setFont(originalFont);
+            g.setColor(originalColor);
+        }
+
+
     }
 
 
     protected void paintIcon(Graphics g, Icon icon, int x, int y) {
         icon.paintIcon(this, g, x, y);
+    }
+
+
+    private Font calcFont() {
+        return getFont().deriveFont(Font.BOLD).deriveFont((float) icon.getIconHeight() * 3 / 5);
     }
 }
