@@ -20,25 +20,23 @@ import java.util.*;
 
 public class BrowserPreferences {
 
-    private Set<String> favorites = new HashSet<String>();
+    private String favoriteJob = null;
     private String lastSelectedViewName;
 
-    public void addToFavorite(String jobName) {
-        if (isNotAFavoriteJob(jobName)) {
-            favorites.add(jobName);
-        }
+    public void setAsFavorite(String jobName) {
+        favoriteJob = jobName;
     }
 
-    public boolean isNotAFavoriteJob(String jobName) {
-        return !favorites.contains(jobName);
+    public boolean isAFavoriteJob(String jobName) {
+        return favoriteJob.contains(jobName);
     }
 
-    public void clearFavorites() {
-        favorites.clear();
+    public void clearFavorite() {
+        favoriteJob = null;
     }
 
-    public Set<String> getFavorites() {
-        return favorites;
+    public String getFavoriteJob() {
+        return favoriteJob;
     }
 
     public void setLastSelectedView(String viewName) {

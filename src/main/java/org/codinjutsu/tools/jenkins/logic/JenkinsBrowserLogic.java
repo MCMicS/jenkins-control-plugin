@@ -43,6 +43,8 @@ import java.util.*;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Timer;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class JenkinsBrowserLogic implements Disposable {
 
@@ -186,33 +188,44 @@ public class JenkinsBrowserLogic implements Disposable {
 
 
     public void loadSelectedView() {
-        GuiUtil.runInSwingThread(new Runnable() {
+
+        View jenkinsView = getSelectedJenkinsView();
+        if (jenkinsView == null) {
+            if (jenkins == null) {
+                return;
+            }
+            jenkinsView = jenkins.getPrimaryView();
+        }
+        final View selectedView = jenkinsView;
+
+        configuration.getBrowserPreferences().setLastSelectedView(jenkinsView.getName());
+
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.submit(new Runnable() {
             @Override
             public void run() {
-                try {
-                    View jenkinsView = getSelectedJenkinsView();
-                    if (jenkinsView == null) {
-                        if (jenkins == null) {
-                            return;
-                        }
-                        jenkinsView = jenkins.getPrimaryView();
+                final List<Job> jobList = jenkinsRequestManager.loadJenkinsView(selectedView.getUrl());
+
+                getBrowserPreferences().setLastSelectedView(selectedView.getName());
+
+                jenkins.setJobs(jobList);
+                final BuildStatusAggregator buildStatusAggregator = new BuildStatusAggregator();
+
+                GuiUtil.runInSwingThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        jenkinsBrowserPanel.fillJobTree(jenkins, buildStatusAggregator);
+                        buildStatusAggregator.setNbJobs(jobList.size());
+                        jobViewCallback.doAfterLoadingJobs(buildStatusAggregator);
                     }
 
-                    configuration.getBrowserPreferences().setLastSelectedView(jenkinsView.getName());
-                    List<Job> jobList = jenkinsRequestManager.loadJenkinsView(jenkinsView.getUrl());
-
-                    getBrowserPreferences().setLastSelectedView(jenkinsView.getName());
-
-                    jenkins.setJobs(jobList);
-                    BuildStatusAggregator buildStatusAggregator = new BuildStatusAggregator();
-                    jenkinsBrowserPanel.fillJobTree(jenkins, buildStatusAggregator);
-                    buildStatusAggregator.setNbJobs(jobList.size());
-                    jobViewCallback.doAfterLoadingJobs(buildStatusAggregator);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+                });
             }
         });
+
+        executorService.shutdown();
+
+
     }
 
 
@@ -246,7 +259,6 @@ public class JenkinsBrowserLogic implements Disposable {
     }
 
 
-
     private void displayConnectionErrorMsg() {
         jenkinsBrowserPanel.setErrorMsg(configuration.getServerUrl(), "(Unable to connect. Check Jenkins Plugin Settings.)");
     }
@@ -273,7 +285,8 @@ public class JenkinsBrowserLogic implements Disposable {
             actionGroup.add(new RefreshNodeAction(this));
             actionGroup.addSeparator();
             actionGroup.add(new RunBuildAction(this));
-            actionGroup.add(new AddJobToFavoriteAction(this));
+            actionGroup.add(new SetJobAsFavoriteAction(this));
+            actionGroup.add(new UnsetJobAsFavoriteAction(this));
             actionGroup.addSeparator();
             actionGroup.add(new GotoJobPageAction(jenkinsBrowserPanel));
             actionGroup.add(new GotoLastBuildPageAction(jenkinsBrowserPanel));
@@ -329,32 +342,38 @@ public class JenkinsBrowserLogic implements Disposable {
         jenkinsBrowserPanel.getViewCombo().addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent evt) {
                 if (evt.getStateChange() == ItemEvent.SELECTED) {
-                    try {
-                        loadSelectedView();
-                    } catch (Exception ex) {
-                        throw new RuntimeException(ex.getMessage(), ex);
-                    }
+                    loadSelectedView();
                 }
             }
         });
     }
 
     public void loadLatestBuilds(final boolean shouldDisplayResult) {
-        GuiUtil.runInSwingThread(new Runnable() {
+
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.submit(new Runnable() {
             @Override
             public void run() {
-                Map<String, Build> finishedBuilds = loadAndReturnNewLatestBuilds();
+                final Map<String, Build> finishedBuilds = loadAndReturnNewLatestBuilds();
                 if (!shouldDisplayResult) {
                     return;
                 }
-                rssLatestJobPanel.addFinishedBuild(finishedBuilds);
 
-                Entry<String, Build> firstFailedBuild = getFirstFailedBuild(finishedBuilds);
-                if (firstFailedBuild != null) {
-                    rssBuildStatusCallback.notifyOnBuildFailure(firstFailedBuild.getKey(), firstFailedBuild.getValue());
-                }
+                GuiUtil.runInSwingThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        rssLatestJobPanel.addFinishedBuild(finishedBuilds);
+
+                        Entry<String, Build> firstFailedBuild = getFirstFailedBuild(finishedBuilds);
+                        if (firstFailedBuild != null) {
+                            rssBuildStatusCallback.notifyOnBuildFailure(firstFailedBuild.getKey(), firstFailedBuild.getValue());
+                        }
+                    }
+                });
+
             }
         });
+        executorService.shutdown();
     }
 
     public BrowserPreferences getBrowserPreferences() {
@@ -370,11 +389,7 @@ public class JenkinsBrowserLogic implements Disposable {
 
         @Override
         public void run() {
-            try {
-                loadSelectedView();
-            } catch (Exception ex) {
-                throw new RuntimeException(ex.getMessage(), ex);
-            }
+            loadSelectedView();
         }
     }
 
@@ -383,11 +398,7 @@ public class JenkinsBrowserLogic implements Disposable {
 
         @Override
         public void run() {
-            try {
-                loadLatestBuilds(true);
-            } catch (Exception ex) {
-                throw new RuntimeException(ex.getMessage(), ex);
-            }
+            loadLatestBuilds(true);
         }
     }
 

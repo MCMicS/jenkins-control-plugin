@@ -16,6 +16,9 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
+import com.intellij.openapi.Disposable;
+import com.intellij.openapi.ui.LoadingDecorator;
+import com.intellij.openapi.util.Disposer;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusVisitor;
 import org.codinjutsu.tools.jenkins.model.*;
@@ -28,7 +31,7 @@ import java.awt.*;
 import java.util.LinkedList;
 import java.util.List;
 
-public class JenkinsBrowserPanel extends JPanel {
+public class JenkinsBrowserPanel extends JPanel implements Disposable {
     private JComboBox viewCombo;
     private JTree jobTree;
     private JPanel rootPanel;
@@ -203,5 +206,10 @@ public class JenkinsBrowserPanel extends JPanel {
 
     public JobSearchComponent getSearchComponent() {
         return searchComponent;
+    }
+
+    @Override
+    public void dispose() {
+
     }
 }

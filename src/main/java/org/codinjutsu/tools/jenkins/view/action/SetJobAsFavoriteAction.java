@@ -23,24 +23,24 @@ import org.codinjutsu.tools.jenkins.logic.JenkinsBrowserLogic;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
-public class AddJobToFavoriteAction extends AnAction implements DumbAware {
+public class SetJobAsFavoriteAction extends AnAction implements DumbAware {
 
     private JenkinsBrowserLogic jenkinsBrowserLogic;
 
-    public AddJobToFavoriteAction(JenkinsBrowserLogic jenkinsBrowserLogic) {
-        super("Add to Favorites", "Add the selected job to favorites", GuiUtil.loadIcon("star_add.png"));
+    public SetJobAsFavoriteAction(JenkinsBrowserLogic jenkinsBrowserLogic) {
+        super("Set as Favorite", "Set the selected job as favorite", GuiUtil.loadIcon("star_add.png"));
         this.jenkinsBrowserLogic = jenkinsBrowserLogic;
     }
 
     @Override
     public void actionPerformed(AnActionEvent anActionEvent) {
         Job selectedJob = jenkinsBrowserLogic.getSelectedJob();
-        jenkinsBrowserLogic.getBrowserPreferences().addToFavorite(selectedJob.getName());
+        jenkinsBrowserLogic.getBrowserPreferences().setAsFavorite(selectedJob.getName());
     }
 
     @Override
     public void update(AnActionEvent event) {
         Job selectedJob = jenkinsBrowserLogic.getSelectedJob();
-        event.getPresentation().setVisible(selectedJob != null && jenkinsBrowserLogic.getBrowserPreferences().isNotAFavoriteJob(selectedJob.getName()));
+        event.getPresentation().setVisible(selectedJob != null && !jenkinsBrowserLogic.getBrowserPreferences().isAFavoriteJob(selectedJob.getName()));
     }
 }

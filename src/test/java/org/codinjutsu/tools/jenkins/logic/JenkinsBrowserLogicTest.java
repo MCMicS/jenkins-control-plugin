@@ -81,7 +81,7 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
     }
 
 
-    public void test_displayInitialTreeAndLoadView() throws Exception {
+    public void disable_test_displayInitialTreeAndLoadView() throws Exception {
         init("http://myjenkinsserver/");
 
         ComboBox comboBox = uiSpecBrowserPanel.getComboBox("viewCombo");
