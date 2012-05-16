@@ -87,14 +87,6 @@ public class JenkinsBrowserLogic implements Disposable {
     }
 
 
-    private void initGui() {
-        jenkinsBrowserPanel.createSearchPanel();
-        installRssActions(rssLatestJobPanel.getRssActionPanel());
-        installBrowserActions(jenkinsBrowserPanel.getJobTree(), jenkinsBrowserPanel.getActionPanel());
-        installSearchActions(jenkinsBrowserPanel.getSearchComponent());
-    }
-
-
     public void reloadConfiguration() {
         if (!configuration.isServerUrlSet()) {
             jobViewCallback.doAfterLoadingJobs(new BuildStatusAggregator());
@@ -133,50 +125,16 @@ public class JenkinsBrowserLogic implements Disposable {
     }
 
 
-    private Entry<String, Build> getFirstFailedBuild(Map<String, Build> finishedBuilds) {
-        for (Entry<String, Build> buildByJobName : finishedBuilds.entrySet()) {
-            Build build = buildByJobName.getValue();
-            if (build.getStatus() == BuildStatusEnum.FAILURE) {
-                return buildByJobName;
-            }
-        }
-        return null;
+    private void initGui() {
+        jenkinsBrowserPanel.createSearchPanel();
+        installRssActions(rssLatestJobPanel.getRssActionPanel());
+        installBrowserActions(jenkinsBrowserPanel.getJobTree(), jenkinsBrowserPanel.getActionPanel());
+        installSearchActions(jenkinsBrowserPanel.getSearchComponent());
     }
 
 
     public void cleanRssEntries() {
         rssLatestJobPanel.cleanRssEntries();
-    }
-
-
-    public Job getSelectedJob() {
-        return jenkinsBrowserPanel.getSelectedJob();
-    }
-
-
-    public Jenkins getJenkins() {
-        return jenkinsBrowserPanel.getJenkins();
-    }
-
-    public JenkinsRequestManager getJenkinsManager() {
-        return jenkinsRequestManager;
-    }
-
-
-    private Map<String, Build> loadAndReturnNewLatestBuilds() {
-        Map<String, Build> latestBuildMap = jenkinsRequestManager.loadJenkinsRssLatestBuilds(configuration);
-        Map<String, Build> newBuildMap = new HashMap<String, Build>();
-        for (Entry<String, Build> entry : latestBuildMap.entrySet()) {
-            String jobName = entry.getKey();
-            Build newBuild = entry.getValue();
-            Build currentBuild = currentBuildMap.get(jobName);
-            if (!currentBuildMap.containsKey(jobName) || newBuild.isAfter(currentBuild)) {
-                currentBuildMap.put(jobName, newBuild);
-                newBuildMap.put(jobName, newBuild);
-            }
-        }
-
-        return newBuildMap;
     }
 
 
@@ -229,6 +187,87 @@ public class JenkinsBrowserLogic implements Disposable {
     }
 
 
+    public Jenkins getJenkins() {
+        return jenkinsBrowserPanel.getJenkins();
+    }
+
+
+    public Job getSelectedJob() {
+        return jenkinsBrowserPanel.getSelectedJob();
+    }
+
+
+    protected void installRssActions(JPanel rssActionPanel) {
+        DefaultActionGroup actionGroup = new DefaultActionGroup(JENKINS_RSS_ACTIONS, true);
+        if (ApplicationManager.getApplication() != null) {
+            actionGroup.add(new RefreshRssAction(this));
+            actionGroup.addSeparator();
+            actionGroup.add(new CleanRssAction(this));
+        }
+        installActionGroupInToolBar(actionGroup, rssActionPanel, ActionManager.getInstance(), JENKINS_RSS_ACTIONS);
+    }
+
+
+    protected void installBrowserActions(JTree jobTree, JPanel toolBar) {
+        DefaultActionGroup actionGroup = new DefaultActionGroup(JENKINS_JOB_ACTION_GROUP, true);
+        if (ApplicationManager.getApplication() != null) {
+            actionGroup.add(new RefreshNodeAction(this));
+            actionGroup.addSeparator();
+            actionGroup.add(new RunBuildAction(this));
+            actionGroup.add(new SetJobAsFavoriteAction(this));
+            actionGroup.add(new UnsetJobAsFavoriteAction(this));
+            actionGroup.addSeparator();
+            actionGroup.add(new GotoJobPageAction(jenkinsBrowserPanel));
+            actionGroup.add(new GotoLastBuildPageAction(jenkinsBrowserPanel));
+            actionGroup.addSeparator();
+            actionGroup.add(new OpenPluginSettingsAction());
+        }
+        installActionGroupInToolBar(actionGroup, toolBar, ActionManager.getInstance(), JENKINS_ACTIONS);
+        installActionGroupInPopupMenu(actionGroup, jobTree, ActionManager.getInstance());
+    }
+
+
+    protected void installSearchActions(JobSearchComponent searchComponent) {
+
+        DefaultActionGroup actionGroup = new DefaultActionGroup("search bar", false);
+        actionGroup.add(new PrevOccurrenceAction(searchComponent));
+        actionGroup.add(new NextOccurrenceAction(searchComponent));
+
+        ActionToolbar searchBar = ActionManager.getInstance().createActionToolbar("SearchBar", actionGroup, true);
+        searchComponent.installSearchToolBar(searchBar);
+
+        new OpenJobSearchPanelAction(jenkinsBrowserPanel, jenkinsBrowserPanel.getSearchComponent());
+    }
+
+
+    private Entry<String, Build> getFirstFailedBuild(Map<String, Build> finishedBuilds) {
+        for (Entry<String, Build> buildByJobName : finishedBuilds.entrySet()) {
+            Build build = buildByJobName.getValue();
+            if (build.getStatus() == BuildStatusEnum.FAILURE) {
+                return buildByJobName;
+            }
+        }
+        return null;
+    }
+
+
+    private Map<String, Build> loadAndReturnNewLatestBuilds() {
+        Map<String, Build> latestBuildMap = jenkinsRequestManager.loadJenkinsRssLatestBuilds(configuration);
+        Map<String, Build> newBuildMap = new HashMap<String, Build>();
+        for (Entry<String, Build> entry : latestBuildMap.entrySet()) {
+            String jobName = entry.getKey();
+            Build newBuild = entry.getValue();
+            Build currentBuild = currentBuildMap.get(jobName);
+            if (!currentBuildMap.containsKey(jobName) || newBuild.isAfter(currentBuild)) {
+                currentBuildMap.put(jobName, newBuild);
+                newBuildMap.put(jobName, newBuild);
+            }
+        }
+
+        return newBuildMap;
+    }
+
+
     private void initTimers() {
         cancelCurrentTimers();
 
@@ -242,6 +281,7 @@ public class JenkinsBrowserLogic implements Disposable {
             rssRefreshTimer.schedule(new RssRefreshTimerTask(), MINUTES, configuration.getRssRefreshPeriod() * MINUTES);
         }
     }
+
 
     private void cancelCurrentTimers() {
         if (jobRefreshTimer != null) {
@@ -269,84 +309,10 @@ public class JenkinsBrowserLogic implements Disposable {
     }
 
 
-    protected void installRssActions(JPanel rssActionPanel) {
-        DefaultActionGroup actionGroup = new DefaultActionGroup(JENKINS_RSS_ACTIONS, true);
-        if (ApplicationManager.getApplication() != null) {
-            actionGroup.add(new RefreshRssAction(this));
-            actionGroup.addSeparator();
-            actionGroup.add(new CleanRssAction(this));
-        }
-        installActionGroupInToolBar(actionGroup, rssActionPanel, ActionManager.getInstance(), JENKINS_RSS_ACTIONS);
+    public JenkinsRequestManager getJenkinsManager() {
+        return jenkinsRequestManager;
     }
 
-    protected void installBrowserActions(JTree jobTree, JPanel toolBar) {
-        DefaultActionGroup actionGroup = new DefaultActionGroup(JENKINS_JOB_ACTION_GROUP, true);
-        if (ApplicationManager.getApplication() != null) {
-            actionGroup.add(new RefreshNodeAction(this));
-            actionGroup.addSeparator();
-            actionGroup.add(new RunBuildAction(this));
-            actionGroup.add(new SetJobAsFavoriteAction(this));
-            actionGroup.add(new UnsetJobAsFavoriteAction(this));
-            actionGroup.addSeparator();
-            actionGroup.add(new GotoJobPageAction(jenkinsBrowserPanel));
-            actionGroup.add(new GotoLastBuildPageAction(jenkinsBrowserPanel));
-            actionGroup.addSeparator();
-            actionGroup.add(new OpenPluginSettingsAction());
-        }
-        installActionGroupInToolBar(actionGroup, toolBar, ActionManager.getInstance(), JENKINS_ACTIONS);
-        installActionGroupInPopupMenu(actionGroup, jobTree, ActionManager.getInstance());
-    }
-
-    protected void installSearchActions(JobSearchComponent searchComponent) {
-
-        DefaultActionGroup actionGroup = new DefaultActionGroup("search bar", false);
-        actionGroup.add(new PrevOccurrenceAction(searchComponent));
-        actionGroup.add(new NextOccurrenceAction(searchComponent));
-
-        ActionToolbar searchBar = ActionManager.getInstance().createActionToolbar("SearchBar", actionGroup, true);
-        searchComponent.installSearchToolBar(searchBar);
-
-        new OpenJobSearchPanelAction(jenkinsBrowserPanel, jenkinsBrowserPanel.getSearchComponent());
-    }
-
-    public RssLatestBuildPanel getRssLatestJobPanel() {
-        return rssLatestJobPanel;
-    }
-
-    public JenkinsBrowserPanel getJenkinsBrowserPanel() {
-        return jenkinsBrowserPanel;
-    }
-
-    private static void installActionGroupInPopupMenu(ActionGroup group,
-                                                      JComponent component,
-                                                      ActionManager actionManager) {
-        if (actionManager == null) {
-            return;
-        }
-        PopupHandler.installPopupHandler(component, group, "POPUP", actionManager);
-    }
-
-    private static void installActionGroupInToolBar(ActionGroup actionGroup,
-                                                    JComponent component,
-                                                    ActionManager actionManager, String toolBarName) {
-        if (actionManager == null) {
-            return;
-        }
-
-        JComponent actionToolbar = ActionManager.getInstance()
-                .createActionToolbar(toolBarName, actionGroup, true).getComponent();
-        component.add(actionToolbar, BorderLayout.CENTER);
-    }
-
-    private void initListeners() {
-        jenkinsBrowserPanel.getViewCombo().addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent evt) {
-                if (evt.getStateChange() == ItemEvent.SELECTED) {
-                    loadSelectedView();
-                }
-            }
-        });
-    }
 
     public void loadLatestBuilds(final boolean shouldDisplayResult) {
 
@@ -376,14 +342,61 @@ public class JenkinsBrowserLogic implements Disposable {
         executorService.shutdown();
     }
 
+
+    private static void installActionGroupInPopupMenu(ActionGroup group,
+                                                      JComponent component,
+                                                      ActionManager actionManager) {
+        if (actionManager == null) {
+            return;
+        }
+        PopupHandler.installPopupHandler(component, group, "POPUP", actionManager);
+    }
+
+
+    private static void installActionGroupInToolBar(ActionGroup actionGroup,
+                                                    JComponent component,
+                                                    ActionManager actionManager, String toolBarName) {
+        if (actionManager == null) {
+            return;
+        }
+
+        JComponent actionToolbar = ActionManager.getInstance()
+                .createActionToolbar(toolBarName, actionGroup, true).getComponent();
+        component.add(actionToolbar, BorderLayout.CENTER);
+    }
+
+
+    private void initListeners() {
+        jenkinsBrowserPanel.getViewCombo().addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent evt) {
+                if (evt.getStateChange() == ItemEvent.SELECTED) {
+                    loadSelectedView();
+                }
+            }
+        });
+    }
+
+
+    public RssLatestBuildPanel getRssLatestJobPanel() {
+        return rssLatestJobPanel;
+    }
+
+
+    public JenkinsBrowserPanel getJenkinsBrowserPanel() {
+        return jenkinsBrowserPanel;
+    }
+
+
     public BrowserPreferences getBrowserPreferences() {
         return configuration.getBrowserPreferences();
     }
+
 
     @Override
     public void dispose() {
         cancelCurrentTimers();
     }
+
 
     private class JobRefreshTimerTask extends TimerTask {
 
@@ -402,6 +415,7 @@ public class JenkinsBrowserLogic implements Disposable {
         }
     }
 
+
     public interface RssBuildStatusCallback {
 
         void notifyOnBuildFailure(String jobName, Build build);
@@ -411,6 +425,7 @@ public class JenkinsBrowserLogic implements Disposable {
             }
         };
     }
+
 
     public interface JobViewCallback {
 

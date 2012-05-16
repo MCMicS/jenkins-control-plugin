@@ -83,20 +83,14 @@ public class JenkinsControlComponent
     }
 
 
-    @NotNull
-    public String getComponentName() {
-        return JENKINS_CONTROL_COMPONENT_NAME;
+    public void projectOpened() {
+        installJenkinsPanel();
     }
 
 
-    @Nls
-    public String getDisplayName() {
-        return JENKINS_CONTROL_PLUGIN_NAME;
-    }
-
-
-    public Icon getIcon() {
-        return null;
+    public void projectClosed() {
+        jenkinsBrowserLogic.dispose();
+        ToolWindowManager.getInstance(project).unregisterToolWindow(JENKINS_BROWSER);
     }
 
 
@@ -128,9 +122,38 @@ public class JenkinsControlComponent
     }
 
 
-    public void projectOpened() {
-        installJenkinsPanel();
+    public String getHelpTopic() {
+        return null;
     }
+
+
+    public void apply() throws ConfigurationException {
+        if (configurationPanel != null) {
+            try {
+                configurationPanel.applyConfigurationData(configuration);
+                jenkinsBrowserLogic.reloadConfiguration();
+
+            } catch (org.codinjutsu.tools.jenkins.exception.ConfigurationException ex) {
+                throw new ConfigurationException(ex.getMessage());
+            }
+        }
+    }
+
+
+    public void notifyInfoJenkinsToolWindow(final String message) {
+        ToolWindowManager.getInstance(project).notifyByBalloon(
+                JENKINS_BROWSER,
+                MessageType.INFO,
+                message,
+                RUN_ICON,
+                new BrowserHyperlinkListener());
+    }
+
+
+    public void notifyErrorJenkinsToolWindow(final String message) {
+        ToolWindowManager.getInstance(project).notifyByBalloon(JENKINS_BROWSER, MessageType.ERROR, message);
+    }
+
 
     private void installJenkinsPanel() {
         ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
@@ -190,46 +213,25 @@ public class JenkinsControlComponent
     }
 
 
-    public void projectClosed() {
-        jenkinsBrowserLogic.dispose();
-        ToolWindowManager.getInstance(project).unregisterToolWindow(JENKINS_BROWSER);
+    @NotNull
+    public String getComponentName() {
+        return JENKINS_CONTROL_COMPONENT_NAME;
     }
 
 
-    public String getHelpTopic() {
+    @Nls
+    public String getDisplayName() {
+        return JENKINS_CONTROL_PLUGIN_NAME;
+    }
+
+
+    public Icon getIcon() {
         return null;
-    }
-
-
-    public void apply() throws ConfigurationException {
-        if (configurationPanel != null) {
-            try {
-                configurationPanel.applyConfigurationData(configuration);
-                jenkinsBrowserLogic.reloadConfiguration();
-
-            } catch (org.codinjutsu.tools.jenkins.exception.ConfigurationException ex) {
-                throw new ConfigurationException(ex.getMessage());
-            }
-        }
     }
 
 
     public void reset() {
         configurationPanel.loadConfigurationData(configuration);
-    }
-
-
-    public void notifyInfoJenkinsToolWindow(final String message) {
-        ToolWindowManager.getInstance(project).notifyByBalloon(
-                JENKINS_BROWSER,
-                MessageType.INFO,
-                message,
-                RUN_ICON,
-                new BrowserHyperlinkListener());
-    }
-
-    public void notifyErrorJenkinsToolWindow(final String message) {
-        ToolWindowManager.getInstance(project).notifyByBalloon(JENKINS_BROWSER, MessageType.ERROR, message);
     }
 
 

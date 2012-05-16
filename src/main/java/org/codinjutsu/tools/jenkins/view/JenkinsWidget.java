@@ -50,6 +50,17 @@ public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidg
         add(buildStatusIcon, BorderLayout.CENTER);
     }
 
+    public void updateInformation(BuildStatusAggregator buildStatusAggregator) {
+        buildStatusSummaryPanel.setInformation(buildStatusAggregator);
+
+        final JComponent buildIcon = createStatusIcon(buildStatusAggregator);
+
+        invalidate();
+        removeAll();
+        add(buildIcon, BorderLayout.CENTER);
+        validate();
+    }
+
     private JComponent createStatusIcon(BuildStatusAggregator aggregator) {
         JComponent statusIcon = BuildStatusIcon.createIcon(aggregator);
         statusIcon.addMouseListener(new MouseAdapter() {
@@ -70,17 +81,6 @@ public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidg
         return statusIcon;
     }
 
-    public void updateInformation(BuildStatusAggregator buildStatusAggregator) {
-        buildStatusSummaryPanel.setInformation(buildStatusAggregator);
-
-        final JComponent buildIcon = createStatusIcon(buildStatusAggregator);
-
-        invalidate();
-        removeAll();
-        add(buildIcon, BorderLayout.CENTER);
-        validate();
-    }
-
     private void handle(MouseEvent e) {
         if (myPopup != null && myPopup.isVisible()) {
             if (!myPopup.isFocused()) {
@@ -97,7 +97,7 @@ public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidg
         }
     }
 
-    public void showRssPanel(RelativePoint point) {
+    private void showRssPanel(RelativePoint point) {
         myPopup = JBPopupFactory.getInstance()
                 .createComponentPopupBuilder(buildStatusSummaryPanel, buildStatusSummaryPanel)
                 .setMovable(true)

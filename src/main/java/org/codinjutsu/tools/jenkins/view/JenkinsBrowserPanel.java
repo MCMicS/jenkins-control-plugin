@@ -61,6 +61,44 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
     }
 
 
+    public Job getSelectedJob() {
+        DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) jobTree.getLastSelectedPathComponent();
+        if (treeNode != null) {
+            Object userObject = treeNode.getUserObject();
+            if (userObject instanceof Job) {
+                return (Job) userObject;
+            }
+        }
+        return null;
+    }
+
+    public View getSelectedJenkinsView() {
+        return (View) viewCombo.getSelectedItem();
+    }
+
+    public void getViewByName(String name) {
+        for (int i = 0; i < viewCombo.getItemCount(); i++) {
+            View view = (View) viewCombo.getItemAt(i);
+            if (StringUtils.equals(name, view.getName())) {
+                viewCombo.setSelectedItem(view);
+                return;
+            }
+        }
+    }
+
+
+    public Jenkins getJenkins() {
+        DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) jobTree.getLastSelectedPathComponent();
+        if (treeNode != null) {
+            Object userObject = treeNode.getUserObject();
+            if (userObject instanceof Jenkins) {
+                return (Jenkins) userObject;
+            }
+        }
+        return null;
+    }
+
+
     public void fillJobTree(Jenkins jenkins, BuildStatusVisitor buildStatusVisitor) {
         List<Job> jobList = jenkins.getJobList();
         final DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode(jenkins);
@@ -71,6 +109,11 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
                 visit(job, buildStatusVisitor);
             }
         }
+        jobTree.setModel(new DefaultTreeModel(rootNode));
+    }
+
+    public void setErrorMsg(String serverUrl, String description) {
+        DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode(new Jenkins(description, serverUrl));
         jobTree.setModel(new DefaultTreeModel(rootNode));
     }
 
@@ -119,6 +162,7 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
         });
     }
 
+
     private List<View> flatViewList(List<View> views) {
         List<View> flattenViewList = new LinkedList<View>();
         for (View view : views) {
@@ -133,6 +177,7 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
         return flattenViewList;
     }
 
+
     private static boolean hasNestedViews(List<View> views) {
         for (View view : views) {
             if (view.hasNestedView()) return true;
@@ -146,45 +191,6 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
     }
 
 
-    public Job getSelectedJob() {
-        DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) jobTree.getLastSelectedPathComponent();
-        if (treeNode != null) {
-            Object userObject = treeNode.getUserObject();
-            if (userObject instanceof Job) {
-                return (Job) userObject;
-            }
-        }
-        return null;
-    }
-
-
-    public View getSelectedJenkinsView() {
-        return (View) viewCombo.getSelectedItem();
-    }
-
-    public void getViewByName(String name) {
-        for (int i = 0; i < viewCombo.getItemCount(); i++) {
-            View view = (View) viewCombo.getItemAt(i);
-            if (StringUtils.equals(name, view.getName())) {
-                viewCombo.setSelectedItem(view);
-                return;
-            }
-        }
-    }
-
-
-    public Jenkins getJenkins() {
-        DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) jobTree.getLastSelectedPathComponent();
-        if (treeNode != null) {
-            Object userObject = treeNode.getUserObject();
-            if (userObject instanceof Jenkins) {
-                return (Jenkins) userObject;
-            }
-        }
-        return null;
-    }
-
-
     public JTree getJobTree() {
         return jobTree;
     }
@@ -192,12 +198,6 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
 
     public JComboBox getViewCombo() {
         return viewCombo;
-    }
-
-
-    public void setErrorMsg(String serverUrl, String description) {
-        DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode(new Jenkins(description, serverUrl));
-        jobTree.setModel(new DefaultTreeModel(rootNode));
     }
 
     public JPanel getActionPanel() {
