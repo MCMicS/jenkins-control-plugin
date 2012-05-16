@@ -38,25 +38,25 @@ class UrlBuilder {
 
     public URL createRunJobUrl(String jobBuildUrl, JenkinsConfiguration configuration) {
         try {
-            return new URL(jobBuildUrl + URIUtil.encodePathQuery(BUILD + "?delay=" + configuration.getBuildDelay() + "sec"));
+            return new URL(jobBuildUrl + URIUtil.encodePathQuery(String.format("%s?delay=%dsec",BUILD, configuration.getBuildDelay())));
         } catch (MalformedURLException malformedURLEx) {
-            throw new IllegalArgumentException("URL is malformed : " + malformedURLEx);
+            throw new IllegalArgumentException("URL is malformed", malformedURLEx);
         } catch (URIException uriEx) {
-            throw new IllegalArgumentException("Error during URL creation: " + uriEx);
+            throw new IllegalArgumentException("Error during URL creation", uriEx);
         }
     }
 
     public URL createRunParameterizedJobUrl(String jobUrl, JenkinsConfiguration configuration, Map<String, String> paramValueMap) {
-        StringBuilder strBuilder = new StringBuilder(PARAMETERIZED_BUILD + "?delay=" + configuration.getBuildDelay() + "sec");
+        StringBuilder strBuilder = new StringBuilder(String.format("%s?delay=%dsec",PARAMETERIZED_BUILD, configuration.getBuildDelay()));
         for (Map.Entry<String, String> valueByName : paramValueMap.entrySet()) {
             strBuilder.append("&").append(valueByName.getKey()).append("=").append(valueByName.getValue());
         }
         try {
             return new URL(jobUrl + URIUtil.encodePathQuery(strBuilder.toString()));
         } catch (MalformedURLException malformedURLEx) {
-            throw new IllegalArgumentException("URL is malformed : " + malformedURLEx);
+            throw new IllegalArgumentException("URL is malformed", malformedURLEx);
         } catch (URIException uriEx) {
-            throw new IllegalArgumentException("Error during URL creation: " + uriEx);
+            throw new IllegalArgumentException("Error during URL creation", uriEx);
         }
     }
 
@@ -64,9 +64,9 @@ class UrlBuilder {
         try {
             return new URL(URIUtil.encodePathQuery(configuration.getServerUrl() + API_XML + TREE_PARAM + BASIC_JENKINS_INFO));
         } catch (MalformedURLException malformedURLEx) {
-            throw new IllegalArgumentException("URL is malformed : " + malformedURLEx);
+            throw new IllegalArgumentException("URL is malformed", malformedURLEx);
         } catch (URIException uriEx) {
-            throw new IllegalArgumentException("Error during URL creation: " + uriEx);
+            throw new IllegalArgumentException("Error during URL creation", uriEx);
         }
     }
 
@@ -74,9 +74,9 @@ class UrlBuilder {
         try {
             return new URL(viewUrl + URIUtil.encodePathQuery(API_XML + TREE_PARAM + BASIC_VIEW_INFO));
         } catch (MalformedURLException malformedURLEx) {
-            throw new IllegalArgumentException("URL is malformed : " + malformedURLEx);
+            throw new IllegalArgumentException("URL is malformed", malformedURLEx);
         } catch (URIException uriEx) {
-            throw new IllegalArgumentException("Error during URL creation: " + uriEx);
+            throw new IllegalArgumentException("Error during URL creation", uriEx);
         }
     }
 
@@ -84,9 +84,9 @@ class UrlBuilder {
         try {
             return new URL(jobUrl + URIUtil.encodePathQuery(API_XML + TREE_PARAM + BASIC_JOB_INFO));
         } catch (MalformedURLException malformedURLEx) {
-            throw new IllegalArgumentException("URL is malformed : ", malformedURLEx);
+            throw new IllegalArgumentException("URL is malformed", malformedURLEx);
         } catch (URIException uriEx) {
-            throw new IllegalArgumentException("Error during URL creation: ", uriEx);
+            throw new IllegalArgumentException("Error during URL creation", uriEx);
         }
     }
 
@@ -94,7 +94,7 @@ class UrlBuilder {
         try {
             return new URL(serverUrl + RSS_LATEST);
         } catch (MalformedURLException malformedURLEx) {
-            throw new IllegalArgumentException("URL is malformed : ", malformedURLEx);
+            throw new IllegalArgumentException("URL is malformed", malformedURLEx);
         }
     }
 
@@ -102,7 +102,7 @@ class UrlBuilder {
         try {
             return new URL(serverUrl + TEST_CONNECTION_REQUEST);
         } catch (MalformedURLException malformedUrlEx) {
-            throw new IllegalArgumentException("URL is malformed : ", malformedUrlEx);
+            throw new IllegalArgumentException("URL is malformed", malformedUrlEx);
         }
     }
 }
