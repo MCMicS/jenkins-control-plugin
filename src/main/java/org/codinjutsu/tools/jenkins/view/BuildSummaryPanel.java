@@ -17,9 +17,12 @@
 package org.codinjutsu.tools.jenkins.view;
 
 import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
+import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
 import javax.swing.*;
 import java.awt.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 
 public class BuildSummaryPanel extends JPanel{
@@ -27,7 +30,23 @@ public class BuildSummaryPanel extends JPanel{
     private JLabel brokenBuildsLabel;
     private JLabel succeededBuildsLabel;
     private JLabel unstableBuildsLabel;
+    private JLabel weatherLabel;
 
+    private enum Health {
+        upTo19(GuiUtil.loadIcon("health-00to19-Large.png"), "Heath is between 0 and 19%"),
+        upTo39(GuiUtil.loadIcon("health-20to39-Large.png"), "Heath is between 20 and 39%"),
+        upTo59(GuiUtil.loadIcon("health-40to59-Large.png"), "Heath is between 40 and 59%"),
+        upTo79(GuiUtil.loadIcon("health-60to79-Large.png"), "Heath is between 60 and 79%"),
+        upTo100(GuiUtil.loadIcon("health-80plus-Large.png"), "Heath is over 80%"),
+        none(GuiUtil.loadIcon("null.png"), "");
+        private final Icon icon;
+        private final String tooltipText;
+
+        Health(Icon icon, String tooltipText) {
+            this.icon = icon;
+            this.tooltipText = tooltipText;
+        }
+    }
 
     public BuildSummaryPanel() {
         setLayout(new BorderLayout());
@@ -38,5 +57,33 @@ public class BuildSummaryPanel extends JPanel{
         brokenBuildsLabel.setText(String.valueOf(aggregator.getNbBrokenBuilds()));
         succeededBuildsLabel.setText(String.valueOf(aggregator.getNbSucceededBuilds()));
         unstableBuildsLabel.setText(String.valueOf(aggregator.getNbUnstableBuilds()));
+
+        Health health = computeHealth(aggregator);
+        weatherLabel.setIcon(health.icon);
+        weatherLabel.setToolTipText(health.tooltipText);
+    }
+
+    private Health computeHealth(BuildStatusAggregator aggregator) {
+        int sum = aggregator.sumAll();
+
+        if (sum == 0) {
+            return Health.none;
+        }
+
+        double ratio = (double) aggregator.getNbSucceededBuilds() / (double) sum;
+        Health health;
+        if (ratio < 0.2) {
+            health = Health.upTo19;
+        } else if (ratio < 0.4) {
+            health = Health.upTo39;
+        }else if (ratio < 0.6 ) {
+            health = Health.upTo59;
+        }else if (ratio < 0.8) {
+            health = Health.upTo79;
+        }else {
+            health = Health.upTo100;
+        }
+
+        return health;
     }
 }

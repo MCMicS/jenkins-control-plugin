@@ -55,10 +55,14 @@ public class BuildStatusAggregator implements BuildStatusVisitor {
     }
 
     public boolean hasNoResults() {
-        return nbJobs == 0;
+        return nbJobs == 0 || sumAll() == 0;
     }
 
     public void setNbJobs(int nbJobs) {
         this.nbJobs = nbJobs;
+    }
+
+    public int sumAll() {
+        return nbSucceededBuilds + nbUnstableBuilds + nbBrokenBuilds;
     }
 }
