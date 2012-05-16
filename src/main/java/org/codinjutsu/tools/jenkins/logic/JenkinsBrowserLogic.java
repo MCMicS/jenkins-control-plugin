@@ -162,6 +162,7 @@ public class JenkinsBrowserLogic implements Disposable {
         executorService.submit(new Runnable() {
             @Override
             public void run() {
+                jenkinsBrowserPanel.startWaiting();
                 final List<Job> jobList = jenkinsRequestManager.loadJenkinsView(selectedView.getUrl());
 
                 getBrowserPreferences().setLastSelectedView(selectedView.getName());
@@ -173,6 +174,7 @@ public class JenkinsBrowserLogic implements Disposable {
                     @Override
                     public void run() {
                         jenkinsBrowserPanel.fillJobTree(jenkins, buildStatusAggregator);
+                        jenkinsBrowserPanel.endWaiting();
                         buildStatusAggregator.setNbJobs(jobList.size());
                         jobViewCallback.doAfterLoadingJobs(buildStatusAggregator);
                     }

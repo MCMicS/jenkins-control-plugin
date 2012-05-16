@@ -153,6 +153,13 @@
             <systemPath>${intellij.lib.path}/util.jar</systemPath>
             <version>${intellij.sdk.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.intellij</groupId>
+            <artifactId>icons</artifactId>
+            <scope>system</scope>
+            <systemPath>${intellij.lib.path}/icons.jar</systemPath>
+            <version>${intellij.sdk.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>com.intellij</groupId>

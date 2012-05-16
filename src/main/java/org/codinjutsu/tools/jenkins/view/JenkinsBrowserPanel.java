@@ -37,7 +37,10 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
     private JPanel rootPanel;
     private JPanel actionPanel;
     private JPanel utilityPanel;
+    private JPanel jobPanel;
+    private JScrollPane scrollPane;
     private JobSearchComponent searchComponent;
+    private final LoadingDecorator loadingDecorator;
 
 
     public JenkinsBrowserPanel() {
@@ -47,6 +50,12 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
 
         setLayout(new BorderLayout());
         add(rootPanel, BorderLayout.CENTER);
+
+        loadingDecorator = new LoadingDecorator(scrollPane, Disposer.newDisposable(), 0);
+        loadingDecorator.setLoadingText("Loading...");
+
+        jobPanel.setLayout(new BorderLayout());
+        jobPanel.add(loadingDecorator.getComponent(), BorderLayout.CENTER);
     }
 
 
@@ -211,5 +220,23 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
     @Override
     public void dispose() {
 
+    }
+
+    public void startWaiting() {
+        if (!loadingDecorator.isLoading()) {
+            GuiUtil.runInSwingThread(new Runnable() {
+                @Override
+                public void run() {
+                    loadingDecorator.startLoading(false);
+                }
+            });
+
+        }
+    }
+
+    public void endWaiting() {
+        if (loadingDecorator.isLoading()) {
+            loadingDecorator.stopLoading();
+        }
     }
 }
