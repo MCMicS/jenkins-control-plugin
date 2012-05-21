@@ -117,7 +117,7 @@ public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidg
 
     private Dimension getMinSize() {
         final Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
-        size.width *= 0.1d;
+        size.width *= 0.15d;
         size.height *= 0.1d;
         return size;
     }
@@ -136,7 +136,9 @@ public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidg
     }
 
     public void dispose() {
-        myStatusBar = null;
+        if (myStatusBar != null) {
+            myStatusBar.removeWidget(ID());
+        }
     }
 
     public JComponent getComponent() {
