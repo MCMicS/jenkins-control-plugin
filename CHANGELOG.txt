@@ -3,7 +3,7 @@ Version 0.5.2
     * [Add] The plugin starts up with the last selected view
     * [Upd] Improvement in handling Exception
     * [Upd] Job are loaded in background (with a waiting UI decorator)
-    * [Fix] Widget should not be duplicated when opening new Project Window
+    * [Fix] The Widget should not be duplicated when opening new Project Window
 
 Version 0.5.1
     * [Fix] Regression : When the server url is not set (or set to a dummy url), the plugin should not try to connect

@@ -19,6 +19,7 @@ package org.codinjutsu.tools.jenkins.logic;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.CharSequenceReader;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.model.*;
@@ -35,7 +36,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
-@SuppressWarnings("unchecked")
 public class JenkinsRequestManager {
 
     private static final String JENKINS_DESCRIPTION = "description";
@@ -78,6 +78,8 @@ public class JenkinsRequestManager {
     private static final String RSS_PUBLISHED = "published";
     private static final String JENKINS_ROOT_TAG = "jenkins";
     private static final String HUDSON_ROOT_TAG = "hudson";
+
+    private static final Logger LOG = Logger.getLogger(JenkinsRequestManager.class);
 
     private final UrlBuilder urlBuilder;
     private SecurityClient securityClient;
@@ -140,9 +142,11 @@ public class JenkinsRequestManager {
         try {
             return getXMLBuilder().build(jenkinsDataReader);
         } catch (JDOMException e) {
-            throw new RuntimeException("Unexpected xml document. Actual :\n " + jenkinsXmlData, e);
+            LOG.error("Unexpected xml document. Actual :\n" + jenkinsXmlData, e);
+            throw new RuntimeException("Unexpected xml document. See IntelliJ logs.");
         } catch (IOException e) {
-            throw new RuntimeException("Error during parsing document : " + jenkinsXmlData, e);
+            LOG.error("Error during reading the xml response.", e);
+            throw new RuntimeException("Error during reading the xml response. See IntelliJ logs.");
         } finally {
             IOUtils.closeQuietly(jenkinsDataReader);
         }

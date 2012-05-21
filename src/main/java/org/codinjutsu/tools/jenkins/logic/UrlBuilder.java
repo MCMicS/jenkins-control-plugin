@@ -34,11 +34,11 @@ class UrlBuilder {
     private static final String BASIC_JENKINS_INFO = "nodeName,nodeDescription,primaryView[name,url],views[name,url,views[name,url]]";
     private static final String BASIC_JOB_INFO = "name,url,color,buildable,inQueue,healthReport[description,iconUrl],lastBuild[id,url,building,result,number],property[parameterDefinitions[name,type,defaultParameterValue[value],choices]]";
     private static final String BASIC_VIEW_INFO = "name,url,jobs[" + BASIC_JOB_INFO + "]";
-    public static final String TEST_CONNECTION_REQUEST = "/api/xml?tree=nodeName";
+    private static final String TEST_CONNECTION_REQUEST = "/api/xml?tree=nodeName";
 
     public URL createRunJobUrl(String jobBuildUrl, JenkinsConfiguration configuration) {
         try {
-            return new URL(jobBuildUrl + URIUtil.encodePathQuery(String.format("%s?delay=%dsec",BUILD, configuration.getBuildDelay())));
+            return new URL(jobBuildUrl + URIUtil.encodePathQuery(String.format("%s?delay=%dsec", BUILD, configuration.getBuildDelay())));
         } catch (MalformedURLException malformedURLEx) {
             throw new IllegalArgumentException("URL is malformed", malformedURLEx);
         } catch (URIException uriEx) {
@@ -47,7 +47,7 @@ class UrlBuilder {
     }
 
     public URL createRunParameterizedJobUrl(String jobUrl, JenkinsConfiguration configuration, Map<String, String> paramValueMap) {
-        StringBuilder strBuilder = new StringBuilder(String.format("%s?delay=%dsec",PARAMETERIZED_BUILD, configuration.getBuildDelay()));
+        StringBuilder strBuilder = new StringBuilder(String.format("%s?delay=%dsec", PARAMETERIZED_BUILD, configuration.getBuildDelay()));
         for (Map.Entry<String, String> valueByName : paramValueMap.entrySet()) {
             strBuilder.append("&").append(valueByName.getKey()).append("=").append(valueByName.getValue());
         }

@@ -216,8 +216,8 @@ public class JenkinsBrowserLogic implements Disposable {
             actionGroup.add(new RefreshNodeAction(this));
             actionGroup.addSeparator();
             actionGroup.add(new RunBuildAction(this));
-            actionGroup.add(new SetJobAsFavoriteAction(this));
-            actionGroup.add(new UnsetJobAsFavoriteAction(this));
+//            actionGroup.add(new SetJobAsFavoriteAction(this));
+//            actionGroup.add(new UnsetJobAsFavoriteAction(this));
             actionGroup.addSeparator();
             actionGroup.add(new GotoJobPageAction(jenkinsBrowserPanel));
             actionGroup.add(new GotoLastBuildPageAction(jenkinsBrowserPanel));
