@@ -45,6 +45,7 @@
             <number>12</number>
             <url>http://myjenkins/job/myapp/12/</url>
         </lastBuild>
+        <property/>
         <property>
             <parameterDefinition>
                 <defaultParameterValue>

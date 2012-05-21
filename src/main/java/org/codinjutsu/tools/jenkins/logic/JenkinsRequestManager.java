@@ -290,9 +290,12 @@ public class JenkinsRequestManager {
             job.setLastBuild(createLastBuild(lastBuild));
         }
 
-        Element property = jobElement.getChild(PARAMETER_PROPERTY);
-        if (property != null) {
-            setJobParameters(job, property.getChildren(PARAMETER_DEFINITION));
+        List<Element> propertyList = jobElement.getChildren(PARAMETER_PROPERTY);
+        for (Element property : propertyList) {
+            List parameterDefinitions = property.getChildren(PARAMETER_DEFINITION);
+            if (!parameterDefinitions.isEmpty()) {
+                setJobParameters(job, parameterDefinitions);
+            }
         }
         return job;
     }
