@@ -15,10 +15,10 @@
 
     <change-notes><![CDATA[
 <ul>Version 0.5.2
-    <li>[Add] The plugin starts up with the last selected view</li>
     <li>[Add] Widget : when clicking on the status icon, a popup is displayed with builds status summary info</li>
-    <li>[Upd] Job are loaded in background (with a waiting UI decorator)</li>
+    <li>[Add] The plugin starts up with the last selected view</li>
     <li>[Upd] Improvement in handling Connection Exception</li>
+    <li>[Upd] Job are loaded in background (with a waiting UI decorator)</li>
     <li>[Fix] Widget should not be duplicated when opening new Project Window</li>
     <li>[Fix] Build Parameter dialog does not work</li>
 </ul>
