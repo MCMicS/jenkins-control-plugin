@@ -58,7 +58,7 @@ public class JenkinsBrowserLogic implements Disposable {
     private final JenkinsConfiguration configuration;
     private final JenkinsRequestManager jenkinsRequestManager;
 
-    private final RssBuildStatusCallback rssBuildStatusCallback;
+    private final BuildStatusListener buildStatusListener;
 
     private Jenkins jenkins;
     private final Map<String, Build> currentBuildMap = new HashMap<String, Build>();
@@ -67,16 +67,16 @@ public class JenkinsBrowserLogic implements Disposable {
     private final JenkinsBrowserPanel jenkinsBrowserPanel;
     private final RssLatestBuildPanel rssLatestJobPanel;
 
-    private JobViewCallback jobViewCallback = JobViewCallback.NULL;
+    private JobLoadListener jobLoadListener = JobLoadListener.NULL;
 
 
-    public JenkinsBrowserLogic(JenkinsConfiguration configuration, JenkinsRequestManager jenkinsRequestManager, JenkinsBrowserPanel jenkinsBrowserPanel, RssLatestBuildPanel rssLatestJobPanel, RssBuildStatusCallback rssBuildStatusCallback, JobViewCallback jobViewCallback) {
+    public JenkinsBrowserLogic(JenkinsConfiguration configuration, JenkinsRequestManager jenkinsRequestManager, JenkinsBrowserPanel jenkinsBrowserPanel, RssLatestBuildPanel rssLatestJobPanel, BuildStatusListener buildStatusListener, JobLoadListener jobLoadListener) {
         this.configuration = configuration;
         this.jenkinsRequestManager = jenkinsRequestManager;
         this.jenkinsBrowserPanel = jenkinsBrowserPanel;
         this.rssLatestJobPanel = rssLatestJobPanel;
-        this.rssBuildStatusCallback = rssBuildStatusCallback;
-        this.jobViewCallback = jobViewCallback;
+        this.buildStatusListener = buildStatusListener;
+        this.jobLoadListener = jobLoadListener;
     }
 
 
@@ -89,7 +89,7 @@ public class JenkinsBrowserLogic implements Disposable {
 
     public void reloadConfiguration() {
         if (!configuration.isServerUrlSet()) {
-            jobViewCallback.doAfterLoadingJobs(new BuildStatusAggregator());
+            jobLoadListener.afterLoadingJobs(new BuildStatusAggregator());//TODO Crappy, need rewrite this
             displayMissingConfiguration();
             return;
         }
@@ -176,7 +176,7 @@ public class JenkinsBrowserLogic implements Disposable {
                         jenkinsBrowserPanel.fillJobTree(jenkins, buildStatusAggregator);
                         jenkinsBrowserPanel.endWaiting();
                         buildStatusAggregator.setNbJobs(jobList.size());
-                        jobViewCallback.doAfterLoadingJobs(buildStatusAggregator);
+                        jobLoadListener.afterLoadingJobs(buildStatusAggregator);
                     }
 
                 });
@@ -334,7 +334,7 @@ public class JenkinsBrowserLogic implements Disposable {
 
                         Entry<String, Build> firstFailedBuild = getFirstFailedBuild(finishedBuilds);
                         if (firstFailedBuild != null) {
-                            rssBuildStatusCallback.notifyOnBuildFailure(firstFailedBuild.getKey(), firstFailedBuild.getValue());
+                            buildStatusListener.onBuildFailure(firstFailedBuild.getKey(), firstFailedBuild.getValue());
                         }
                     }
                 });
@@ -418,24 +418,24 @@ public class JenkinsBrowserLogic implements Disposable {
     }
 
 
-    public interface RssBuildStatusCallback {
+    public interface BuildStatusListener {
 
-        void notifyOnBuildFailure(String jobName, Build build);
+        void onBuildFailure(String jobName, Build build);
 
-        public static RssBuildStatusCallback NULL = new RssBuildStatusCallback() {
-            public void notifyOnBuildFailure(String jobName, Build build) {
+        public static BuildStatusListener NULL = new BuildStatusListener() {
+            public void onBuildFailure(String jobName, Build build) {
             }
         };
     }
 
 
-    public interface JobViewCallback {
+    public interface JobLoadListener {
 
-        void doAfterLoadingJobs(BuildStatusAggregator buildStatusAggregator);
+        void afterLoadingJobs(BuildStatusAggregator buildStatusAggregator);
 
-        JobViewCallback NULL = new JobViewCallback() {
+        JobLoadListener NULL = new JobLoadListener() {
             @Override
-            public void doAfterLoadingJobs(BuildStatusAggregator buildStatusAggregator) {
+            public void afterLoadingJobs(BuildStatusAggregator buildStatusAggregator) {
             }
         };
     }

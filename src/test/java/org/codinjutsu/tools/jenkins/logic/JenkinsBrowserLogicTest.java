@@ -48,7 +48,7 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
 
     private Panel uiSpecBrowserPanel;
     private Panel uiSpecRssPanel;
-    private MyJobViewCallback jobViewCallback;
+    private MyJobLoadListener jobViewCallback;
 
 
     public void test_displayWithEmptyServerUrl() throws Exception {
@@ -194,8 +194,8 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
     }
 
     private void createLogic() {
-        jobViewCallback = new MyJobViewCallback();
-        jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, requestManagerMock, new JenkinsBrowserPanel(), new RssLatestBuildPanel(), JenkinsBrowserLogic.RssBuildStatusCallback.NULL, jobViewCallback) {
+        jobViewCallback = new MyJobLoadListener();
+        jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, requestManagerMock, new JenkinsBrowserPanel(), new RssLatestBuildPanel(), JenkinsBrowserLogic.BuildStatusListener.NULL, jobViewCallback) {
             @Override
             protected void installRssActions(JPanel rssActionPanel) {
             }
@@ -261,12 +261,12 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
         return jenkins;
     }
 
-    private static class MyJobViewCallback implements JenkinsBrowserLogic.JobViewCallback {
+    private static class MyJobLoadListener implements JenkinsBrowserLogic.JobLoadListener {
 
         private BuildStatusAggregator buildStatusAggregator;
 
         @Override
-        public void doAfterLoadingJobs(BuildStatusAggregator buildStatusAggregator) {
+        public void afterLoadingJobs(BuildStatusAggregator buildStatusAggregator) {
             this.buildStatusAggregator = buildStatusAggregator;
         }
     }

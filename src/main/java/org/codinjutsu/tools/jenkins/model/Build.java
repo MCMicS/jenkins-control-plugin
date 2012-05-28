@@ -47,6 +47,21 @@ public class Build {
     }
 
 
+    public static Build createBuildFromWorkspace(String buildUrl, String number, String status, String isBuilding, String buildDate) {
+        return createBuild(buildUrl, number, status, isBuilding, buildDate, DateUtil.WORKSPACE_DATE_FORMAT, "Dummy message");
+    }
+
+    public static Build createBuildFromRss(String buildUrl, String number, String status, String isBuilding, String buildDate, String message) {
+        return createBuild(buildUrl, number, status, isBuilding, buildDate, DateUtil.RSS_DATE_FORMAT, message);
+    }
+
+    private static Build createBuild(String buildUrl, String number, String status, String isBuilding, String buildDate, SimpleDateFormat simpleDateFormat, String message) {
+        BuildStatusEnum buildStatusEnum = BuildStatusEnum.parseStatus(status);
+        Date date = DateUtil.parseDate(buildDate, simpleDateFormat);
+
+        return new Build(buildUrl, Integer.valueOf(number), date, buildStatusEnum, Boolean.valueOf(isBuilding), message);
+    }
+
     private Build(String url, int number, Date buildDate, BuildStatusEnum status, boolean isBuilding, String message) {
         this.url = url;
         this.number = number;
@@ -55,6 +70,7 @@ public class Build {
         this.building = isBuilding;
         this.message = message;
     }
+
 
     public static Icon getStateIcon(String jobColor) {
         BuildStatusEnum[] jobStates = BuildStatusEnum.values();
@@ -96,23 +112,6 @@ public class Build {
 
     public boolean isAfter(Build aBuild) {
         return this.getNumber() > aBuild.getNumber();
-    }
-
-
-    public static Build createBuildFromWorkspace(String buildUrl, String number, String status, String isBuilding, String buildDate) {
-        return createBuild(buildUrl, number, status, isBuilding, buildDate, DateUtil.WORKSPACE_DATE_FORMAT, "Dummy message");
-    }
-
-    public static Build createBuildFromRss(String buildUrl, String number, String status, String isBuilding, String buildDate, String message) {
-        return createBuild(buildUrl, number, status, isBuilding, buildDate, DateUtil.RSS_DATE_FORMAT, message);
-    }
-
-
-    private static Build createBuild(String buildUrl, String number, String status, String isBuilding, String buildDate, SimpleDateFormat simpleDateFormat, String message) {
-        BuildStatusEnum buildStatusEnum = BuildStatusEnum.parseStatus(status);
-        Date date = DateUtil.parseDate(buildDate, simpleDateFormat);
-
-        return new Build(buildUrl, Integer.valueOf(number), date, buildStatusEnum, Boolean.valueOf(isBuilding), message);
     }
 
     public String getMessage() {

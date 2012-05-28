@@ -16,7 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
-import java.util.*;
+import org.apache.commons.lang.StringUtils;
 
 public class BrowserPreferences {
 
@@ -28,7 +28,7 @@ public class BrowserPreferences {
     }
 
     public boolean isAFavoriteJob(String jobName) {
-        return favoriteJob.contains(jobName);
+        return StringUtils.equals(favoriteJob, jobName);
     }
 
     public void clearFavorite() {

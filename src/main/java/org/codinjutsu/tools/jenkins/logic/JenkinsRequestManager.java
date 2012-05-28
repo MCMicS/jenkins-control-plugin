@@ -187,11 +187,11 @@ public class JenkinsRequestManager {
 
     private Build createLastBuild(Element jobLastBuild) {
         String isBuilding = jobLastBuild.getChildText(BUILD_IS_BUILDING);
-        String isSuccess = jobLastBuild.getChildText(BUILD_RESULT);
+        String status = jobLastBuild.getChildText(BUILD_RESULT);
         String number = jobLastBuild.getChildText(BUILD_NUMBER);
         String buildUrl = jobLastBuild.getChildText(BUILD_URL);
         String date = jobLastBuild.getChildText(BUILD_ID);
-        return Build.createBuildFromWorkspace(buildUrl, number, isSuccess, isBuilding, date);
+        return Build.createBuildFromWorkspace(buildUrl, number, status, isBuilding, date);
     }
 
 

@@ -166,23 +166,23 @@ public class JenkinsControlComponent
 
         jenkinsWidget = new JenkinsWidget();
 
-        JenkinsBrowserLogic.RssBuildStatusCallback rssBuildStatusCallback = new JenkinsBrowserLogic.RssBuildStatusCallback() {
-            public void notifyOnBuildFailure(final String jobName, final Build build) {
+        JenkinsBrowserLogic.BuildStatusListener buildStatusListener = new JenkinsBrowserLogic.BuildStatusListener() {
+            public void onBuildFailure(final String jobName, final Build build) {
                 BalloonBuilder balloonBuilder = JBPopupFactory.getInstance().createHtmlTextBalloonBuilder(jobName + "#" + build.getNumber() + ": FAILED", MessageType.ERROR, null);
                 Balloon balloon = balloonBuilder.setFadeoutTime(TimeUnit.SECONDS.toMillis(1)).createBalloon();
                 balloon.show(new RelativePoint(jenkinsWidget.getComponent(), new Point(0, 0)), Balloon.Position.above);
             }
         };
 
-        JenkinsBrowserLogic.JobViewCallback jobViewCallback = new JenkinsBrowserLogic.JobViewCallback() {
+        JenkinsBrowserLogic.JobLoadListener jobLoadListener = new JenkinsBrowserLogic.JobLoadListener() {
             @Override
-            public void doAfterLoadingJobs(BuildStatusAggregator buildStatusAggregator) {
+            public void afterLoadingJobs(BuildStatusAggregator buildStatusAggregator) {
                 jenkinsWidget.updateInformation(buildStatusAggregator);
             }
         };
 
         configuration.getBrowserPreferences().setLastSelectedView(PropertiesComponent.getInstance(project).getValue("last_selected_view"));
-        jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, jenkinsRequestManager, browserPanel, rssLatestJobPanel, rssBuildStatusCallback, jobViewCallback);
+        jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, jenkinsRequestManager, browserPanel, rssLatestJobPanel, buildStatusListener, jobLoadListener);
         jenkinsBrowserLogic.getJenkinsBrowserPanel().getViewCombo().addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent itemEvent) {
