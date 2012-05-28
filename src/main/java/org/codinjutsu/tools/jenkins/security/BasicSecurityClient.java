@@ -16,9 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.security;
 
-import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -32,7 +30,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 
-class BasicSecurityClient extends AbstractSecurityClient {
+class BasicSecurityClient extends DefaultSecurityClient {
 
     private final String username;
     private final String passwordFile;
@@ -40,7 +38,7 @@ class BasicSecurityClient extends AbstractSecurityClient {
 
 
     BasicSecurityClient(String username, String passwordFile, String crumbDataFile) {
-        super(new HttpClient(new MultiThreadedHttpConnectionManager()), crumbDataFile);
+        super(crumbDataFile);
         this.username = username;
         this.passwordFile = passwordFile;
     }
@@ -92,52 +90,4 @@ class BasicSecurityClient extends AbstractSecurityClient {
 
     }
 
-
-    public String execute(URL url) {
-        String urlStr = url.toString();
-        PostMethod post = new PostMethod(urlStr);
-        setCrumbValueIfNeeded();
-
-        if (isCrumbDataSet()) {
-            post.addRequestHeader(CRUMB_NAME, crumbValue);
-        }
-
-        InputStream inputStream = null;
-        try {
-            int statusCode = httpClient.executeMethod(post);
-            inputStream = post.getResponseBodyAsStream();
-            String responseBody = IOUtils.toString(inputStream, post.getResponseCharSet());
-
-            if (HttpURLConnection.HTTP_OK != statusCode) {//TODO Crappy ! need refactor
-                if (isRedirection(statusCode)) {
-                    String newLocation = post.getResponseHeader("Location").getValue();
-                    post = new PostMethod(newLocation);
-                    setCrumbValueIfNeeded();
-
-                    if (isCrumbDataSet()) {
-                        post.addRequestHeader(CRUMB_NAME, crumbValue);
-                    }
-
-                    statusCode = httpClient.executeMethod(post);
-
-                    inputStream = post.getResponseBodyAsStream();
-                    responseBody = IOUtils.toString(inputStream, post.getResponseCharSet());
-
-                    if (HttpURLConnection.HTTP_OK != statusCode) {
-                        checkResponse(statusCode, responseBody);
-                    }
-                } else {
-                    checkResponse(post.getStatusCode(), responseBody);
-                }
-            }
-            return responseBody;
-        } catch (HttpException httpEx) {
-            throw new ConfigurationException(String.format("Error during method execution %s", url.toString()), httpEx);
-        } catch (IOException ioEx) {
-            throw new ConfigurationException(String.format("Error during method execution %s", url.toString()), ioEx);
-        } finally {
-            IOUtils.closeQuietly(inputStream);
-            post.releaseConnection();
-        }
-    }
 }

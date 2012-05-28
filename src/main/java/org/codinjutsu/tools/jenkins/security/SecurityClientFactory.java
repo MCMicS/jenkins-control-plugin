@@ -31,7 +31,7 @@ public class SecurityClientFactory {
     }
 
     public static SecurityClient none(String crumbDataFile) {
-        return new NoSecurityClient(crumbDataFile);
+        return new DefaultSecurityClient(crumbDataFile);
     }
 
 }
