@@ -139,7 +139,7 @@ public class JenkinsBrowserLogic implements Disposable {
 
 
     private void loadJenkinsWorkspace() {
-        jenkinsRequestManager.authenticate(configuration.getServerUrl(), configuration.getSecurityMode(), configuration.getUsername(), configuration.getPasswordFile(), configuration.getCrumbFile());
+//        jenkinsRequestManager.authenticate(configuration.getServerUrl(), configuration.getSecurityMode(), configuration.getUsername(), configuration.getPasswordFile(), configuration.getCrumbFile());
         jenkins = jenkinsRequestManager.loadJenkinsWorkspace(configuration);
         jenkinsBrowserPanel.fillData(jenkins);
     }

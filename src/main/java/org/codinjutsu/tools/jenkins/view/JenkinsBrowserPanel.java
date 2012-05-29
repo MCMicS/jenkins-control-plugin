@@ -64,6 +64,7 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
         fillJobTree(jenkins, BuildStatusVisitor.NULL);
     }
 
+
     public void createSearchPanel() {
         searchComponent = new JobSearchComponent(jobTree);
         utilityPanel.add(searchComponent, BorderLayout.CENTER);
@@ -81,9 +82,11 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
         return null;
     }
 
+
     public View getSelectedJenkinsView() {
         return (View) viewCombo.getSelectedItem();
     }
+
 
     public void getViewByName(String name) {
         for (int i = 0; i < viewCombo.getItemCount(); i++) {
@@ -121,10 +124,31 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
         jobTree.setModel(new DefaultTreeModel(rootNode));
     }
 
+
     public void setErrorMsg(String serverUrl, String description) {
         DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode(new Jenkins(description, serverUrl));
         jobTree.setModel(new DefaultTreeModel(rootNode));
     }
+
+
+    public void startWaiting() {
+        if (!loadingDecorator.isLoading()) {
+            GuiUtil.runInSwingThread(new Runnable() {
+                @Override
+                public void run() {
+                    loadingDecorator.startLoading(false);
+                }
+            });
+        }
+    }
+
+
+    public void endWaiting() {
+        if (loadingDecorator.isLoading()) {
+            loadingDecorator.stopLoading();
+        }
+    }
+
 
     private void visit(Job job, BuildStatusVisitor buildStatusVisitor) {
         Build lastBuild = job.getLastBuild();
@@ -209,34 +233,19 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
         return viewCombo;
     }
 
+
     public JPanel getActionPanel() {
         return actionPanel;
     }
+
 
     public JobSearchComponent getSearchComponent() {
         return searchComponent;
     }
 
+    
     @Override
     public void dispose() {
 
-    }
-
-    public void startWaiting() {
-        if (!loadingDecorator.isLoading()) {
-            GuiUtil.runInSwingThread(new Runnable() {
-                @Override
-                public void run() {
-                    loadingDecorator.startLoading(false);
-                }
-            });
-
-        }
-    }
-
-    public void endWaiting() {
-        if (loadingDecorator.isLoading()) {
-            loadingDecorator.stopLoading();
-        }
     }
 }

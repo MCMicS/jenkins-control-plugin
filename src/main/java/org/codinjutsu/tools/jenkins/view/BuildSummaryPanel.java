@@ -30,6 +30,7 @@ public class BuildSummaryPanel extends JPanel{
     private JLabel brokenBuildsLabel;
     private JLabel succeededBuildsLabel;
     private JLabel unstableBuildsLabel;
+    private JLabel abortedBuildsLabel;
     private JLabel weatherLabel;
 
     private enum Health {
@@ -57,13 +58,14 @@ public class BuildSummaryPanel extends JPanel{
         brokenBuildsLabel.setText(String.valueOf(aggregator.getNbBrokenBuilds()));
         succeededBuildsLabel.setText(String.valueOf(aggregator.getNbSucceededBuilds()));
         unstableBuildsLabel.setText(String.valueOf(aggregator.getNbUnstableBuilds()));
+        abortedBuildsLabel.setText(String.valueOf(aggregator.getNbAbortedBuilds()));
 
         Health health = computeHealth(aggregator);
         weatherLabel.setIcon(health.icon);
         weatherLabel.setToolTipText(health.tooltipText);
     }
 
-    private Health computeHealth(BuildStatusAggregator aggregator) {
+    private static Health computeHealth(BuildStatusAggregator aggregator) {
         int sum = aggregator.sumAll();
 
         if (sum == 0) {

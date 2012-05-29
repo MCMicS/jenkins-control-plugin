@@ -97,6 +97,7 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
         assertEquals(1, jobViewCallback.buildStatusAggregator.getNbSucceededBuilds());
         assertEquals(0, jobViewCallback.buildStatusAggregator.getNbUnstableBuilds());
         assertEquals(1, jobViewCallback.buildStatusAggregator.getNbBrokenBuilds());
+        assertEquals(0, jobViewCallback.buildStatusAggregator.getNbAbortedBuilds());
 
         comboBox.select("Vue 1");
 
@@ -108,6 +109,7 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
         assertEquals(0, jobViewCallback.buildStatusAggregator.getNbSucceededBuilds());
         assertEquals(0, jobViewCallback.buildStatusAggregator.getNbUnstableBuilds());
         assertEquals(1, jobViewCallback.buildStatusAggregator.getNbBrokenBuilds());
+        assertEquals(0, jobViewCallback.buildStatusAggregator.getNbAbortedBuilds());
     }
 
     public void test_displaySearchJobPanel() throws Exception {

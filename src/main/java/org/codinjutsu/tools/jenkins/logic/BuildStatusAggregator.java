@@ -24,6 +24,8 @@ public class BuildStatusAggregator implements BuildStatusVisitor {
 
     private int nbUnstableBuilds = 0;
 
+    private int nbAbortedBuilds = 0;
+
     private int nbJobs = 0;
 
     public void visitFailed() {
@@ -40,7 +42,9 @@ public class BuildStatusAggregator implements BuildStatusVisitor {
 
     public void visitUnknown() {}
 
-    public void visitAborted() {}
+    public void visitAborted() {
+        nbAbortedBuilds++;
+    }
 
     public int getNbBrokenBuilds() {
         return nbBrokenBuilds;
@@ -54,6 +58,10 @@ public class BuildStatusAggregator implements BuildStatusVisitor {
         return nbUnstableBuilds;
     }
 
+    public int getNbAbortedBuilds() {
+        return nbAbortedBuilds;
+    }
+
     public boolean hasNoResults() {
         return nbJobs == 0 || sumAll() == 0;
     }
@@ -63,6 +71,6 @@ public class BuildStatusAggregator implements BuildStatusVisitor {
     }
 
     public int sumAll() {
-        return nbSucceededBuilds + nbUnstableBuilds + nbBrokenBuilds;
+        return nbSucceededBuilds + nbUnstableBuilds + nbBrokenBuilds + nbAbortedBuilds;
     }
 }
