@@ -112,7 +112,7 @@ public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidg
                 .setCancelButton(new MinimizeButton("Hide"))
                 .createPopup();
 
-        myPopup.showInScreenCoordinates(buildStatusSummaryPanel, new Point(point.getPoint()));
+        myPopup.show(point);
     }
 
     private Dimension getMinSize() {
