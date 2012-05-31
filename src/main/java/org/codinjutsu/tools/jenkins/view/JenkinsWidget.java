@@ -93,11 +93,11 @@ public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidg
             Point point = new Point(e.getX(), e.getY());
             final Dimension dimension = buildStatusSummaryPanel.getPreferredSize();
             point = new Point(point.x - dimension.width, point.y - dimension.height);
-            showRssPanel(new RelativePoint(e.getComponent(), point));
+            showPanel(new RelativePoint(e.getComponent(), point));
         }
     }
 
-    private void showRssPanel(RelativePoint point) {
+    private void showPanel(RelativePoint point) {
         myPopup = JBPopupFactory.getInstance()
                 .createComponentPopupBuilder(buildStatusSummaryPanel, buildStatusSummaryPanel)
                 .setMovable(true)
