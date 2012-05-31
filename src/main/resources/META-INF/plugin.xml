@@ -1,7 +1,7 @@
 <idea-plugin>
     <name>Jenkins Control Plugin</name>
     <description>A Jenkins Plugin for Intellij for IDEA 10+</description>
-    <version>0.5.2</version>
+    <version>0.5.3</version>
     <vendor email="david.boissier [at] gmail [dot] com" url="http://codinjutsu.blogspot.com">David Boissier</vendor>
     <idea-version since-build="107.587"/>
 
@@ -14,6 +14,9 @@
     </project-components>
 
     <change-notes><![CDATA[
+<ul>Version 0.5.3
+    <li>[Fix] Widget : UI issue on Windows and MacOS environment</li>
+</ul>
 <ul>Version 0.5.2
     <li>[Add] Widget : when clicking on the status icon, a popup is displayed with builds status summary info</li>
     <li>[Add] The plugin starts up with the last selected view</li>

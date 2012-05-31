@@ -1,4 +1,7 @@
 Version 0.5.2
+    * [Fix] Widget : UI Issue on Windows and MacOS environment
+
+Version 0.5.2
     * [Add] Widget : when clicking on the status icon, a popup is displayed with builds status summary info
     * [Add] The plugin starts up with the last selected view
     * [Upd] Improvement in handling Exception
