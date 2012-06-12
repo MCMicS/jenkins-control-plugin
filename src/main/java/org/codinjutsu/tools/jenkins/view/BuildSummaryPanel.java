@@ -21,11 +21,9 @@ import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
 import javax.swing.*;
 import java.awt.*;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 
 
-public class BuildSummaryPanel extends JPanel{
+public class BuildSummaryPanel extends JPanel {
     private JPanel rootPanel;
     private JLabel brokenBuildsLabel;
     private JLabel succeededBuildsLabel;
@@ -33,15 +31,15 @@ public class BuildSummaryPanel extends JPanel{
     private JLabel abortedBuildsLabel;
     private JLabel weatherLabel;
 
-    private enum Health {
+    enum Health {
         upTo19(GuiUtil.loadIcon("health-00to19-Large.png"), "Heath is between 0 and 19%"),
         upTo39(GuiUtil.loadIcon("health-20to39-Large.png"), "Heath is between 20 and 39%"),
         upTo59(GuiUtil.loadIcon("health-40to59-Large.png"), "Heath is between 40 and 59%"),
         upTo79(GuiUtil.loadIcon("health-60to79-Large.png"), "Heath is between 60 and 79%"),
         upTo100(GuiUtil.loadIcon("health-80plus-Large.png"), "Heath is over 80%"),
         none(GuiUtil.loadIcon("null.png"), "");
-        private final Icon icon;
-        private final String tooltipText;
+        final Icon icon;
+        final String tooltipText;
 
         Health(Icon icon, String tooltipText) {
             this.icon = icon;
@@ -52,6 +50,12 @@ public class BuildSummaryPanel extends JPanel{
     public BuildSummaryPanel() {
         setLayout(new BorderLayout());
         add(rootPanel, BorderLayout.CENTER);
+        brokenBuildsLabel.setName("brokenBuilds");
+        succeededBuildsLabel.setName("succeededBuilds");
+        unstableBuildsLabel.setName("unstableBuilds");
+        abortedBuildsLabel.setName("abortedBuilds");
+
+        weatherLabel.setName("weather");
     }
 
     public void setInformation(BuildStatusAggregator aggregator) {
@@ -78,11 +82,11 @@ public class BuildSummaryPanel extends JPanel{
             health = Health.upTo19;
         } else if (ratio < 0.4) {
             health = Health.upTo39;
-        }else if (ratio < 0.6 ) {
+        } else if (ratio < 0.6) {
             health = Health.upTo59;
-        }else if (ratio < 0.8) {
+        } else if (ratio < 0.8) {
             health = Health.upTo79;
-        }else {
+        } else {
             health = Health.upTo100;
         }
 
