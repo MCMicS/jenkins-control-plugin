@@ -47,7 +47,6 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
     private JenkinsBrowserLogic jenkinsBrowserLogic;
 
     private Panel uiSpecBrowserPanel;
-    private Panel uiSpecRssPanel;
     private MyJobLoadListener jobViewCallback;
 
 
@@ -110,59 +109,6 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
         assertEquals(0, jobViewCallback.buildStatusAggregator.getNbUnstableBuilds());
         assertEquals(1, jobViewCallback.buildStatusAggregator.getNbBrokenBuilds());
         assertEquals(0, jobViewCallback.buildStatusAggregator.getNbAbortedBuilds());
-    }
-
-    public void test_displaySearchJobPanel() throws Exception {
-        init("http://myjenkinsserver/");
-
-        Tree jobTree = getJobTree(uiSpecBrowserPanel);
-        jobTree.selectionIsEmpty().check();
-
-        uiSpecBrowserPanel.pressKey(Key.control(Key.F));
-
-        TextBox searchField = uiSpecBrowserPanel.getTextBox("searchField");
-        searchField.textIsEmpty().check();
-
-        searchField.setText("capri");
-        searchField.pressKey(Key.ENTER);
-
-        jobTree.selectionEquals("capri #15 (running)").check();
-
-        //Section below does not work, perhaps KeyEvent is not properly caugth by the CloseJobSearchPanelAction
-        searchField.pressKey(Key.ESCAPE);
-        uiSpecBrowserPanel.getTextBox("searchField").isVisible().check();
-    }
-
-    public void disabled_test_RssReader() throws Exception {
-        init("http://myjenkinsserver/");
-
-        TextBox rssContent = uiSpecRssPanel.getTextBox("rssContent");
-
-        rssContent.textIsEmpty().check();
-
-        when(requestManagerMock.loadJenkinsRssLatestBuilds(configuration)).thenReturn(BuildTest.buildLastJobResultMap(new String[][]{
-                {"infra_main_svn_to_git", "http://ci.jenkins-ci.org/job/infra_main_svn_to_git/352/", "352", BuildStatusEnum.FAILURE.getStatus(), "2012-03-03T17:01:51Z", "infra_main_svn_to_git #351 (broken)"}, // new build but fail
-                {"infra_jenkins-ci.org_webcontents", "http://ci.jenkins-ci.org/job/infra_jenkins-ci.org_webcontents/2/", "2", BuildStatusEnum.SUCCESS.getStatus(), "2011-02-02T00:49:58Z", "infra_jenkins-ci.org_webcontents #2 (back to normal)"}, // unchanged
-                {"infa_release.rss", "http://ci.jenkins-ci.org/job/infa_release.rss/140/", "140", BuildStatusEnum.SUCCESS.getStatus(), "2012-03-03T20:30:51Z", "infa_release.rss #140 (back to normal)"}, // new build but success
-                {"TESTING-HUDSON-7434", "http://ci.jenkins-ci.org/job/TESTING-HUDSON-7434/3/", "3", BuildStatusEnum.FAILURE.getStatus(), "2012-03-03T05:27:56Z", "TESTING-HUDSON-7434 #3 (broken for a long time)"}, //new build but still fail
-        }));
-        jenkinsBrowserLogic.loadLatestBuilds(true);
-
-        Thread.sleep(500);
-
-        assertTrue(rssContent.textContains(
-                "<html>\n" +
-                        "  <head>\n" +
-                        "  </head>\n" +
-                        "  <body>" +
-                        "05:27:56 <font color=\"red\"><a href=\"http://ci.jenkins-ci.org/job/TESTING-HUDSON-7434/3/\">TESTING-HUDSON-7434 #3 (broken for a long time)</a></font><br>\n" +
-                        "17:01:51 <font color=\"red\"><a href=\"http://ci.jenkins-ci.org/job/infra_main_svn_to_git/352/\">infra_main_svn_to_git #351 (broken)</a></font><br>\n" +
-                        "20:30:51 <font color=\"blue\">infa_release.rss #140 (back to normal)</font><br></body>\n" +
-                        "</html>")
-        );
-
-        jenkinsBrowserLogic.cleanRssEntries();
-        rssContent.textIsEmpty().check();
     }
 
 
@@ -240,7 +186,6 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
 
     private void initUI() {
         uiSpecBrowserPanel = new Panel(jenkinsBrowserLogic.getJenkinsBrowserPanel());
-        uiSpecRssPanel = new Panel(jenkinsBrowserLogic.getRssLatestJobPanel());
     }
 
     private void createConfiguration(String serverUrl) {
