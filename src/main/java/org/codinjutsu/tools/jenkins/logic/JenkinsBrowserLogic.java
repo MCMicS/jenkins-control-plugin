@@ -39,17 +39,16 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Timer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class JenkinsBrowserLogic implements Disposable {
-
-    private static final int MILLISECONDS = 1000;
-    private static final int MINUTES = 60 * MILLISECONDS;
 
     private static final String JENKINS_JOB_ACTION_GROUP = "JenkinsJobGroup";
     private static final String JENKINS_RSS_ACTIONS = "JenkinsRssActions";
@@ -62,8 +61,12 @@ public class JenkinsBrowserLogic implements Disposable {
 
     private Jenkins jenkins;
     private final Map<String, Build> currentBuildMap = new HashMap<String, Build>();
-    private Timer jobRefreshTimer;
-    private Timer rssRefreshTimer;
+
+    private ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(2);
+
+    private Runnable refreshViewJob = new LoadSelectedViewJob();
+    private Runnable refreshRssBuildsJob = new LoadLatestBuildsJob(true);
+
     private final JenkinsBrowserPanel jenkinsBrowserPanel;
     private final RssLatestBuildPanel rssLatestJobPanel;
 
@@ -114,7 +117,7 @@ public class JenkinsBrowserLogic implements Disposable {
 
         cleanRssEntries();
 
-        initTimers();
+        initScheduledJobs();
     }
 
 
@@ -145,46 +148,9 @@ public class JenkinsBrowserLogic implements Disposable {
 
 
     public void loadSelectedView() {
-
-        View jenkinsView = getSelectedJenkinsView();
-        if (jenkinsView == null) {
-            if (jenkins == null) {
-                return;
-            }
-            jenkinsView = jenkins.getPrimaryView();
-        }
-        final View selectedView = jenkinsView;
-
-        configuration.getBrowserPreferences().setLastSelectedView(jenkinsView.getName());
-
         ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                jenkinsBrowserPanel.startWaiting();
-                final List<Job> jobList = jenkinsRequestManager.loadJenkinsView(selectedView.getUrl());
-
-                getBrowserPreferences().setLastSelectedView(selectedView.getName());
-
-                jenkins.setJobs(jobList);
-                final BuildStatusAggregator buildStatusAggregator = new BuildStatusAggregator();
-
-                GuiUtil.runInSwingThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        jenkinsBrowserPanel.fillJobTree(jenkins, buildStatusAggregator);
-                        jenkinsBrowserPanel.endWaiting();
-                        buildStatusAggregator.setNbJobs(jobList.size());
-                        jobLoadListener.afterLoadingJobs(buildStatusAggregator);
-                    }
-
-                });
-            }
-        });
-
+        executorService.submit(new LoadSelectedViewJob());
         executorService.shutdown();
-
-
     }
 
 
@@ -269,28 +235,16 @@ public class JenkinsBrowserLogic implements Disposable {
     }
 
 
-    private void initTimers() {
-        cancelCurrentTimers();
+    private void initScheduledJobs() {
+        scheduledThreadPoolExecutor.remove(refreshRssBuildsJob);
+        scheduledThreadPoolExecutor.remove(refreshViewJob);
 
         if (configuration.isEnableJobAutoRefresh()) {
-            jobRefreshTimer = new Timer();
-            jobRefreshTimer.schedule(new JobRefreshTimerTask(), MINUTES, configuration.getJobRefreshPeriod() * MINUTES);
+            scheduledThreadPoolExecutor.scheduleAtFixedRate(refreshViewJob, 2, configuration.getJobRefreshPeriod(), TimeUnit.MINUTES);
         }
 
         if (configuration.isEnableRssAutoRefresh()) {
-            rssRefreshTimer = new Timer();
-            rssRefreshTimer.schedule(new RssRefreshTimerTask(), MINUTES, configuration.getRssRefreshPeriod() * MINUTES);
-        }
-    }
-
-
-    private void cancelCurrentTimers() {
-        if (jobRefreshTimer != null) {
-            jobRefreshTimer.cancel();
-        }
-
-        if (rssRefreshTimer != null) {
-            rssRefreshTimer.cancel();
+            scheduledThreadPoolExecutor.scheduleAtFixedRate(refreshRssBuildsJob, 2, configuration.getRssRefreshPeriod(), TimeUnit.MINUTES);
         }
     }
 
@@ -315,31 +269,9 @@ public class JenkinsBrowserLogic implements Disposable {
     }
 
 
-    public void loadLatestBuilds(final boolean shouldDisplayResult) {
-
+    public void loadLatestBuilds(boolean shouldDisplayResult) {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                final Map<String, Build> finishedBuilds = loadAndReturnNewLatestBuilds();
-                if (!shouldDisplayResult) {
-                    return;
-                }
-
-                GuiUtil.runInSwingThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        rssLatestJobPanel.addFinishedBuild(finishedBuilds);
-
-                        Entry<String, Build> firstFailedBuild = getFirstFailedBuild(finishedBuilds);
-                        if (firstFailedBuild != null) {
-                            buildStatusListener.onBuildFailure(firstFailedBuild.getKey(), firstFailedBuild.getValue());
-                        }
-                    }
-                });
-
-            }
-        });
+        executorService.submit(new LoadLatestBuildsJob(shouldDisplayResult));
         executorService.shutdown();
     }
 
@@ -378,11 +310,6 @@ public class JenkinsBrowserLogic implements Disposable {
     }
 
 
-    public RssLatestBuildPanel getRssLatestJobPanel() {
-        return rssLatestJobPanel;
-    }
-
-
     public JenkinsBrowserPanel getJenkinsBrowserPanel() {
         return jenkinsBrowserPanel;
     }
@@ -395,25 +322,7 @@ public class JenkinsBrowserLogic implements Disposable {
 
     @Override
     public void dispose() {
-        cancelCurrentTimers();
-    }
-
-
-    private class JobRefreshTimerTask extends TimerTask {
-
-        @Override
-        public void run() {
-            loadSelectedView();
-        }
-    }
-
-
-    private class RssRefreshTimerTask extends TimerTask {
-
-        @Override
-        public void run() {
-            loadLatestBuilds(true);
-        }
+        scheduledThreadPoolExecutor.shutdown();
     }
 
 
@@ -437,5 +346,69 @@ public class JenkinsBrowserLogic implements Disposable {
             public void afterLoadingJobs(BuildStatusAggregator buildStatusAggregator) {
             }
         };
+    }
+
+    private class LoadSelectedViewJob implements Runnable {
+        @Override
+        public void run() {
+            View jenkinsView = getSelectedJenkinsView();
+            if (jenkinsView == null) {
+                if (jenkins == null) {
+                    return;
+                }
+                jenkinsView = jenkins.getPrimaryView();
+            }
+            final View selectedView = jenkinsView;
+
+            configuration.getBrowserPreferences().setLastSelectedView(selectedView.getName());
+
+            jenkinsBrowserPanel.startWaiting();
+            final List<Job> jobList = jenkinsRequestManager.loadJenkinsView(selectedView.getUrl());
+
+            getBrowserPreferences().setLastSelectedView(selectedView.getName());
+
+            jenkins.setJobs(jobList);
+            final BuildStatusAggregator buildStatusAggregator = new BuildStatusAggregator();
+
+            GuiUtil.runInSwingThread(new Runnable() {
+                @Override
+                public void run() {
+                    jenkinsBrowserPanel.fillJobTree(jenkins, buildStatusAggregator);
+                    jenkinsBrowserPanel.endWaiting();
+                    buildStatusAggregator.setNbJobs(jobList.size());
+                    jobLoadListener.afterLoadingJobs(buildStatusAggregator);
+                }
+
+            });
+        }
+    }
+
+    private class LoadLatestBuildsJob implements Runnable {
+        private final boolean shouldDisplayResult;
+
+        public LoadLatestBuildsJob(boolean shouldDisplayResult) {
+            this.shouldDisplayResult = shouldDisplayResult;
+        }
+
+        @Override
+        public void run() {
+            final Map<String, Build> finishedBuilds = loadAndReturnNewLatestBuilds();
+            if (!shouldDisplayResult) {
+                return;
+            }
+
+            GuiUtil.runInSwingThread(new Runnable() {
+                @Override
+                public void run() {
+                    rssLatestJobPanel.addFinishedBuild(finishedBuilds);
+
+                    Entry<String, Build> firstFailedBuild = getFirstFailedBuild(finishedBuilds);
+                    if (firstFailedBuild != null) {
+                        buildStatusListener.onBuildFailure(firstFailedBuild.getKey(), firstFailedBuild.getValue());
+                    }
+                }
+            });
+
+        }
     }
 }
