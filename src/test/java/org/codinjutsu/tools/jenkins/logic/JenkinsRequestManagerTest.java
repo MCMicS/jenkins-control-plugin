@@ -20,8 +20,8 @@ import org.apache.commons.io.IOUtils;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.model.*;
-import org.codinjutsu.tools.jenkins.security.AuthenticationException;
 import org.codinjutsu.tools.jenkins.security.SecurityClient;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -35,7 +35,6 @@ import java.util.Map;
 import static org.codinjutsu.tools.jenkins.model.BuildStatusEnum.FAILURE;
 import static org.codinjutsu.tools.jenkins.model.BuildStatusEnum.SUCCESS;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.unitils.reflectionassert.ReflectionAssert.assertReflectionEquals;
 
@@ -90,6 +89,24 @@ public class JenkinsRequestManagerTest {
         assertReflectionEquals(View.createView("Tous", "http://myjenkins"), jenkins.getPrimaryView());
     }
 
+    @Test
+    public void loadJenkinsWorkspaceWithIncorrectServerPortInTheResponse() throws Exception {
+        configuration.setServerUrl("http://myjenkins:8080");
+        when(securityClientMock.execute(any(URL.class)))
+                .thenReturn(IOUtils.toString(JenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadJenkinsWorkspaceWithIncorrectPortInTheResponse.xml")));
+        try {
+            requestManager.loadJenkinsWorkspace(configuration);
+            Assert.fail();
+        } catch (ConfigurationException ex) {
+            Assert.assertEquals("Jenkins Port seems to be incorrect in the Server configuration page. Please fix 'Jenkins URL' at http://myjenkins:8080/configure", ex.getMessage());
+        }
+
+        configuration.setServerUrl("http://myjenkins");
+        when(securityClientMock.execute(any(URL.class)))
+                .thenReturn(IOUtils.toString(JenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadJenkinsWorkspaceWithIncorrectPortInTheResponse.xml")));
+        requestManager.loadJenkinsWorkspace(configuration);
+
+    }
 
     @Test
     public void loadView() throws Exception {

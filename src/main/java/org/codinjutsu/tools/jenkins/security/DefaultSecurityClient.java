@@ -65,58 +65,6 @@ class DefaultSecurityClient implements SecurityClient {
     }
 
 
-    protected void setCrumbValueIfNeeded() {
-        if (!isCrumbDataSet()) {
-            if (StringUtils.isNotEmpty(crumbDataFile)) {
-                crumbValue = extractValueFromFile(crumbDataFile);
-            }
-        }
-    }
-
-    protected String extractValueFromFile(String file) {
-        try {
-            String value = IOUtils.toString(new FileInputStream(file));
-            if (StringUtils.isNotEmpty(value)) {
-                value = StringUtils.removeEnd(value, "\n");
-            }
-            return value;
-        } catch (FileNotFoundException e) {
-            throw new ConfigurationException(String.format("Crumb file '%s' not found", file));
-        } catch (IOException e) {
-            throw new IllegalStateException(String.format("Unable to read '%s'", file), e);
-        }
-    }
-
-    protected void checkResponse(int statusCode, String responseBody) throws AuthenticationException {
-        if (statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
-            throw new AuthenticationException("Not found");
-        }
-
-        if (statusCode == HttpURLConnection.HTTP_FORBIDDEN || statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
-            if (StringUtils.contains(responseBody, BAD_CRUMB_DATA)) {
-                throw new AuthenticationException("CSRF enabled -> Missing or bad crumb data");
-            }
-            if (StringUtils.contains(responseBody, "Unauthorized")) {
-                throw new AuthenticationException("Unauthorized -> Missing or bad credentials");
-            }
-            if (StringUtils.contains(responseBody, "Authentication required")) {
-                throw new AuthenticationException("Authentication required");
-            }
-        }
-
-        if (HttpURLConnection.HTTP_INTERNAL_ERROR == statusCode) {
-            throw new AuthenticationException("Server Internal Error: Server unavailable");
-        }
-    }
-
-    protected boolean isCrumbDataSet() {
-        return crumbValue != null;
-    }
-
-    private boolean isRedirection(int statusCode) {
-        return statusCode / 100 == 3;
-    }
-
     private void runMethod(String url, ResponseCollector responseCollector) {
         PostMethod post = new PostMethod(url);
         setCrumbValueIfNeeded();
@@ -150,10 +98,62 @@ class DefaultSecurityClient implements SecurityClient {
         }
     }
 
-    protected static class ResponseCollector {
+    protected void checkResponse(int statusCode, String responseBody) throws AuthenticationException {
+        if (statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
+            throw new AuthenticationException("Not found");
+        }
 
-        protected int statusCode;
-        protected String data;
+        if (statusCode == HttpURLConnection.HTTP_FORBIDDEN || statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
+            if (StringUtils.contains(responseBody, BAD_CRUMB_DATA)) {
+                throw new AuthenticationException("CSRF enabled -> Missing or bad crumb data");
+            }
+            if (StringUtils.contains(responseBody, "Unauthorized")) {
+                throw new AuthenticationException("Unauthorized -> Missing or bad credentials");
+            }
+            if (StringUtils.contains(responseBody, "Authentication required")) {
+                throw new AuthenticationException("Authentication required");
+            }
+        }
+
+        if (HttpURLConnection.HTTP_INTERNAL_ERROR == statusCode) {
+            throw new AuthenticationException("Server Internal Error: Server unavailable");
+        }
+    }
+
+    private boolean isRedirection(int statusCode) {
+        return statusCode / 100 == 3;
+    }
+
+    protected void setCrumbValueIfNeeded() {
+        if (!isCrumbDataSet()) {
+            if (StringUtils.isNotEmpty(crumbDataFile)) {
+                crumbValue = extractValueFromFile(crumbDataFile);
+            }
+        }
+    }
+
+    protected boolean isCrumbDataSet() {
+        return crumbValue != null;
+    }
+
+    protected String extractValueFromFile(String file) {
+        try {
+            String value = IOUtils.toString(new FileInputStream(file));
+            if (StringUtils.isNotEmpty(value)) {
+                value = StringUtils.removeEnd(value, "\n");
+            }
+            return value;
+        } catch (FileNotFoundException e) {
+            throw new ConfigurationException(String.format("Crumb file '%s' not found", file));
+        } catch (IOException e) {
+            throw new IllegalStateException(String.format("Unable to read '%s'", file), e);
+        }
+    }
+
+    private static class ResponseCollector {
+
+        private int statusCode;
+        private String data;
 
         void collect(int statusCode, String body) {
             this.statusCode = statusCode;

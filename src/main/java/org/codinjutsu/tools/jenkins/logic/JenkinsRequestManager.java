@@ -106,7 +106,19 @@ public class JenkinsRequestManager {
         jenkins.setPrimaryView(createPreferredView(doc));
         jenkins.setViews(createJenkinsViews(doc));
 
+        int jenkinsPort = url.getPort();
+        URL viewUrl = urlBuilder.createViewUrl(jenkins.getPrimaryView().getUrl());
+        int viewPort = viewUrl.getPort();
+
+        if (isJenkinsPortSet(jenkinsPort) && jenkinsPort != viewPort) {
+            throw new ConfigurationException(String.format("Jenkins Port seems to be incorrect in the Server configuration page. Please fix 'Jenkins URL' at %s/configure", configuration.getServerUrl()));
+        }
+
         return jenkins;
+    }
+
+    private static boolean isJenkinsPortSet(int jenkinsPort) {
+        return jenkinsPort != -1;
     }
 
 
