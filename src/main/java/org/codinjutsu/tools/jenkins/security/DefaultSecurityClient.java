@@ -73,12 +73,12 @@ class DefaultSecurityClient implements SecurityClient {
             post.addRequestHeader(CRUMB_NAME, crumbValue);
         }
 
-        InputStream anotherInputStream = null;
+        InputStream inputStream = null;
         try {
             int statusCode = httpClient.executeMethod(post);
 
-            anotherInputStream = post.getResponseBodyAsStream();
-            String responseBody = IOUtils.toString(anotherInputStream, post.getResponseCharSet());
+            inputStream = post.getResponseBodyAsStream();
+            String responseBody = IOUtils.toString(inputStream, post.getResponseCharSet());
 
             checkResponse(statusCode, responseBody);
 
@@ -93,7 +93,7 @@ class DefaultSecurityClient implements SecurityClient {
         } catch (IOException ioEx) {
             throw new ConfigurationException(String.format("Error during method execution %s", url), ioEx);
         } finally {
-            IOUtils.closeQuietly(anotherInputStream);
+            IOUtils.closeQuietly(inputStream);
             post.releaseConnection();
         }
     }

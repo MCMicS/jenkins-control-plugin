@@ -30,9 +30,12 @@ import org.codinjutsu.tools.jenkins.util.RssUtil;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
+import org.jdom.input.JDOMParseException;
 import org.jdom.input.SAXBuilder;
 
 import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.net.URL;
 import java.util.*;
 
@@ -150,15 +153,15 @@ public class JenkinsRequestManager {
     }
 
     private Document buildDocument(String jenkinsXmlData) {
-        CharSequenceReader jenkinsDataReader = new CharSequenceReader(jenkinsXmlData);
+        Reader jenkinsDataReader = new StringReader(jenkinsXmlData);
         try {
-            return getXMLBuilder().build(jenkinsDataReader);
+            return new SAXBuilder(false).build(jenkinsDataReader);
         } catch (JDOMException e) {
-            LOG.error("Unexpected xml document. Actual :\n" + jenkinsXmlData, e);
-            throw new RuntimeException("Unexpected xml document. See IntelliJ logs.");
+            LOG.error("Invalid data received from the Jenkins Server. Actual :\n" + jenkinsXmlData, e);
+            throw new RuntimeException("Invalid data received from the Jenkins Server. Please retry");
         } catch (IOException e) {
-            LOG.error("Error during reading the xml response.", e);
-            throw new RuntimeException("Error during reading the xml response. See IntelliJ logs.");
+            LOG.error("Error during analyzing the Jenkins data.", e);
+            throw new RuntimeException("Error during analyzing the Jenkins data.");
         } finally {
             IOUtils.closeQuietly(jenkinsDataReader);
         }
@@ -364,9 +367,4 @@ public class JenkinsRequestManager {
         return buildMap;
     }
 
-    private static SAXBuilder getXMLBuilder() {
-        SAXBuilder saxBuilder = new SAXBuilder();
-        saxBuilder.setValidation(false);
-        return saxBuilder;
-    }
 }
