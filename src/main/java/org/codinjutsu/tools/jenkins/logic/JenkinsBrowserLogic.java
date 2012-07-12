@@ -240,11 +240,11 @@ public class JenkinsBrowserLogic implements Disposable {
         scheduledThreadPoolExecutor.remove(refreshViewJob);
 
         if (configuration.isEnableJobAutoRefresh()) {
-            scheduledThreadPoolExecutor.scheduleAtFixedRate(refreshViewJob, 2, configuration.getJobRefreshPeriod(), TimeUnit.MINUTES);
+            scheduledThreadPoolExecutor.scheduleWithFixedDelay(refreshViewJob, configuration.getJobRefreshPeriod(), configuration.getJobRefreshPeriod(), TimeUnit.MINUTES);
         }
 
         if (configuration.isEnableRssAutoRefresh()) {
-            scheduledThreadPoolExecutor.scheduleAtFixedRate(refreshRssBuildsJob, 2, configuration.getRssRefreshPeriod(), TimeUnit.MINUTES);
+            scheduledThreadPoolExecutor.scheduleWithFixedDelay(refreshRssBuildsJob, configuration.getRssRefreshPeriod(), configuration.getRssRefreshPeriod(), TimeUnit.MINUTES);
         }
     }
 
