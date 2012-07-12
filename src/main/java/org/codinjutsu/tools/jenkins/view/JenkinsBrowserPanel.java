@@ -52,7 +52,7 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
         add(rootPanel, BorderLayout.CENTER);
 
         loadingDecorator = new LoadingDecorator(scrollPane, Disposer.newDisposable(), 0);
-        loadingDecorator.setLoadingText("Loading...");
+        loadingDecorator.setLoadingText("");
 
         jobPanel.setLayout(new BorderLayout());
         jobPanel.add(loadingDecorator.getComponent(), BorderLayout.CENTER);
