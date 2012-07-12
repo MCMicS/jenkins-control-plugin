@@ -157,7 +157,7 @@ public class JenkinsControlComponent
 
     private void installJenkinsPanel() {
         ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
-        ToolWindow toolWindow = toolWindowManager.registerToolWindow(JENKINS_BROWSER, true, ToolWindowAnchor.RIGHT);
+        ToolWindow toolWindow = toolWindowManager.registerToolWindow(JENKINS_BROWSER, false, ToolWindowAnchor.RIGHT);
 
         jenkinsRequestManager = new JenkinsRequestManager(configuration.getCrumbFile());
 
