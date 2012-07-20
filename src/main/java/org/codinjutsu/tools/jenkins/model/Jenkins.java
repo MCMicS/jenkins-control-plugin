@@ -80,14 +80,4 @@ public class Jenkins {
     public String getServerUrl() {
         return serverUrl;
     }
-
-    public int getTotalBrokenBuilds() {
-        int result = 0;
-        for (Job job : jobs) {
-            if (job.isBroken()) {
-                result++;
-            }
-        }
-        return result;
-    }
 }
