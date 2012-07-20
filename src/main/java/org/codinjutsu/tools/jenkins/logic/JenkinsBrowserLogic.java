@@ -34,6 +34,7 @@ import org.codinjutsu.tools.jenkins.view.action.*;
 import org.codinjutsu.tools.jenkins.view.action.search.NextOccurrenceAction;
 import org.codinjutsu.tools.jenkins.view.action.search.OpenJobSearchPanelAction;
 import org.codinjutsu.tools.jenkins.view.action.search.PrevOccurrenceAction;
+import org.codinjutsu.tools.jenkins.view.action.settings.SortByStatusAction;
 
 import javax.swing.*;
 import java.awt.*;
@@ -43,10 +44,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class JenkinsBrowserLogic implements Disposable {
 
@@ -71,6 +69,8 @@ public class JenkinsBrowserLogic implements Disposable {
     private final RssLatestBuildPanel rssLatestJobPanel;
 
     private JobLoadListener jobLoadListener = JobLoadListener.NULL;
+    private ScheduledFuture<?> refreshViewFutureTask;
+    private ScheduledFuture<?> refreshRssBuildFutureTask;
 
 
     public JenkinsBrowserLogic(JenkinsConfiguration configuration, JenkinsRequestManager jenkinsRequestManager, JenkinsBrowserPanel jenkinsBrowserPanel, RssLatestBuildPanel rssLatestJobPanel, BuildStatusListener buildStatusListener, JobLoadListener jobLoadListener) {
@@ -187,6 +187,8 @@ public class JenkinsBrowserLogic implements Disposable {
             actionGroup.add(new GotoJobPageAction(jenkinsBrowserPanel));
             actionGroup.add(new GotoLastBuildPageAction(jenkinsBrowserPanel));
             actionGroup.addSeparator();
+            actionGroup.add(new SortByStatusAction(this));
+            actionGroup.addSeparator();
             actionGroup.add(new OpenPluginSettingsAction());
         }
         installActionGroupInToolBar(actionGroup, toolBar, ActionManager.getInstance(), JENKINS_ACTIONS);
@@ -236,15 +238,27 @@ public class JenkinsBrowserLogic implements Disposable {
 
 
     private void initScheduledJobs() {
+        safeTaskCancel(refreshViewFutureTask);
+        safeTaskCancel(refreshRssBuildFutureTask);
+
         scheduledThreadPoolExecutor.remove(refreshRssBuildsJob);
         scheduledThreadPoolExecutor.remove(refreshViewJob);
 
         if (configuration.isEnableJobAutoRefresh()) {
-            scheduledThreadPoolExecutor.scheduleWithFixedDelay(refreshViewJob, configuration.getJobRefreshPeriod(), configuration.getJobRefreshPeriod(), TimeUnit.MINUTES);
+            refreshViewFutureTask = scheduledThreadPoolExecutor.scheduleWithFixedDelay(refreshViewJob, configuration.getJobRefreshPeriod(), configuration.getJobRefreshPeriod(), TimeUnit.MINUTES);
         }
 
         if (configuration.isEnableRssAutoRefresh()) {
-            scheduledThreadPoolExecutor.scheduleWithFixedDelay(refreshRssBuildsJob, configuration.getRssRefreshPeriod(), configuration.getRssRefreshPeriod(), TimeUnit.MINUTES);
+            refreshRssBuildFutureTask = scheduledThreadPoolExecutor.scheduleWithFixedDelay(refreshRssBuildsJob, configuration.getRssRefreshPeriod(), configuration.getRssRefreshPeriod(), TimeUnit.MINUTES);
+        }
+    }
+
+    private void safeTaskCancel(ScheduledFuture<?> futureTask) {
+        if (futureTask == null) {
+            return;
+        }
+        if (!futureTask.isDone() || !futureTask.isCancelled()) {
+            futureTask.cancel(false);
         }
     }
 

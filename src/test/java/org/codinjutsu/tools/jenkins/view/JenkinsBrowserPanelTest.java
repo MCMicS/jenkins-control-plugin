@@ -28,6 +28,7 @@ import static java.util.Arrays.asList;
 public class JenkinsBrowserPanelTest extends UISpecTestCase {
 
     private Panel uiSpecBrowserPanel;
+    private JenkinsBrowserPanel jenkinsBrowserPanel;
 
     public void test_displayJenkinsWithTwoJobs() throws Exception {
         ComboBox comboBox = uiSpecBrowserPanel.getComboBox("viewCombo");
@@ -38,7 +39,32 @@ public class JenkinsBrowserPanelTest extends UISpecTestCase {
         jobTree.contentEquals(
                 "Jenkins (master)\n" +
                         "  mint #150\n" +
-                        "  capri #15 (running) #(bold)\n").check();
+                        "  capri #15 (running) #(bold)\n" +
+                        "  bench #10\n").check();
+    }
+
+    public void test_sortJobTreeByBuildStatus() throws Exception {
+        assertFalse(jenkinsBrowserPanel.isSortedByStatus());
+        Tree jobTree = getJobTree(uiSpecBrowserPanel);
+        jobTree.contentEquals(
+                "Jenkins (master)\n" +
+                        "  mint #150\n" +
+                        "  capri #15 (running) #(bold)\n" +
+                        "  bench #10\n").check();
+
+        jenkinsBrowserPanel.setSortedByStatus(true);
+        jobTree.contentEquals(
+                "Jenkins (master)\n" +
+                        "  capri #15 (running) #(bold)\n" +
+                        "  mint #150\n" +
+                        "  bench #10\n").check();
+
+        jenkinsBrowserPanel.setSortedByStatus(false);
+        jobTree.contentEquals(
+                "Jenkins (master)\n" +
+                        "  mint #150\n" +
+                        "  capri #15 (running) #(bold)\n" +
+                        "  bench #10\n").check();
     }
 
     public void test_displaySearchJobPanel() throws Exception {
@@ -63,7 +89,7 @@ public class JenkinsBrowserPanelTest extends UISpecTestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        JenkinsBrowserPanel jenkinsBrowserPanel = new JenkinsBrowserPanel();
+        jenkinsBrowserPanel = new JenkinsBrowserPanel();
         jenkinsBrowserPanel.createSearchPanel();
         jenkinsBrowserPanel.fillData(createJenkinsWorkspace());
         uiSpecBrowserPanel = new Panel(jenkinsBrowserPanel);
@@ -71,6 +97,9 @@ public class JenkinsBrowserPanelTest extends UISpecTestCase {
     }
 
     private Jenkins createJenkinsWorkspace() {
+
+        Jenkins jenkins = new Jenkins("(master)", "http://myjenkinsserver");
+
         Job mintJob = new JobBuilder().job("mint", "blue", "http://myjenkinsserver/mint", "false", "true")
                 .lastBuild("http://myjenkinsserver/mint/150", "150", BuildStatusEnum.SUCCESS.getStatus(), "false", "2012-04-02_10-26-29")
                 .health("health-80plus", "0 tests en échec sur un total de 89 tests")
@@ -79,9 +108,11 @@ public class JenkinsBrowserPanelTest extends UISpecTestCase {
                 .lastBuild("http://myjenkinsserver/capri/15", "15", BuildStatusEnum.FAILURE.getStatus(), "true", "2012-04-01_10-26-29")
                 .health("health-00to19", "15 tests en échec sur un total de 50 tests")
                 .get();
-
-        Jenkins jenkins = new Jenkins("(master)", "http://myjenkinsserver");
-
+        Job benchJob = new JobBuilder().job("bench", "blue", "http://myjenkinsserver/bench", "false", "true")
+                .lastBuild("http://myjenkinsserver/bench/10", "10", BuildStatusEnum.SUCCESS.getStatus(), "false", "2012-04-01_10-30-29")
+                .health("health-00to19", "0 tests en échec sur un total de 50 tests")
+                .get();
+        jenkins.setJobs(asList(mintJob, capriJob, benchJob));
         jenkins.setViews(asList(
                 View.createView("All", "http://myjenkinsserver/"),
                 View.createView("Vue 1", "http://myjenkinsserver/vue1")
@@ -89,7 +120,6 @@ public class JenkinsBrowserPanelTest extends UISpecTestCase {
 
         jenkins.setPrimaryView(View.createView("All", "http://myjenkinsserver/"));
 
-        jenkins.setJobs(asList(mintJob, capriJob));
         return jenkins;
     }
 

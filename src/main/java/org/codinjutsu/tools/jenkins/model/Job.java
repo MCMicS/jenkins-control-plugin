@@ -100,7 +100,7 @@ public class Job {
     }
 
 
-    String getColor() {
+    public String getColor() {
         return color;
     }
 

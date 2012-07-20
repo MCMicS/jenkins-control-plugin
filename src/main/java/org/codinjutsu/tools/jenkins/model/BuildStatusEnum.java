@@ -21,12 +21,13 @@ package org.codinjutsu.tools.jenkins.model;
  */
 public enum BuildStatusEnum {
 
-    SUCCESS("Success", "blue"),
     FAILURE("Failure", "red"),
-    NULL("Null", "disabled"),
     UNSTABLE("Unstable", "yellow"),
+    ABORTED("Aborted", "aborted"),
+    SUCCESS("Success", "blue"),
     STABLE("Stable", "blue"),
-    ABORTED("Aborted", "aborted");
+    NULL("Null", "disabled");
+
     private final String status;
     private final String color;
 
