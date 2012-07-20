@@ -25,12 +25,9 @@ import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
 import javax.swing.*;
-import javax.swing.event.TreeModelListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -44,8 +41,8 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
     private JScrollPane scrollPane;
     private JobSearchComponent searchComponent;
     private final LoadingDecorator loadingDecorator;
-    private boolean sortedBuildStatus;
-
+    private boolean sortedByBuildStatus;
+    private JobComparator jobStatusComparator = new JobStatusComparator();
 
     public JenkinsBrowserPanel() {
         jobTree.setCellRenderer(new JenkinsTreeRenderer());
@@ -125,7 +122,9 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
                 visit(job, buildStatusVisitor);
             }
         }
-        jobTree.setModel(new JenkinsTreeModel(rootNode));
+        JenkinsTreeModel treeModel = new JenkinsTreeModel(rootNode);
+        treeModel.setJobStatusComparator(jobStatusComparator);
+        jobTree.setModel(treeModel);
     }
 
 
@@ -254,99 +253,13 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
     }
 
     public void setSortedByStatus(boolean selected) {
-        sortedBuildStatus = selected;
+        sortedByBuildStatus = selected;
         ((DefaultTreeModel) jobTree.getModel()).reload();
         jobTree.repaint();
     }
 
     public boolean isSortedByStatus() {
         return false;
-    }
-
-    private class JenkinsTreeModel extends DefaultTreeModel {
-
-        private DefaultTreeModel customizedModel;
-
-        private boolean needsUpdate = true;
-
-        public JenkinsTreeModel(DefaultMutableTreeNode rootNode) {
-            super(rootNode);
-        }
-
-        @Override
-        public void reload() {
-            super.reload();
-            getCustomizedModel().reload();
-            needsUpdate = true;
-        }
-
-
-        private DefaultTreeModel getCustomizedModel() {
-            if (needsUpdate) {
-                needsUpdate = false;
-                rebuildCustomizedModel();
-            }
-            return customizedModel;
-
-        }
-
-        private void rebuildCustomizedModel() {
-            List<DefaultMutableTreeNode> jobNodeList = new LinkedList<DefaultMutableTreeNode>();
-
-            DefaultMutableTreeNode sourceJobRoot = (DefaultMutableTreeNode) super.getRoot();
-            DefaultMutableTreeNode customizedJobRoot = (DefaultMutableTreeNode) sourceJobRoot.clone();
-            for (int i = 0; i < sourceJobRoot.getChildCount(); i++) {
-                DefaultMutableTreeNode jobNodeChild = (DefaultMutableTreeNode) sourceJobRoot.getChildAt(i);
-                DefaultMutableTreeNode targetJobNode = (DefaultMutableTreeNode)jobNodeChild.clone();
-                jobNodeList.add(targetJobNode);
-            }
-
-            if (sortedBuildStatus) {
-                Collections.sort(jobNodeList, new JobStatusComparator());
-            }
-
-            for (DefaultMutableTreeNode jobNode : jobNodeList) {
-                customizedJobRoot.add(jobNode);
-            }
-
-            customizedModel = new DefaultTreeModel(customizedJobRoot);
-
-            Object[] listeners = listenerList.getListenerList();
-            for (int i = listeners.length - 2; i >= 0; i -= 2) {
-                if (listeners[i] == TreeModelListener.class) {
-                    customizedModel.addTreeModelListener((TreeModelListener) listeners[i + 1]);
-                }
-            }
-
-            getCustomizedModel().reload();
-        }
-
-        @Override
-        public int getChildCount(Object parent) {
-            return getCustomizedModel().getChildCount(parent);
-        }
-
-
-        @Override
-        public Object getRoot() {
-            return getCustomizedModel().getRoot();
-        }
-
-        @Override
-        public Object getChild(Object parent, int index) {
-            return getCustomizedModel().getChild(parent, index);
-        }
-
-
-        @Override
-        public int getIndexOfChild(Object parent, Object child) {
-            return getCustomizedModel().getIndexOfChild(parent, child);
-        }
-
-        @Override
-        public boolean isLeaf(Object node) {
-            return getCustomizedModel().isLeaf(node);
-        }
     }
 
 
@@ -362,7 +275,7 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
         return BuildStatusEnum.NULL;
     }
 
-    private class JobStatusComparator implements Comparator<DefaultMutableTreeNode> {
+    private class JobStatusComparator implements JobComparator {
         @Override
         public int compare(DefaultMutableTreeNode treeNode1, DefaultMutableTreeNode treeNode2) {
             Job job1 = ((Job) treeNode1.getUserObject());
@@ -370,7 +283,11 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
 
             return new Integer(getStatus(job1.getColor()).ordinal()).compareTo(getStatus(job2.getColor()).ordinal());
         }
-    }
 
+
+        public boolean isApplicable() {
+            return sortedByBuildStatus;
+        }
+    }
 
 }

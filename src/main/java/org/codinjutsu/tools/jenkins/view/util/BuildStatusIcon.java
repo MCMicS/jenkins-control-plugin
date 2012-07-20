@@ -29,10 +29,10 @@ public class BuildStatusIcon extends JComponent {
 
     private static final int PIXEL_WIDTH = 8;
 
-    private final Icon icon;
-    private final String toolTipText;
+    final Icon icon;
+    final String toolTipText;
 
-    private final int numberToDisplay;
+    final int numberToDisplay;
     private final int numberWith;
 
     public static JComponent createIcon(BuildStatusAggregator aggregator) {
@@ -103,8 +103,6 @@ public class BuildStatusIcon extends JComponent {
             g.setFont(originalFont);
             g.setColor(originalColor);
         }
-
-
     }
 
 

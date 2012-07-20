@@ -35,8 +35,7 @@ public class RssUtil {
 
     private static final Pattern ABORTED_MATCHER = Pattern.compile("aborted");
 
-    private RssUtil() {
-    }
+    private RssUtil() {}
 
 
     public static BuildStatusEnum extractStatus(String rssEntryTitle) {

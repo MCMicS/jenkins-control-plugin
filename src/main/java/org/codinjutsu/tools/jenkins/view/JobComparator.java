@@ -14,13 +14,24 @@
  * limitations under the License.
  */
 
-package org.codinjutsu.tools.jenkins.util;
+package org.codinjutsu.tools.jenkins.view;
 
-public class HtmlUtil {
+import javax.swing.tree.DefaultMutableTreeNode;
+import java.util.Comparator;
 
-    private HtmlUtil() {}
 
-    public static String createHtmlLinkMessage(String linkLabel, String linkUrl) {
-        return "<html><a href='" + linkUrl + "'>" + linkLabel + "</a></html>";
-    }
+interface JobComparator extends Comparator<DefaultMutableTreeNode> {
+    boolean isApplicable();
+
+    JobComparator NULL = new JobComparator() {
+        @Override
+        public boolean isApplicable() {
+            return false;
+        }
+
+        @Override
+        public int compare(DefaultMutableTreeNode treeNode1, DefaultMutableTreeNode treeNode2) {
+            return 0;
+        }
+    };
 }
