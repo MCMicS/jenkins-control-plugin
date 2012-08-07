@@ -21,6 +21,7 @@ import java.util.Comparator;
 
 
 interface JobComparator extends Comparator<DefaultMutableTreeNode> {
+
     boolean isApplicable();
 
     JobComparator NULL = new JobComparator() {

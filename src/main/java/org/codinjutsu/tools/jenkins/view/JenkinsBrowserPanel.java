@@ -42,7 +42,7 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
     private JobSearchComponent searchComponent;
     private final LoadingDecorator loadingDecorator;
     private boolean sortedByBuildStatus;
-    private JobComparator jobStatusComparator = new JobStatusComparator();
+    private final JobComparator jobStatusComparator = new JobStatusComparator();
 
     public JenkinsBrowserPanel() {
         jobTree.setCellRenderer(new JenkinsTreeRenderer());
@@ -259,7 +259,7 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
     }
 
     public boolean isSortedByStatus() {
-        return false;
+        return sortedByBuildStatus;
     }
 
 

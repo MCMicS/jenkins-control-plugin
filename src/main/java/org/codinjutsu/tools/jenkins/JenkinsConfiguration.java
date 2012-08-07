@@ -45,7 +45,7 @@ public class JenkinsConfiguration {
     private boolean enableJobAutoRefresh = false;
     private boolean enableRssAutoRefresh = false;
 
-    private BrowserPreferences browserPreferences = new BrowserPreferences();
+    private final BrowserPreferences browserPreferences = new BrowserPreferences();
 
 
     public String getServerUrl() {

@@ -25,7 +25,7 @@ import org.uispec4j.UISpecTestCase;
 public class RssLatestBuildPanelTest extends UISpecTestCase {
 
 
-    public void test_addFinishedBuild() throws Exception {
+    public void disabled_test_addFinishedBuild() throws Exception {
         RssLatestBuildPanel rssLatestBuildPanel = new RssLatestBuildPanel();
         Panel uiSpecPanel = new Panel(rssLatestBuildPanel);
 

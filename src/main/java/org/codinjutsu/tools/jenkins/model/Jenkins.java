@@ -22,12 +22,12 @@ import java.util.List;
 public class Jenkins {
 
     private final String name;
+    private final String serverUrl;
 
     private List<Job> jobs;
-    private List<View> views;
 
+    private List<View> views;
     private View primaryView;
-    private String serverUrl;
 
 
     public Jenkins(String description, String serverUrl) {

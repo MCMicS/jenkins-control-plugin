@@ -60,10 +60,10 @@ public class JenkinsBrowserLogic implements Disposable {
     private Jenkins jenkins;
     private final Map<String, Build> currentBuildMap = new HashMap<String, Build>();
 
-    private ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(2);
+    private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(2);
 
-    private Runnable refreshViewJob = new LoadSelectedViewJob();
-    private Runnable refreshRssBuildsJob = new LoadLatestBuildsJob(true);
+    private final Runnable refreshViewJob = new LoadSelectedViewJob();
+    private final Runnable refreshRssBuildsJob = new LoadLatestBuildsJob(true);
 
     private final JenkinsBrowserPanel jenkinsBrowserPanel;
     private final RssLatestBuildPanel rssLatestJobPanel;

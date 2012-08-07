@@ -106,7 +106,7 @@ public class BuildStatusIcon extends JComponent {
     }
 
 
-    protected void paintIcon(Graphics g, Icon icon, int x, int y) {
+    private void paintIcon(Graphics g, Icon icon, int x, int y) {
         icon.paintIcon(this, g, x, y);
     }
 

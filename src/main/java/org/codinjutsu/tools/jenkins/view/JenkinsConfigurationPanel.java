@@ -19,6 +19,7 @@ package org.codinjutsu.tools.jenkins.view;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.ui.LabeledComponent;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
@@ -119,9 +120,9 @@ public class JenkinsConfigurationPanel {
                         if (enableAuthentication.isSelected()) {
                             new NotNullValidator().validate(username);
                             if (passwordFile.isEnabled()) {    //TODO a revoir
-                                String value = passwordFile.getComponent().getText();
-                                if (value == null || "".equals(value)) {
-                                    throw new ConfigurationException("'" + passwordFile.getComponent().getTextField().getName() + "' must be set");
+                                TextFieldWithBrowseButton passwordComponent = passwordFile.getComponent();
+                                if (StringUtils.isEmpty(passwordComponent.getText())) {
+                                    throw new ConfigurationException("'" + passwordComponent.getTextField().getName() + "' must be set");
                                 }
                             }
                         }
