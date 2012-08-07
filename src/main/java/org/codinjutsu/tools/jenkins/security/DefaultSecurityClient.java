@@ -104,13 +104,14 @@ class DefaultSecurityClient implements SecurityClient {
         }
 
         if (statusCode == HttpURLConnection.HTTP_FORBIDDEN || statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
-            if (StringUtils.contains(responseBody, BAD_CRUMB_DATA)) {
+            if (StringUtils.containsIgnoreCase(responseBody, BAD_CRUMB_DATA)) {
                 throw new AuthenticationException("CSRF enabled -> Missing or bad crumb data");
             }
-            if (StringUtils.contains(responseBody, "Unauthorized")) {
+            if (StringUtils.containsIgnoreCase(responseBody, "Unauthorized") ||
+                StringUtils.containsIgnoreCase(responseBody, "Authorization required")) {
                 throw new AuthenticationException("Unauthorized -> Missing or bad credentials");
             }
-            if (StringUtils.contains(responseBody, "Authentication required")) {
+            if (StringUtils.containsIgnoreCase(responseBody, "Authentication required")) {
                 throw new AuthenticationException("Authentication required");
             }
         }
