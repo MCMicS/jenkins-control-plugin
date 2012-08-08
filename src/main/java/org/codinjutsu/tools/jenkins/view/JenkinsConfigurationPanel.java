@@ -29,6 +29,7 @@ import org.codinjutsu.tools.jenkins.view.annotation.FormValidator;
 import org.codinjutsu.tools.jenkins.view.annotation.GuiField;
 import org.codinjutsu.tools.jenkins.view.validator.NotNullValidator;
 import org.codinjutsu.tools.jenkins.view.validator.UIValidator;
+import org.codinjutsu.tools.jenkins.view.validator.UrlValidator;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -212,6 +213,7 @@ public class JenkinsConfigurationPanel {
             public void actionPerformed(ActionEvent event) {
                 try {
                     new NotNullValidator().validate(serverUrl);
+                    new UrlValidator().validate(serverUrl);
                     jenkinsRequestManager.authenticate(
                             serverUrl.getText(), securityMode, username.getText(), passwordFile.getComponent().getText(), crumbDataFile.getComponent().getText());
                     setConnectionFeedbackLabel(CONNECTION_TEST_SUCCESSFUL_COLOR, "Successful");

@@ -30,7 +30,13 @@ public class UrlValidator implements UIValidator<JTextField> {
             return;
         }
         try {
-            new URL(value);
+            URL url = new URL(value);
+            String userInfo = url.getUserInfo();
+            if (StringUtils.isEmpty(userInfo)) {
+                return;
+            }
+
+            throw new ConfigurationException("Credentials fields should be filled instead of be passed through the url.");
         } catch (MalformedURLException ex) {
             throw new ConfigurationException("URL '" + value + "' is malformed");
         }

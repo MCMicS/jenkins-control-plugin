@@ -159,6 +159,19 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
         }
     }
 
+    public void testApplyConfigWithUrlWithCredentialsShouldFail() throws Exception {
+
+        TextBox serverUrlBox = uiSpecPanel.getTextBox("serverUrl");
+        serverUrlBox.setText("http://david:david@localhost:80");
+
+        try {
+            jenkinsConfigurationPanel.applyConfigurationData(configuration);
+            fail();
+        } catch (ConfigurationException ex) {
+            assertEquals("Credentials fields should be filled instead of be passed through the url.", ex.getMessage());
+        }
+    }
+
     public void testConnectionWithEmptyServerUrlShouldFail() throws Exception {
         TextBox serverUrlBox = uiSpecPanel.getTextBox("serverUrl");
         serverUrlBox.setText("");
@@ -171,12 +184,38 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
         connectionStatusLabel.textEquals("Fail: 'serverUrl' must be set").check();
     }
 
+    public void testConnectionWithEmptyUrlShouldFail() throws Exception {
+
+        TextBox serverUrlBox = uiSpecPanel.getTextBox("serverUrl");
+        serverUrlBox.setText("");
+
+        Button connexionButton = uiSpecPanel.getButton("testConnexionButton");
+
+        connexionButton.click();
+
+        TextBox connectionStatusLabel = uiSpecPanel.getTextBox("connectionStatusLabel");
+        connectionStatusLabel.textEquals("Fail: 'serverUrl' must be set").check();
+    }
+
+    public void testConnectionWithUrlFilledWithCredentialsShouldFail() throws Exception {
+
+        TextBox serverUrlBox = uiSpecPanel.getTextBox("serverUrl");
+        serverUrlBox.setText("http://david:david@localhost:80");
+
+        Button connexionButton = uiSpecPanel.getButton("testConnexionButton");
+
+        connexionButton.click();
+
+        TextBox connectionStatusLabel = uiSpecPanel.getTextBox("connectionStatusLabel");
+        connectionStatusLabel.textEquals("Fail: Credentials fields should be filled instead of be passed through the url.").check();
+    }
+
     public void testConnectionWithAuthenticationExceptionThrownShouldFail() throws Exception {
         doThrow(new AuthenticationException("ouch")).when(jenkinsRequestManager).authenticate(anyString(), any(SecurityMode.class), anyString(), anyString(), anyString());
 
 
         TextBox serverUrlBox = uiSpecPanel.getTextBox("serverUrl");
-        serverUrlBox.setText("htp:///bisous");
+        serverUrlBox.setText("http:///bisous");
 
         Button connexionButton = uiSpecPanel.getButton("testConnexionButton");
 
