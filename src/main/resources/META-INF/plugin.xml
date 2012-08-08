@@ -1,7 +1,7 @@
 <idea-plugin>
     <name>Jenkins Control Plugin</name>
     <description>A Jenkins Plugin for Intellij for IDEA 10+</description>
-    <version>0.5.3</version>
+    <version>0.5.4</version>
     <vendor email="david.boissier [at] gmail [dot] com" url="http://codinjutsu.blogspot.com">David Boissier</vendor>
     <idea-version since-build="107.587"/>
 
@@ -14,6 +14,14 @@
     </project-components>
 
     <change-notes><![CDATA[
+<ul>Version 0.5.3
+    <li>[Add] Job can be sorted by status (fail, unstable, success) - See the new button on the panel</li>
+    <li>[Upd] Widget: UI layout modification</li>
+    <li>[Fix] IDEA-86137 Thread leak in the EDT</li>
+    <li>[Fix] #25 The plugin should compare the configured port and the jenkins server one</li>
+    <li>[Fix] #26 Incorrect feedback message when clicking on the 'Test Connection' button</li>
+    <li>[fix] Jenkins Panel disappears when typing CTRL + F4</li>
+</ul>
 <ul>Version 0.5.3
     <li>[Fix] Widget : UI issue on Windows and MacOS environment</li>
 </ul>

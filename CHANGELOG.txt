@@ -1,4 +1,12 @@
-Version 0.5.2
+Version 0.5.4
+    * [Add] Job can be sorted by status (fail, unstable, success) - See the new button on the panel
+    * [Upd] Widget: UI layout modification
+    * [Fix] IDEA-86137 Thread leak in the EDT
+    * [Fix] #25 The plugin should compare the configured port and the jenkins server one
+    * [Fix] #26 Incorrect feedback message when clicking on the 'Test Connection' button
+    * [fix] Jenkins Panel disappears when typing CTRL + F4
+
+Version 0.5.3
     * [Fix] Widget : UI Issue on Windows and MacOS environment
 
 Version 0.5.2
