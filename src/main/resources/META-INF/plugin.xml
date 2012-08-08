@@ -14,7 +14,7 @@
     </project-components>
 
     <change-notes><![CDATA[
-<ul>Version 0.5.3
+<ul>Version 0.5.4
     <li>[Add] Job can be sorted by status (fail, unstable, success) - See the new button on the panel</li>
     <li>[Upd] Widget: UI layout modification</li>
     <li>[Fix] IDEA-86137 Thread leak in the EDT</li>
