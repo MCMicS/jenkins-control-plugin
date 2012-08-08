@@ -1,7 +1,7 @@
 <idea-plugin>
     <name>Jenkins Control Plugin</name>
     <description>A Jenkins Plugin for Intellij for IDEA 10+</description>
-    <version>0.5.4</version>
+    <version>0.5.5</version>
     <vendor email="david.boissier [at] gmail [dot] com" url="http://codinjutsu.blogspot.com">David Boissier</vendor>
     <idea-version since-build="107.587"/>
 
@@ -14,6 +14,9 @@
     </project-components>
 
     <change-notes><![CDATA[
+<ul>Version 0.5.5
+    <li>...</li>
+</ul>
 <ul>Version 0.5.4
     <li>[Add] Job can be sorted by status (fail, unstable, success) - See the new button on the panel</li>
     <li>[Upd] Widget: UI layout modification</li>

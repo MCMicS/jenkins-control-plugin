@@ -1,3 +1,5 @@
+Version 0.5.5
+    * ...
 Version 0.5.4
     * [Add] Job can be sorted by status (fail, unstable, success) - See the new button on the panel
     * [Upd] Widget: UI layout modification
