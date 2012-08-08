@@ -39,7 +39,7 @@ class DefaultSecurityClient implements SecurityClient {
     private final String crumbDataFile;
     String crumbValue;
 
-    final HttpClient httpClient;
+    protected final HttpClient httpClient;
 
     DefaultSecurityClient(String crumbDataFile) {
         this.httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
@@ -138,16 +138,20 @@ class DefaultSecurityClient implements SecurityClient {
     }
 
     protected String extractValueFromFile(String file) {
+        FileInputStream passwordFileInputStream = null;
         try {
-            String value = IOUtils.toString(new FileInputStream(file));
+            passwordFileInputStream = new FileInputStream(file);
+            String value = IOUtils.toString(passwordFileInputStream);
             if (StringUtils.isNotEmpty(value)) {
-                value = StringUtils.removeEnd(value, "\n");
+                value = StringUtils.remove(value, '\n');
             }
             return value;
         } catch (FileNotFoundException e) {
             throw new ConfigurationException(String.format("Crumb file '%s' not found", file));
         } catch (IOException e) {
             throw new IllegalStateException(String.format("Unable to read '%s'", file), e);
+        } finally {
+            IOUtils.closeQuietly(passwordFileInputStream);
         }
     }
 

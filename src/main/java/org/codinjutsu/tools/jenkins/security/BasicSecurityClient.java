@@ -66,6 +66,7 @@ class BasicSecurityClient extends DefaultSecurityClient {
         httpClient.getParams().setAuthenticationPreemptive(true);
 
         PostMethod post = new PostMethod(jenkinsUrl.toString());
+        InputStream inputStream = null;
         try {
             if (isCrumbDataSet()) {
                 post.addRequestHeader(CRUMB_NAME, crumbValue);
@@ -75,7 +76,7 @@ class BasicSecurityClient extends DefaultSecurityClient {
             int responseCode = httpClient.executeMethod(post);
             if (responseCode != HttpURLConnection.HTTP_OK) {
 
-                InputStream inputStream = post.getResponseBodyAsStream();
+                inputStream = post.getResponseBodyAsStream();
                 String responseBody = IOUtils.toString(inputStream, post.getResponseCharSet());
 
                 checkResponse(responseCode, responseBody);
@@ -85,9 +86,8 @@ class BasicSecurityClient extends DefaultSecurityClient {
         } catch (IOException ioEx) {
             throw new ConfigurationException(String.format("Error during method execution %s", jenkinsUrl.toString()), ioEx);
         } finally {
+            IOUtils.closeQuietly(inputStream);
             post.releaseConnection();
         }
-
     }
-
 }

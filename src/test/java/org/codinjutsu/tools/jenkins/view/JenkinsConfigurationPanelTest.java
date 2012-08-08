@@ -168,7 +168,7 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
             jenkinsConfigurationPanel.applyConfigurationData(configuration);
             fail();
         } catch (ConfigurationException ex) {
-            assertEquals("Credentials fields should be filled instead of be passed through the url.", ex.getMessage());
+            assertEquals("Credentials should not be embedded in the url. Use the above form instead.", ex.getMessage());
         }
     }
 
@@ -207,7 +207,7 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
         connexionButton.click();
 
         TextBox connectionStatusLabel = uiSpecPanel.getTextBox("connectionStatusLabel");
-        connectionStatusLabel.textEquals("Fail: Credentials fields should be filled instead of be passed through the url.").check();
+        connectionStatusLabel.textEquals("Fail: Credentials should not be embedded in the url. Use the above form instead.").check();
     }
 
     public void testConnectionWithAuthenticationExceptionThrownShouldFail() throws Exception {
