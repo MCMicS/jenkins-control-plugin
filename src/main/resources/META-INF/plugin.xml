@@ -14,39 +14,6 @@
     </project-components>
 
     <change-notes><![CDATA[
-<ul>Version 0.5.5
-    <li>...</li>
-</ul>
-<ul>Version 0.5.4
-    <li>[Add] Job can be sorted by status (fail, unstable, success) - See the new button on the panel</li>
-    <li>[Upd] Widget: UI layout modification</li>
-    <li>[Fix] IDEA-86137 Thread leak in the EDT</li>
-    <li>[Fix] #25 The plugin should compare the configured port and the jenkins server one</li>
-    <li>[Fix] #26 Incorrect feedback message when clicking on the 'Test Connection' button</li>
-    <li>[fix] Jenkins Panel disappears when typing CTRL + F4</li>
-</ul>
-<ul>Version 0.5.3
-    <li>[Fix] Widget : UI issue on Windows and MacOS environment</li>
-</ul>
-<ul>Version 0.5.2
-    <li>[Add] Widget : when clicking on the status icon, a popup is displayed with builds status summary info</li>
-    <li>[Add] The plugin starts up with the last selected view</li>
-    <li>[Upd] Improvement in handling Connection Exception</li>
-    <li>[Upd] Job are loaded in background (with a waiting UI decorator)</li>
-    <li>[Fix] Widget should not be duplicated when opening new Project Window</li>
-    <li>[Fix] Build Parameter dialog does not work</li>
-</ul>
-<ul>Version 0.5.1
-    <li>[Fix] Regression : When the server url is not set (or set to a dummy url), the plugin should not try to connect</li>
-    <li>[Fix] Browser Panel : OneTouch Expandable should be accessible</li>
-</ul>
-<ul>Version 0.5.0
-    <li>[Add] Job Tree : Search job panel (CTRL + F, F3 to search forward, SHIFT + F3 to search backward, the search feature is cyclic)</li>
-    <li>[Add] Jenkins Widget that displays either a blue icon (no broken build on selected view) or else a red icon with the number of the remaining broken builds</li>
-    <li>[Upd] Increase loading performance</li>
-    <li>[Fix] Connection issue when Job and Rss autorefresh are both enabled</li>
-    <li>[Fix] Configuration Panel: File input fields should have a validator</li>
-    <li>[Fix] Configuration Panel: Rename 'Password' to 'Password file'</li>
-</ul>
+<a href="https://github.com/dboissier/jenkins-control-plugin/blob/jenkins-control-plugin-0.5.5/CHANGELOG.txt">Changelog</a>
 ]]> </change-notes>
 </idea-plugin>

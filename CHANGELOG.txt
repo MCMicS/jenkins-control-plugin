@@ -1,5 +1,7 @@
 Version 0.5.5
-    * ...
+    * [Add] Configuration Panel: when clicking on the Test Connection, if the HTTP code is 401 or 403 then the response body is displayed in a panel
+    * [Fix] Regression: NPE when clicking on the Test Connection
+
 Version 0.5.4
     * [Add] Job can be sorted by status (fail, unstable, success) - See the new button on the panel
     * [Upd] Widget: UI layout modification
