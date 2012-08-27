@@ -66,7 +66,6 @@ class DefaultSecurityClient implements SecurityClient {
 
 
     private void runMethod(String url, ResponseCollector responseCollector) {
-        httpClient.getParams().setAuthenticationPreemptive(false);
         PostMethod post = new PostMethod(url);
         setCrumbValueIfNeeded();
 
