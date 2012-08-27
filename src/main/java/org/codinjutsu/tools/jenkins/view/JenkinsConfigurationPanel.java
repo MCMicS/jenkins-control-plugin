@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
+import org.codinjutsu.tools.jenkins.security.AuthenticationException;
 import org.codinjutsu.tools.jenkins.security.SecurityMode;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.annotation.FormValidator;
@@ -33,6 +34,8 @@ import org.codinjutsu.tools.jenkins.view.validator.UrlValidator;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -79,6 +82,8 @@ public class JenkinsConfigurationPanel {
 
     private JButton testConnexionButton;
     private JLabel connectionStatusLabel;
+    private JPanel debugPanel;
+    private JTextPane debugTextPane;
 
     private final FormValidator formValidator;
 
@@ -109,6 +114,10 @@ public class JenkinsConfigurationPanel {
         testConnexionButton.setName("testConnexionButton");
         connectionStatusLabel.setName("connectionStatusLabel");
 
+        debugPanel.setVisible(false);
+
+        initDebugTextPane();
+
         initListeners();
 
         if (installBrowserFileBrowser) {
@@ -131,6 +140,17 @@ public class JenkinsConfigurationPanel {
                 });
 
 
+    }
+
+    private void initDebugTextPane() {
+        HTMLEditorKit htmlEditorKit = new HTMLEditorKit();
+        HTMLDocument htmlDocument = new HTMLDocument();
+
+        debugTextPane.setEditable(false);
+        debugTextPane.setBackground(Color.WHITE);
+        debugTextPane.setEditorKit(htmlEditorKit);
+        htmlEditorKit.install(debugTextPane);
+        debugTextPane.setDocument(htmlDocument);
     }
 
     //TODO use annotation to create a guiwrapper so isModified could be simplified
@@ -212,6 +232,8 @@ public class JenkinsConfigurationPanel {
         testConnexionButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
                 try {
+                    debugPanel.setVisible(false);
+
                     new NotNullValidator().validate(serverUrl);
                     new UrlValidator().validate(serverUrl);
                     jenkinsRequestManager.authenticate(
@@ -219,6 +241,14 @@ public class JenkinsConfigurationPanel {
                     setConnectionFeedbackLabel(CONNECTION_TEST_SUCCESSFUL_COLOR, "Successful");
                 } catch (Exception ex) {
                     setConnectionFeedbackLabel(CONNECTION_TEST_FAILED_COLOR, "Fail: " + ex.getMessage());
+                    if (ex instanceof AuthenticationException) {
+                        AuthenticationException authenticationException = (AuthenticationException) ex;
+                        String responseBody = authenticationException.getResponseBody();
+                        if (StringUtils.isNotEmpty(responseBody)) {
+                            debugPanel.setVisible(true);
+                            debugTextPane.setText(responseBody);
+                        }
+                    }
                 }
             }
         });

@@ -18,12 +18,21 @@ package org.codinjutsu.tools.jenkins.security;
 
 public class AuthenticationException extends RuntimeException {
 
+
+    private final String responseBody;
+
     public AuthenticationException(String message) {
         super(message);
+        responseBody = "";
     }
 
 
-    public AuthenticationException(String message, Exception ex) {
-        super(message, ex);
+    public AuthenticationException(String message, String responseBody) {
+        super(message);
+        this.responseBody = responseBody;
+    }
+
+    public String getResponseBody() {
+        return responseBody;
     }
 }

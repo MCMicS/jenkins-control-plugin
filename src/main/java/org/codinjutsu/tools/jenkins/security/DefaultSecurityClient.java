@@ -107,13 +107,8 @@ class DefaultSecurityClient implements SecurityClient {
             if (StringUtils.containsIgnoreCase(responseBody, BAD_CRUMB_DATA)) {
                 throw new AuthenticationException("CSRF enabled -> Missing or bad crumb data");
             }
-            if (StringUtils.containsIgnoreCase(responseBody, "Unauthorized") ||
-                StringUtils.containsIgnoreCase(responseBody, "Authorization required")) {
-                throw new AuthenticationException("Unauthorized -> Missing or bad credentials");
-            }
-            if (StringUtils.containsIgnoreCase(responseBody, "Authentication required")) {
-                throw new AuthenticationException("Authentication required");
-            }
+
+            throw new AuthenticationException("Unauthorized -> Missing or bad credentials", responseBody);
         }
 
         if (HttpURLConnection.HTTP_INTERNAL_ERROR == statusCode) {
@@ -137,7 +132,7 @@ class DefaultSecurityClient implements SecurityClient {
         return crumbValue != null;
     }
 
-    protected String extractValueFromFile(String file) {
+    protected static String extractValueFromFile(String file) {
         FileInputStream passwordFileInputStream = null;
         try {
             passwordFileInputStream = new FileInputStream(file);
