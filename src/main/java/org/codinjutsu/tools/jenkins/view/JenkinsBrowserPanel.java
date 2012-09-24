@@ -193,7 +193,6 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
                 } else {
                     viewCombo.setRenderer(new JenkinsViewComboRenderer());
                 }
-                setSelectedView(jenkins.getPrimaryView());
             }
         });
     }
@@ -219,11 +218,6 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
             if (view.hasNestedView()) return true;
         }
         return false;
-    }
-
-
-    private void setSelectedView(View view) {
-        viewCombo.setSelectedItem(view);
     }
 
 

@@ -106,7 +106,7 @@ public class JenkinsBrowserLogic implements Disposable {
 
         loadJenkinsWorkspace();
 
-        String lastSelectedViewName = configuration.getBrowserPreferences().getLastSelectedView();
+        String lastSelectedViewName = configuration.getLastSelectedView();
         if (StringUtils.isNotEmpty(lastSelectedViewName)) {
             jenkinsBrowserPanel.getViewByName(lastSelectedViewName);
         }
@@ -329,19 +329,14 @@ public class JenkinsBrowserLogic implements Disposable {
     }
 
 
-    public BrowserPreferences getBrowserPreferences() {
-        return configuration.getBrowserPreferences();
-    }
-
-
     @Override
     public void dispose() {
         scheduledThreadPoolExecutor.shutdown();
     }
 
-    public void setAsFavorite(String jobName) {
-        getBrowserPreferences().addFavorite(jobName);
-        getOrCreateFavoriteView().add(jenkins.getJob(jobName));
+    public void setAsFavorite(Job job) {
+        configuration.addFavorite(job);
+        getOrCreateFavoriteView().add(job);
     }
 
     private FavoriteView getOrCreateFavoriteView() {
@@ -354,7 +349,7 @@ public class JenkinsBrowserLogic implements Disposable {
     }
 
     public void removeFavorite(Job selectedJob) {
-        getBrowserPreferences().removeFavorite(selectedJob);
+        configuration.removeFavorite(selectedJob);
         FavoriteView favoriteView = getOrCreateFavoriteView();
         favoriteView.remove(selectedJob);
         if (favoriteView.isEmpty()) {
@@ -377,6 +372,10 @@ public class JenkinsBrowserLogic implements Disposable {
         for (String favoriteJob : favoriteJobs) {
             favoriteView.add(jenkins.getJob(favoriteJob));
         }
+    }
+
+    public boolean isAFavoriteJob(String jobName) {
+        return configuration.isAFavoriteJob(jobName);
     }
 
 
@@ -414,7 +413,7 @@ public class JenkinsBrowserLogic implements Disposable {
             }
             final View selectedView = jenkinsView;
 
-            configuration.getBrowserPreferences().setLastSelectedView(selectedView.getName());
+            configuration.setLastSelectedView(selectedView.getName());
 
             jenkinsBrowserPanel.startWaiting();
             final List<Job> jobList;
@@ -424,7 +423,7 @@ public class JenkinsBrowserLogic implements Disposable {
             } else {
                 jobList = jenkinsRequestManager.loadJenkinsView(selectedView.getUrl());
             }
-            getBrowserPreferences().setLastSelectedView(selectedView.getName());
+            configuration.setLastSelectedView(selectedView.getName());
 
             jenkins.setJobs(jobList);
             final BuildStatusAggregator buildStatusAggregator = new BuildStatusAggregator();

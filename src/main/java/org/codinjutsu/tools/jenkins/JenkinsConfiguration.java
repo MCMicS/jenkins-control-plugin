@@ -16,9 +16,14 @@
 
 package org.codinjutsu.tools.jenkins;
 
+import com.intellij.util.xmlb.annotations.AbstractCollection;
 import org.apache.commons.lang.StringUtils;
-import org.codinjutsu.tools.jenkins.model.BrowserPreferences;
+import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.security.SecurityMode;
+
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 public class JenkinsConfiguration {
 
@@ -45,8 +50,9 @@ public class JenkinsConfiguration {
     private boolean enableJobAutoRefresh = false;
     private boolean enableRssAutoRefresh = false;
 
-    private final BrowserPreferences browserPreferences = new BrowserPreferences();
+    private final List<Job> favoriteJobs = new LinkedList<Job>();
 
+    private String lastSelectedViewName;
 
     public String getServerUrl() {
         return serverUrl;
@@ -144,7 +150,37 @@ public class JenkinsConfiguration {
         this.crumbFile = crumbFile;
     }
 
-    public BrowserPreferences getBrowserPreferences() {
-        return browserPreferences;
+    public void addFavorite(Job job) {
+        favoriteJobs.add(job);
+    }
+
+    public boolean isAFavoriteJob(String jobName) {
+        for (Job job : favoriteJobs) {
+            if (StringUtils.equals(jobName, job.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void removeFavorite(Job selectedJob) {
+        for (Iterator<Job> iterator = favoriteJobs.iterator(); iterator.hasNext(); ) {
+            Job job = iterator.next();
+            if (StringUtils.equals(selectedJob.getName(), job.getName())) {
+                iterator.remove();
+            }
+        }
+    }
+
+    public void setLastSelectedView(String viewName) {
+        this.lastSelectedViewName = viewName;
+    }
+
+    public String getLastSelectedView() {
+        return lastSelectedViewName;
+    }
+
+    public List<Job> getFavoriteJobs() {
+        return favoriteJobs;
     }
 }

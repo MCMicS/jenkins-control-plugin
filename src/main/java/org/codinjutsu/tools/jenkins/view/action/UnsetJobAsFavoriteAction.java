@@ -39,18 +39,11 @@ public class UnsetJobAsFavoriteAction extends AnAction implements DumbAware {
     public void actionPerformed(AnActionEvent event) {
         Job selectedJob = jenkinsBrowserLogic.getSelectedJob();
         jenkinsBrowserLogic.removeFavorite(selectedJob);
-
-        Project project = ActionUtil.getProject(event);
-        PropertiesComponent projectProperties = PropertiesComponent.getInstance(project);
-
-        String favoriteViewPropertyValue = projectProperties.getValue("favorite_view");
-
-        projectProperties.setValue("favorite_view", StringUtils.remove(favoriteViewPropertyValue, selectedJob.getName() + ";"));
     }
 
     @Override
     public void update(AnActionEvent event) {
         Job selectedJob = jenkinsBrowserLogic.getSelectedJob();
-        event.getPresentation().setVisible(selectedJob != null && jenkinsBrowserLogic.getBrowserPreferences().isAFavoriteJob(selectedJob.getName()));
+        event.getPresentation().setVisible(selectedJob != null && jenkinsBrowserLogic.isAFavoriteJob(selectedJob.getName()));
     }
 }

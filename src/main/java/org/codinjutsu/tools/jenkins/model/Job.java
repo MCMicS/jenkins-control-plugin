@@ -16,7 +16,11 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
+import com.intellij.openapi.util.InvalidDataException;
+import com.intellij.openapi.util.JDOMExternalizable;
+import com.intellij.openapi.util.WriteExternalException;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
+import org.jdom.Element;
 
 import javax.swing.*;
 import java.util.HashMap;
@@ -28,8 +32,8 @@ public class Job {
 
     private static final Map<String, Icon> ICON_BY_JOB_HEALTH_MAP = new HashMap<String, Icon>();
 
-    private final String name;
-    private final String url;
+    private String name;
+    private String url;
 
     private String color;
     private boolean inQueue;
@@ -143,11 +147,6 @@ public class Job {
     public List<JobParameter> getParameters() {
         return parameters;
     }
-
-    public boolean isBroken() {
-        return isBuildable() && lastBuild != null && lastBuild.getStatus() == BuildStatusEnum.FAILURE;
-    }
-
 
     public static class Health {
 

@@ -183,12 +183,7 @@ public class JenkinsControlComponent
             }
         };
 
-        String lastSelectedView = PropertiesComponent.getInstance(project).getValue("last_selected_view");
-        if (!FavoriteView.FAVORITE.equals(lastSelectedView)) {
-            configuration.getBrowserPreferences().setLastSelectedView(lastSelectedView);
-        }
         jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, jenkinsRequestManager, browserPanel, rssLatestJobPanel, buildStatusListener, jobLoadListener);
-
 
         jenkinsBrowserLogic.getJenkinsBrowserPanel().getViewCombo().addItemListener(new ItemListener() {
             @Override
@@ -197,7 +192,7 @@ public class JenkinsControlComponent
                 if (selectedView == null) {
                     return;
                 }
-                PropertiesComponent.getInstance(project).setValue("last_selected_view", selectedView.getName());
+                configuration.setLastSelectedView(selectedView.getName());
             }
         });
 
@@ -205,7 +200,6 @@ public class JenkinsControlComponent
             @Override
             public void run() {
                 jenkinsBrowserLogic.init();
-                jenkinsBrowserLogic.initFavorite(PropertiesComponent.getInstance(project).getValue("favorite_view"));
             }
         });
 
