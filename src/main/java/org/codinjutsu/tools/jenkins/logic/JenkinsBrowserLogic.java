@@ -181,8 +181,8 @@ public class JenkinsBrowserLogic implements Disposable {
             actionGroup.add(new RefreshNodeAction(this));
             actionGroup.addSeparator();
             actionGroup.add(new RunBuildAction(this));
-//            actionGroup.add(new SetJobAsFavoriteAction(this));
-//            actionGroup.add(new UnsetJobAsFavoriteAction(this));
+            actionGroup.add(new SetJobAsFavoriteAction(this));
+            actionGroup.add(new UnsetJobAsFavoriteAction(this));
             actionGroup.addSeparator();
             actionGroup.add(new GotoJobPageAction(jenkinsBrowserPanel));
             actionGroup.add(new GotoLastBuildPageAction(jenkinsBrowserPanel));
@@ -339,6 +339,46 @@ public class JenkinsBrowserLogic implements Disposable {
         scheduledThreadPoolExecutor.shutdown();
     }
 
+    public void setAsFavorite(String jobName) {
+        getBrowserPreferences().addFavorite(jobName);
+        getOrCreateFavoriteView().add(jenkins.getJob(jobName));
+    }
+
+    private FavoriteView getOrCreateFavoriteView() {
+        FavoriteView favoriteView = getJenkinsBrowserPanel().getFavoriteView();
+        if (favoriteView == null) {
+            favoriteView = new FavoriteView();
+            getJenkinsBrowserPanel().updateViewCombo(favoriteView);
+        }
+        return favoriteView;
+    }
+
+    public void removeFavorite(Job selectedJob) {
+        getBrowserPreferences().removeFavorite(selectedJob);
+        FavoriteView favoriteView = getOrCreateFavoriteView();
+        favoriteView.remove(selectedJob);
+        if (favoriteView.isEmpty()) {
+            jenkinsBrowserPanel.resetViewCombo(jenkins.getViews());
+            jenkinsBrowserPanel.getViewCombo().setSelectedIndex(0);
+        } else {
+            View selectedJenkinsView = getSelectedJenkinsView();
+            if (selectedJenkinsView instanceof  FavoriteView) {
+                loadSelectedView();
+            }
+        }
+    }
+
+    public void initFavorite(String favoriteJobsPropertyValue) {
+        if (StringUtils.isEmpty(favoriteJobsPropertyValue)) {
+            return;
+        }
+        String[] favoriteJobs = favoriteJobsPropertyValue.split(";");
+        FavoriteView favoriteView = getOrCreateFavoriteView();
+        for (String favoriteJob : favoriteJobs) {
+            favoriteView.add(jenkins.getJob(favoriteJob));
+        }
+    }
+
 
     public interface BuildStatusListener {
 
@@ -377,8 +417,13 @@ public class JenkinsBrowserLogic implements Disposable {
             configuration.getBrowserPreferences().setLastSelectedView(selectedView.getName());
 
             jenkinsBrowserPanel.startWaiting();
-            final List<Job> jobList = jenkinsRequestManager.loadJenkinsView(selectedView.getUrl());
+            final List<Job> jobList;
 
+            if (selectedView instanceof FavoriteView) {
+                jobList = jenkinsRequestManager.loadFavoriteJobs((FavoriteView) selectedView);
+            } else {
+                jobList = jenkinsRequestManager.loadJenkinsView(selectedView.getUrl());
+            }
             getBrowserPreferences().setLastSelectedView(selectedView.getName());
 
             jenkins.setJobs(jobList);

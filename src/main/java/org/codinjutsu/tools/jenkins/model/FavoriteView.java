@@ -16,40 +16,42 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
+
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-public class BrowserPreferences {
+public class FavoriteView extends View {
 
-    private final List<String> favoriteJobs = new LinkedList<String>();
-    private String lastSelectedViewName;
+    public static String FAVORITE = "FAVORITE";
 
-    public void addFavorite(String jobName) {
-        favoriteJobs.add(jobName);
+
+    private final List<Job> favoriteJobs = new LinkedList<Job>();
+
+    public FavoriteView() {
+        super(FAVORITE, null, false);
     }
 
-    public boolean isAFavoriteJob(String jobName) {
-        return favoriteJobs.contains(jobName);
+    public void add(Job job) {
+        favoriteJobs.add(job);
     }
 
-    public void removeFavorite(Job selectedJob) {
-        for (Iterator<String> iterator = favoriteJobs.iterator(); iterator.hasNext(); ) {
-            String jobName  =  iterator.next();
-            if (StringUtils.equals(selectedJob.getName(), jobName)) {
+    public List<Job> getJobs() {
+        return favoriteJobs;
+    }
+
+    public void remove(Job selectedJob) {
+        for (Iterator<Job> iterator = favoriteJobs.iterator(); iterator.hasNext(); ) {
+            Job job = iterator.next();
+            if (StringUtils.equals(selectedJob.getName(), job.getName())) {
                 iterator.remove();
             }
         }
-        favoriteJobs.clear();
     }
 
-    public void setLastSelectedView(String viewName) {
-        this.lastSelectedViewName = viewName;
-    }
-
-    public String getLastSelectedView() {
-        return lastSelectedViewName;
+    public boolean isEmpty() {
+        return favoriteJobs.isEmpty();
     }
 }

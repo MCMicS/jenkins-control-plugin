@@ -16,14 +16,29 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
+import org.codinjutsu.tools.jenkins.model.FavoriteView;
 import org.codinjutsu.tools.jenkins.model.View;
+import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
 import javax.swing.*;
 import java.awt.*;
 
 class JenkinsNestedViewComboRenderer extends DefaultListCellRenderer {
 
+    private static final Icon FAVORITE_ICON = GuiUtil.loadIcon("star");
+
+
     public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+
+        if (value instanceof FavoriteView) {
+            FavoriteView view = (FavoriteView) value;
+
+            super.getListCellRendererComponent(list, view.getName(), index, isSelected, cellHasFocus);
+            setIcon(FAVORITE_ICON);
+
+            return this;
+        }
+
         if (value instanceof View) {
             View view = (View) value;
             if (view.hasNestedView()) {

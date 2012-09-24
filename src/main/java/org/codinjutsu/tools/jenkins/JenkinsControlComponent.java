@@ -36,10 +36,12 @@ import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
 import org.codinjutsu.tools.jenkins.logic.JenkinsBrowserLogic;
 import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
 import org.codinjutsu.tools.jenkins.model.Build;
+import org.codinjutsu.tools.jenkins.model.FavoriteView;
 import org.codinjutsu.tools.jenkins.model.View;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.*;
@@ -181,12 +183,20 @@ public class JenkinsControlComponent
             }
         };
 
-        configuration.getBrowserPreferences().setLastSelectedView(PropertiesComponent.getInstance(project).getValue("last_selected_view"));
+        String lastSelectedView = PropertiesComponent.getInstance(project).getValue("last_selected_view");
+        if (!FavoriteView.FAVORITE.equals(lastSelectedView)) {
+            configuration.getBrowserPreferences().setLastSelectedView(lastSelectedView);
+        }
         jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, jenkinsRequestManager, browserPanel, rssLatestJobPanel, buildStatusListener, jobLoadListener);
+
+
         jenkinsBrowserLogic.getJenkinsBrowserPanel().getViewCombo().addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent itemEvent) {
                 View selectedView = (View) jenkinsBrowserLogic.getJenkinsBrowserPanel().getViewCombo().getSelectedItem();
+                if (selectedView == null) {
+                    return;
+                }
                 PropertiesComponent.getInstance(project).setValue("last_selected_view", selectedView.getName());
             }
         });
@@ -195,6 +205,7 @@ public class JenkinsControlComponent
             @Override
             public void run() {
                 jenkinsBrowserLogic.init();
+                jenkinsBrowserLogic.initFavorite(PropertiesComponent.getInstance(project).getValue("favorite_view"));
             }
         });
 

@@ -367,4 +367,12 @@ public class JenkinsRequestManager {
         return buildMap;
     }
 
+    public List<Job> loadFavoriteJobs(FavoriteView selectedView) {
+        List<Job> jobsToLoad = selectedView.getJobs();
+        List<Job> jobs = new LinkedList<Job>();
+        for (Job job : jobsToLoad) {
+            jobs.add(loadJob(job.getUrl()));
+        }
+        return jobs;
+    }
 }

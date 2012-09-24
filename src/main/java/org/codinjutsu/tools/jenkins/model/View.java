@@ -32,7 +32,7 @@ public class View {
 
     private final List<View> subViews = new LinkedList<View>();
 
-    private View(String name, String url, boolean isNested) {
+    protected View(String name, String url, boolean isNested) {
         this.name = name;
         this.url = url;
         this.isNested = isNested;

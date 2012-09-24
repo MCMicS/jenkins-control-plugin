@@ -16,9 +16,12 @@
 
 package org.codinjutsu.tools.jenkins.view.action;
 
+import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
+import com.intellij.openapi.project.Project;
+import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.logic.JenkinsBrowserLogic;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
@@ -33,9 +36,19 @@ public class SetJobAsFavoriteAction extends AnAction implements DumbAware {
     }
 
     @Override
-    public void actionPerformed(AnActionEvent anActionEvent) {
+    public void actionPerformed(AnActionEvent event) {
         Job selectedJob = jenkinsBrowserLogic.getSelectedJob();
-        jenkinsBrowserLogic.getBrowserPreferences().setAsFavorite(selectedJob.getName());
+        jenkinsBrowserLogic.setAsFavorite(selectedJob.getName());
+
+        Project project = ActionUtil.getProject(event);
+        PropertiesComponent projectProperties = PropertiesComponent.getInstance(project);
+
+        String favoriteViewPropertyValue = projectProperties.getValue("favorite_view");
+        if (StringUtils.isEmpty(favoriteViewPropertyValue)) {
+            projectProperties.setValue("favorite_view", selectedJob.getName() + ";");
+        } else {
+            projectProperties.setValue("favorite_view", favoriteViewPropertyValue + selectedJob.getName() + ";");
+        }
     }
 
     @Override

@@ -275,6 +275,48 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
         return BuildStatusEnum.NULL;
     }
 
+    public void updateViewCombo(final FavoriteView favoriteView) {
+        GuiUtil.runInSwingThread(new Runnable() {
+            @Override
+            public void run() {
+                viewCombo.invalidate();
+                DefaultComboBoxModel model = (DefaultComboBoxModel) viewCombo.getModel();
+                model.addElement(favoriteView);
+                viewCombo.repaint();
+                viewCombo.revalidate();
+            }
+        });
+    }
+
+    public FavoriteView getFavoriteView() {
+        DefaultComboBoxModel model = (DefaultComboBoxModel) viewCombo.getModel();
+        for (int i = 0; i < model.getSize(); i++) {
+            View view = (View) model.getElementAt(i);
+            if (view instanceof FavoriteView) {
+                return (FavoriteView) view;
+            }
+        }
+        return null;
+    }
+
+
+    public void resetViewCombo(final List<View> views) {
+        GuiUtil.runInSwingThread(new Runnable() {
+            @Override
+            public void run() {
+                viewCombo.invalidate();
+                DefaultComboBoxModel model = (DefaultComboBoxModel) viewCombo.getModel();
+                model.removeAllElements();
+                for (View view : views) {
+                    model.addElement(view);
+                }
+                viewCombo.repaint();
+                viewCombo.revalidate();
+            }
+        });
+    }
+
+
     private class JobStatusComparator implements JobComparator {
         @Override
         public int compare(DefaultMutableTreeNode treeNode1, DefaultMutableTreeNode treeNode2) {

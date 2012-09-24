@@ -16,6 +16,8 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -79,5 +81,14 @@ public class Jenkins {
 
     public String getServerUrl() {
         return serverUrl;
+    }
+
+    public Job getJob(String jobName) {
+        for (Job job : jobs) {
+            if (StringUtils.equals(jobName, job.getName())) {
+                return job;
+            }
+        }
+        throw new IllegalArgumentException();
     }
 }

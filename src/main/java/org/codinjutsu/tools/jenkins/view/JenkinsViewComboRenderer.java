@@ -16,12 +16,16 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
+import org.codinjutsu.tools.jenkins.model.FavoriteView;
 import org.codinjutsu.tools.jenkins.model.View;
+import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
 import javax.swing.*;
 import java.awt.*;
 
 class JenkinsViewComboRenderer extends DefaultListCellRenderer {
+
+    private static final Icon FAVORITE_ICON = GuiUtil.loadIcon("star.png");
 
     @Override
     public Component getListCellRendererComponent(JList list,
@@ -29,6 +33,15 @@ class JenkinsViewComboRenderer extends DefaultListCellRenderer {
                                                   int index,
                                                   boolean isSelected,
                                                   boolean cellHasFocus) {
+
+        if (value instanceof FavoriteView) {
+            FavoriteView view = (FavoriteView) value;
+
+            JLabel comp = (JLabel) super.getListCellRendererComponent(list, view.getName(), index, isSelected, cellHasFocus);
+            comp.setIcon(FAVORITE_ICON);
+
+            return comp;
+        }
 
         if (value instanceof View) {
             View view = (View) value;
