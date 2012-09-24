@@ -17,41 +17,14 @@
 package org.codinjutsu.tools.jenkins.model;
 
 
-import org.apache.commons.lang.StringUtils;
-
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-
 public class FavoriteView extends View {
 
-    public static String FAVORITE = "FAVORITE";
 
-
-    private final List<Job> favoriteJobs = new LinkedList<Job>();
-
-    public FavoriteView() {
+    private FavoriteView() {
         super(FAVORITE, null, false);
     }
 
-    public void add(Job job) {
-        favoriteJobs.add(job);
-    }
-
-    public List<Job> getJobs() {
-        return favoriteJobs;
-    }
-
-    public void remove(Job selectedJob) {
-        for (Iterator<Job> iterator = favoriteJobs.iterator(); iterator.hasNext(); ) {
-            Job job = iterator.next();
-            if (StringUtils.equals(selectedJob.getName(), job.getName())) {
-                iterator.remove();
-            }
-        }
-    }
-
-    public boolean isEmpty() {
-        return favoriteJobs.isEmpty();
+    public static FavoriteView create() {
+        return new FavoriteView();
     }
 }

@@ -16,7 +16,6 @@
 
 package org.codinjutsu.tools.jenkins;
 
-import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.components.State;
@@ -36,12 +35,10 @@ import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.xmlb.XmlSerializerUtil;
-import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
 import org.codinjutsu.tools.jenkins.logic.JenkinsBrowserLogic;
 import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
 import org.codinjutsu.tools.jenkins.model.Build;
-import org.codinjutsu.tools.jenkins.model.FavoriteView;
 import org.codinjutsu.tools.jenkins.model.View;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.*;

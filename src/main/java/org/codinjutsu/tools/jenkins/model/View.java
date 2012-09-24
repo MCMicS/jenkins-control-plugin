@@ -24,6 +24,7 @@ import static org.apache.commons.lang.builder.HashCodeBuilder.reflectionHashCode
 
 public class View {
 
+    public static String FAVORITE = "My Favorites";
     private final String name;
 
     private final String url;
@@ -38,11 +39,9 @@ public class View {
         this.isNested = isNested;
     }
 
-
     public String getName() {
         return name;
     }
-
 
     public String getUrl() {
         return url;
@@ -64,12 +63,10 @@ public class View {
         this.subViews.add(subView);
     }
 
-
     @Override
     public boolean equals(Object obj) {
         return reflectionEquals(this, obj);
     }
-
 
     @Override
     public int hashCode() {

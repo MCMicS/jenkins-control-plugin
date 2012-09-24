@@ -16,11 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
-import com.intellij.openapi.util.InvalidDataException;
-import com.intellij.openapi.util.JDOMExternalizable;
-import com.intellij.openapi.util.WriteExternalException;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
-import org.jdom.Element;
 
 import javax.swing.*;
 import java.util.HashMap;

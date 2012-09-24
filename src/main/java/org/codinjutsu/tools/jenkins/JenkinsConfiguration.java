@@ -16,7 +16,8 @@
 
 package org.codinjutsu.tools.jenkins;
 
-import com.intellij.util.xmlb.annotations.AbstractCollection;
+import com.intellij.util.xmlb.annotations.Attribute;
+import com.intellij.util.xmlb.annotations.Tag;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.security.SecurityMode;
@@ -50,9 +51,9 @@ public class JenkinsConfiguration {
     private boolean enableJobAutoRefresh = false;
     private boolean enableRssAutoRefresh = false;
 
-    private final List<Job> favoriteJobs = new LinkedList<Job>();
+    public List<FavoriteJob> favoriteJobs = new LinkedList<FavoriteJob>();
 
-    private String lastSelectedViewName;
+    private String lastSelectedView;
 
     public String getServerUrl() {
         return serverUrl;
@@ -150,13 +151,24 @@ public class JenkinsConfiguration {
         this.crumbFile = crumbFile;
     }
 
+    public void setLastSelectedView(String viewName) {
+        this.lastSelectedView = viewName;
+    }
+
+    public String getLastSelectedView() {
+        return lastSelectedView;
+    }
+
     public void addFavorite(Job job) {
-        favoriteJobs.add(job);
+        FavoriteJob favoriteJob = new FavoriteJob();
+        favoriteJob.name = job.getName();
+        favoriteJob.url = job.getUrl();
+        favoriteJobs.add(favoriteJob);
     }
 
     public boolean isAFavoriteJob(String jobName) {
-        for (Job job : favoriteJobs) {
-            if (StringUtils.equals(jobName, job.getName())) {
+        for (FavoriteJob favoriteJob : favoriteJobs) {
+            if (StringUtils.equals(jobName, favoriteJob.name)) {
                 return true;
             }
         }
@@ -164,23 +176,29 @@ public class JenkinsConfiguration {
     }
 
     public void removeFavorite(Job selectedJob) {
-        for (Iterator<Job> iterator = favoriteJobs.iterator(); iterator.hasNext(); ) {
-            Job job = iterator.next();
-            if (StringUtils.equals(selectedJob.getName(), job.getName())) {
+        for (Iterator<FavoriteJob> iterator = favoriteJobs.iterator(); iterator.hasNext(); ) {
+            FavoriteJob favoriteJob = iterator.next();
+            if (StringUtils.equals(selectedJob.getName(), favoriteJob.name)) {
                 iterator.remove();
             }
         }
     }
 
-    public void setLastSelectedView(String viewName) {
-        this.lastSelectedViewName = viewName;
-    }
-
-    public String getLastSelectedView() {
-        return lastSelectedViewName;
-    }
-
-    public List<Job> getFavoriteJobs() {
+    public List<FavoriteJob> getFavoriteJobs() {
         return favoriteJobs;
+    }
+
+    public boolean isFavoriteViewEmpty() {
+        return favoriteJobs.isEmpty();
+    }
+
+    @Tag("favorite")
+    public static class FavoriteJob {
+
+        @Attribute("name")
+        public String name;
+
+        @Attribute("url")
+        public String url;
     }
 }

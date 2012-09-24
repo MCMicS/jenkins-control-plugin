@@ -106,6 +106,10 @@ public class JenkinsBrowserLogic implements Disposable {
 
         loadJenkinsWorkspace();
 
+        if (!configuration.getFavoriteJobs().isEmpty()) {
+            createFavoriteViewIfNecessary();
+        }
+
         String lastSelectedViewName = configuration.getLastSelectedView();
         if (StringUtils.isNotEmpty(lastSelectedViewName)) {
             jenkinsBrowserPanel.getViewByName(lastSelectedViewName);
@@ -253,6 +257,7 @@ public class JenkinsBrowserLogic implements Disposable {
         }
     }
 
+
     private void safeTaskCancel(ScheduledFuture<?> futureTask) {
         if (futureTask == null) {
             return;
@@ -336,48 +341,34 @@ public class JenkinsBrowserLogic implements Disposable {
 
     public void setAsFavorite(Job job) {
         configuration.addFavorite(job);
-        getOrCreateFavoriteView().add(job);
+        createFavoriteViewIfNecessary();
     }
 
-    private FavoriteView getOrCreateFavoriteView() {
+    private void createFavoriteViewIfNecessary() {
         FavoriteView favoriteView = getJenkinsBrowserPanel().getFavoriteView();
         if (favoriteView == null) {
-            favoriteView = new FavoriteView();
+            favoriteView = FavoriteView.create();
             getJenkinsBrowserPanel().updateViewCombo(favoriteView);
         }
-        return favoriteView;
     }
 
     public void removeFavorite(Job selectedJob) {
         configuration.removeFavorite(selectedJob);
-        FavoriteView favoriteView = getOrCreateFavoriteView();
-        favoriteView.remove(selectedJob);
-        if (favoriteView.isEmpty()) {
+
+        if (configuration.isFavoriteViewEmpty()) {
             jenkinsBrowserPanel.resetViewCombo(jenkins.getViews());
             jenkinsBrowserPanel.getViewCombo().setSelectedIndex(0);
         } else {
             View selectedJenkinsView = getSelectedJenkinsView();
-            if (selectedJenkinsView instanceof  FavoriteView) {
+            if (selectedJenkinsView instanceof FavoriteView) {
                 loadSelectedView();
             }
-        }
-    }
-
-    public void initFavorite(String favoriteJobsPropertyValue) {
-        if (StringUtils.isEmpty(favoriteJobsPropertyValue)) {
-            return;
-        }
-        String[] favoriteJobs = favoriteJobsPropertyValue.split(";");
-        FavoriteView favoriteView = getOrCreateFavoriteView();
-        for (String favoriteJob : favoriteJobs) {
-            favoriteView.add(jenkins.getJob(favoriteJob));
         }
     }
 
     public boolean isAFavoriteJob(String jobName) {
         return configuration.isAFavoriteJob(jobName);
     }
-
 
     public interface BuildStatusListener {
 
@@ -388,7 +379,6 @@ public class JenkinsBrowserLogic implements Disposable {
             }
         };
     }
-
 
     public interface JobLoadListener {
 
@@ -419,7 +409,7 @@ public class JenkinsBrowserLogic implements Disposable {
             final List<Job> jobList;
 
             if (selectedView instanceof FavoriteView) {
-                jobList = jenkinsRequestManager.loadFavoriteJobs((FavoriteView) selectedView);
+                jobList = jenkinsRequestManager.loadFavoriteJobs(configuration.getFavoriteJobs());
             } else {
                 jobList = jenkinsRequestManager.loadJenkinsView(selectedView.getUrl());
             }

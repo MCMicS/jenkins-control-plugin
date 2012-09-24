@@ -17,7 +17,6 @@
 package org.codinjutsu.tools.jenkins.logic;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.input.CharSequenceReader;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
@@ -30,7 +29,6 @@ import org.codinjutsu.tools.jenkins.util.RssUtil;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
-import org.jdom.input.JDOMParseException;
 import org.jdom.input.SAXBuilder;
 
 import java.io.IOException;
@@ -367,11 +365,10 @@ public class JenkinsRequestManager {
         return buildMap;
     }
 
-    public List<Job> loadFavoriteJobs(FavoriteView selectedView) {
-        List<Job> jobsToLoad = selectedView.getJobs();
+    public List<Job> loadFavoriteJobs(List<JenkinsConfiguration.FavoriteJob> favoriteJobs) {
         List<Job> jobs = new LinkedList<Job>();
-        for (Job job : jobsToLoad) {
-            jobs.add(loadJob(job.getUrl()));
+        for (JenkinsConfiguration.FavoriteJob favoriteJob : favoriteJobs) {
+            jobs.add(loadJob(favoriteJob.url));
         }
         return jobs;
     }
