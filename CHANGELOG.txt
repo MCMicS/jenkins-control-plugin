@@ -1,4 +1,5 @@
 Version 0.5.5
+    * [Add] Browser : Favorite Job feature (See README.md on github project)
     * [Add] Configuration Panel: when clicking on the Test Connection, if the HTTP code is 401 or 403 then the response body is displayed in a panel
     * [Fix] Regression: NPE when clicking on the Test Connection
 
