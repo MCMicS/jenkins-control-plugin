@@ -39,7 +39,7 @@ public class GotoLastBuildPageAction extends AbstractGotoWebPageAction {
     @Override
     public void update(AnActionEvent event) {
         Job job = jenkinsBrowserPanel.getSelectedJob();
-        event.getPresentation().setEnabled(job != null
+        event.getPresentation().setVisible(job != null
                 && job.getLastBuild() != null
                 && !job.isInQueue());
     }

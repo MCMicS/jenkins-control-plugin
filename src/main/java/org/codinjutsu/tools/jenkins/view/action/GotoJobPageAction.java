@@ -34,6 +34,6 @@ public class GotoJobPageAction extends AbstractGotoWebPageAction {
 
     @Override
     public void update(AnActionEvent event) {
-        event.getPresentation().setEnabled(jenkinsBrowserPanel.getSelectedJob() != null);
+        event.getPresentation().setVisible(jenkinsBrowserPanel.getSelectedJob() != null);
     }
 }
