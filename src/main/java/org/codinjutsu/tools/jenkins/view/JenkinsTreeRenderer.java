@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
+import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.model.Job;
@@ -25,9 +26,18 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import java.awt.*;
+import java.util.*;
+import java.util.List;
 
 class JenkinsTreeRenderer extends DefaultTreeCellRenderer {
 
+    private static final Icon FAVORITE_ICON = GuiUtil.loadIcon("star_tn.png");
+
+    private final List<JenkinsConfiguration.FavoriteJob> favoriteJobs;
+
+    public JenkinsTreeRenderer(List<JenkinsConfiguration.FavoriteJob> favoriteJobs) {
+        this.favoriteJobs = favoriteJobs;
+    }
 
     @Override
     public Component getTreeCellRendererComponent(JTree tree,
@@ -66,10 +76,23 @@ class JenkinsTreeRenderer extends DefaultTreeCellRenderer {
 
             setToolTipText(job.findHealthDescription());
             setFont(job);
-            setIcon(new CompositeIcon(job.getStateIcon(), job.getHealthIcon()));
+            if (isFavoriteJob(job)) {
+                setIcon(new CompositeIcon(job.getStateIcon(), job.getHealthIcon(), FAVORITE_ICON));
+            } else {
+                setIcon(new CompositeIcon(job.getStateIcon(), job.getHealthIcon()));
+            }
             return this;
         }
         return super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+    }
+
+    private boolean isFavoriteJob(Job job) {
+        for (JenkinsConfiguration.FavoriteJob favoriteJob : favoriteJobs) {
+            if (favoriteJob.name.equals(job.getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void setFont(Job job) {

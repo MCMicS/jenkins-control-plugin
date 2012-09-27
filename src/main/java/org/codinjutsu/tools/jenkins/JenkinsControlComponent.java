@@ -160,7 +160,7 @@ public class JenkinsControlComponent
 
         jenkinsRequestManager = new JenkinsRequestManager(configuration.getCrumbFile());
 
-        JenkinsBrowserPanel browserPanel = new JenkinsBrowserPanel();
+        JenkinsBrowserPanel browserPanel = new JenkinsBrowserPanel(configuration.getFavoriteJobs());
         RssLatestBuildPanel rssLatestJobPanel = new RssLatestBuildPanel();
 
         jenkinsWidget = new JenkinsWidget();

@@ -185,12 +185,12 @@ public class JenkinsBrowserLogic implements Disposable {
             actionGroup.add(new RefreshNodeAction(this));
             actionGroup.addSeparator();
             actionGroup.add(new RunBuildAction(this));
-            actionGroup.add(new SetJobAsFavoriteAction(this));
-            actionGroup.add(new UnsetJobAsFavoriteAction(this));
             actionGroup.addSeparator();
             actionGroup.add(new GotoJobPageAction(jenkinsBrowserPanel));
             actionGroup.add(new GotoLastBuildPageAction(jenkinsBrowserPanel));
             actionGroup.addSeparator();
+            actionGroup.add(new SetJobAsFavoriteAction(this));
+            actionGroup.add(new UnsetJobAsFavoriteAction(this));
             actionGroup.add(new SortByStatusAction(this));
             actionGroup.addSeparator();
             actionGroup.add(new OpenPluginSettingsAction());
@@ -342,6 +342,7 @@ public class JenkinsBrowserLogic implements Disposable {
     public void setAsFavorite(Job job) {
         configuration.addFavorite(job);
         createFavoriteViewIfNecessary();
+        jenkinsBrowserPanel.getJobTree().repaint();
     }
 
     private void createFavoriteViewIfNecessary() {
@@ -354,10 +355,10 @@ public class JenkinsBrowserLogic implements Disposable {
 
     public void removeFavorite(Job selectedJob) {
         configuration.removeFavorite(selectedJob);
-
-        if (configuration.isFavoriteViewEmpty()) {
+        jenkinsBrowserPanel.getJobTree().repaint();
+        if (configuration.isFavoriteViewEmpty() && getSelectedJenkinsView() instanceof FavoriteView) {
             jenkinsBrowserPanel.resetViewCombo(jenkins.getViews());
-            jenkinsBrowserPanel.getViewCombo().setSelectedIndex(0);
+            jenkinsBrowserPanel.getViewCombo().getModel().setSelectedItem(jenkins.getPrimaryView());
         } else {
             View selectedJenkinsView = getSelectedJenkinsView();
             if (selectedJenkinsView instanceof FavoriteView) {
