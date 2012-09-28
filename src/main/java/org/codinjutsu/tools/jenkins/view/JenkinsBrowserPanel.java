@@ -42,6 +42,7 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
     private JPanel jobPanel;
     private JScrollPane scrollPane;
     private JobSearchComponent searchComponent;
+
     private final LoadingDecorator loadingDecorator;
     private boolean sortedByBuildStatus;
     private final JobComparator jobStatusComparator = new JobStatusComparator();
@@ -49,6 +50,7 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
     public JenkinsBrowserPanel() {
         this(Collections.<JenkinsConfiguration.FavoriteJob>emptyList());
     }
+
 
     public JenkinsBrowserPanel(List<JenkinsConfiguration.FavoriteJob> favoriteJobs) {
         jobTree.setCellRenderer(new JenkinsTreeRenderer(favoriteJobs));
@@ -159,7 +161,89 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
     }
 
 
-    private void visit(Job job, BuildStatusVisitor buildStatusVisitor) {
+    public void setSortedByStatus(boolean selected) {
+        sortedByBuildStatus = selected;
+        ((DefaultTreeModel) jobTree.getModel()).reload();
+        jobTree.repaint();
+
+    }
+
+
+    public void updateViewCombo(final FavoriteView favoriteView) {
+        GuiUtil.runInSwingThread(new Runnable() {
+            @Override
+            public void run() {
+                viewCombo.invalidate();
+                DefaultComboBoxModel model = (DefaultComboBoxModel) viewCombo.getModel();
+                model.addElement(favoriteView);
+                viewCombo.repaint();
+                viewCombo.revalidate();
+            }
+        });
+    }
+
+
+    public void resetViewCombo(final List<View> views) {
+        GuiUtil.runInSwingThread(new Runnable() {
+            @Override
+            public void run() {
+                viewCombo.invalidate();
+                DefaultComboBoxModel model = (DefaultComboBoxModel) viewCombo.getModel();
+                model.removeAllElements();
+                for (View view : views) {
+                    model.addElement(view);
+                }
+                viewCombo.repaint();
+                viewCombo.revalidate();
+            }
+        });
+    }
+
+
+    public FavoriteView getFavoriteView() {
+        DefaultComboBoxModel model = (DefaultComboBoxModel) viewCombo.getModel();
+        for (int i = 0; i < model.getSize(); i++) {
+            View view = (View) model.getElementAt(i);
+            if (view instanceof FavoriteView) {
+                return (FavoriteView) view;
+            }
+        }
+        return null;
+    }
+
+
+    public JTree getJobTree() {
+        return jobTree;
+    }
+
+
+    public JComboBox getViewCombo() {
+        return viewCombo;
+    }
+
+
+    public JPanel getActionPanel() {
+        return actionPanel;
+    }
+
+
+    public JobSearchComponent getSearchComponent() {
+        return searchComponent;
+    }
+
+
+    public boolean isSortedByStatus() {
+        return sortedByBuildStatus;
+    }
+
+
+    @Override
+    public void dispose() {
+
+    }
+
+
+    private static void visit(Job job, BuildStatusVisitor buildStatusVisitor) {
         Build lastBuild = job.getLastBuild();
         if (job.isBuildable() && lastBuild != null) {
             BuildStatusEnum status = lastBuild.getStatus();
@@ -204,7 +288,7 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
     }
 
 
-    private List<View> flatViewList(List<View> views) {
+    private static List<View> flatViewList(List<View> views) {
         List<View> flattenViewList = new LinkedList<View>();
         for (View view : views) {
             flattenViewList.add(view);
@@ -227,39 +311,19 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
     }
 
 
-    public JTree getJobTree() {
-        return jobTree;
-    }
+    private class JobStatusComparator implements JobComparator {
+        @Override
+        public int compare(DefaultMutableTreeNode treeNode1, DefaultMutableTreeNode treeNode2) {
+            Job job1 = ((Job) treeNode1.getUserObject());
+            Job job2 = ((Job) treeNode2.getUserObject());
+
+            return new Integer(getStatus(job1.getColor()).ordinal()).compareTo(getStatus(job2.getColor()).ordinal());
+        }
 
 
-    public JComboBox getViewCombo() {
-        return viewCombo;
-    }
-
-
-    public JPanel getActionPanel() {
-        return actionPanel;
-    }
-
-
-    public JobSearchComponent getSearchComponent() {
-        return searchComponent;
-    }
-
-
-    @Override
-    public void dispose() {
-
-    }
-
-    public void setSortedByStatus(boolean selected) {
-        sortedByBuildStatus = selected;
-        ((DefaultTreeModel) jobTree.getModel()).reload();
-        jobTree.repaint();
-    }
-
-    public boolean isSortedByStatus() {
-        return sortedByBuildStatus;
+        public boolean isApplicable() {
+            return sortedByBuildStatus;
+        }
     }
 
 
@@ -275,61 +339,5 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
         return BuildStatusEnum.NULL;
     }
 
-    public void updateViewCombo(final FavoriteView favoriteView) {
-        GuiUtil.runInSwingThread(new Runnable() {
-            @Override
-            public void run() {
-                viewCombo.invalidate();
-                DefaultComboBoxModel model = (DefaultComboBoxModel) viewCombo.getModel();
-                model.addElement(favoriteView);
-                viewCombo.repaint();
-                viewCombo.revalidate();
-            }
-        });
-    }
-
-    public FavoriteView getFavoriteView() {
-        DefaultComboBoxModel model = (DefaultComboBoxModel) viewCombo.getModel();
-        for (int i = 0; i < model.getSize(); i++) {
-            View view = (View) model.getElementAt(i);
-            if (view instanceof FavoriteView) {
-                return (FavoriteView) view;
-            }
-        }
-        return null;
-    }
-
-
-    public void resetViewCombo(final List<View> views) {
-        GuiUtil.runInSwingThread(new Runnable() {
-            @Override
-            public void run() {
-                viewCombo.invalidate();
-                DefaultComboBoxModel model = (DefaultComboBoxModel) viewCombo.getModel();
-                model.removeAllElements();
-                for (View view : views) {
-                    model.addElement(view);
-                }
-                viewCombo.repaint();
-                viewCombo.revalidate();
-            }
-        });
-    }
-
-
-    private class JobStatusComparator implements JobComparator {
-        @Override
-        public int compare(DefaultMutableTreeNode treeNode1, DefaultMutableTreeNode treeNode2) {
-            Job job1 = ((Job) treeNode1.getUserObject());
-            Job job2 = ((Job) treeNode2.getUserObject());
-
-            return new Integer(getStatus(job1.getColor()).ordinal()).compareTo(getStatus(job2.getColor()).ordinal());
-        }
-
-
-        public boolean isApplicable() {
-            return sortedByBuildStatus;
-        }
-    }
 
 }

@@ -57,16 +57,17 @@ public class JenkinsBrowserLogic implements Disposable {
 
     private final BuildStatusListener buildStatusListener;
 
-    private Jenkins jenkins;
     private final Map<String, Build> currentBuildMap = new HashMap<String, Build>();
-
     private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(2);
 
     private final Runnable refreshViewJob = new LoadSelectedViewJob();
-    private final Runnable refreshRssBuildsJob = new LoadLatestBuildsJob(true);
 
+    private final Runnable refreshRssBuildsJob = new LoadLatestBuildsJob(true);
     private final JenkinsBrowserPanel jenkinsBrowserPanel;
+
     private final RssLatestBuildPanel rssLatestJobPanel;
+
+    private Jenkins jenkins;
 
     private JobLoadListener jobLoadListener = JobLoadListener.NULL;
     private ScheduledFuture<?> refreshViewFutureTask;
@@ -346,10 +347,10 @@ public class JenkinsBrowserLogic implements Disposable {
     }
 
     private void createFavoriteViewIfNecessary() {
-        FavoriteView favoriteView = getJenkinsBrowserPanel().getFavoriteView();
+        FavoriteView favoriteView = jenkinsBrowserPanel.getFavoriteView();
         if (favoriteView == null) {
             favoriteView = FavoriteView.create();
-            getJenkinsBrowserPanel().updateViewCombo(favoriteView);
+            jenkinsBrowserPanel.updateViewCombo(favoriteView);
         }
     }
 
