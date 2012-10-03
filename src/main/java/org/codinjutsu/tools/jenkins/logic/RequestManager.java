@@ -26,6 +26,43 @@ import java.util.List;
 import java.util.Map;
 
 public interface RequestManager {
+    
+    String JOB = "job";
+    String JOB_NAME = "name";
+    String JOB_HEALTH = "healthReport";
+    String JOB_HEALTH_ICON = "iconUrl";
+    String JOB_HEALTH_DESCRIPTION = "description";
+    String JOB_URL = "url";
+    String JOB_COLOR = "color";
+    String JOB_LAST_BUILD = "lastBuild";
+    String JOB_IS_BUILDABLE = "buildable";
+    String JOB_IS_IN_QUEUE = "inQueue";
+    String VIEW = "view";
+    String PRIMARY_VIEW = "primaryView";
+    String VIEW_NAME = "name";
+    String VIEW_URL = "url";
+    String BUILD_IS_BUILDING = "building";
+    String BUILD_ID = "id";
+    String BUILD_RESULT = "result";
+    String BUILD_URL = "url";
+    String BUILD_NUMBER = "number";
+    String PARAMETER_PROPERTY = "property";
+    String PARAMETER_DEFINITION = "parameterDefinition";
+    String PARAMETER_NAME = "name";
+    String PARAMETER_TYPE = "type";
+    String PARAMETER_DEFAULT_PARAM = "defaultParameterValue";
+    String PARAMETER_DEFAULT_PARAM_VALUE = "value";
+    String PARAMETER_CHOICE = "choice";
+    String RSS_ENTRY = "entry";
+    String RSS_TITLE = "title";
+    String RSS_LINK = "link";
+    String RSS_LINK_HREF = "href";
+    String RSS_PUBLISHED = "published";
+    String JENKINS_ROOT_TAG = "jenkins";
+    String HUDSON_ROOT_TAG = "hudson";
+    String FOLDER_ROOT_TAG = "folder";
+    String JENKINS_DESCRIPTION = "description";
+
     Jenkins loadJenkinsWorkspace(JenkinsConfiguration configuration);
 
     Map<String, Build> loadJenkinsRssLatestBuilds(JenkinsConfiguration configuration);

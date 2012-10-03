@@ -39,48 +39,6 @@ import java.util.*;
 
 public class UberXmlRequestManager implements RequestManager {
 
-    private static final String JENKINS_DESCRIPTION = "description";
-
-    static final String JOB = "job";
-    private static final String JOB_NAME = "name";
-    private static final String JOB_HEALTH = "healthReport";
-    private static final String JOB_HEALTH_ICON = "iconUrl";
-    private static final String JOB_HEALTH_DESCRIPTION = "description";
-    private static final String JOB_URL = "url";
-    private static final String JOB_COLOR = "color";
-    private static final String JOB_LAST_BUILD = "lastBuild";
-    private static final String JOB_IS_BUILDABLE = "buildable";
-    private static final String JOB_IS_IN_QUEUE = "inQueue";
-
-    static final String VIEW = "view";
-    private static final String PRIMARY_VIEW = "primaryView";
-    private static final String VIEW_NAME = "name";
-
-    private static final String VIEW_URL = "url";
-    private static final String BUILD_IS_BUILDING = "building";
-    private static final String BUILD_ID = "id";
-    private static final String BUILD_RESULT = "result";
-    private static final String BUILD_URL = "url";
-    private static final String BUILD_NUMBER = "number";
-
-    private static final String PARAMETER_PROPERTY = "property";
-    private static final String PARAMETER_DEFINITION = "parameterDefinition";
-    private static final String PARAMETER_NAME = "name";
-    private static final String PARAMETER_TYPE = "type";
-    private static final String PARAMETER_DEFAULT_PARAM = "defaultParameterValue";
-    private static final String PARAMETER_DEFAULT_PARAM_VALUE = "value";
-    private static final String PARAMETER_CHOICE = "choice";
-
-    private static final String RSS_ENTRY = "entry";
-    private static final String RSS_TITLE = "title";
-    private static final String RSS_LINK = "link";
-    private static final String RSS_LINK_HREF = "href";
-
-    private static final String RSS_PUBLISHED = "published";
-    private static final String JENKINS_ROOT_TAG = "jenkins";
-    private static final String HUDSON_ROOT_TAG = "hudson";
-    private static final String FOLDER_ROOT_TAG = "folder";
-
     private static final Logger LOG = Logger.getLogger(UberXmlRequestManager.class);
 
     private final UrlBuilder urlBuilder;
