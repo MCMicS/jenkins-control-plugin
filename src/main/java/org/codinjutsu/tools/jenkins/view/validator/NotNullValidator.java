@@ -26,7 +26,7 @@ public class NotNullValidator implements UIValidator<JTextField> {
         if (component.isEnabled()) {    //TODO a revoir
             String value = component.getText();
             if (StringUtils.isEmpty(value)) {
-                throw new ConfigurationException("'" + component.getName() + "' must be set");
+                throw new ConfigurationException(String.format("'%s' must be set", component.getName()));
             }
         }
     }

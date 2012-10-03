@@ -132,7 +132,7 @@ public class JenkinsConfigurationPanel {
                             if (passwordFile.isEnabled()) {    //TODO a revoir
                                 TextFieldWithBrowseButton passwordComponent = passwordFile.getComponent();
                                 if (StringUtils.isEmpty(passwordComponent.getText())) {
-                                    throw new ConfigurationException("'" + passwordComponent.getTextField().getName() + "' must be set");
+                                    throw new ConfigurationException(String.format("'%s' must be set", passwordComponent.getTextField().getName()));
                                 }
                             }
                         }

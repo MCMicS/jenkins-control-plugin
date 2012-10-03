@@ -38,7 +38,7 @@ public class UrlValidator implements UIValidator<JTextField> {
 
             throw new ConfigurationException("Credentials should not be embedded in the url. Use the above form instead.");
         } catch (MalformedURLException ex) {
-            throw new ConfigurationException("URL '" + value + "' is malformed");
+            throw new ConfigurationException(String.format("URL '%s' is malformed", value));
         }
     }
 }

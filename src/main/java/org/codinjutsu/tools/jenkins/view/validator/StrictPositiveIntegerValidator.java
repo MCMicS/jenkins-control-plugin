@@ -31,7 +31,7 @@ public class StrictPositiveIntegerValidator implements UIValidator<JTextField> {
                     throw new NumberFormatException();
                 }
             } catch (NumberFormatException ex) {
-                throw new ConfigurationException("'" + value + "' is not a positive integer");
+                throw new ConfigurationException(String.format("'%s' is not a positive integer", value));
             }
         }
     }

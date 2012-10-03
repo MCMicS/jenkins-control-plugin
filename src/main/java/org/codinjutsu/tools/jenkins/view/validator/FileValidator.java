@@ -31,7 +31,7 @@ public class FileValidator implements UIValidator<LabeledComponent<TextFieldWith
         }
         File file = new File(filepath);
         if (!file.exists() || !file.isFile()) {
-            throw new ConfigurationException("'" + filepath + "' is not a file");
+            throw new ConfigurationException(String.format("'%s' is not a file", filepath));
         }
 
     }
