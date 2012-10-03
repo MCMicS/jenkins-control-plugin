@@ -1,0 +1,22 @@
+{
+    "nodeDescription":"The master Jenkins node",
+    "nodeName":"",
+    "primaryView":{
+        "name":"Tous",
+        "url":"http://myjenkins"
+    },
+    "views":[
+        {
+            "name":"Framework",
+            "url":"http://myjenkins/view/Framework/"
+        },
+        {
+            "name":"Tools",
+            "url":"http://myjenkins/view/Tools/"
+        },
+        {
+            "name":"Tous",
+            "url":"http://myjenkins/"
+        }
+    ]
+}
