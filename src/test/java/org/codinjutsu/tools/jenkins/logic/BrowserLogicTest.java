@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when;
 public class BrowserLogicTest extends UISpecTestCase {
 
     @Mock
-    private JenkinsRequestManager requestManagerMock;
+    private RequestManager requestManagerMock;
 
     private JenkinsConfiguration configuration;
     private BrowserLogic browserLogic;

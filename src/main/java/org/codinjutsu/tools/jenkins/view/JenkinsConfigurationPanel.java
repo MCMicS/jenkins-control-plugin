@@ -22,7 +22,7 @@ import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
-import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
+import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.security.AuthenticationException;
 import org.codinjutsu.tools.jenkins.security.SecurityMode;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
@@ -90,14 +90,14 @@ public class JenkinsConfigurationPanel {
 
     private SecurityMode securityMode = SecurityMode.NONE;
 
-    private final JenkinsRequestManager jenkinsRequestManager;
+    private final RequestManager requestManager;
 
-    public JenkinsConfigurationPanel(JenkinsRequestManager jenkinsRequestManager) {
-        this(jenkinsRequestManager, true);
+    public JenkinsConfigurationPanel(RequestManager requestManager) {
+        this(requestManager, true);
     }
 
-    public JenkinsConfigurationPanel(final JenkinsRequestManager jenkinsRequestManager, boolean installBrowserFileBrowser) {
-        this.jenkinsRequestManager = jenkinsRequestManager;
+    public JenkinsConfigurationPanel(final RequestManager requestManager, boolean installBrowserFileBrowser) {
+        this.requestManager = requestManager;
 
         serverUrl.setName("serverUrl");
         buildDelay.setName("buildDelay");
@@ -236,7 +236,7 @@ public class JenkinsConfigurationPanel {
 
                     new NotNullValidator().validate(serverUrl);
                     new UrlValidator().validate(serverUrl);
-                    jenkinsRequestManager.authenticate(
+                    requestManager.authenticate(
                             serverUrl.getText(), securityMode, username.getText(), passwordFile.getComponent().getText(), crumbDataFile.getComponent().getText());
                     setConnectionFeedbackLabel(CONNECTION_TEST_SUCCESSFUL_COLOR, "Successful");
                 } catch (Exception ex) {

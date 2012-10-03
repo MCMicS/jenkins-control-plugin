@@ -18,7 +18,7 @@ package org.codinjutsu.tools.jenkins.view;
 
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
-import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
+import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
@@ -43,7 +43,7 @@ public class BuildParamDialog extends JDialog {
 
     private final Job job;
     private final JenkinsConfiguration configuration;
-    private final JenkinsRequestManager jenkinsManager;
+    private final RequestManager requestManager;
     private final RunBuildCallback runBuildCallback;
     private final Map<JobParameter, JComponent> inputFieldByParameterMap = new HashMap<JobParameter, JComponent>();
 
@@ -54,10 +54,10 @@ public class BuildParamDialog extends JDialog {
 //        ListSubversionTagsParameterDefinition
 
 
-    BuildParamDialog(Job job, JenkinsConfiguration configuration, JenkinsRequestManager jenkinsManager, RunBuildCallback runBuildCallback) {
+    BuildParamDialog(Job job, JenkinsConfiguration configuration, RequestManager requestManager, RunBuildCallback runBuildCallback) {
         this.job = job;
         this.configuration = configuration;
-        this.jenkinsManager = jenkinsManager;
+        this.requestManager = requestManager;
         this.runBuildCallback = runBuildCallback;
 
         contentPanel.setName("contentPanel");
@@ -71,10 +71,10 @@ public class BuildParamDialog extends JDialog {
         registerListeners();
     }
 
-    public static void showDialog(final Job job, final JenkinsConfiguration configuration, final JenkinsRequestManager jenkinsManager, final RunBuildCallback runBuildCallback) {
+    public static void showDialog(final Job job, final JenkinsConfiguration configuration, final RequestManager requestManager, final RunBuildCallback runBuildCallback) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                BuildParamDialog dialog = new BuildParamDialog(job, configuration, jenkinsManager, runBuildCallback);
+                BuildParamDialog dialog = new BuildParamDialog(job, configuration, requestManager, runBuildCallback);
                 dialog.setLocationRelativeTo(null);
                 dialog.setMaximumSize(new Dimension(300, 200));
                 dialog.pack();
@@ -182,7 +182,7 @@ public class BuildParamDialog extends JDialog {
 
     private void onOK() {
         try {
-            jenkinsManager.runParameterizedBuild(job, configuration, getParamValueMap());
+            requestManager.runParameterizedBuild(job, configuration, getParamValueMap());
             dispose();
             runBuildCallback.notifyOnOk(job);
         } catch (Exception ex) {

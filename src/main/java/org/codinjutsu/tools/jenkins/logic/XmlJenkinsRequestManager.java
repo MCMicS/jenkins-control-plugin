@@ -37,7 +37,7 @@ import java.io.StringReader;
 import java.net.URL;
 import java.util.*;
 
-public class XmlJenkinsRequestManager implements JenkinsRequestManager {
+public class XmlJenkinsRequestManager implements RequestManager {
 
     private static final String JENKINS_DESCRIPTION = "description";
 

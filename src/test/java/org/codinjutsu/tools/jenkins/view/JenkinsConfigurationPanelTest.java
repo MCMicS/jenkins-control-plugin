@@ -18,7 +18,7 @@ package org.codinjutsu.tools.jenkins.view;
 
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
-import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
+import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.security.AuthenticationException;
 import org.codinjutsu.tools.jenkins.security.SecurityMode;
 import org.junit.Rule;
@@ -43,7 +43,7 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
     private TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Mock
-    private JenkinsRequestManager jenkinsRequestManager;
+    private RequestManager requestManager;
 
     public void testDisplayWithDefaultValues() throws Exception {
 
@@ -209,7 +209,7 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
     }
 
     public void testConnectionWithAuthenticationExceptionThrownShouldFail() throws Exception {
-        doThrow(new AuthenticationException("ouch")).when(jenkinsRequestManager).authenticate(anyString(), any(SecurityMode.class), anyString(), anyString(), anyString());
+        doThrow(new AuthenticationException("ouch")).when(requestManager).authenticate(anyString(), any(SecurityMode.class), anyString(), anyString(), anyString());
 
 
         TextBox serverUrlBox = uiSpecPanel.getTextBox("serverUrl");
@@ -306,7 +306,7 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         MockitoAnnotations.initMocks(this);
-        jenkinsConfigurationPanel = new JenkinsConfigurationPanel(jenkinsRequestManager, false);
+        jenkinsConfigurationPanel = new JenkinsConfigurationPanel(requestManager, false);
 
         configuration = new JenkinsConfiguration();
         jenkinsConfigurationPanel.loadConfigurationData(configuration);

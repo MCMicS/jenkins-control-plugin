@@ -55,7 +55,7 @@ public class BrowserLogic implements Disposable {
     private static final String JENKINS_ACTIONS = "jenkinsBrowserActions";
 
     private final JenkinsConfiguration configuration;
-    private final JenkinsRequestManager jenkinsRequestManager;
+    private final RequestManager requestManager;
 
     private final BuildStatusListener buildStatusListener;
 
@@ -76,9 +76,9 @@ public class BrowserLogic implements Disposable {
     private ScheduledFuture<?> refreshRssBuildFutureTask;
 
 
-    public BrowserLogic(JenkinsConfiguration configuration, JenkinsRequestManager jenkinsRequestManager, JenkinsBrowserPanel jenkinsBrowserPanel, RssLatestBuildPanel rssLatestJobPanel, BuildStatusListener buildStatusListener, JobLoadListener jobLoadListener) {
+    public BrowserLogic(JenkinsConfiguration configuration, RequestManager requestManager, JenkinsBrowserPanel jenkinsBrowserPanel, RssLatestBuildPanel rssLatestJobPanel, BuildStatusListener buildStatusListener, JobLoadListener jobLoadListener) {
         this.configuration = configuration;
-        this.jenkinsRequestManager = jenkinsRequestManager;
+        this.requestManager = requestManager;
         this.jenkinsBrowserPanel = jenkinsBrowserPanel;
         this.rssLatestJobPanel = rssLatestJobPanel;
         this.buildStatusListener = buildStatusListener;
@@ -109,7 +109,7 @@ public class BrowserLogic implements Disposable {
         }
 
         try {
-            jenkinsRequestManager.authenticate(configuration.getServerUrl(), configuration.getSecurityMode(), configuration.getUsername(), configuration.getPasswordFile(), configuration.getCrumbFile());
+            requestManager.authenticate(configuration.getServerUrl(), configuration.getSecurityMode(), configuration.getUsername(), configuration.getPasswordFile(), configuration.getCrumbFile());
         } catch (Exception ex) {
             displayConnectionErrorMsg();
             return;
@@ -138,7 +138,7 @@ public class BrowserLogic implements Disposable {
 
     public void loadSelectedJob() {
         Job job = getSelectedJob();
-        Job updatedJob = jenkinsRequestManager.loadJob(job.getUrl());
+        Job updatedJob = requestManager.loadJob(job.getUrl());
         job.updateContentWith(updatedJob);
     }
 
@@ -157,7 +157,7 @@ public class BrowserLogic implements Disposable {
 
 
     private void loadJenkinsWorkspace() {
-        jenkins = jenkinsRequestManager.loadJenkinsWorkspace(configuration);
+        jenkins = requestManager.loadJenkinsWorkspace(configuration);
         jenkinsBrowserPanel.fillData(jenkins);
     }
 
@@ -236,7 +236,7 @@ public class BrowserLogic implements Disposable {
 
 
     private Map<String, Build> loadAndReturnNewLatestBuilds() {
-        Map<String, Build> latestBuildMap = jenkinsRequestManager.loadJenkinsRssLatestBuilds(configuration);
+        Map<String, Build> latestBuildMap = requestManager.loadJenkinsRssLatestBuilds(configuration);
         Map<String, Build> newBuildMap = new HashMap<String, Build>();
         for (Entry<String, Build> entry : latestBuildMap.entrySet()) {
             String jobName = entry.getKey();
@@ -294,8 +294,8 @@ public class BrowserLogic implements Disposable {
     }
 
 
-    public JenkinsRequestManager getJenkinsManager() {
-        return jenkinsRequestManager;
+    public RequestManager getJenkinsManager() {
+        return requestManager;
     }
 
 
@@ -421,9 +421,9 @@ public class BrowserLogic implements Disposable {
             final List<Job> jobList;
 
             if (selectedView instanceof FavoriteView) {
-                jobList = jenkinsRequestManager.loadFavoriteJobs(configuration.getFavoriteJobs());
+                jobList = requestManager.loadFavoriteJobs(configuration.getFavoriteJobs());
             } else {
-                jobList = jenkinsRequestManager.loadJenkinsView(selectedView.getUrl());
+                jobList = requestManager.loadJenkinsView(selectedView.getUrl());
             }
             configuration.setLastSelectedView(selectedView.getName());
 

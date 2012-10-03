@@ -25,7 +25,7 @@ import org.codinjutsu.tools.jenkins.security.SecurityMode;
 import java.util.List;
 import java.util.Map;
 
-public interface JenkinsRequestManager {
+public interface RequestManager {
     Jenkins loadJenkinsWorkspace(JenkinsConfiguration configuration);
 
     Map<String, Build> loadJenkinsRssLatestBuilds(JenkinsConfiguration configuration);

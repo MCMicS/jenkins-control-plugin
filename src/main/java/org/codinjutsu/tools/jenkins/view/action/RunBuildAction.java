@@ -23,7 +23,7 @@ import com.intellij.openapi.project.Project;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsControlComponent;
 import org.codinjutsu.tools.jenkins.logic.BrowserLogic;
-import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
+import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.util.HtmlUtil;
@@ -54,9 +54,9 @@ public class RunBuildAction extends AnAction implements DumbAware {
 
             Job job = browserLogic.getSelectedJob();
 
-            JenkinsRequestManager jenkinsManager = browserLogic.getJenkinsManager();
+            RequestManager requestManager = browserLogic.getJenkinsManager();
             if (job.hasParameters()) {
-                BuildParamDialog.showDialog(job, jenkinsControlComponent.getState(), jenkinsManager, new BuildParamDialog.RunBuildCallback() {
+                BuildParamDialog.showDialog(job, jenkinsControlComponent.getState(), requestManager, new BuildParamDialog.RunBuildCallback() {
 
                     public void notifyOnOk(Job job) {
                         notifyOnGoingMessage(jenkinsControlComponent, job);
@@ -67,7 +67,7 @@ public class RunBuildAction extends AnAction implements DumbAware {
                     }
                 });
             } else {
-                jenkinsManager.runBuild(job, jenkinsControlComponent.getState());
+                requestManager.runBuild(job, jenkinsControlComponent.getState());
                 notifyOnGoingMessage(jenkinsControlComponent, job);
             }
 

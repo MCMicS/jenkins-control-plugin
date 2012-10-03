@@ -18,7 +18,7 @@ package org.codinjutsu.tools.jenkins.view;
 
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
-import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
+import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.logic.JobBuilder;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
@@ -39,7 +39,7 @@ import static org.mockito.Mockito.verify;
 public class BuildParamDialogTest extends UISpecTestCase {
 
     @Mock
-    private JenkinsRequestManager requestManager;
+    private RequestManager requestManager;
 
     @Mock
     private BuildParamDialog.RunBuildCallback callbackRun;

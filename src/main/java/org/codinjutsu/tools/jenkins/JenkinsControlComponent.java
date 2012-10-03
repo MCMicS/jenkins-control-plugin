@@ -37,7 +37,7 @@ import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
 import org.codinjutsu.tools.jenkins.logic.BrowserLogic;
-import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
+import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.logic.XmlJenkinsRequestManager;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.View;
@@ -73,7 +73,7 @@ public class JenkinsControlComponent
 
     private final Project project;
     private BrowserLogic browserLogic;
-    private JenkinsRequestManager jenkinsRequestManager;
+    private RequestManager requestManager;
     private JenkinsWidget jenkinsWidget;
 
 
@@ -96,7 +96,7 @@ public class JenkinsControlComponent
 
     public JComponent createComponent() {
         if (configurationPanel == null) {
-            configurationPanel = new JenkinsConfigurationPanel(jenkinsRequestManager);
+            configurationPanel = new JenkinsConfigurationPanel(requestManager);
         }
         return configurationPanel.getRootPanel();
     }
@@ -159,7 +159,7 @@ public class JenkinsControlComponent
         ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
         ToolWindow toolWindow = toolWindowManager.registerToolWindow(JENKINS_BROWSER, false, ToolWindowAnchor.RIGHT);
 
-        jenkinsRequestManager = new XmlJenkinsRequestManager(configuration.getCrumbFile());
+        requestManager = new XmlJenkinsRequestManager(configuration.getCrumbFile());
 
         JenkinsBrowserPanel browserPanel = new JenkinsBrowserPanel(configuration.getFavoriteJobs());
         RssLatestBuildPanel rssLatestJobPanel = new RssLatestBuildPanel();
@@ -181,7 +181,7 @@ public class JenkinsControlComponent
             }
         };
 
-        browserLogic = new BrowserLogic(configuration, jenkinsRequestManager, browserPanel, rssLatestJobPanel, buildStatusListener, jobLoadListener);
+        browserLogic = new BrowserLogic(configuration, requestManager, browserPanel, rssLatestJobPanel, buildStatusListener, jobLoadListener);
 
         browserLogic.getJenkinsBrowserPanel().getViewCombo().addItemListener(new ItemListener() {
             @Override
