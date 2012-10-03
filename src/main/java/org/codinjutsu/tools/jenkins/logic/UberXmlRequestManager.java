@@ -61,7 +61,7 @@ public class UberXmlRequestManager implements RequestManager {
 
 
     public UberXmlRequestManager(SecurityClient securityClient) {
-        this.urlBuilder = new UrlBuilder();
+        this.urlBuilder = UrlBuilder.xml();
         this.securityClient = securityClient;
     }
 

@@ -65,19 +65,30 @@ public class UrlBuilderTest {
 
 
     @Test
-    public void createViewUrlForClassicPlateform() throws Exception {
+    public void createViewXMLUrlForClassicPlateform() throws Exception {
         URL url = urlBuilder.createViewUrl(JenkinsPlateform.CLASSIC, "http://localhost:8080/jenkins/My%20View");
         assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/My%20View/api/xml?tree=name,url,jobs%5Bname,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Bid,url,building,result,number%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,choices%5D%5D%5D"));
     }
 
 
     @Test
-    public void createJobUrlForClassicPlateform() throws Exception {
+    public void createViewJSONLUrlForClassicPlateform() throws Exception {
+        URL url = UrlBuilder.json().createViewUrl(JenkinsPlateform.CLASSIC, "http://localhost:8080/jenkins/My%20View");
+        assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/My%20View/api/json?tree=name,url,jobs%5Bname,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Bid,url,building,result,number%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,choices%5D%5D%5D"));
+    }
+
+
+    @Test
+    public void createJobXMLUrl() throws Exception {
         URL url = urlBuilder.createJobUrl("http://localhost:8080/jenkins/my%20Job");
         assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/my%20Job/api/xml?tree=name,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Bid,url,building,result,number%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,choices%5D%5D"));
     }
 
-
+    @Test
+    public void createJobJSONUrl() throws Exception {
+        URL url = UrlBuilder.json().createJobUrl("http://localhost:8080/jenkins/my%20Job");
+        assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/my%20Job/api/json?tree=name,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Bid,url,building,result,number%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,choices%5D%5D"));
+    }
 
     @Test
     public void createViewUrlForCloudbeesPlateform() throws Exception {
@@ -97,10 +108,16 @@ public class UrlBuilderTest {
         assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/api/xml?tree=nodeName"));
     }
 
+    @Test
+    public void createAuthenticationJSONUrl() throws Exception {
+        URL url = UrlBuilder.json().createAuthenticationUrl("http://localhost:8080/jenkins");
+        assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/api/json?tree=nodeName"));
+    }
+
     @Before
     public void setUp() {
         configuration = new JenkinsConfiguration();
-        urlBuilder = new UrlBuilder();
+        urlBuilder = UrlBuilder.xml();
     }
 
 

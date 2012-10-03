@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface RequestManager {
-    
+
     String JOB = "job";
     String JOB_NAME = "name";
     String JOB_HEALTH = "healthReport";

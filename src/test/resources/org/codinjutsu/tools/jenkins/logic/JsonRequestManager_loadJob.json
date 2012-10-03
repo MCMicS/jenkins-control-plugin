@@ -1,0 +1,21 @@
+{
+    "name":"config-provider-model",
+    "url":"http://ci.jenkins-ci.org/job/config-provider-model/",
+    "color":"blue",
+    "healthReport":[
+        {
+            "description":"0 tests en echec sur un total de 24 tests",
+            "iconUrl":"health-80plus.png"
+        }
+    ],
+    "buildable":true,
+    "inQueue":false,
+    "lastBuild":{
+        "id":"2012-04-02_16-26-29",
+        "building":false,
+        "number":8,
+        "result":"SUCCESS",
+        "url":"http://ci.jenkins-ci.org/job/config-provider-model/8/"
+    },
+    "property":[]
+}
