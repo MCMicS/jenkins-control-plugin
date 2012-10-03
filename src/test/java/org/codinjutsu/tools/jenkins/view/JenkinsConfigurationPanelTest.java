@@ -27,8 +27,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.uispec4j.*;
 
-import java.net.MalformedURLException;
-
 import static org.codinjutsu.tools.jenkins.JenkinsConfiguration.DEFAULT_BUILD_DELAY;
 import static org.codinjutsu.tools.jenkins.JenkinsConfiguration.DUMMY_JENKINS_SERVER_URL;
 import static org.mockito.Matchers.any;

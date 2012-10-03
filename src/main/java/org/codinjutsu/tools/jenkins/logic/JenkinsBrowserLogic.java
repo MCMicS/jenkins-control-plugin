@@ -88,7 +88,7 @@ public class JenkinsBrowserLogic implements Disposable {
     public static List<Job> createJobs(List<Element> jobElements) {
         List<Job> jobs = new LinkedList<Job>();
         for (Element jobElement : jobElements) {
-            jobs.add(JenkinsRequestManager.createJob(jobElement));
+            jobs.add(XmlJenkinsRequestManager.createJob(jobElement));
         }
         return jobs;
     }

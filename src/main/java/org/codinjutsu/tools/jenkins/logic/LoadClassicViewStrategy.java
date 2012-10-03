@@ -20,13 +20,12 @@ import org.codinjutsu.tools.jenkins.model.Job;
 import org.jdom.Document;
 import org.jdom.Element;
 
-import java.util.LinkedList;
 import java.util.List;
 
 
 class LoadClassicViewStrategy implements LoadViewStrategy {
     public List<Job> loadJenkinsView(Document document) {
-        List<Element> jobElements = document.getRootElement().getChildren(JenkinsRequestManager.JOB);
+        List<Element> jobElements = document.getRootElement().getChildren(XmlJenkinsRequestManager.JOB);
         return JenkinsBrowserLogic.createJobs(jobElements);
     }
 }

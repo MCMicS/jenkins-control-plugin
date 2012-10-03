@@ -25,13 +25,13 @@ import java.util.List;
 
 class LoadCloudbeesViewStrategy implements LoadViewStrategy {
     public List<Job> loadJenkinsView(Document document) {
-        List<Element> viewElements = document.getRootElement().getChildren(JenkinsRequestManager.VIEW);
+        List<Element> viewElements = document.getRootElement().getChildren(XmlJenkinsRequestManager.VIEW);
         if (viewElements.isEmpty()) {
             return Collections.emptyList();
         }
 
         Element viewElement = viewElements.get(0);
-        List<Element> jobElements = viewElement.getChildren(JenkinsRequestManager.JOB);
+        List<Element> jobElements = viewElement.getChildren(XmlJenkinsRequestManager.JOB);
 
         return JenkinsBrowserLogic.createJobs(jobElements);
     }
