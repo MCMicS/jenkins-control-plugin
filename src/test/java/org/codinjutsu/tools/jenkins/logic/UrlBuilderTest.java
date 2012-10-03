@@ -24,6 +24,7 @@ import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager.JenkinsPlateform;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 
@@ -65,18 +66,25 @@ public class UrlBuilderTest {
 
 
     @Test
-    public void createViewUrl() throws Exception {
-        URL url = urlBuilder.createViewUrl("http://localhost:8080/jenkins/My%20View");
+    public void createViewUrlForClassicPlateform() throws Exception {
+        URL url = urlBuilder.createViewUrl(JenkinsPlateform.CLASSIC, "http://localhost:8080/jenkins/My%20View");
         assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/My%20View/api/xml?tree=name,url,jobs%5Bname,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Bid,url,building,result,number%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,choices%5D%5D%5D"));
     }
 
 
     @Test
-    public void createJobUrl() throws Exception {
+    public void createJobUrlForClassicPlateform() throws Exception {
         URL url = urlBuilder.createJobUrl("http://localhost:8080/jenkins/my%20Job");
         assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/my%20Job/api/xml?tree=name,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Bid,url,building,result,number%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,choices%5D%5D"));
     }
 
+
+
+    @Test
+    public void createViewUrlForCloudbeesPlateform() throws Exception {
+        URL url = urlBuilder.createViewUrl(JenkinsPlateform.CLOUDBEES, "http://localhost:8080/jenkins/My%20View");
+        assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/My%20View/api/xml?tree=name,url,views%5Bjobs%5Bname,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Bid,url,building,result,number%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,choices%5D%5D%5D%5D"));
+    }
 
     @Test
     public void createRssLastBuildUrl() throws Exception {

@@ -34,6 +34,7 @@ class UrlBuilder {
     private static final String BASIC_JENKINS_INFO = "nodeName,nodeDescription,primaryView[name,url],views[name,url,views[name,url]]";
     private static final String BASIC_JOB_INFO = "name,url,color,buildable,inQueue,healthReport[description,iconUrl],lastBuild[id,url,building,result,number],property[parameterDefinitions[name,type,defaultParameterValue[value],choices]]";
     private static final String BASIC_VIEW_INFO = "name,url,jobs[" + BASIC_JOB_INFO + "]";
+    private static final String CLOUDBEES_VIEW_INFO = "name,url,views[jobs[" + BASIC_JOB_INFO + "]]";
     private static final String TEST_CONNECTION_REQUEST = "/api/xml?tree=nodeName";
 
     URL createRunJobUrl(String jobBuildUrl, JenkinsConfiguration configuration) {
@@ -68,12 +69,17 @@ class UrlBuilder {
         return null;
     }
 
-    URL createViewUrl(String viewUrl) {
+    URL createViewUrl(JenkinsRequestManager.JenkinsPlateform jenkinsPlateform, String viewUrl) {
+        String basicViewInfo = BASIC_VIEW_INFO;
+        if (JenkinsRequestManager.JenkinsPlateform.CLOUDBEES.equals(jenkinsPlateform)) {
+            basicViewInfo = CLOUDBEES_VIEW_INFO;
+        }
         try {
-            return new URL(viewUrl + URIUtil.encodePathQuery(API_XML + TREE_PARAM + BASIC_VIEW_INFO));
+            return new URL(viewUrl + URIUtil.encodePathQuery(API_XML + TREE_PARAM + basicViewInfo));
         } catch (Exception ex) {
             handleException(ex);
         }
+
         return null;
     }
 

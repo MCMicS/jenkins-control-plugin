@@ -47,8 +47,8 @@ class DefaultSecurityClient implements SecurityClient {
     }
 
     @Override
-    public void connect(URL jenkinsUrl) {
-        execute(jenkinsUrl);
+    public String connect(URL jenkinsUrl) {
+        return execute(jenkinsUrl);
     }
 
     public String execute(URL url) {
@@ -142,7 +142,7 @@ class DefaultSecurityClient implements SecurityClient {
             }
             return value;
         } catch (FileNotFoundException e) {
-            throw new ConfigurationException(String.format("Crumb file '%s' not found", file));
+            throw new ConfigurationException(String.format("File '%s' not found", file));
         } catch (IOException e) {
             throw new IllegalStateException(String.format("Unable to read '%s'", file), e);
         } finally {

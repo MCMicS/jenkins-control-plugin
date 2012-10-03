@@ -79,11 +79,28 @@ public class JenkinsRequestManager {
     private static final String RSS_PUBLISHED = "published";
     private static final String JENKINS_ROOT_TAG = "jenkins";
     private static final String HUDSON_ROOT_TAG = "hudson";
+    private static final String FOLDER_ROOT_TAG = "folder";
 
     private static final Logger LOG = Logger.getLogger(JenkinsRequestManager.class);
 
     private final UrlBuilder urlBuilder;
     private SecurityClient securityClient;
+
+    private JenkinsPlateform jenkinsPlateform = JenkinsPlateform.CLASSIC;
+    private LoadViewStrategy loadViewStrategy = new LoadClassicViewStrategy();
+
+    public enum JenkinsPlateform {
+        CLASSIC,
+        CLOUDBEES
+    }
+
+    private static final Set<String> ALLOWED_ROOT_TAGS = new HashSet<String>();
+
+    static {
+        ALLOWED_ROOT_TAGS.add(JENKINS_ROOT_TAG);
+        ALLOWED_ROOT_TAGS.add(HUDSON_ROOT_TAG);
+        ALLOWED_ROOT_TAGS.add(FOLDER_ROOT_TAG);
+    }
 
 
     public JenkinsRequestManager(String crumbDataFile) {
@@ -108,7 +125,7 @@ public class JenkinsRequestManager {
         jenkins.setViews(createJenkinsViews(doc));
 
         int jenkinsPort = url.getPort();
-        URL viewUrl = urlBuilder.createViewUrl(jenkins.getPrimaryView().getUrl());
+        URL viewUrl = urlBuilder.createViewUrl(jenkinsPlateform, jenkins.getPrimaryView().getUrl());
         int viewPort = viewUrl.getPort();
 
         if (isJenkinsPortSet(jenkinsPort) && jenkinsPort != viewPort) {
@@ -134,10 +151,10 @@ public class JenkinsRequestManager {
 
 
     public List<Job> loadJenkinsView(String viewUrl) {
-        URL url = urlBuilder.createViewUrl(viewUrl);
+        URL url = urlBuilder.createViewUrl(jenkinsPlateform, viewUrl);
         String jenkinsViewData = securityClient.execute(url);
         Document doc = buildDocument(jenkinsViewData);
-        return createJenkinsJobs(doc);
+        return loadViewStrategy.loadJenkinsView(doc);
     }
 
 
@@ -180,15 +197,21 @@ public class JenkinsRequestManager {
 
     public void authenticate(final String serverUrl, SecurityMode securityMode, final String username, final String passwordFile, String crumbDataFile) {
         securityClient = SecurityClientFactory.create(securityMode, username, passwordFile, crumbDataFile);
-        securityClient.connect(urlBuilder.createAuthenticationUrl(serverUrl));
+        String jenkinsData = securityClient.connect(urlBuilder.createAuthenticationUrl(serverUrl));
+        if (StringUtils.contains(jenkinsData, FOLDER_ROOT_TAG)) {
+            jenkinsPlateform = JenkinsPlateform.CLOUDBEES;
+            loadViewStrategy = new LoadCloudbeesViewStrategy();
+        } else {
+            jenkinsPlateform = JenkinsPlateform.CLASSIC;
+            loadViewStrategy = new LoadClassicViewStrategy();
+        }
     }
 
 
     private Jenkins createJenkins(Document doc, String serverUrl) {
         Element jenkinsElement = doc.getRootElement();
-        if (!StringUtils.equals(JENKINS_ROOT_TAG, jenkinsElement.getName())
-                && !StringUtils.equals(HUDSON_ROOT_TAG, jenkinsElement.getName())) {
-            throw new ConfigurationException("The root tag is should be 'hudson'. Actual : '" + jenkinsElement.getName() + "'");
+        if (!ALLOWED_ROOT_TAGS.contains(jenkinsElement.getName())) {
+            throw new ConfigurationException(String.format("The root tag is should be %s. Actual: '%s'", ALLOWED_ROOT_TAGS, jenkinsElement.getName()));
         }
         String description = jenkinsElement.getChildText(JENKINS_DESCRIPTION);
         if (description == null) {
@@ -198,7 +221,7 @@ public class JenkinsRequestManager {
     }
 
 
-    private Build createLastBuild(Element jobLastBuild) {
+    private static Build createLastBuild(Element jobLastBuild) {
         String isBuilding = jobLastBuild.getChildText(BUILD_IS_BUILDING);
         String status = jobLastBuild.getChildText(BUILD_RESULT);
         String number = jobLastBuild.getChildText(BUILD_NUMBER);
@@ -243,17 +266,7 @@ public class JenkinsRequestManager {
     }
 
 
-    private List<Job> createJenkinsJobs(Document doc) {
-        List<Element> jobElements = doc.getRootElement().getChildren(JOB);
-        List<Job> jobs = new LinkedList<Job>();
-        for (Element jobElement : jobElements) {
-            jobs.add(createJob(jobElement));
-        }
-        return jobs;
-    }
-
-
-    private void setJobParameters(Job job, List<Element> parameterDefinitions) {
+    private static void setJobParameters(Job job, List<Element> parameterDefinitions) {
 
         for (Element parameterDefinition : parameterDefinitions) {
 
@@ -272,7 +285,7 @@ public class JenkinsRequestManager {
     }
 
 
-    private String[] extractChoices(Element parameterDefinition) {
+    private static String[] extractChoices(Element parameterDefinition) {
         List<Element> choices = parameterDefinition.getChildren(PARAMETER_CHOICE);
         String[] paramValues = new String[0];
         if (choices != null && !choices.isEmpty()) {
@@ -285,7 +298,7 @@ public class JenkinsRequestManager {
         return paramValues;
     }
 
-    private Job createJob(Element jobElement) {
+    private static Job createJob(Element jobElement) {
         String jobName = jobElement.getChildText(JOB_NAME);
         String jobColor = jobElement.getChildText(JOB_COLOR);
         String jobUrl = jobElement.getChildText(JOB_URL);
@@ -314,7 +327,7 @@ public class JenkinsRequestManager {
     }
 
 
-    private Job.Health getJobHealth(Element jobElement) {
+    private static Job.Health getJobHealth(Element jobElement) {
         String jobHealthLevel = null;
         String jobHealthDescription = null;
         Element jobHealthElement = jobElement.getChild(JOB_HEALTH);
@@ -371,5 +384,37 @@ public class JenkinsRequestManager {
             jobs.add(loadJob(favoriteJob.url));
         }
         return jobs;
+    }
+
+    interface LoadViewStrategy {
+        public List<Job> loadJenkinsView(Document document);
+    }
+
+    private static class LoadClassicViewStrategy implements LoadViewStrategy {
+        public List<Job> loadJenkinsView(Document document) {
+            List<Element> jobElements = document.getRootElement().getChildren(JOB);
+            List<Job> jobs = new LinkedList<Job>();
+            for (Element jobElement : jobElements) {
+                jobs.add(createJob(jobElement));
+            }
+            return jobs;
+        }
+    }
+
+    private static class LoadCloudbeesViewStrategy implements LoadViewStrategy {
+        public List<Job> loadJenkinsView(Document document) {
+            List<Element> viewElements = document.getRootElement().getChildren(VIEW);
+            if (viewElements.isEmpty()) {
+                return Collections.emptyList();
+            }
+//TODO remove duplication with an Abstract class
+            Element viewElement = viewElements.get(0);
+            List<Element> jobElements = viewElement.getChildren(JOB);
+            List<Job> jobs = new LinkedList<Job>();
+            for (Element jobElement : jobElements) {
+                jobs.add(createJob(jobElement));
+            }
+            return jobs;
+        }
     }
 }

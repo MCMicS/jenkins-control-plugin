@@ -109,6 +109,18 @@ public class JenkinsRequestManagerTest {
     }
 
     @Test
+    public void loadJenkinsWorkspaceWithIncorrectRootTag() throws Exception {
+        when(securityClientMock.execute(any(URL.class)))
+                .thenReturn(IOUtils.toString(JenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadJenkinsWorkspaceWithIncorrectRootTag.xml")));
+        try {
+            requestManager.loadJenkinsWorkspace(configuration);
+            Assert.fail();
+        } catch (ConfigurationException ex) {
+            Assert.assertEquals("The root tag is should be [folder, jenkins, hudson]. Actual: 'foo'", ex.getMessage());
+        }
+    }
+
+    @Test
     public void loadView() throws Exception {
         when(securityClientMock.execute(any(URL.class)))
                 .thenReturn(IOUtils.toString(JenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadView.xml")));
