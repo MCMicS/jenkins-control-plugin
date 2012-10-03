@@ -35,12 +35,14 @@ import org.codinjutsu.tools.jenkins.view.action.search.NextOccurrenceAction;
 import org.codinjutsu.tools.jenkins.view.action.search.OpenJobSearchPanelAction;
 import org.codinjutsu.tools.jenkins.view.action.search.PrevOccurrenceAction;
 import org.codinjutsu.tools.jenkins.view.action.settings.SortByStatusAction;
+import org.jdom.Element;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -81,6 +83,14 @@ public class JenkinsBrowserLogic implements Disposable {
         this.rssLatestJobPanel = rssLatestJobPanel;
         this.buildStatusListener = buildStatusListener;
         this.jobLoadListener = jobLoadListener;
+    }
+
+    public static List<Job> createJobs(List<Element> jobElements) {
+        List<Job> jobs = new LinkedList<Job>();
+        for (Element jobElement : jobElements) {
+            jobs.add(JenkinsRequestManager.createJob(jobElement));
+        }
+        return jobs;
     }
 
 

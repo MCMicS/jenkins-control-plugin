@@ -24,7 +24,6 @@ import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager.JenkinsPlateform;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 

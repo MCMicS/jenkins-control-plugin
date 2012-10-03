@@ -21,6 +21,7 @@ import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.security.SecurityClient;
+import org.codinjutsu.tools.jenkins.security.SecurityMode;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -121,10 +122,40 @@ public class JenkinsRequestManagerTest {
     }
 
     @Test
-    public void loadView() throws Exception {
+    public void loadClassicView() throws Exception {
         when(securityClientMock.execute(any(URL.class)))
-                .thenReturn(IOUtils.toString(JenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadView.xml")));
+                .thenReturn(IOUtils.toString(JenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadClassicView.xml")));
 
+        List<Job> actualJobs = requestManager.loadJenkinsView("http://myjenkins/");
+
+        List<Job> expectedJobs = new LinkedList<Job>();
+
+
+        expectedJobs.add(new JobBuilder().job("sql-tools", "blue", "http://myjenkins/job/sql-tools/", "true", "true")
+                .lastBuild("http://myjenkins/job/sql-tools/15/", "15", SUCCESS.getStatus(), "false", "2012-04-02_15-26-29")
+                .health("health-80plus", "0 tests en echec sur un total de 24 tests").get());
+        expectedJobs.add(new JobBuilder().job("db-utils", "grey", "http://myjenkins/job/db-utils/", "false", "true").get());
+        expectedJobs.add(new JobBuilder().job("myapp", "red", "http://myjenkins/job/myapp/", "false", "true")
+                .lastBuild("http://myjenkins/job/myapp/12/", "12", FAILURE.getStatus(), "true", "2012-04-02_16-26-29")
+                .health("health-00to19", "24 tests en echec sur un total de 24 tests")
+                .parameter("param1", "ChoiceParameterDefinition", "value1", "value1", "value2", "value3")
+                .parameter("runIntegrationTest", "BooleanParameterDefinition", null)
+                .get());
+        expectedJobs.add(new JobBuilder().job("swing-utils", "disabled", "http://myjenkins/job/swing-utils/", "true", "false")
+                .lastBuild("http://myjenkins/job/swing-utils/5/", "5", FAILURE.getStatus(), "false", "2012-04-02_10-26-29")
+                .health("health20to39", "0 tests en echec sur un total de 24 tests")
+                .parameter("dummyParam", null, null)
+                .get());
+
+        assertReflectionEquals(expectedJobs, actualJobs);
+    }
+
+    @Test
+    public void loadCloudbeesView() throws Exception {
+        when(securityClientMock.execute(any(URL.class)))
+                .thenReturn(IOUtils.toString(JenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadCloudbeesView.xml")));
+
+        requestManager.setJenkinsPlateform(JenkinsPlateform.CLOUDBEES);
         List<Job> actualJobs = requestManager.loadJenkinsView("http://myjenkins/");
 
         List<Job> expectedJobs = new LinkedList<Job>();

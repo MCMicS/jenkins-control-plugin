@@ -41,7 +41,7 @@ public class JenkinsRequestManager {
 
     private static final String JENKINS_DESCRIPTION = "description";
 
-    private static final String JOB = "job";
+    static final String JOB = "job";
     private static final String JOB_NAME = "name";
     private static final String JOB_HEALTH = "healthReport";
     private static final String JOB_HEALTH_ICON = "iconUrl";
@@ -52,7 +52,7 @@ public class JenkinsRequestManager {
     private static final String JOB_IS_BUILDABLE = "buildable";
     private static final String JOB_IS_IN_QUEUE = "inQueue";
 
-    private static final String VIEW = "view";
+    static final String VIEW = "view";
     private static final String PRIMARY_VIEW = "primaryView";
     private static final String VIEW_NAME = "name";
 
@@ -87,12 +87,6 @@ public class JenkinsRequestManager {
     private SecurityClient securityClient;
 
     private JenkinsPlateform jenkinsPlateform = JenkinsPlateform.CLASSIC;
-    private LoadViewStrategy loadViewStrategy = new LoadClassicViewStrategy();
-
-    public enum JenkinsPlateform {
-        CLASSIC,
-        CLOUDBEES
-    }
 
     private static final Set<String> ALLOWED_ROOT_TAGS = new HashSet<String>();
 
@@ -154,7 +148,7 @@ public class JenkinsRequestManager {
         URL url = urlBuilder.createViewUrl(jenkinsPlateform, viewUrl);
         String jenkinsViewData = securityClient.execute(url);
         Document doc = buildDocument(jenkinsViewData);
-        return loadViewStrategy.loadJenkinsView(doc);
+        return jenkinsPlateform.loadViewStrategy.loadJenkinsView(doc);
     }
 
 
@@ -200,10 +194,8 @@ public class JenkinsRequestManager {
         String jenkinsData = securityClient.connect(urlBuilder.createAuthenticationUrl(serverUrl));
         if (StringUtils.contains(jenkinsData, FOLDER_ROOT_TAG)) {
             jenkinsPlateform = JenkinsPlateform.CLOUDBEES;
-            loadViewStrategy = new LoadCloudbeesViewStrategy();
         } else {
             jenkinsPlateform = JenkinsPlateform.CLASSIC;
-            loadViewStrategy = new LoadClassicViewStrategy();
         }
     }
 
@@ -298,7 +290,7 @@ public class JenkinsRequestManager {
         return paramValues;
     }
 
-    private static Job createJob(Element jobElement) {
+    static Job createJob(Element jobElement) {
         String jobName = jobElement.getChildText(JOB_NAME);
         String jobColor = jobElement.getChildText(JOB_COLOR);
         String jobUrl = jobElement.getChildText(JOB_URL);
@@ -386,35 +378,7 @@ public class JenkinsRequestManager {
         return jobs;
     }
 
-    interface LoadViewStrategy {
-        public List<Job> loadJenkinsView(Document document);
-    }
-
-    private static class LoadClassicViewStrategy implements LoadViewStrategy {
-        public List<Job> loadJenkinsView(Document document) {
-            List<Element> jobElements = document.getRootElement().getChildren(JOB);
-            List<Job> jobs = new LinkedList<Job>();
-            for (Element jobElement : jobElements) {
-                jobs.add(createJob(jobElement));
-            }
-            return jobs;
-        }
-    }
-
-    private static class LoadCloudbeesViewStrategy implements LoadViewStrategy {
-        public List<Job> loadJenkinsView(Document document) {
-            List<Element> viewElements = document.getRootElement().getChildren(VIEW);
-            if (viewElements.isEmpty()) {
-                return Collections.emptyList();
-            }
-//TODO remove duplication with an Abstract class
-            Element viewElement = viewElements.get(0);
-            List<Element> jobElements = viewElement.getChildren(JOB);
-            List<Job> jobs = new LinkedList<Job>();
-            for (Element jobElement : jobElements) {
-                jobs.add(createJob(jobElement));
-            }
-            return jobs;
-        }
+    void setJenkinsPlateform(JenkinsPlateform jenkinsPlateform) {
+        this.jenkinsPlateform = jenkinsPlateform;
     }
 }

@@ -69,9 +69,9 @@ class UrlBuilder {
         return null;
     }
 
-    URL createViewUrl(JenkinsRequestManager.JenkinsPlateform jenkinsPlateform, String viewUrl) {
+    URL createViewUrl(JenkinsPlateform jenkinsPlateform, String viewUrl) {
         String basicViewInfo = BASIC_VIEW_INFO;
-        if (JenkinsRequestManager.JenkinsPlateform.CLOUDBEES.equals(jenkinsPlateform)) {
+        if (JenkinsPlateform.CLOUDBEES.equals(jenkinsPlateform)) {
             basicViewInfo = CLOUDBEES_VIEW_INFO;
         }
         try {
