@@ -38,9 +38,9 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 import static org.unitils.reflectionassert.ReflectionAssert.assertReflectionEquals;
 
-public class XmlJenkinsRequestManagerTest {
+public class UberXmlRequestManagerTest {
 
-    private XmlJenkinsRequestManager requestManager;
+    private UberXmlRequestManager requestManager;
 
     private JenkinsConfiguration configuration;
 
@@ -51,7 +51,7 @@ public class XmlJenkinsRequestManagerTest {
     @Test
     public void loadJenkinsWorkSpace() throws Exception {
         when(securityClientMock.execute(any(URL.class)))
-                .thenReturn(IOUtils.toString(XmlJenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadJenkinsWorkspace.xml")));
+                .thenReturn(IOUtils.toString(UberXmlRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadJenkinsWorkspace.xml")));
         Jenkins jenkins = requestManager.loadJenkinsWorkspace(configuration);
 
         List<View> actualViews = jenkins.getViews();
@@ -69,7 +69,7 @@ public class XmlJenkinsRequestManagerTest {
     @Test
     public void loadJenkinsWorkSpaceWithNestedViews() throws Exception {
         when(securityClientMock.execute(any(URL.class)))
-                .thenReturn(IOUtils.toString(XmlJenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadJenkinsWorkspaceWithNestedView.xml")));
+                .thenReturn(IOUtils.toString(UberXmlRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadJenkinsWorkspaceWithNestedView.xml")));
         Jenkins jenkins = requestManager.loadJenkinsWorkspace(configuration);
 
         List<View> actualViews = jenkins.getViews();
@@ -93,7 +93,7 @@ public class XmlJenkinsRequestManagerTest {
     public void loadJenkinsWorkspaceWithIncorrectServerPortInTheResponse() throws Exception {
         configuration.setServerUrl("http://myjenkins:8080");
         when(securityClientMock.execute(any(URL.class)))
-                .thenReturn(IOUtils.toString(XmlJenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadJenkinsWorkspaceWithIncorrectPortInTheResponse.xml")));
+                .thenReturn(IOUtils.toString(UberXmlRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadJenkinsWorkspaceWithIncorrectPortInTheResponse.xml")));
         try {
             requestManager.loadJenkinsWorkspace(configuration);
             Assert.fail();
@@ -103,7 +103,7 @@ public class XmlJenkinsRequestManagerTest {
 
         configuration.setServerUrl("http://myjenkins");
         when(securityClientMock.execute(any(URL.class)))
-                .thenReturn(IOUtils.toString(XmlJenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadJenkinsWorkspaceWithIncorrectPortInTheResponse.xml")));
+                .thenReturn(IOUtils.toString(UberXmlRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadJenkinsWorkspaceWithIncorrectPortInTheResponse.xml")));
         requestManager.loadJenkinsWorkspace(configuration);
 
     }
@@ -111,7 +111,7 @@ public class XmlJenkinsRequestManagerTest {
     @Test
     public void loadJenkinsWorkspaceWithIncorrectRootTag() throws Exception {
         when(securityClientMock.execute(any(URL.class)))
-                .thenReturn(IOUtils.toString(XmlJenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadJenkinsWorkspaceWithIncorrectRootTag.xml")));
+                .thenReturn(IOUtils.toString(UberXmlRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadJenkinsWorkspaceWithIncorrectRootTag.xml")));
         try {
             requestManager.loadJenkinsWorkspace(configuration);
             Assert.fail();
@@ -123,7 +123,7 @@ public class XmlJenkinsRequestManagerTest {
     @Test
     public void loadClassicView() throws Exception {
         when(securityClientMock.execute(any(URL.class)))
-                .thenReturn(IOUtils.toString(XmlJenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadClassicView.xml")));
+                .thenReturn(IOUtils.toString(UberXmlRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadClassicView.xml")));
 
         List<Job> actualJobs = requestManager.loadJenkinsView("http://myjenkins/");
 
@@ -152,7 +152,7 @@ public class XmlJenkinsRequestManagerTest {
     @Test
     public void loadCloudbeesView() throws Exception {
         when(securityClientMock.execute(any(URL.class)))
-                .thenReturn(IOUtils.toString(XmlJenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadCloudbeesView.xml")));
+                .thenReturn(IOUtils.toString(UberXmlRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadCloudbeesView.xml")));
 
         requestManager.setJenkinsPlateform(JenkinsPlateform.CLOUDBEES);
         List<Job> actualJobs = requestManager.loadJenkinsView("http://myjenkins/");
@@ -182,7 +182,7 @@ public class XmlJenkinsRequestManagerTest {
     @Test
     public void loadJob() throws Exception {
         when(securityClientMock.execute(any(URL.class)))
-                .thenReturn(IOUtils.toString(XmlJenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadJob.xml")));
+                .thenReturn(IOUtils.toString(UberXmlRequestManagerTest.class.getResourceAsStream("JenkinsRequestManager_loadJob.xml")));
 
         Job actualJob = requestManager.loadJob("http://ci.jenkins-ci.org/job/config-provider-model/");
 
@@ -196,7 +196,7 @@ public class XmlJenkinsRequestManagerTest {
     @Test
     public void buildLatestBuildList() throws Exception {
         when(securityClientMock.execute(any(URL.class)))
-                .thenReturn(IOUtils.toString(XmlJenkinsRequestManagerTest.class.getResourceAsStream("JenkinsRss.xml")));
+                .thenReturn(IOUtils.toString(UberXmlRequestManagerTest.class.getResourceAsStream("JenkinsRss.xml")));
 
         Map<String, Build> actualJobBuildMap = requestManager.loadJenkinsRssLatestBuilds(configuration);
 
@@ -219,7 +219,7 @@ public class XmlJenkinsRequestManagerTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         configuration = new JenkinsConfiguration();
-        requestManager = new XmlJenkinsRequestManager(securityClientMock);
+        requestManager = new UberXmlRequestManager(securityClientMock);
     }
 
 }

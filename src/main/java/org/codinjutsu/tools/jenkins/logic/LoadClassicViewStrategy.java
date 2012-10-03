@@ -25,7 +25,7 @@ import java.util.List;
 
 class LoadClassicViewStrategy implements LoadViewStrategy {
     public List<Job> loadJenkinsView(Document document) {
-        List<Element> jobElements = document.getRootElement().getChildren(XmlJenkinsRequestManager.JOB);
+        List<Element> jobElements = document.getRootElement().getChildren(UberXmlRequestManager.JOB);
         return BrowserLogic.createJobs(jobElements);
     }
 }

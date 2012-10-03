@@ -37,7 +37,7 @@ import java.io.StringReader;
 import java.net.URL;
 import java.util.*;
 
-public class XmlJenkinsRequestManager implements RequestManager {
+public class UberXmlRequestManager implements RequestManager {
 
     private static final String JENKINS_DESCRIPTION = "description";
 
@@ -81,7 +81,7 @@ public class XmlJenkinsRequestManager implements RequestManager {
     private static final String HUDSON_ROOT_TAG = "hudson";
     private static final String FOLDER_ROOT_TAG = "folder";
 
-    private static final Logger LOG = Logger.getLogger(XmlJenkinsRequestManager.class);
+    private static final Logger LOG = Logger.getLogger(UberXmlRequestManager.class);
 
     private final UrlBuilder urlBuilder;
     private SecurityClient securityClient;
@@ -97,12 +97,12 @@ public class XmlJenkinsRequestManager implements RequestManager {
     }
 
 
-    public XmlJenkinsRequestManager(String crumbDataFile) {
+    public UberXmlRequestManager(String crumbDataFile) {
         this(SecurityClientFactory.none(crumbDataFile));
     }
 
 
-    public XmlJenkinsRequestManager(SecurityClient securityClient) {
+    public UberXmlRequestManager(SecurityClient securityClient) {
         this.urlBuilder = new UrlBuilder();
         this.securityClient = securityClient;
     }

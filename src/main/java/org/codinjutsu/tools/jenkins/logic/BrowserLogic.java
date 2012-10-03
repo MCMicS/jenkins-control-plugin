@@ -88,7 +88,7 @@ public class BrowserLogic implements Disposable {
     public static List<Job> createJobs(List<Element> jobElements) {
         List<Job> jobs = new LinkedList<Job>();
         for (Element jobElement : jobElements) {
-            jobs.add(XmlJenkinsRequestManager.createJob(jobElement));
+            jobs.add(UberXmlRequestManager.createJob(jobElement));
         }
         return jobs;
     }
