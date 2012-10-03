@@ -16,34 +16,31 @@
 
 package org.codinjutsu.tools.jenkins.view.action;
 
-import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
-import com.intellij.openapi.project.Project;
-import org.apache.commons.lang.StringUtils;
-import org.codinjutsu.tools.jenkins.logic.JenkinsBrowserLogic;
+import org.codinjutsu.tools.jenkins.logic.BrowserLogic;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
 public class UnsetJobAsFavoriteAction extends AnAction implements DumbAware {
 
-    private JenkinsBrowserLogic jenkinsBrowserLogic;
+    private BrowserLogic browserLogic;
 
-    public UnsetJobAsFavoriteAction(JenkinsBrowserLogic jenkinsBrowserLogic) {
+    public UnsetJobAsFavoriteAction(BrowserLogic browserLogic) {
         super("Unset as Favorite", "Unset the selected job as favorite", GuiUtil.loadIcon("star_delete.png"));
-        this.jenkinsBrowserLogic = jenkinsBrowserLogic;
+        this.browserLogic = browserLogic;
     }
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        Job selectedJob = jenkinsBrowserLogic.getSelectedJob();
-        jenkinsBrowserLogic.removeFavorite(selectedJob);
+        Job selectedJob = browserLogic.getSelectedJob();
+        browserLogic.removeFavorite(selectedJob);
     }
 
     @Override
     public void update(AnActionEvent event) {
-        Job selectedJob = jenkinsBrowserLogic.getSelectedJob();
-        event.getPresentation().setVisible(selectedJob != null && jenkinsBrowserLogic.isAFavoriteJob(selectedJob.getName()));
+        Job selectedJob = browserLogic.getSelectedJob();
+        event.getPresentation().setVisible(selectedJob != null && browserLogic.isAFavoriteJob(selectedJob.getName()));
     }
 }

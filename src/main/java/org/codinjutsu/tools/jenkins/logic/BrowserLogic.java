@@ -48,7 +48,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.*;
 
-public class JenkinsBrowserLogic implements Disposable {
+public class BrowserLogic implements Disposable {
 
     private static final String JENKINS_JOB_ACTION_GROUP = "JenkinsJobGroup";
     private static final String JENKINS_RSS_ACTIONS = "JenkinsRssActions";
@@ -76,7 +76,7 @@ public class JenkinsBrowserLogic implements Disposable {
     private ScheduledFuture<?> refreshRssBuildFutureTask;
 
 
-    public JenkinsBrowserLogic(JenkinsConfiguration configuration, JenkinsRequestManager jenkinsRequestManager, JenkinsBrowserPanel jenkinsBrowserPanel, RssLatestBuildPanel rssLatestJobPanel, BuildStatusListener buildStatusListener, JobLoadListener jobLoadListener) {
+    public BrowserLogic(JenkinsConfiguration configuration, JenkinsRequestManager jenkinsRequestManager, JenkinsBrowserPanel jenkinsBrowserPanel, RssLatestBuildPanel rssLatestJobPanel, BuildStatusListener buildStatusListener, JobLoadListener jobLoadListener) {
         this.configuration = configuration;
         this.jenkinsRequestManager = jenkinsRequestManager;
         this.jenkinsBrowserPanel = jenkinsBrowserPanel;

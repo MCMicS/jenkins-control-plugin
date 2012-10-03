@@ -19,17 +19,17 @@ package org.codinjutsu.tools.jenkins.view.action.settings;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.DumbAware;
-import org.codinjutsu.tools.jenkins.logic.JenkinsBrowserLogic;
+import org.codinjutsu.tools.jenkins.logic.BrowserLogic;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
 public class SortByStatusAction extends ToggleAction implements DumbAware {
 
     private boolean sortedByStatus = false;
-    private final JenkinsBrowserLogic jenkinsBrowserLogic;
+    private final BrowserLogic browserLogic;
 
-    public SortByStatusAction(JenkinsBrowserLogic jenkinsBrowserLogic) {
+    public SortByStatusAction(BrowserLogic browserLogic) {
         super("Sort by Build Status", "Fail, Unstable, Success, ...", GuiUtil.loadIcon("arrow_up.png"));
-        this.jenkinsBrowserLogic = jenkinsBrowserLogic;
+        this.browserLogic = browserLogic;
     }
 
     @Override
@@ -40,7 +40,7 @@ public class SortByStatusAction extends ToggleAction implements DumbAware {
     @Override
     public void setSelected(AnActionEvent anActionEvent, boolean sorted) {
         sortedByStatus = sorted;
-        jenkinsBrowserLogic.getJenkinsBrowserPanel().setSortedByStatus(sorted);
+        browserLogic.getJenkinsBrowserPanel().setSortedByStatus(sorted);
     }
 
 }

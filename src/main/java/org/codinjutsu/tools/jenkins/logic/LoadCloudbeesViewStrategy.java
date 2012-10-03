@@ -33,6 +33,6 @@ class LoadCloudbeesViewStrategy implements LoadViewStrategy {
         Element viewElement = viewElements.get(0);
         List<Element> jobElements = viewElement.getChildren(XmlJenkinsRequestManager.JOB);
 
-        return JenkinsBrowserLogic.createJobs(jobElements);
+        return BrowserLogic.createJobs(jobElements);
     }
 }

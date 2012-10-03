@@ -38,13 +38,13 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 
-public class JenkinsBrowserLogicTest extends UISpecTestCase {
+public class BrowserLogicTest extends UISpecTestCase {
 
     @Mock
     private JenkinsRequestManager requestManagerMock;
 
     private JenkinsConfiguration configuration;
-    private JenkinsBrowserLogic jenkinsBrowserLogic;
+    private BrowserLogic browserLogic;
 
     private Panel uiSpecBrowserPanel;
     private MyJobLoadListener jobViewCallback;
@@ -70,7 +70,7 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
         createLogic();
         doThrow(new AuthenticationException("fail")).when(requestManagerMock).authenticate(anyString(), any(SecurityMode.class), anyString(), anyString(), anyString());
 
-        this.jenkinsBrowserLogic.init();
+        this.browserLogic.init();
         Thread.sleep(500);
 
         initUI();
@@ -137,13 +137,13 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
 
         prepareMock();
 
-        jenkinsBrowserLogic.init();
+        browserLogic.init();
         Thread.sleep(800);
     }
 
     private void createLogic() {
         jobViewCallback = new MyJobLoadListener();
-        jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, requestManagerMock, new JenkinsBrowserPanel(), new RssLatestBuildPanel(), JenkinsBrowserLogic.BuildStatusListener.NULL, jobViewCallback) {
+        browserLogic = new BrowserLogic(configuration, requestManagerMock, new JenkinsBrowserPanel(), new RssLatestBuildPanel(), BrowserLogic.BuildStatusListener.NULL, jobViewCallback) {
             @Override
             protected void installRssActions(JPanel rssActionPanel) {
             }
@@ -185,7 +185,7 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
     }
 
     private void initUI() {
-        uiSpecBrowserPanel = new Panel(jenkinsBrowserLogic.getJenkinsBrowserPanel());
+        uiSpecBrowserPanel = new Panel(browserLogic.getJenkinsBrowserPanel());
     }
 
     private void createConfiguration(String serverUrl) {
@@ -208,7 +208,7 @@ public class JenkinsBrowserLogicTest extends UISpecTestCase {
         return jenkins;
     }
 
-    private static class MyJobLoadListener implements JenkinsBrowserLogic.JobLoadListener {
+    private static class MyJobLoadListener implements BrowserLogic.JobLoadListener {
 
         private BuildStatusAggregator buildStatusAggregator;
 

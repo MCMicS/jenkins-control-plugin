@@ -22,7 +22,7 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsControlComponent;
-import org.codinjutsu.tools.jenkins.logic.JenkinsBrowserLogic;
+import org.codinjutsu.tools.jenkins.logic.BrowserLogic;
 import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
@@ -36,12 +36,12 @@ public class RunBuildAction extends AnAction implements DumbAware {
     public static final Icon RUN_ICON = GuiUtil.loadIcon("toolWindowRun.png");
     private static final Logger LOG = Logger.getLogger(RunBuildAction.class.getName());
 
-    private final JenkinsBrowserLogic jenkinsBrowserLogic;
+    private final BrowserLogic browserLogic;
 
 
-    public RunBuildAction(JenkinsBrowserLogic jenkinsBrowserLogic) {
+    public RunBuildAction(BrowserLogic browserLogic) {
         super("Build on Jenkins", "Run a build on Jenkins Server", GuiUtil.loadIcon("cog_go.png"));
-        this.jenkinsBrowserLogic = jenkinsBrowserLogic;
+        this.browserLogic = browserLogic;
     }
 
 
@@ -52,9 +52,9 @@ public class RunBuildAction extends AnAction implements DumbAware {
         final JenkinsControlComponent jenkinsControlComponent = project.getComponent(JenkinsControlComponent.class);
         try {
 
-            Job job = jenkinsBrowserLogic.getSelectedJob();
+            Job job = browserLogic.getSelectedJob();
 
-            JenkinsRequestManager jenkinsManager = jenkinsBrowserLogic.getJenkinsManager();
+            JenkinsRequestManager jenkinsManager = browserLogic.getJenkinsManager();
             if (job.hasParameters()) {
                 BuildParamDialog.showDialog(job, jenkinsControlComponent.getState(), jenkinsManager, new BuildParamDialog.RunBuildCallback() {
 
@@ -79,7 +79,7 @@ public class RunBuildAction extends AnAction implements DumbAware {
 
     @Override
     public void update(AnActionEvent event) {
-        Job selectedJob = jenkinsBrowserLogic.getSelectedJob();
+        Job selectedJob = browserLogic.getSelectedJob();
         event.getPresentation().setVisible(selectedJob != null && selectedJob.isBuildable());
     }
 

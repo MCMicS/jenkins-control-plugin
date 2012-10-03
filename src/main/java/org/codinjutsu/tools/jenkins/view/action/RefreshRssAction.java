@@ -19,15 +19,15 @@ package org.codinjutsu.tools.jenkins.view.action;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
-import org.codinjutsu.tools.jenkins.logic.JenkinsBrowserLogic;
+import org.codinjutsu.tools.jenkins.logic.BrowserLogic;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
 public class RefreshRssAction extends AnAction implements DumbAware {
 
-    private final JenkinsBrowserLogic logic;
+    private final BrowserLogic logic;
 
 
-    public RefreshRssAction(JenkinsBrowserLogic logic) {
+    public RefreshRssAction(BrowserLogic logic) {
         super("Refresh last completed builds", "Refresh last completed builds from Jenkins server", GuiUtil.loadIcon("rss.png"));
         this.logic = logic;
     }

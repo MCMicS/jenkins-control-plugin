@@ -36,7 +36,7 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
-import org.codinjutsu.tools.jenkins.logic.JenkinsBrowserLogic;
+import org.codinjutsu.tools.jenkins.logic.BrowserLogic;
 import org.codinjutsu.tools.jenkins.logic.JenkinsRequestManager;
 import org.codinjutsu.tools.jenkins.logic.XmlJenkinsRequestManager;
 import org.codinjutsu.tools.jenkins.model.Build;
@@ -72,7 +72,7 @@ public class JenkinsControlComponent
     private JenkinsConfigurationPanel configurationPanel;
 
     private final Project project;
-    private JenkinsBrowserLogic jenkinsBrowserLogic;
+    private BrowserLogic browserLogic;
     private JenkinsRequestManager jenkinsRequestManager;
     private JenkinsWidget jenkinsWidget;
 
@@ -89,7 +89,7 @@ public class JenkinsControlComponent
 
 
     public void projectClosed() {
-        jenkinsBrowserLogic.dispose();
+        browserLogic.dispose();
         ToolWindowManager.getInstance(project).unregisterToolWindow(JENKINS_BROWSER);
     }
 
@@ -131,7 +131,7 @@ public class JenkinsControlComponent
         if (configurationPanel != null) {
             try {
                 configurationPanel.applyConfigurationData(configuration);
-                jenkinsBrowserLogic.reloadConfiguration();
+                browserLogic.reloadConfiguration();
 
             } catch (org.codinjutsu.tools.jenkins.exception.ConfigurationException ex) {
                 throw new ConfigurationException(ex.getMessage());
@@ -166,7 +166,7 @@ public class JenkinsControlComponent
 
         jenkinsWidget = new JenkinsWidget();
 
-        JenkinsBrowserLogic.BuildStatusListener buildStatusListener = new JenkinsBrowserLogic.BuildStatusListener() {
+        BrowserLogic.BuildStatusListener buildStatusListener = new BrowserLogic.BuildStatusListener() {
             public void onBuildFailure(final String jobName, final Build build) {
                 BalloonBuilder balloonBuilder = JBPopupFactory.getInstance().createHtmlTextBalloonBuilder(jobName + "#" + build.getNumber() + ": FAILED", MessageType.ERROR, null);
                 Balloon balloon = balloonBuilder.setFadeoutTime(TimeUnit.SECONDS.toMillis(1)).createBalloon();
@@ -174,19 +174,19 @@ public class JenkinsControlComponent
             }
         };
 
-        JenkinsBrowserLogic.JobLoadListener jobLoadListener = new JenkinsBrowserLogic.JobLoadListener() {
+        BrowserLogic.JobLoadListener jobLoadListener = new BrowserLogic.JobLoadListener() {
             @Override
             public void afterLoadingJobs(BuildStatusAggregator buildStatusAggregator) {
                 jenkinsWidget.updateInformation(buildStatusAggregator);
             }
         };
 
-        jenkinsBrowserLogic = new JenkinsBrowserLogic(configuration, jenkinsRequestManager, browserPanel, rssLatestJobPanel, buildStatusListener, jobLoadListener);
+        browserLogic = new BrowserLogic(configuration, jenkinsRequestManager, browserPanel, rssLatestJobPanel, buildStatusListener, jobLoadListener);
 
-        jenkinsBrowserLogic.getJenkinsBrowserPanel().getViewCombo().addItemListener(new ItemListener() {
+        browserLogic.getJenkinsBrowserPanel().getViewCombo().addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent itemEvent) {
-                View selectedView = (View) jenkinsBrowserLogic.getJenkinsBrowserPanel().getViewCombo().getSelectedItem();
+                View selectedView = (View) browserLogic.getJenkinsBrowserPanel().getViewCombo().getSelectedItem();
                 if (selectedView == null) {
                     return;
                 }
@@ -197,7 +197,7 @@ public class JenkinsControlComponent
         StartupManager.getInstance(project).registerPostStartupActivity(new DumbAwareRunnable() {
             @Override
             public void run() {
-                jenkinsBrowserLogic.init();
+                browserLogic.init();
             }
         });
 
