@@ -23,7 +23,6 @@ import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.security.SecurityClient;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -52,7 +51,7 @@ public class UberXmlRequestManagerTest {
     @Test
     public void loadJenkinsWorkSpace() throws Exception {
         when(securityClientMock.execute(any(URL.class)))
-                .thenReturn(IOUtils.toString(UberXmlRequestManagerTest.class.getResourceAsStream("XmlRequestManager_loadWorkspace.xml")));
+                .thenReturn(IOUtils.toString(UberXmlRequestManagerTest.class.getResourceAsStream("XmlRequestManager_loadJenkinsWorkspace.xml")));
         Jenkins jenkins = requestManager.loadJenkinsWorkspace(configuration);
 
         List<View> actualViews = jenkins.getViews();
@@ -70,7 +69,7 @@ public class UberXmlRequestManagerTest {
     @Test
     public void loadJenkinsWorkSpaceWithNestedViews() throws Exception {
         when(securityClientMock.execute(any(URL.class)))
-                .thenReturn(IOUtils.toString(UberXmlRequestManagerTest.class.getResourceAsStream("XmlRequestManager_loadWorkspaceWithNestedView.xml")));
+                .thenReturn(IOUtils.toString(UberXmlRequestManagerTest.class.getResourceAsStream("XmlRequestManager_loadJenkinsWorkspaceWithNestedView.xml")));
         Jenkins jenkins = requestManager.loadJenkinsWorkspace(configuration);
 
         List<View> actualViews = jenkins.getViews();
@@ -94,7 +93,7 @@ public class UberXmlRequestManagerTest {
     public void loadJenkinsWorkspaceWithIncorrectServerPortInTheResponse() throws Exception {
         configuration.setServerUrl("http://myjenkins:8080");
         when(securityClientMock.execute(any(URL.class)))
-                .thenReturn(IOUtils.toString(UberXmlRequestManagerTest.class.getResourceAsStream("XmlRequestManager_loadWorkspaceWithIncorrectPortInTheResponse.xml")));
+                .thenReturn(IOUtils.toString(UberXmlRequestManagerTest.class.getResourceAsStream("XmlRequestManager_loadJenkinsWorkspaceWithIncorrectPortInTheResponse.xml")));
         try {
             requestManager.loadJenkinsWorkspace(configuration);
             Assert.fail();
@@ -104,7 +103,7 @@ public class UberXmlRequestManagerTest {
 
         configuration.setServerUrl("http://myjenkins");
         when(securityClientMock.execute(any(URL.class)))
-                .thenReturn(IOUtils.toString(UberXmlRequestManagerTest.class.getResourceAsStream("XmlRequestManager_loadWorkspaceWithIncorrectPortInTheResponse.xml")));
+                .thenReturn(IOUtils.toString(UberXmlRequestManagerTest.class.getResourceAsStream("XmlRequestManager_loadJenkinsWorkspaceWithIncorrectPortInTheResponse.xml")));
         requestManager.loadJenkinsWorkspace(configuration);
 
     }
@@ -112,7 +111,7 @@ public class UberXmlRequestManagerTest {
     @Test
     public void loadJenkinsWorkspaceWithIncorrectRootTag() throws Exception {
         when(securityClientMock.execute(any(URL.class)))
-                .thenReturn(IOUtils.toString(UberXmlRequestManagerTest.class.getResourceAsStream("XmlRequestManager_loadWorkspaceWithIncorrectRootTag.xml")));
+                .thenReturn(IOUtils.toString(UberXmlRequestManagerTest.class.getResourceAsStream("XmlRequestManager_loadJenkinsWorkspaceWithIncorrectRootTag.xml")));
         try {
             requestManager.loadJenkinsWorkspace(configuration);
             Assert.fail();

@@ -64,6 +64,11 @@ public class Job {
         return new Job(jobName, jobColor, jobUrl, Boolean.valueOf(inQueue), Boolean.valueOf(buildable));
     }
 
+
+    public static Job createJob(String jobName, String jobColor, String jobUrl, Boolean inQueue, Boolean buildable) {
+        return new Job(jobName, jobColor, jobUrl, inQueue, buildable);
+    }
+
     public Icon getStateIcon() {
         return Build.getStateIcon(color);
     }
