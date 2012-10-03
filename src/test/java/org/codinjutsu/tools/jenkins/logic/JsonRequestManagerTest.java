@@ -18,7 +18,9 @@ package org.codinjutsu.tools.jenkins.logic;
 
 import org.apache.commons.io.IOUtils;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
+import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.model.Job;
+import org.codinjutsu.tools.jenkins.model.View;
 import org.codinjutsu.tools.jenkins.security.SecurityClient;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -27,6 +29,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.net.URL;
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
@@ -40,6 +44,51 @@ public class JsonRequestManagerTest {
 
     @Mock
     private SecurityClient securityClientMock;
+
+
+    @Test
+    @Ignore
+    public void loadJenkinsWorkSpace() throws Exception {
+        when(securityClientMock.execute(any(URL.class)))
+                .thenReturn(IOUtils.toString(UberXmlRequestManagerTest.class.getResourceAsStream("JsonRequestManager_loadWorkspace.json")));
+        Jenkins jenkins = requestManager.loadJenkinsWorkspace(configuration);
+
+        List<View> actualViews = jenkins.getViews();
+
+        List<View> expectedViews = new LinkedList<View>();
+        expectedViews.add(View.createView("Framework", "http://myjenkins/view/Framework/"));
+        expectedViews.add(View.createView("Tools", "http://myjenkins/view/Tools/"));
+        expectedViews.add(View.createView("Tous", "http://myjenkins/"));
+
+        assertReflectionEquals(expectedViews, actualViews);
+
+        assertReflectionEquals(View.createView("Tous", "http://myjenkins"), jenkins.getPrimaryView());
+    }
+
+    @Test
+    @Ignore
+    public void loadJenkinsWorkSpaceWithNestedViews() throws Exception {
+        when(securityClientMock.execute(any(URL.class)))
+                .thenReturn(IOUtils.toString(UberXmlRequestManagerTest.class.getResourceAsStream("JsonRequestManager_loadWorkspaceWithNestedView.json")));
+        Jenkins jenkins = requestManager.loadJenkinsWorkspace(configuration);
+
+        List<View> actualViews = jenkins.getViews();
+
+        List<View> expectedViews = new LinkedList<View>();
+        expectedViews.add(View.createView("Framework", "http://myjenkins/view/Framework/"));
+        View nestedView = View.createView("NestedView", "http://myjenkins/view/NestedView/");
+
+        nestedView.addSubView(View.createNestedView("FirstSubView", "http://myjenkins/view/NestedView/view/FirstSubView/"));
+        nestedView.addSubView(View.createNestedView("SecondSubView", "http://myjenkins/view/NestedView/view/SecondSubView/"));
+        expectedViews.add(nestedView);
+
+        expectedViews.add(View.createView("Tous", "http://myjenkins/"));
+
+        assertReflectionEquals(expectedViews, actualViews);
+
+        assertReflectionEquals(View.createView("Tous", "http://myjenkins"), jenkins.getPrimaryView());
+    }
+
 
     @Test
     @Ignore
