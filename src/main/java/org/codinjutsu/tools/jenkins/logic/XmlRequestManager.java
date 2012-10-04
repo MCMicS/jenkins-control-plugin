@@ -37,9 +37,9 @@ import java.io.StringReader;
 import java.net.URL;
 import java.util.*;
 
-public class UberXmlRequestManager implements RequestManager {
+public class XmlRequestManager implements RequestManager {
 
-    private static final Logger LOG = Logger.getLogger(UberXmlRequestManager.class);
+    private static final Logger LOG = Logger.getLogger(XmlRequestManager.class);
 
     private final UrlBuilder urlBuilder;
     private SecurityClient securityClient;
@@ -55,12 +55,12 @@ public class UberXmlRequestManager implements RequestManager {
     }
 
 
-    public UberXmlRequestManager(String crumbDataFile) {
+    public XmlRequestManager(String crumbDataFile) {
         this(SecurityClientFactory.none(crumbDataFile));
     }
 
 
-    public UberXmlRequestManager(SecurityClient securityClient) {
+    public XmlRequestManager(SecurityClient securityClient) {
         this.urlBuilder = UrlBuilder.xml();
         this.securityClient = securityClient;
     }

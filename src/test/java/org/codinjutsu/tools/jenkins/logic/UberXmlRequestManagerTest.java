@@ -40,7 +40,7 @@ import static org.unitils.reflectionassert.ReflectionAssert.assertReflectionEqua
 
 public class UberXmlRequestManagerTest {
 
-    private UberXmlRequestManager requestManager;
+    private XmlRequestManager requestManager;
 
     private JenkinsConfiguration configuration;
 
@@ -219,7 +219,7 @@ public class UberXmlRequestManagerTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         configuration = new JenkinsConfiguration();
-        requestManager = new UberXmlRequestManager(securityClientMock);
+        requestManager = new XmlRequestManager(securityClientMock);
     }
 
 }
