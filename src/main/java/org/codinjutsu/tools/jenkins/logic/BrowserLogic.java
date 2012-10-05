@@ -85,14 +85,6 @@ public class BrowserLogic implements Disposable {
         this.jobLoadListener = jobLoadListener;
     }
 
-    public static List<Job> createJobs(List<Element> jobElements) {
-        List<Job> jobs = new LinkedList<Job>();
-        for (Element jobElement : jobElements) {
-            jobs.add(XmlRequestManager.createJob(jobElement));
-        }
-        return jobs;
-    }
-
 
     public void init() {
         initGui();

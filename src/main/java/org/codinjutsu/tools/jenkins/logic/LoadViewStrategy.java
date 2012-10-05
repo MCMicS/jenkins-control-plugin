@@ -18,9 +18,12 @@ package org.codinjutsu.tools.jenkins.logic;
 
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.jdom.Document;
+import org.json.simple.JSONObject;
 
 import java.util.List;
 
 interface LoadViewStrategy {
-    public List<Job> loadJenkinsView(Document document);
+    List<Job> loadJenkinsView(Document document);
+
+    List<Job> loadJenkinsView(JSONObject jsonObject);
 }

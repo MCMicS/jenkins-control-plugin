@@ -1,6 +1,8 @@
-Version 0.5.5
+Version 0.6.0
+    * [Add] Support Cloudbees repository
     * [Add] Browser : Favorite Job feature (See README.md on github project)
     * [Add] Configuration Panel: when clicking on the Test Connection, if the HTTP code is 401 or 403 then the response body is displayed in a panel
+    * [Upd] Handling JSON data instead of XML
     * [Fix] Regression: NPE when clicking on the Test Connection
 
 Version 0.5.4
@@ -9,7 +11,7 @@ Version 0.5.4
     * [Fix] IDEA-86137 Thread leak in the EDT
     * [Fix] #25 The plugin should compare the configured port and the jenkins server one
     * [Fix] #26 Incorrect feedback message when clicking on the 'Test Connection' button
-    * [fix] Jenkins Panel disappears when typing CTRL + F4
+    * [Fix] Jenkins Panel disappears when typing CTRL + F4
 
 Version 0.5.3
     * [Fix] Widget : UI Issue on Windows and MacOS environment

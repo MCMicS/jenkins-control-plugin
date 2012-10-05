@@ -65,8 +65,15 @@ public class XmlRequestManager implements RequestManager {
         this.securityClient = securityClient;
     }
 
+    public static List<Job> createJobs(List<Element> jobElements) {
+        List<Job> jobs = new LinkedList<Job>();
+        for (Element jobElement : jobElements) {
+            jobs.add(createJob(jobElement));
+        }
+        return jobs;
+    }
 
-    @Override
+
     public Jenkins loadJenkinsWorkspace(JenkinsConfiguration configuration) {
         URL url = urlBuilder.createJenkinsWorkspaceUrl(configuration);
         String jenkinsWorkspaceData = securityClient.execute(url);
@@ -93,7 +100,6 @@ public class XmlRequestManager implements RequestManager {
     }
 
 
-    @Override
     public Map<String, Build> loadJenkinsRssLatestBuilds(JenkinsConfiguration configuration) {
         URL url = urlBuilder.createRssLatestUrl(configuration.getServerUrl());
 
@@ -104,7 +110,6 @@ public class XmlRequestManager implements RequestManager {
     }
 
 
-    @Override
     public List<Job> loadJenkinsView(String viewUrl) {
         URL url = urlBuilder.createViewUrl(jenkinsPlateform, viewUrl);
         String jenkinsViewData = securityClient.execute(url);
@@ -113,7 +118,6 @@ public class XmlRequestManager implements RequestManager {
     }
 
 
-    @Override
     public Job loadJob(String jenkinsJobUrl) {
         URL url = urlBuilder.createJobUrl(jenkinsJobUrl);
 
@@ -139,21 +143,18 @@ public class XmlRequestManager implements RequestManager {
     }
 
 
-    @Override
     public void runBuild(Job job, JenkinsConfiguration configuration) {
         URL url = urlBuilder.createRunJobUrl(job.getUrl(), configuration);
         securityClient.execute(url);
     }
 
 
-    @Override
     public void runParameterizedBuild(Job job, JenkinsConfiguration configuration, Map<String, String> paramValueMap) {
         URL url = urlBuilder.createRunParameterizedJobUrl(job.getUrl(), configuration, paramValueMap);
         securityClient.execute(url);
     }
 
 
-    @Override
     public void authenticate(final String serverUrl, SecurityMode securityMode, final String username, final String passwordFile, String crumbDataFile) {
         securityClient = SecurityClientFactory.create(securityMode, username, passwordFile, crumbDataFile);
         String jenkinsData = securityClient.connect(urlBuilder.createAuthenticationUrl(serverUrl));
@@ -335,7 +336,6 @@ public class XmlRequestManager implements RequestManager {
         return buildMap;
     }
 
-    @Override
     public List<Job> loadFavoriteJobs(List<JenkinsConfiguration.FavoriteJob> favoriteJobs) {
         List<Job> jobs = new LinkedList<Job>();
         for (JenkinsConfiguration.FavoriteJob favoriteJob : favoriteJobs) {
@@ -344,7 +344,7 @@ public class XmlRequestManager implements RequestManager {
         return jobs;
     }
 
-    void setJenkinsPlateform(JenkinsPlateform jenkinsPlateform) {
+    public void setJenkinsPlateform(JenkinsPlateform jenkinsPlateform) {
         this.jenkinsPlateform = jenkinsPlateform;
     }
 }

@@ -28,6 +28,7 @@ import java.util.Map;
 public interface RequestManager {
 
     String JOB = "job";
+    String JOBS = "jobs";
     String JOB_NAME = "name";
     String JOB_HEALTH = "healthReport";
     String JOB_HEALTH_ICON = "iconUrl";
@@ -38,6 +39,7 @@ public interface RequestManager {
     String JOB_IS_BUILDABLE = "buildable";
     String JOB_IS_IN_QUEUE = "inQueue";
     String VIEW = "view";
+    String VIEWS = "views";
     String PRIMARY_VIEW = "primaryView";
     String VIEW_NAME = "name";
     String VIEW_URL = "url";
@@ -48,6 +50,7 @@ public interface RequestManager {
     String BUILD_NUMBER = "number";
     String PARAMETER_PROPERTY = "property";
     String PARAMETER_DEFINITION = "parameterDefinition";
+    String PARAMETER_DEFINITIONS = "parameterDefinitions";
     String PARAMETER_NAME = "name";
     String PARAMETER_TYPE = "type";
     String PARAMETER_DEFAULT_PARAM = "defaultParameterValue";
@@ -62,6 +65,7 @@ public interface RequestManager {
     String HUDSON_ROOT_TAG = "hudson";
     String FOLDER_ROOT_TAG = "folder";
     String JENKINS_DESCRIPTION = "description";
+
 
     Jenkins loadJenkinsWorkspace(JenkinsConfiguration configuration);
 
@@ -78,4 +82,6 @@ public interface RequestManager {
     void authenticate(String serverUrl, SecurityMode securityMode, String username, String passwordFile, String crumbDataFile);
 
     List<Job> loadFavoriteJobs(List<JenkinsConfiguration.FavoriteJob> favoriteJobs);
+
+    void setJenkinsPlateform(JenkinsPlateform cloudbees);
 }

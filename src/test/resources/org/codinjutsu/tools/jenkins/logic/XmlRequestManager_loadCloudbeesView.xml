@@ -38,6 +38,10 @@
                 <description>24 tests en echec sur un total de 24 tests</description>
                 <iconUrl>health-00to19.gif</iconUrl>
             </healthReport>
+            <healthReport>
+                <description>Instable</description>
+                <iconUrl>health-00to19.gif</iconUrl>
+            </healthReport>
             <lastBuild>
                 <id>2012-04-02_16-26-29</id>
                 <building>true</building>

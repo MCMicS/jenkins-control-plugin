@@ -19,6 +19,8 @@ package org.codinjutsu.tools.jenkins.logic;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.jdom.Document;
 import org.jdom.Element;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import java.util.Collections;
 import java.util.List;
@@ -33,6 +35,12 @@ class LoadCloudbeesViewStrategy implements LoadViewStrategy {
         Element viewElement = viewElements.get(0);
         List<Element> jobElements = viewElement.getChildren(RequestManager.JOB);
 
-        return BrowserLogic.createJobs(jobElements);
+        return XmlRequestManager.createJobs(jobElements);
+    }
+
+    @Override
+    public List<Job> loadJenkinsView(JSONObject jsonObject) {
+        JSONArray jsonArray = (JSONArray) jsonObject.get(RequestManager.JOBS);
+        return JsonRequestManager.createJobs(jsonArray);
     }
 }
