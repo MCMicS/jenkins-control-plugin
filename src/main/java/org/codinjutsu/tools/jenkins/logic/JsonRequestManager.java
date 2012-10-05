@@ -16,30 +16,35 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
-import org.codinjutsu.tools.jenkins.model.Build;
-import org.codinjutsu.tools.jenkins.model.Jenkins;
-import org.codinjutsu.tools.jenkins.model.Job;
-import org.codinjutsu.tools.jenkins.model.View;
+import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.security.SecurityClient;
+import org.codinjutsu.tools.jenkins.security.SecurityClientFactory;
 import org.codinjutsu.tools.jenkins.security.SecurityMode;
+import org.codinjutsu.tools.jenkins.util.RssUtil;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class JsonRequestManager implements RequestManager {
 
     private static final Logger LOG = Logger.getLogger(JsonRequestManager.class);
+    public static final String BUILDHIVE_CLOUDBEES = "buildhive";
 
     private UrlBuilder urlBuilder;
     private SecurityClient securityClient;
@@ -51,11 +56,20 @@ public class JsonRequestManager implements RequestManager {
         this.securityClient = securityClient;
     }
 
+    public JsonRequestManager(String crumbFile) {
+        this(SecurityClientFactory.none(crumbFile));
+    }
+
     public Jenkins loadJenkinsWorkspace(JenkinsConfiguration configuration) {
         URL url = urlBuilder.createJenkinsWorkspaceUrl(configuration);
         String jenkinsWorkspaceData = securityClient.execute(url);
 
         JSONObject jsonObject = buildJSONObject(jenkinsWorkspaceData);
+        if (configuration.getServerUrl().contains(BUILDHIVE_CLOUDBEES)) {//TODO hack need to refactor
+            jenkinsPlateform = JenkinsPlateform.CLOUDBEES;
+        } else {
+            jenkinsPlateform = JenkinsPlateform.CLASSIC;
+        }
 
         Jenkins jenkins = createJenkins(jsonObject, configuration.getServerUrl());
         jenkins.setPrimaryView(createPreferredView(jsonObject));
@@ -111,10 +125,6 @@ public class JsonRequestManager implements RequestManager {
     }
 
     private Jenkins createJenkins(JSONObject jsonObject, String serverUrl) {
-//        Element jenkinsElement = doc.getRootElement();
-//        if (!ALLOWED_ROOT_TAGS.contains(jenkinsElement.getName())) {
-//            throw new ConfigurationException(String.format("The root tag is should be %s. Actual: '%s'", ALLOWED_ROOT_TAGS, jenkinsElement.getName()));
-//        }
         String description = (String) jsonObject.get(JENKINS_DESCRIPTION);
         if (description == null) {
             description = "";
@@ -123,7 +133,12 @@ public class JsonRequestManager implements RequestManager {
     }
 
     public Map<String, Build> loadJenkinsRssLatestBuilds(JenkinsConfiguration configuration) {
-        throw new UnsupportedOperationException();
+        URL url = urlBuilder.createRssLatestUrl(configuration.getServerUrl());
+
+        String rssData = securityClient.execute(url);
+        Document doc = buildDocument(rssData);
+
+        return createLatestBuildList(doc);
     }
 
     public List<Job> loadJenkinsView(String viewUrl) {
@@ -252,7 +267,7 @@ public class JsonRequestManager implements RequestManager {
     }
 
     public static List<Job> createJobs(JSONArray jsonArray) {
-        List<Job> jobs = new LinkedList<Job>();
+        List<Job> jobs = new ArrayList<Job>(jsonArray.size());
         for (Object obj : jsonArray) {
             JSONObject jsonObject = (JSONObject) obj;
             jobs.add(createJob(jsonObject));
@@ -261,15 +276,18 @@ public class JsonRequestManager implements RequestManager {
     }
 
     public void runBuild(Job job, JenkinsConfiguration configuration) {
-        throw new UnsupportedOperationException();
+        URL url = urlBuilder.createRunJobUrl(job.getUrl(), configuration);
+        securityClient.execute(url);
     }
 
     public void runParameterizedBuild(Job job, JenkinsConfiguration configuration, Map<String, String> paramValueMap) {
-        throw new UnsupportedOperationException();
+        URL url = urlBuilder.createRunParameterizedJobUrl(job.getUrl(), configuration, paramValueMap);
+        securityClient.execute(url);
     }
 
     public void authenticate(String serverUrl, SecurityMode securityMode, String username, String passwordFile, String crumbDataFile) {
-        throw new UnsupportedOperationException();
+        securityClient = SecurityClientFactory.create(securityMode, username, passwordFile, crumbDataFile);
+        String jenkinsData = securityClient.connect(urlBuilder.createAuthenticationUrl(serverUrl));
     }
 
     public List<Job> loadFavoriteJobs(List<JenkinsConfiguration.FavoriteJob> favoriteJobs) {
@@ -278,5 +296,54 @@ public class JsonRequestManager implements RequestManager {
 
     public void setJenkinsPlateform(JenkinsPlateform jenkinsPlateform) {
         this.jenkinsPlateform = jenkinsPlateform;
+    }
+
+    private Document buildDocument(String jenkinsXmlData) {
+        Reader jenkinsDataReader = new StringReader(jenkinsXmlData);
+        try {
+            return new SAXBuilder(false).build(jenkinsDataReader);
+        } catch (JDOMException e) {
+            LOG.error("Invalid data received from the Jenkins Server. Actual :\n" + jenkinsXmlData, e);
+            throw new RuntimeException("Invalid data received from the Jenkins Server. Please retry");
+        } catch (IOException e) {
+            LOG.error("Error during analyzing the Jenkins data.", e);
+            throw new RuntimeException("Error during analyzing the Jenkins data.");
+        } finally {
+            IOUtils.closeQuietly(jenkinsDataReader);
+        }
+    }
+
+    private Map<String, Build> createLatestBuildList(Document doc) {
+
+        Map<String, Build> buildMap = new LinkedHashMap<String, Build>();
+        Element rootElement = doc.getRootElement();
+
+        List<Element> elements = rootElement.getChildren(RSS_ENTRY, rootElement.getNamespace());
+        for (Element element : elements) {
+            String title = element.getChildText(RSS_TITLE, rootElement.getNamespace());
+            String publishedBuild = element.getChildText(RSS_PUBLISHED, rootElement.getNamespace());
+            String jobName = RssUtil.extractBuildJob(title);
+            String number = RssUtil.extractBuildNumber(title);
+            BuildStatusEnum status = RssUtil.extractStatus(title);
+            Element linkElement = element.getChild(RSS_LINK, rootElement.getNamespace());
+            String link = linkElement.getAttributeValue(RSS_LINK_HREF);
+
+            if (!BuildStatusEnum.NULL.equals(status)) {
+                buildMap.put(jobName, Build.createBuildFromRss(link, number, status.getStatus(), Boolean.FALSE.toString(), publishedBuild, title));
+
+            }
+
+        }
+
+        return buildMap;
+    }
+
+    private static Build createLastBuild(Element jobLastBuild) {
+        String isBuilding = jobLastBuild.getChildText(BUILD_IS_BUILDING);
+        String status = jobLastBuild.getChildText(BUILD_RESULT);
+        String number = jobLastBuild.getChildText(BUILD_NUMBER);
+        String buildUrl = jobLastBuild.getChildText(BUILD_URL);
+        String date = jobLastBuild.getChildText(BUILD_ID);
+        return Build.createBuildFromWorkspace(buildUrl, number, status, isBuilding, date);
     }
 }

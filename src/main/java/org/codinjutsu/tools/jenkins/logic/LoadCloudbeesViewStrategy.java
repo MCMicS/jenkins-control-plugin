@@ -40,7 +40,12 @@ class LoadCloudbeesViewStrategy implements LoadViewStrategy {
 
     @Override
     public List<Job> loadJenkinsView(JSONObject jsonObject) {
-        JSONArray jsonArray = (JSONArray) jsonObject.get(RequestManager.JOBS);
-        return JsonRequestManager.createJobs(jsonArray);
+        JSONArray jsonArray1 = (JSONArray) jsonObject.get(RequestManager.VIEWS);
+        if (jsonArray1 != null && !jsonArray1.isEmpty()) {
+            JSONArray jsonArray = (JSONArray) ((JSONObject) jsonArray1.get(0)).get(RequestManager.JOBS);
+            return JsonRequestManager.createJobs(jsonArray);
+        } else {
+            return Collections.emptyList();
+        }
     }
 }

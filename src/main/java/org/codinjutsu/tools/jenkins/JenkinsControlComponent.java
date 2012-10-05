@@ -35,10 +35,7 @@ import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.xmlb.XmlSerializerUtil;
-import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
-import org.codinjutsu.tools.jenkins.logic.BrowserLogic;
-import org.codinjutsu.tools.jenkins.logic.RequestManager;
-import org.codinjutsu.tools.jenkins.logic.XmlRequestManager;
+import org.codinjutsu.tools.jenkins.logic.*;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.View;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
@@ -159,7 +156,7 @@ public class JenkinsControlComponent
         ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
         ToolWindow toolWindow = toolWindowManager.registerToolWindow(JENKINS_BROWSER, false, ToolWindowAnchor.RIGHT);
 
-        requestManager = new XmlRequestManager(configuration.getCrumbFile());
+        requestManager = new JsonRequestManager(configuration.getCrumbFile());
 
         JenkinsBrowserPanel browserPanel = new JenkinsBrowserPanel(configuration.getFavoriteJobs());
         RssLatestBuildPanel rssLatestJobPanel = new RssLatestBuildPanel();

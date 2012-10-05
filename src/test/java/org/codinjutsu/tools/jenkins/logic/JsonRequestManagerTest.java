@@ -51,7 +51,6 @@ public class JsonRequestManagerTest {
 
 
     @Test
-    @Ignore
     public void loadJenkinsWorkSpace() throws Exception {
         when(securityClientMock.execute(any(URL.class)))
                 .thenReturn(IOUtils.toString(UberXmlRequestManagerTest.class.getResourceAsStream("JsonRequestManager_loadWorkspace.json")));
@@ -70,7 +69,6 @@ public class JsonRequestManagerTest {
     }
 
     @Test
-    @Ignore
     public void loadJenkinsWorkSpaceWithNestedViews() throws Exception {
         when(securityClientMock.execute(any(URL.class)))
                 .thenReturn(IOUtils.toString(UberXmlRequestManagerTest.class.getResourceAsStream("JsonRequestManager_loadWorkspaceWithNestedView.json")));
@@ -95,7 +93,6 @@ public class JsonRequestManagerTest {
 
 
     @Test
-    @Ignore
     public void loadClassicView() throws Exception {
         when(securityClientMock.execute(any(URL.class)))
                 .thenReturn(IOUtils.toString(UberXmlRequestManagerTest.class.getResourceAsStream("JsonRequestManager_loadClassicView.json")));
@@ -125,7 +122,6 @@ public class JsonRequestManagerTest {
     }
 
     @Test
-    @Ignore
     public void loadCloudbeesView() throws Exception {
         when(securityClientMock.execute(any(URL.class)))
                 .thenReturn(IOUtils.toString(UberXmlRequestManagerTest.class.getResourceAsStream("JsonRequestManager_loadCloudbeesView.json")));
@@ -156,7 +152,6 @@ public class JsonRequestManagerTest {
     }
 
     @Test
-    @Ignore
     public void loadJenkinsWorkspaceWithIncorrectServerPortInTheResponse() throws Exception {
         configuration.setServerUrl("http://myjenkins:8080");
         when(securityClientMock.execute(any(URL.class)))
@@ -176,7 +171,6 @@ public class JsonRequestManagerTest {
     }
 
     @Test
-    @Ignore
     public void testLoadJob() throws Exception {
         when(securityClientMock.execute(any(URL.class)))
                 .thenReturn(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadJob.json")));

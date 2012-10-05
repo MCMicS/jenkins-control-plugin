@@ -244,7 +244,7 @@ public class JenkinsConfigurationPanel {
                     if (ex instanceof AuthenticationException) {
                         AuthenticationException authenticationException = (AuthenticationException) ex;
                         String responseBody = authenticationException.getResponseBody();
-                        if (StringUtils.isNotEmpty(responseBody)) {
+                        if (StringUtils.isNotBlank(responseBody)) {
                             debugPanel.setVisible(true);
                             debugTextPane.setText(responseBody);
                         }
