@@ -28,6 +28,7 @@ import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
 import java.awt.*;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -308,6 +309,10 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
             if (view.hasNestedView()) return true;
         }
         return false;
+    }
+
+    public void update() {
+        ((DefaultTreeModel) jobTree.getModel()).nodeChanged((TreeNode) jobTree.getSelectionPath().getLastPathComponent());
     }
 
 

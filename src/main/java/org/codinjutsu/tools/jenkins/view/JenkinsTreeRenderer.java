@@ -74,13 +74,15 @@ class JenkinsTreeRenderer extends DefaultTreeCellRenderer {
                     expanded, leaf, row,
                     hasFocus);
 
-            setToolTipText(job.findHealthDescription());
             setFont(job);
+            setToolTipText(job.findHealthDescription());
             if (isFavoriteJob(job)) {
                 setIcon(new CompositeIcon(job.getStateIcon(), job.getHealthIcon(), FAVORITE_ICON));
+                this.repaint();
             } else {
                 setIcon(new CompositeIcon(job.getStateIcon(), job.getHealthIcon()));
             }
+            updateUI();
             return this;
         }
         return super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);

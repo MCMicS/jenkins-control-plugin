@@ -38,6 +38,8 @@ import org.codinjutsu.tools.jenkins.view.action.settings.SortByStatusAction;
 import org.jdom.Element;
 
 import javax.swing.*;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -345,7 +347,8 @@ public class BrowserLogic implements Disposable {
     public void setAsFavorite(Job job) {
         configuration.addFavorite(job);
         createFavoriteViewIfNecessary();
-        jenkinsBrowserPanel.getJobTree().repaint();
+        jenkinsBrowserPanel.update();
+
     }
 
     private void createFavoriteViewIfNecessary() {
@@ -358,7 +361,7 @@ public class BrowserLogic implements Disposable {
 
     public void removeFavorite(Job selectedJob) {
         configuration.removeFavorite(selectedJob);
-        jenkinsBrowserPanel.getJobTree().repaint();
+        jenkinsBrowserPanel.update();
         if (configuration.isFavoriteViewEmpty() && getSelectedJenkinsView() instanceof FavoriteView) {
             jenkinsBrowserPanel.resetViewCombo(jenkins.getViews());
             jenkinsBrowserPanel.getViewCombo().getModel().setSelectedItem(jenkins.getPrimaryView());
