@@ -16,10 +16,13 @@
 
 package org.codinjutsu.tools.jenkins.util;
 
+import com.intellij.openapi.actionSystem.ActionGroup;
+import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.IconLoader;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class GuiUtil {
 
@@ -39,5 +42,17 @@ public class GuiUtil {
         } else {
             SwingUtilities.invokeLater(runnable);
         }
+    }
+
+    public static void installActionGroupInToolBar(ActionGroup actionGroup,
+                                                   JComponent component,
+                                                   ActionManager actionManager, String toolBarName) {
+        if (actionManager == null) {
+            return;
+        }
+
+        JComponent actionToolbar = ActionManager.getInstance()
+                .createActionToolbar(toolBarName, actionGroup, true).getComponent();
+        component.add(actionToolbar, BorderLayout.CENTER);
     }
 }

@@ -35,16 +35,11 @@ import org.codinjutsu.tools.jenkins.view.action.search.NextOccurrenceAction;
 import org.codinjutsu.tools.jenkins.view.action.search.OpenJobSearchPanelAction;
 import org.codinjutsu.tools.jenkins.view.action.search.PrevOccurrenceAction;
 import org.codinjutsu.tools.jenkins.view.action.settings.SortByStatusAction;
-import org.jdom.Element;
 
 import javax.swing.*;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeNode;
-import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -180,7 +175,7 @@ public class BrowserLogic implements Disposable {
             actionGroup.addSeparator();
             actionGroup.add(new CleanRssAction(this));
         }
-        installActionGroupInToolBar(actionGroup, rssActionPanel, ActionManager.getInstance(), JENKINS_RSS_ACTIONS);
+        GuiUtil.installActionGroupInToolBar(actionGroup, rssActionPanel, ActionManager.getInstance(), JENKINS_RSS_ACTIONS);
     }
 
 
@@ -200,7 +195,7 @@ public class BrowserLogic implements Disposable {
             actionGroup.addSeparator();
             actionGroup.add(new OpenPluginSettingsAction());
         }
-        installActionGroupInToolBar(actionGroup, toolBar, ActionManager.getInstance(), JENKINS_ACTIONS);
+        GuiUtil.installActionGroupInToolBar(actionGroup, toolBar, ActionManager.getInstance(), JENKINS_ACTIONS);
         installActionGroupInPopupMenu(actionGroup, jobTree, ActionManager.getInstance());
     }
 
@@ -307,19 +302,6 @@ public class BrowserLogic implements Disposable {
             return;
         }
         PopupHandler.installPopupHandler(component, group, "POPUP", actionManager);
-    }
-
-
-    private static void installActionGroupInToolBar(ActionGroup actionGroup,
-                                                    JComponent component,
-                                                    ActionManager actionManager, String toolBarName) {
-        if (actionManager == null) {
-            return;
-        }
-
-        JComponent actionToolbar = ActionManager.getInstance()
-                .createActionToolbar(toolBarName, actionGroup, true).getComponent();
-        component.add(actionToolbar, BorderLayout.CENTER);
     }
 
 
