@@ -46,7 +46,7 @@ import static org.codinjutsu.tools.jenkins.JenkinsConfiguration.RESET_STR_VALUE;
 import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.*;
 
 @SuppressWarnings({"unchecked"})
-public class JenkinsConfigurationPanel {
+public class ConfigurationPanel {
 
     private static final Color CONNECTION_TEST_SUCCESSFUL_COLOR = new Color(0, 165, 0);
     private static final Color CONNECTION_TEST_FAILED_COLOR = new Color(165, 0, 0);
@@ -92,11 +92,11 @@ public class JenkinsConfigurationPanel {
 
     private final RequestManager requestManager;
 
-    public JenkinsConfigurationPanel(RequestManager requestManager) {
+    public ConfigurationPanel(RequestManager requestManager) {
         this(requestManager, true);
     }
 
-    public JenkinsConfigurationPanel(final RequestManager requestManager, boolean installBrowserFileBrowser) {
+    public ConfigurationPanel(final RequestManager requestManager, boolean installBrowserFileBrowser) {
         this.requestManager = requestManager;
 
         serverUrl.setName("serverUrl");

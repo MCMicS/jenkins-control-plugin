@@ -35,7 +35,7 @@ import static org.mockito.Mockito.doThrow;
 
 public class JenkinsConfigurationPanelTest extends UISpecTestCase {
 
-    private JenkinsConfigurationPanel jenkinsConfigurationPanel;
+    private ConfigurationPanel jenkinsConfigurationPanel;
     private JenkinsConfiguration configuration;
     private Panel uiSpecPanel;
 
@@ -306,7 +306,7 @@ public class JenkinsConfigurationPanelTest extends UISpecTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         MockitoAnnotations.initMocks(this);
-        jenkinsConfigurationPanel = new JenkinsConfigurationPanel(requestManager, false);
+        jenkinsConfigurationPanel = new ConfigurationPanel(requestManager, false);
 
         configuration = new JenkinsConfiguration();
         jenkinsConfigurationPanel.loadConfigurationData(configuration);

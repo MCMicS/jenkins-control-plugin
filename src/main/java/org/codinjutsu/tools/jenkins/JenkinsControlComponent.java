@@ -66,7 +66,7 @@ public class JenkinsControlComponent
     private static final String JENKINS_BROWSER_ICON = "jenkins_logo.png";
 
     private final JenkinsConfiguration configuration;
-    private JenkinsConfigurationPanel configurationPanel;
+    private ConfigurationPanel configurationPanel;
 
     private final Project project;
     private BrowserLogic browserLogic;
@@ -93,7 +93,7 @@ public class JenkinsControlComponent
 
     public JComponent createComponent() {
         if (configurationPanel == null) {
-            configurationPanel = new JenkinsConfigurationPanel(requestManager);
+            configurationPanel = new ConfigurationPanel(requestManager);
         }
         return configurationPanel.getRootPanel();
     }
