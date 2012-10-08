@@ -118,7 +118,13 @@ class JenkinsTreeRenderer extends DefaultTreeCellRenderer {
         if (build == null) {
             return job.getName();
         }
-        return String.format("%s #%s% (s)", job.getName(), build.getNumber(), job.isInQueue() ? "in queue" : "running");
+        String status = "";
+        if (job.isInQueue()) {
+            status = " (in queue)";
+        } else if (build.isBuilding()) {
+            status = " (running)";
+        }
+        return String.format("%s #%s%s", job.getName(), build.getNumber(), status);
     }
 
 
