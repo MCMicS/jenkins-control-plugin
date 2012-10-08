@@ -21,18 +21,18 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
-import org.codinjutsu.tools.jenkins.view.JenkinsBrowserPanel;
+import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 
 abstract class AbstractGotoWebPageAction extends AnAction implements DumbAware {
-    final JenkinsBrowserPanel jenkinsBrowserPanel;
+    final BrowserPanel browserPanel;
 
 
     AbstractGotoWebPageAction(String label,
                               String description,
                               String iconFilename,
-                              JenkinsBrowserPanel jenkinsBrowserPanel) {
+                              BrowserPanel browserPanel) {
         super(label, description, GuiUtil.loadIcon(iconFilename));
-        this.jenkinsBrowserPanel = jenkinsBrowserPanel;
+        this.browserPanel = browserPanel;
     }
 
 

@@ -27,7 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
-import org.codinjutsu.tools.jenkins.view.JenkinsBrowserPanel;
+import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.codinjutsu.tools.jenkins.view.JobSearchComponent;
 import org.codinjutsu.tools.jenkins.view.RssLatestBuildPanel;
 import org.codinjutsu.tools.jenkins.view.action.*;
@@ -62,7 +62,7 @@ public class BrowserLogic implements Disposable {
     private final Runnable refreshViewJob = new LoadSelectedViewJob();
 
     private final Runnable refreshRssBuildsJob = new LoadLatestBuildsJob(true);
-    private final JenkinsBrowserPanel jenkinsBrowserPanel;
+    private final BrowserPanel browserPanel;
 
     private final RssLatestBuildPanel rssLatestJobPanel;
 
@@ -73,10 +73,10 @@ public class BrowserLogic implements Disposable {
     private ScheduledFuture<?> refreshRssBuildFutureTask;
 
 
-    public BrowserLogic(JenkinsConfiguration configuration, RequestManager requestManager, JenkinsBrowserPanel jenkinsBrowserPanel, RssLatestBuildPanel rssLatestJobPanel, BuildStatusListener buildStatusListener, JobLoadListener jobLoadListener) {
+    public BrowserLogic(JenkinsConfiguration configuration, RequestManager requestManager, BrowserPanel browserPanel, RssLatestBuildPanel rssLatestJobPanel, BuildStatusListener buildStatusListener, JobLoadListener jobLoadListener) {
         this.configuration = configuration;
         this.requestManager = requestManager;
-        this.jenkinsBrowserPanel = jenkinsBrowserPanel;
+        this.browserPanel = browserPanel;
         this.rssLatestJobPanel = rssLatestJobPanel;
         this.buildStatusListener = buildStatusListener;
         this.jobLoadListener = jobLoadListener;
@@ -112,7 +112,7 @@ public class BrowserLogic implements Disposable {
 
         String lastSelectedViewName = configuration.getLastSelectedView();
         if (StringUtils.isNotEmpty(lastSelectedViewName)) {
-            jenkinsBrowserPanel.getViewByName(lastSelectedViewName);
+            browserPanel.getViewByName(lastSelectedViewName);
         }
 
         loadSelectedView();
@@ -133,10 +133,10 @@ public class BrowserLogic implements Disposable {
 
 
     private void initGui() {
-        jenkinsBrowserPanel.createSearchPanel();
+        browserPanel.createSearchPanel();
         installRssActions(rssLatestJobPanel.getRssActionPanel());
-        installBrowserActions(jenkinsBrowserPanel.getJobTree(), jenkinsBrowserPanel.getActionPanel());
-        installSearchActions(jenkinsBrowserPanel.getSearchComponent());
+        installBrowserActions(browserPanel.getJobTree(), browserPanel.getActionPanel());
+        installSearchActions(browserPanel.getSearchComponent());
     }
 
 
@@ -147,7 +147,7 @@ public class BrowserLogic implements Disposable {
 
     private void loadJenkinsWorkspace() {
         jenkins = requestManager.loadJenkinsWorkspace(configuration);
-        jenkinsBrowserPanel.fillData(jenkins);
+        browserPanel.fillData(jenkins);
     }
 
 
@@ -159,12 +159,12 @@ public class BrowserLogic implements Disposable {
 
 
     public Jenkins getJenkins() {
-        return jenkinsBrowserPanel.getJenkins();
+        return browserPanel.getJenkins();
     }
 
 
     public Job getSelectedJob() {
-        return jenkinsBrowserPanel.getSelectedJob();
+        return browserPanel.getSelectedJob();
     }
 
 
@@ -186,8 +186,8 @@ public class BrowserLogic implements Disposable {
             actionGroup.addSeparator();
             actionGroup.add(new RunBuildAction(this));
             actionGroup.addSeparator();
-            actionGroup.add(new GotoJobPageAction(jenkinsBrowserPanel));
-            actionGroup.add(new GotoLastBuildPageAction(jenkinsBrowserPanel));
+            actionGroup.add(new GotoJobPageAction(browserPanel));
+            actionGroup.add(new GotoLastBuildPageAction(browserPanel));
             actionGroup.addSeparator();
             actionGroup.add(new SetJobAsFavoriteAction(this));
             actionGroup.add(new UnsetJobAsFavoriteAction(this));
@@ -209,7 +209,7 @@ public class BrowserLogic implements Disposable {
         ActionToolbar searchBar = ActionManager.getInstance().createActionToolbar("SearchBar", actionGroup, true);
         searchComponent.installSearchToolBar(searchBar);
 
-        new OpenJobSearchPanelAction(jenkinsBrowserPanel, jenkinsBrowserPanel.getSearchComponent());
+        new OpenJobSearchPanelAction(browserPanel, browserPanel.getSearchComponent());
     }
 
 
@@ -269,17 +269,17 @@ public class BrowserLogic implements Disposable {
 
 
     private void displayMissingConfiguration() {
-        jenkinsBrowserPanel.setErrorMsg(configuration.getServerUrl(), "(Missing configuration. Check Jenkins Plugin Settings.)");
+        browserPanel.setErrorMsg(configuration.getServerUrl(), "(Missing configuration. Check Jenkins Plugin Settings.)");
     }
 
 
     private void displayConnectionErrorMsg() {
-        jenkinsBrowserPanel.setErrorMsg(configuration.getServerUrl(), "(Unable to connect. Check Jenkins Plugin Settings.)");
+        browserPanel.setErrorMsg(configuration.getServerUrl(), "(Unable to connect. Check Jenkins Plugin Settings.)");
     }
 
 
     private View getSelectedJenkinsView() {
-        return jenkinsBrowserPanel.getSelectedJenkinsView();
+        return browserPanel.getSelectedJenkinsView();
     }
 
 
@@ -306,7 +306,7 @@ public class BrowserLogic implements Disposable {
 
 
     private void initListeners() {
-        jenkinsBrowserPanel.getViewCombo().addItemListener(new ItemListener() {
+        browserPanel.getViewCombo().addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent evt) {
                 if (evt.getStateChange() == ItemEvent.SELECTED) {
                     loadSelectedView();
@@ -316,8 +316,8 @@ public class BrowserLogic implements Disposable {
     }
 
 
-    public JenkinsBrowserPanel getJenkinsBrowserPanel() {
-        return jenkinsBrowserPanel;
+    public BrowserPanel getBrowserPanel() {
+        return browserPanel;
     }
 
 
@@ -329,24 +329,24 @@ public class BrowserLogic implements Disposable {
     public void setAsFavorite(Job job) {
         configuration.addFavorite(job);
         createFavoriteViewIfNecessary();
-        jenkinsBrowserPanel.update();
+        browserPanel.update();
 
     }
 
     private void createFavoriteViewIfNecessary() {
-        FavoriteView favoriteView = jenkinsBrowserPanel.getFavoriteView();
+        FavoriteView favoriteView = browserPanel.getFavoriteView();
         if (favoriteView == null) {
             favoriteView = FavoriteView.create();
-            jenkinsBrowserPanel.updateViewCombo(favoriteView);
+            browserPanel.updateViewCombo(favoriteView);
         }
     }
 
     public void removeFavorite(Job selectedJob) {
         configuration.removeFavorite(selectedJob);
-        jenkinsBrowserPanel.update();
+        browserPanel.update();
         if (configuration.isFavoriteViewEmpty() && getSelectedJenkinsView() instanceof FavoriteView) {
-            jenkinsBrowserPanel.resetViewCombo(jenkins.getViews());
-            jenkinsBrowserPanel.getViewCombo().getModel().setSelectedItem(jenkins.getPrimaryView());
+            browserPanel.resetViewCombo(jenkins.getViews());
+            browserPanel.getViewCombo().getModel().setSelectedItem(jenkins.getPrimaryView());
         } else {
             View selectedJenkinsView = getSelectedJenkinsView();
             if (selectedJenkinsView instanceof FavoriteView) {
@@ -394,7 +394,7 @@ public class BrowserLogic implements Disposable {
 
             configuration.setLastSelectedView(selectedView.getName());
 
-            jenkinsBrowserPanel.startWaiting();
+            browserPanel.startWaiting();
             final List<Job> jobList;
 
             if (selectedView instanceof FavoriteView) {
@@ -410,8 +410,8 @@ public class BrowserLogic implements Disposable {
             GuiUtil.runInSwingThread(new Runnable() {
                 @Override
                 public void run() {
-                    jenkinsBrowserPanel.fillJobTree(jenkins, buildStatusAggregator);
-                    jenkinsBrowserPanel.endWaiting();
+                    browserPanel.fillJobTree(jenkins, buildStatusAggregator);
+                    browserPanel.endWaiting();
                     buildStatusAggregator.setNbJobs(jobList.size());
                     jobLoadListener.afterLoadingJobs(buildStatusAggregator);
                 }

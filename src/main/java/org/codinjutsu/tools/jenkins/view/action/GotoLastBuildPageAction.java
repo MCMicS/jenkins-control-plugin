@@ -18,27 +18,27 @@ package org.codinjutsu.tools.jenkins.view.action;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.codinjutsu.tools.jenkins.model.Job;
-import org.codinjutsu.tools.jenkins.view.JenkinsBrowserPanel;
+import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 
 public class GotoLastBuildPageAction extends AbstractGotoWebPageAction {
 
-    public GotoLastBuildPageAction(JenkinsBrowserPanel jenkinsBrowserPanel) {
+    public GotoLastBuildPageAction(BrowserPanel browserPanel) {
         super("Go to the latest build page",
                 "Open the latest build page in a web browser",
-                "page_gear.png", jenkinsBrowserPanel);
+                "page_gear.png", browserPanel);
     }
 
 
     @Override
     public String getUrl() {
-        Job job = jenkinsBrowserPanel.getSelectedJob();
+        Job job = browserPanel.getSelectedJob();
         return job.getLastBuild().getUrl();
     }
 
 
     @Override
     public void update(AnActionEvent event) {
-        Job job = jenkinsBrowserPanel.getSelectedJob();
+        Job job = browserPanel.getSelectedJob();
         event.getPresentation().setVisible(job != null
                 && job.getLastBuild() != null
                 && !job.isInQueue());

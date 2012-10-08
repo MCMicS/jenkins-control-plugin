@@ -158,7 +158,7 @@ public class JenkinsControlComponent
 
         requestManager = new JsonRequestManager(configuration.getCrumbFile());
 
-        JenkinsBrowserPanel browserPanel = new JenkinsBrowserPanel(configuration.getFavoriteJobs());
+        BrowserPanel browserPanel = new BrowserPanel(configuration.getFavoriteJobs());
         RssLatestBuildPanel rssLatestJobPanel = new RssLatestBuildPanel();
 
         jenkinsWidget = new JenkinsWidget();
@@ -180,10 +180,10 @@ public class JenkinsControlComponent
 
         browserLogic = new BrowserLogic(configuration, requestManager, browserPanel, rssLatestJobPanel, buildStatusListener, jobLoadListener);
 
-        browserLogic.getJenkinsBrowserPanel().getViewCombo().addItemListener(new ItemListener() {
+        browserLogic.getBrowserPanel().getViewCombo().addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent itemEvent) {
-                View selectedView = (View) browserLogic.getJenkinsBrowserPanel().getViewCombo().getSelectedItem();
+                View selectedView = (View) browserLogic.getBrowserPanel().getViewCombo().getSelectedItem();
                 if (selectedView == null) {
                     return;
                 }

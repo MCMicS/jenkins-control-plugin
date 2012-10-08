@@ -19,7 +19,7 @@ package org.codinjutsu.tools.jenkins.view.action.search;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.util.SystemInfo;
-import org.codinjutsu.tools.jenkins.view.JenkinsBrowserPanel;
+import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.codinjutsu.tools.jenkins.view.JobSearchComponent;
 
 import java.awt.event.InputEvent;
@@ -29,11 +29,11 @@ public class OpenJobSearchPanelAction extends AnAction {
 
     private final JobSearchComponent searchComponent;
 
-    public OpenJobSearchPanelAction(JenkinsBrowserPanel jenkinsBrowserPanel, JobSearchComponent searchComponent) {
+    public OpenJobSearchPanelAction(BrowserPanel browserPanel, JobSearchComponent searchComponent) {
         this.searchComponent = searchComponent;
         this.searchComponent.setVisible(false);
 
-        registerCustomShortcutSet(KeyEvent.VK_F, SystemInfo.isMac ? InputEvent.META_MASK : InputEvent.CTRL_MASK, jenkinsBrowserPanel);
+        registerCustomShortcutSet(KeyEvent.VK_F, SystemInfo.isMac ? InputEvent.META_MASK : InputEvent.CTRL_MASK, browserPanel);
     }
 
     @Override

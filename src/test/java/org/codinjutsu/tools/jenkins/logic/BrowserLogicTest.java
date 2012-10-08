@@ -21,7 +21,7 @@ import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.security.AuthenticationException;
 import org.codinjutsu.tools.jenkins.security.SecurityMode;
-import org.codinjutsu.tools.jenkins.view.JenkinsBrowserPanel;
+import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.codinjutsu.tools.jenkins.view.JobSearchComponent;
 import org.codinjutsu.tools.jenkins.view.RssLatestBuildPanel;
 import org.mockito.Mock;
@@ -143,7 +143,7 @@ public class BrowserLogicTest extends UISpecTestCase {
 
     private void createLogic() {
         jobViewCallback = new MyJobLoadListener();
-        browserLogic = new BrowserLogic(configuration, requestManagerMock, new JenkinsBrowserPanel(), new RssLatestBuildPanel(), BrowserLogic.BuildStatusListener.NULL, jobViewCallback) {
+        browserLogic = new BrowserLogic(configuration, requestManagerMock, new BrowserPanel(), new RssLatestBuildPanel(), BrowserLogic.BuildStatusListener.NULL, jobViewCallback) {
             @Override
             protected void installRssActions(JPanel rssActionPanel) {
             }
@@ -185,7 +185,7 @@ public class BrowserLogicTest extends UISpecTestCase {
     }
 
     private void initUI() {
-        uiSpecBrowserPanel = new Panel(browserLogic.getJenkinsBrowserPanel());
+        uiSpecBrowserPanel = new Panel(browserLogic.getBrowserPanel());
     }
 
     private void createConfiguration(String serverUrl) {

@@ -21,25 +21,25 @@ import java.awt.*;
 
 public class JenkinsPanel extends JPanel {
 
-    public static JenkinsPanel onePanel(JenkinsBrowserPanel jenkinsBrowserPanel, RssLatestBuildPanel rssLatestJobPanel) {
-        return new JenkinsPanel(jenkinsBrowserPanel, rssLatestJobPanel);
+    public static JenkinsPanel onePanel(BrowserPanel browserPanel, RssLatestBuildPanel rssLatestJobPanel) {
+        return new JenkinsPanel(browserPanel, rssLatestJobPanel);
     }
 
-//    public static JenkinsPanel browserOnly(JenkinsBrowserPanel jenkinsBrowserPanel) {
+//    public static JenkinsPanel browserOnly(BrowserPanel jenkinsBrowserPanel) {
 //        return new JenkinsPanel(jenkinsBrowserPanel);
 //    }
 //
-//    private JenkinsPanel(JenkinsBrowserPanel jenkinsBrowserPanel) {
+//    private JenkinsPanel(BrowserPanel jenkinsBrowserPanel) {
 //        setLayout(new BorderLayout());
 //        add(jenkinsBrowserPanel, BorderLayout.CENTER);
 //    }
 
-    private JenkinsPanel(JenkinsBrowserPanel jenkinsBrowserPanel, RssLatestBuildPanel rssLatestJobPanel) {
+    private JenkinsPanel(BrowserPanel browserPanel, RssLatestBuildPanel rssLatestJobPanel) {
         setLayout(new BorderLayout());
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         splitPane.setOneTouchExpandable(true);
-        splitPane.setTopComponent(jenkinsBrowserPanel);
+        splitPane.setTopComponent(browserPanel);
         splitPane.setBottomComponent(rssLatestJobPanel);
         splitPane.setDividerLocation(600);
 

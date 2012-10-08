@@ -34,7 +34,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-public class JenkinsBrowserPanel extends JPanel implements Disposable {
+public class BrowserPanel extends JPanel implements Disposable {
     private JComboBox viewCombo;
     private JTree jobTree;
     private JPanel rootPanel;
@@ -48,12 +48,12 @@ public class JenkinsBrowserPanel extends JPanel implements Disposable {
     private boolean sortedByBuildStatus;
     private final JobComparator jobStatusComparator = new JobStatusComparator();
 
-    public JenkinsBrowserPanel() {
+    public BrowserPanel() {
         this(Collections.<JenkinsConfiguration.FavoriteJob>emptyList());
     }
 
 
-    public JenkinsBrowserPanel(List<JenkinsConfiguration.FavoriteJob> favoriteJobs) {
+    public BrowserPanel(List<JenkinsConfiguration.FavoriteJob> favoriteJobs) {
         jobTree.setCellRenderer(new JenkinsTreeRenderer(favoriteJobs));
         jobTree.setName("jobTree");
         viewCombo.setName("viewCombo");

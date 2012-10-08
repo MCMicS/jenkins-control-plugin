@@ -28,7 +28,7 @@ import static java.util.Arrays.asList;
 public class JenkinsBrowserPanelTest extends UISpecTestCase {
 
     private Panel uiSpecBrowserPanel;
-    private JenkinsBrowserPanel jenkinsBrowserPanel;
+    private BrowserPanel browserPanel;
 
     public void test_displayJenkinsWithTwoJobs() throws Exception {
         ComboBox comboBox = uiSpecBrowserPanel.getComboBox("viewCombo");
@@ -44,7 +44,7 @@ public class JenkinsBrowserPanelTest extends UISpecTestCase {
     }
 
     public void test_sortJobTreeByBuildStatus() throws Exception {
-        assertFalse(jenkinsBrowserPanel.isSortedByStatus());
+        assertFalse(browserPanel.isSortedByStatus());
         Tree jobTree = getJobTree(uiSpecBrowserPanel);
         jobTree.contentEquals(
                 "Jenkins (master)\n" +
@@ -52,14 +52,14 @@ public class JenkinsBrowserPanelTest extends UISpecTestCase {
                         "  capri #15 (running) #(bold)\n" +
                         "  bench #10\n").check();
 
-        jenkinsBrowserPanel.setSortedByStatus(true);
+        browserPanel.setSortedByStatus(true);
         jobTree.contentEquals(
                 "Jenkins (master)\n" +
                         "  capri #15 (running) #(bold)\n" +
                         "  mint #150\n" +
                         "  bench #10\n").check();
 
-        jenkinsBrowserPanel.setSortedByStatus(false);
+        browserPanel.setSortedByStatus(false);
         jobTree.contentEquals(
                 "Jenkins (master)\n" +
                         "  mint #150\n" +
@@ -89,10 +89,10 @@ public class JenkinsBrowserPanelTest extends UISpecTestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        jenkinsBrowserPanel = new JenkinsBrowserPanel();
-        jenkinsBrowserPanel.createSearchPanel();
-        jenkinsBrowserPanel.fillData(createJenkinsWorkspace());
-        uiSpecBrowserPanel = new Panel(jenkinsBrowserPanel);
+        browserPanel = new BrowserPanel();
+        browserPanel.createSearchPanel();
+        browserPanel.fillData(createJenkinsWorkspace());
+        uiSpecBrowserPanel = new Panel(browserPanel);
 
     }
 

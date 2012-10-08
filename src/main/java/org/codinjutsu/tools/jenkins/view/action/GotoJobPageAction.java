@@ -17,23 +17,23 @@
 package org.codinjutsu.tools.jenkins.view.action;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import org.codinjutsu.tools.jenkins.view.JenkinsBrowserPanel;
+import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 
 public class GotoJobPageAction extends AbstractGotoWebPageAction {
 
-    public GotoJobPageAction(JenkinsBrowserPanel jenkinsBrowserPanel) {
-        super("Go to the job page", "Open the job page in a web browser", "page_go.png", jenkinsBrowserPanel);
+    public GotoJobPageAction(BrowserPanel browserPanel) {
+        super("Go to the job page", "Open the job page in a web browser", "page_go.png", browserPanel);
     }
 
 
     @Override
     protected String getUrl() {
-        return jenkinsBrowserPanel.getSelectedJob().getUrl();
+        return browserPanel.getSelectedJob().getUrl();
     }
 
 
     @Override
     public void update(AnActionEvent event) {
-        event.getPresentation().setVisible(jenkinsBrowserPanel.getSelectedJob() != null);
+        event.getPresentation().setVisible(browserPanel.getSelectedJob() != null);
     }
 }

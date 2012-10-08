@@ -40,7 +40,7 @@ public class SortByStatusAction extends ToggleAction implements DumbAware {
     @Override
     public void setSelected(AnActionEvent anActionEvent, boolean sorted) {
         sortedByStatus = sorted;
-        browserLogic.getJenkinsBrowserPanel().setSortedByStatus(sorted);
+        browserLogic.getBrowserPanel().setSortedByStatus(sorted);
     }
 
 }
