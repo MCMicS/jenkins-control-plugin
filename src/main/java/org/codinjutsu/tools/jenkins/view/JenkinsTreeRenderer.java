@@ -32,6 +32,8 @@ import java.util.List;
 class JenkinsTreeRenderer extends DefaultTreeCellRenderer {
 
     private static final Icon FAVORITE_ICON = GuiUtil.loadIcon("star_tn.png");
+    private static final Icon SERVER_ICON = GuiUtil.loadIcon("server_wrench.png");
+    private static final Icon SERVER_ERROR_ICON = GuiUtil.loadIcon("server_error.png");
 
     private final List<JenkinsConfiguration.FavoriteJob> favoriteJobs;
 
@@ -57,9 +59,9 @@ class JenkinsTreeRenderer extends DefaultTreeCellRenderer {
                     expanded, leaf, row,
                     hasFocus);
             if (!jenkins.getJobs().isEmpty()) {
-                setIcon(GuiUtil.loadIcon("server_wrench.png"));
+                setIcon(SERVER_ICON);
             } else {
-                setIcon(GuiUtil.loadIcon("server_error.png"));
+                setIcon(SERVER_ERROR_ICON);
             }
             setToolTipText(jenkins.getServerUrl());
             setFont(getFont().deriveFont(Font.ITALIC));
@@ -113,17 +115,10 @@ class JenkinsTreeRenderer extends DefaultTreeCellRenderer {
     private static String buildLabel(Job job) {
 
         Build build = job.getLastBuild();
-        StringBuilder stringBuilder = new StringBuilder(job.getName());
-        if (build != null) {
-            stringBuilder.append(" #").append(build.getNumber());
-            if (job.isInQueue()) {
-                stringBuilder.append(" (in queue)");
-            } else if (build.isBuilding()) {
-                stringBuilder.append(" (running)");
-            }
+        if (build == null) {
+            return job.getName();
         }
-
-        return stringBuilder.toString();
+        return String.format("%s #%s% (s)", job.getName(), build.getNumber(), job.isInQueue() ? "in queue" : "running");
     }
 
 

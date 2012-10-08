@@ -25,15 +25,6 @@ public class JenkinsPanel extends JPanel {
         return new JenkinsPanel(browserPanel, rssLatestJobPanel);
     }
 
-//    public static JenkinsPanel browserOnly(BrowserPanel jenkinsBrowserPanel) {
-//        return new JenkinsPanel(jenkinsBrowserPanel);
-//    }
-//
-//    private JenkinsPanel(BrowserPanel jenkinsBrowserPanel) {
-//        setLayout(new BorderLayout());
-//        add(jenkinsBrowserPanel, BorderLayout.CENTER);
-//    }
-
     private JenkinsPanel(BrowserPanel browserPanel, RssLatestBuildPanel rssLatestJobPanel) {
         setLayout(new BorderLayout());
 
