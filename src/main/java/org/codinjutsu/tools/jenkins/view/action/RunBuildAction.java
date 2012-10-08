@@ -69,6 +69,7 @@ public class RunBuildAction extends AnAction implements DumbAware {
             } else {
                 requestManager.runBuild(job, jenkinsControlComponent.getState());
                 notifyOnGoingMessage(jenkinsControlComponent, job);
+                browserLogic.loadSelectedJob();
             }
 
         } catch (Exception ex) {

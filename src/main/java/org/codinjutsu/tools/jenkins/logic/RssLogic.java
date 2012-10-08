@@ -28,7 +28,6 @@ import org.codinjutsu.tools.jenkins.view.action.CleanRssAction;
 import org.codinjutsu.tools.jenkins.view.action.RefreshRssAction;
 
 import javax.swing.*;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -39,10 +38,8 @@ public class RssLogic {
 
     private static final String JENKINS_RSS_ACTIONS = "JenkinsRssActions";
 
-    private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(2);
-
     private final RssLatestBuildPanel rssLatestJobPanel;
-    private final BrowserLogic.BuildStatusListener buildStatusListener;
+    private final BuildStatusListener buildStatusListener;
 
     private final JenkinsConfiguration configuration;
     private RequestManager requestManager;
@@ -52,7 +49,7 @@ public class RssLogic {
     private final Runnable refreshRssBuildsJob = new LoadLatestBuildsJob(true);
     private ScheduledFuture<?> refreshRssBuildFutureTask;
 
-    public RssLogic(JenkinsConfiguration configuration, RequestManager requestManager, RssLatestBuildPanel rssLatestJobPanel, BrowserLogic.BuildStatusListener buildStatusListener) {
+    public RssLogic(JenkinsConfiguration configuration, RequestManager requestManager, RssLatestBuildPanel rssLatestJobPanel, BuildStatusListener buildStatusListener) {
         this.configuration = configuration;
         this.requestManager = requestManager;
         this.rssLatestJobPanel = rssLatestJobPanel;
@@ -62,9 +59,9 @@ public class RssLogic {
     protected void installRssActions(JPanel rssActionPanel) {
         DefaultActionGroup actionGroup = new DefaultActionGroup(JENKINS_RSS_ACTIONS, true);
         if (ApplicationManager.getApplication() != null) {
-//TODO            actionGroup.add(new RefreshRssAction(this));
+            actionGroup.add(new RefreshRssAction(this));
             actionGroup.addSeparator();
-//TODO            actionGroup.add(new CleanRssAction(this));
+            actionGroup.add(new CleanRssAction(this));
         }
         installActionGroupInToolBar(actionGroup, rssActionPanel, ActionManager.getInstance(), JENKINS_RSS_ACTIONS);
     }
@@ -80,7 +77,7 @@ public class RssLogic {
         rssLatestJobPanel.cleanRssEntries();
     }
 
-    private void initScheduledJobs() {
+    void initScheduledJobs(ScheduledThreadPoolExecutor scheduledThreadPoolExecutor) {
         safeTaskCancel(refreshRssBuildFutureTask);
 
         scheduledThreadPoolExecutor.remove(refreshRssBuildsJob);
@@ -124,6 +121,24 @@ public class RssLogic {
         }
 
         return newBuildMap;
+    }
+
+    public void init() {
+        initGui();
+        reloadConfiguration();
+    }
+
+    void reloadConfiguration() {
+        cleanRssEntries();
+
+//        initScheduledJobs();
+    }
+
+    private void initGui() {
+        installRssActions(rssLatestJobPanel.getRssActionPanel());
+    }
+
+    public void dispose() {
     }
 
     private class LoadLatestBuildsJob implements Runnable {

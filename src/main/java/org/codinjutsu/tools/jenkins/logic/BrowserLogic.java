@@ -25,11 +25,13 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.ui.PopupHandler;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
-import org.codinjutsu.tools.jenkins.model.*;
+import org.codinjutsu.tools.jenkins.model.FavoriteView;
+import org.codinjutsu.tools.jenkins.model.Jenkins;
+import org.codinjutsu.tools.jenkins.model.Job;
+import org.codinjutsu.tools.jenkins.model.View;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.codinjutsu.tools.jenkins.view.JobSearchComponent;
-import org.codinjutsu.tools.jenkins.view.RssLatestBuildPanel;
 import org.codinjutsu.tools.jenkins.view.action.*;
 import org.codinjutsu.tools.jenkins.view.action.search.NextOccurrenceAction;
 import org.codinjutsu.tools.jenkins.view.action.search.OpenJobSearchPanelAction;
@@ -39,46 +41,32 @@ import org.codinjutsu.tools.jenkins.view.action.settings.SortByStatusAction;
 import javax.swing.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.*;
 
 public class BrowserLogic implements Disposable {
 
     private static final String JENKINS_JOB_ACTION_GROUP = "JenkinsJobGroup";
-    private static final String JENKINS_RSS_ACTIONS = "JenkinsRssActions";
     private static final String JENKINS_ACTIONS = "jenkinsBrowserActions";
 
     private final JenkinsConfiguration configuration;
     private final RequestManager requestManager;
 
-    private final BuildStatusListener buildStatusListener;
-
-    private final Map<String, Build> currentBuildMap = new HashMap<String, Build>();
-    private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(2);
 
     private final Runnable refreshViewJob = new LoadSelectedViewJob();
 
-    private final Runnable refreshRssBuildsJob = new LoadLatestBuildsJob(true);
     private final BrowserPanel browserPanel;
-
-    private final RssLatestBuildPanel rssLatestJobPanel;
 
     private Jenkins jenkins;
 
     private JobLoadListener jobLoadListener = JobLoadListener.NULL;
     private ScheduledFuture<?> refreshViewFutureTask;
-    private ScheduledFuture<?> refreshRssBuildFutureTask;
 
 
-    public BrowserLogic(JenkinsConfiguration configuration, RequestManager requestManager, BrowserPanel browserPanel, RssLatestBuildPanel rssLatestJobPanel, BuildStatusListener buildStatusListener, JobLoadListener jobLoadListener) {
+    public BrowserLogic(JenkinsConfiguration configuration, RequestManager requestManager, BrowserPanel browserPanel, JobLoadListener jobLoadListener) {
         this.configuration = configuration;
         this.requestManager = requestManager;
         this.browserPanel = browserPanel;
-        this.rssLatestJobPanel = rssLatestJobPanel;
-        this.buildStatusListener = buildStatusListener;
         this.jobLoadListener = jobLoadListener;
     }
 
@@ -116,12 +104,6 @@ public class BrowserLogic implements Disposable {
         }
 
         loadSelectedView();
-
-        loadLatestBuilds(false);
-
-        cleanRssEntries();
-
-        initScheduledJobs();
     }
 
 
@@ -134,14 +116,8 @@ public class BrowserLogic implements Disposable {
 
     private void initGui() {
         browserPanel.createSearchPanel();
-        installRssActions(rssLatestJobPanel.getRssActionPanel());
         installBrowserActions(browserPanel.getJobTree(), browserPanel.getActionPanel());
         installSearchActions(browserPanel.getSearchComponent());
-    }
-
-
-    public void cleanRssEntries() {
-        rssLatestJobPanel.cleanRssEntries();
     }
 
 
@@ -165,17 +141,6 @@ public class BrowserLogic implements Disposable {
 
     public Job getSelectedJob() {
         return browserPanel.getSelectedJob();
-    }
-
-
-    protected void installRssActions(JPanel rssActionPanel) {
-        DefaultActionGroup actionGroup = new DefaultActionGroup(JENKINS_RSS_ACTIONS, true);
-        if (ApplicationManager.getApplication() != null) {
-            actionGroup.add(new RefreshRssAction(this));
-            actionGroup.addSeparator();
-            actionGroup.add(new CleanRssAction(this));
-        }
-        GuiUtil.installActionGroupInToolBar(actionGroup, rssActionPanel, ActionManager.getInstance(), JENKINS_RSS_ACTIONS);
     }
 
 
@@ -213,47 +178,12 @@ public class BrowserLogic implements Disposable {
     }
 
 
-    private Entry<String, Build> getFirstFailedBuild(Map<String, Build> finishedBuilds) {
-        for (Entry<String, Build> buildByJobName : finishedBuilds.entrySet()) {
-            Build build = buildByJobName.getValue();
-            if (build.getStatus() == BuildStatusEnum.FAILURE) {
-                return buildByJobName;
-            }
-        }
-        return null;
-    }
-
-
-    private Map<String, Build> loadAndReturnNewLatestBuilds() {
-        Map<String, Build> latestBuildMap = requestManager.loadJenkinsRssLatestBuilds(configuration);
-        Map<String, Build> newBuildMap = new HashMap<String, Build>();
-        for (Entry<String, Build> entry : latestBuildMap.entrySet()) {
-            String jobName = entry.getKey();
-            Build newBuild = entry.getValue();
-            Build currentBuild = currentBuildMap.get(jobName);
-            if (!currentBuildMap.containsKey(jobName) || newBuild.isAfter(currentBuild)) {
-                currentBuildMap.put(jobName, newBuild);
-                newBuildMap.put(jobName, newBuild);
-            }
-        }
-
-        return newBuildMap;
-    }
-
-
-    private void initScheduledJobs() {
+    void initScheduledJobs(ScheduledThreadPoolExecutor scheduledThreadPoolExecutor) {
         safeTaskCancel(refreshViewFutureTask);
-        safeTaskCancel(refreshRssBuildFutureTask);
-
-        scheduledThreadPoolExecutor.remove(refreshRssBuildsJob);
         scheduledThreadPoolExecutor.remove(refreshViewJob);
 
         if (configuration.isEnableJobAutoRefresh()) {
             refreshViewFutureTask = scheduledThreadPoolExecutor.scheduleWithFixedDelay(refreshViewJob, configuration.getJobRefreshPeriod(), configuration.getJobRefreshPeriod(), TimeUnit.MINUTES);
-        }
-
-        if (configuration.isEnableRssAutoRefresh()) {
-            refreshRssBuildFutureTask = scheduledThreadPoolExecutor.scheduleWithFixedDelay(refreshRssBuildsJob, configuration.getRssRefreshPeriod(), configuration.getRssRefreshPeriod(), TimeUnit.MINUTES);
         }
     }
 
@@ -287,14 +217,6 @@ public class BrowserLogic implements Disposable {
         return requestManager;
     }
 
-
-    public void loadLatestBuilds(boolean shouldDisplayResult) {
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.submit(new LoadLatestBuildsJob(shouldDisplayResult));
-        executorService.shutdown();
-    }
-
-
     private static void installActionGroupInPopupMenu(ActionGroup group,
                                                       JComponent component,
                                                       ActionManager actionManager) {
@@ -323,7 +245,7 @@ public class BrowserLogic implements Disposable {
 
     @Override
     public void dispose() {
-        scheduledThreadPoolExecutor.shutdown();
+
     }
 
     public void setAsFavorite(Job job) {
@@ -357,27 +279,6 @@ public class BrowserLogic implements Disposable {
 
     public boolean isAFavoriteJob(String jobName) {
         return configuration.isAFavoriteJob(jobName);
-    }
-
-    public interface BuildStatusListener {
-
-        void onBuildFailure(String jobName, Build build);
-
-        public static BuildStatusListener NULL = new BuildStatusListener() {
-            public void onBuildFailure(String jobName, Build build) {
-            }
-        };
-    }
-
-    public interface JobLoadListener {
-
-        void afterLoadingJobs(BuildStatusAggregator buildStatusAggregator);
-
-        JobLoadListener NULL = new JobLoadListener() {
-            @Override
-            public void afterLoadingJobs(BuildStatusAggregator buildStatusAggregator) {
-            }
-        };
     }
 
     private class LoadSelectedViewJob implements Runnable {
@@ -420,32 +321,14 @@ public class BrowserLogic implements Disposable {
         }
     }
 
-    private class LoadLatestBuildsJob implements Runnable {
-        private final boolean shouldDisplayResult;
+    public interface JobLoadListener {
 
-        public LoadLatestBuildsJob(boolean shouldDisplayResult) {
-            this.shouldDisplayResult = shouldDisplayResult;
-        }
+        void afterLoadingJobs(BuildStatusAggregator buildStatusAggregator);
 
-        @Override
-        public void run() {
-            final Map<String, Build> finishedBuilds = loadAndReturnNewLatestBuilds();
-            if (!shouldDisplayResult) {
-                return;
+        JobLoadListener NULL = new JobLoadListener() {
+            @Override
+            public void afterLoadingJobs(BuildStatusAggregator buildStatusAggregator) {
             }
-
-            GuiUtil.runInSwingThread(new Runnable() {
-                @Override
-                public void run() {
-                    rssLatestJobPanel.addFinishedBuild(finishedBuilds);
-
-                    Entry<String, Build> firstFailedBuild = getFirstFailedBuild(finishedBuilds);
-                    if (firstFailedBuild != null) {
-                        buildStatusListener.onBuildFailure(firstFailedBuild.getKey(), firstFailedBuild.getValue());
-                    }
-                }
-            });
-
-        }
+        };
     }
 }

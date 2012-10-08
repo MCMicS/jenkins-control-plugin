@@ -37,7 +37,6 @@ import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.codinjutsu.tools.jenkins.logic.*;
 import org.codinjutsu.tools.jenkins.model.Build;
-import org.codinjutsu.tools.jenkins.model.View;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.*;
 import org.jetbrains.annotations.Nls;
@@ -45,8 +44,6 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.concurrent.TimeUnit;
 
 import static org.codinjutsu.tools.jenkins.view.action.RunBuildAction.RUN_ICON;
@@ -59,19 +56,19 @@ public class JenkinsControlComponent
         implements ProjectComponent, Configurable, PersistentStateComponent<JenkinsConfiguration> {
 
     static final String JENKINS_CONTROL_COMPONENT_NAME = "JenkinsControlComponent";
-    private static final String JENKINS_CONTROL_PLUGIN_NAME = "Jenkins Control Plugin";
+    private static final String JENKINS_CONTROL_PLUGIN_NAME = "Jenkins Plugin";
 
-    private static final String JENKINS_BROWSER = "jenkinsBrowser";
-    private static final String JENKINS_BROWSER_TITLE = "Jenkins Browser";
+    private static final String JENKINS_BROWSER = "Jenkins";
     private static final String JENKINS_BROWSER_ICON = "jenkins_logo.png";
 
     private final JenkinsConfiguration configuration;
     private ConfigurationPanel configurationPanel;
 
     private final Project project;
-    private BrowserLogic browserLogic;
+    //    private BrowserLogic browserLogic;
     private RequestManager requestManager;
     private JenkinsWidget jenkinsWidget;
+    private JenkinsLogic jenkinsLogic;
 
 
     public JenkinsControlComponent(Project project) {
@@ -86,7 +83,7 @@ public class JenkinsControlComponent
 
 
     public void projectClosed() {
-        browserLogic.dispose();
+        jenkinsLogic.dispose();
         ToolWindowManager.getInstance(project).unregisterToolWindow(JENKINS_BROWSER);
     }
 
@@ -128,7 +125,7 @@ public class JenkinsControlComponent
         if (configurationPanel != null) {
             try {
                 configurationPanel.applyConfigurationData(configuration);
-                browserLogic.reloadConfiguration();
+                jenkinsLogic.reloadConfiguration();
 
             } catch (org.codinjutsu.tools.jenkins.exception.ConfigurationException ex) {
                 throw new ConfigurationException(ex.getMessage());
@@ -163,7 +160,7 @@ public class JenkinsControlComponent
 
         jenkinsWidget = new JenkinsWidget();
 
-        BrowserLogic.BuildStatusListener buildStatusListener = new BrowserLogic.BuildStatusListener() {
+        RssLogic.BuildStatusListener buildStatusListener = new RssLogic.BuildStatusListener() {
             public void onBuildFailure(final String jobName, final Build build) {
                 BalloonBuilder balloonBuilder = JBPopupFactory.getInstance().createHtmlTextBalloonBuilder(jobName + "#" + build.getNumber() + ": FAILED", MessageType.ERROR, null);
                 Balloon balloon = balloonBuilder.setFadeoutTime(TimeUnit.SECONDS.toMillis(1)).createBalloon();
@@ -178,23 +175,12 @@ public class JenkinsControlComponent
             }
         };
 
-        browserLogic = new BrowserLogic(configuration, requestManager, browserPanel, rssLatestJobPanel, buildStatusListener, jobLoadListener);
-
-        browserLogic.getBrowserPanel().getViewCombo().addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent itemEvent) {
-                View selectedView = (View) browserLogic.getBrowserPanel().getViewCombo().getSelectedItem();
-                if (selectedView == null) {
-                    return;
-                }
-                configuration.setLastSelectedView(selectedView.getName());
-            }
-        });
+        jenkinsLogic = new JenkinsLogic(configuration, requestManager, browserPanel, rssLatestJobPanel, buildStatusListener, jobLoadListener);
 
         StartupManager.getInstance(project).registerPostStartupActivity(new DumbAwareRunnable() {
             @Override
             public void run() {
-                browserLogic.init();
+                jenkinsLogic.init();
             }
         });
 
@@ -204,7 +190,7 @@ public class JenkinsControlComponent
 
 
         Content content = ContentFactory.SERVICE.getInstance()
-                .createContent(JenkinsPanel.onePanel(browserPanel, rssLatestJobPanel), JENKINS_BROWSER_TITLE, false);
+                .createContent(JenkinsPanel.onePanel(browserPanel, rssLatestJobPanel), null, false);
         toolWindow.getContentManager().
 
                 addContent(content);

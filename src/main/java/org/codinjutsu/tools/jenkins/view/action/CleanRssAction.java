@@ -20,13 +20,14 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
 import org.codinjutsu.tools.jenkins.logic.BrowserLogic;
+import org.codinjutsu.tools.jenkins.logic.RssLogic;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
 public class CleanRssAction extends AnAction implements DumbAware {
-    private final BrowserLogic logic;
+    private final RssLogic logic;
 
 
-    public CleanRssAction(BrowserLogic logic) {
+    public CleanRssAction(RssLogic logic) {
         super("Clean last completed builds", "Clean last completed builds", GuiUtil.loadIcon("erase.png"));
         this.logic = logic;
     }

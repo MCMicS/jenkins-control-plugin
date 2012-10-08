@@ -23,7 +23,6 @@ import org.codinjutsu.tools.jenkins.security.AuthenticationException;
 import org.codinjutsu.tools.jenkins.security.SecurityMode;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.codinjutsu.tools.jenkins.view.JobSearchComponent;
-import org.codinjutsu.tools.jenkins.view.RssLatestBuildPanel;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.uispec4j.*;
@@ -143,10 +142,7 @@ public class BrowserLogicTest extends UISpecTestCase {
 
     private void createLogic() {
         jobViewCallback = new MyJobLoadListener();
-        browserLogic = new BrowserLogic(configuration, requestManagerMock, new BrowserPanel(), new RssLatestBuildPanel(), BrowserLogic.BuildStatusListener.NULL, jobViewCallback) {
-            @Override
-            protected void installRssActions(JPanel rssActionPanel) {
-            }
+        browserLogic = new BrowserLogic(configuration, requestManagerMock, new BrowserPanel(), jobViewCallback) {
 
             @Override
             protected void installBrowserActions(JTree jobTree, JPanel panel) {
