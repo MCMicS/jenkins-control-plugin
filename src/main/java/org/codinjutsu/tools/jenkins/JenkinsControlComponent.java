@@ -150,11 +150,8 @@ public class JenkinsControlComponent
 
 
     private void installJenkinsPanel() {
-        ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
-        ToolWindow toolWindow = toolWindowManager.registerToolWindow(JENKINS_BROWSER, false, ToolWindowAnchor.RIGHT);
 
         requestManager = new JsonRequestManager(configuration.getCrumbFile());
-
         jenkinsWidget = new JenkinsWidget();
 
         BrowserPanel browserPanel = new BrowserPanel(configuration.getFavoriteJobs());
@@ -165,7 +162,6 @@ public class JenkinsControlComponent
             }
         };
         BrowserLogic browserLogic = new BrowserLogic(configuration, requestManager, browserPanel, jobLoadListener);
-
 
         RssLogic.BuildStatusListener buildStatusListener = new RssLogic.BuildStatusListener() {
             public void onBuildFailure(final String jobName, final Build build) {
@@ -190,11 +186,11 @@ public class JenkinsControlComponent
         statusBar.addWidget(jenkinsWidget);
         jenkinsWidget.install(statusBar);
 
-
         Content content = ContentFactory.SERVICE.getInstance()
                 .createContent(JenkinsPanel.onePanel(browserPanel, rssLatestJobPanel), null, false);
+        ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
+        ToolWindow toolWindow = toolWindowManager.registerToolWindow(JENKINS_BROWSER, false, ToolWindowAnchor.RIGHT);
         toolWindow.getContentManager().addContent(content);
-
         toolWindow.setIcon(GuiUtil.loadIcon(JENKINS_BROWSER_ICON));
     }
 

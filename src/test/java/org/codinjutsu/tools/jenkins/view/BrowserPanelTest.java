@@ -25,7 +25,7 @@ import org.uispec4j.*;
 
 import static java.util.Arrays.asList;
 
-public class JenkinsBrowserPanelTest extends UISpecTestCase {
+public class BrowserPanelTest extends UISpecTestCase {
 
     private Panel uiSpecBrowserPanel;
     private BrowserPanel browserPanel;
