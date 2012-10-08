@@ -17,10 +17,6 @@
 package org.codinjutsu.tools.jenkins.logic;
 
 import com.intellij.openapi.Disposable;
-import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
-import org.codinjutsu.tools.jenkins.model.Build;
-import org.codinjutsu.tools.jenkins.view.BrowserPanel;
-import org.codinjutsu.tools.jenkins.view.RssLatestBuildPanel;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
@@ -31,10 +27,9 @@ public class JenkinsLogic implements Disposable {
     private final BrowserLogic browserLogic;
     private final RssLogic rssLogic;
 
-    public JenkinsLogic(JenkinsConfiguration configuration, RequestManager requestManager, BrowserPanel browserPanel, RssLatestBuildPanel rssLatestJobPanel,
-                        RssLogic.BuildStatusListener buildStatusListener, BrowserLogic.JobLoadListener jobLoadListener) {
-        browserLogic = new BrowserLogic(configuration, requestManager, browserPanel, jobLoadListener);
-        rssLogic = new RssLogic(configuration, requestManager, rssLatestJobPanel, buildStatusListener);
+    public JenkinsLogic(BrowserLogic browserLogic, RssLogic rssLogic) {
+        this.browserLogic = browserLogic;
+        this.rssLogic = rssLogic;
     }
 
     public void init() {

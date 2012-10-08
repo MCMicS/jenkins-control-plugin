@@ -65,7 +65,7 @@ public class JenkinsControlComponent
     private ConfigurationPanel configurationPanel;
 
     private final Project project;
-    //    private BrowserLogic browserLogic;
+
     private RequestManager requestManager;
     private JenkinsWidget jenkinsWidget;
     private JenkinsLogic jenkinsLogic;
@@ -155,10 +155,17 @@ public class JenkinsControlComponent
 
         requestManager = new JsonRequestManager(configuration.getCrumbFile());
 
-        BrowserPanel browserPanel = new BrowserPanel(configuration.getFavoriteJobs());
-        RssLatestBuildPanel rssLatestJobPanel = new RssLatestBuildPanel();
-
         jenkinsWidget = new JenkinsWidget();
+
+        BrowserPanel browserPanel = new BrowserPanel(configuration.getFavoriteJobs());
+        BrowserLogic.JobLoadListener jobLoadListener = new BrowserLogic.JobLoadListener() {
+            @Override
+            public void afterLoadingJobs(BuildStatusAggregator buildStatusAggregator) {
+                jenkinsWidget.updateInformation(buildStatusAggregator);
+            }
+        };
+        BrowserLogic browserLogic = new BrowserLogic(configuration, requestManager, browserPanel, jobLoadListener);
+
 
         RssLogic.BuildStatusListener buildStatusListener = new RssLogic.BuildStatusListener() {
             public void onBuildFailure(final String jobName, final Build build) {
@@ -167,15 +174,10 @@ public class JenkinsControlComponent
                 balloon.show(new RelativePoint(jenkinsWidget.getComponent(), new Point(0, 0)), Balloon.Position.above);
             }
         };
+        RssLatestBuildPanel rssLatestJobPanel = new RssLatestBuildPanel();
+        RssLogic rssLogic = new RssLogic(configuration, requestManager, rssLatestJobPanel, buildStatusListener);
 
-        BrowserLogic.JobLoadListener jobLoadListener = new BrowserLogic.JobLoadListener() {
-            @Override
-            public void afterLoadingJobs(BuildStatusAggregator buildStatusAggregator) {
-                jenkinsWidget.updateInformation(buildStatusAggregator);
-            }
-        };
-
-        jenkinsLogic = new JenkinsLogic(configuration, requestManager, browserPanel, rssLatestJobPanel, buildStatusListener, jobLoadListener);
+        jenkinsLogic = new JenkinsLogic(browserLogic, rssLogic);
 
         StartupManager.getInstance(project).registerPostStartupActivity(new DumbAwareRunnable() {
             @Override
@@ -191,9 +193,7 @@ public class JenkinsControlComponent
 
         Content content = ContentFactory.SERVICE.getInstance()
                 .createContent(JenkinsPanel.onePanel(browserPanel, rssLatestJobPanel), null, false);
-        toolWindow.getContentManager().
-
-                addContent(content);
+        toolWindow.getContentManager().addContent(content);
 
         toolWindow.setIcon(GuiUtil.loadIcon(JENKINS_BROWSER_ICON));
     }
