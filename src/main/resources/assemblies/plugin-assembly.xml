@@ -10,6 +10,7 @@
             <outputDirectory>/lib</outputDirectory>
             <excludes>
                 <exclude>commons-lang:commons-lang</exclude>
+                <exclude>commons-logging:commons-logging</exclude>
                 <exclude>commons-codec:commons-codec</exclude>
                 <exclude>com.intellij:forms_rt</exclude>
                 <exclude>com.intellij:idea-openapi</exclude>

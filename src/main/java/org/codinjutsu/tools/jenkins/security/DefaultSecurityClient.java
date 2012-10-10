@@ -47,8 +47,8 @@ class DefaultSecurityClient implements SecurityClient {
     }
 
     @Override
-    public String connect(URL jenkinsUrl) {
-        return execute(jenkinsUrl);
+    public void connect(URL jenkinsUrl) {
+        execute(jenkinsUrl);
     }
 
     public String execute(URL url) {

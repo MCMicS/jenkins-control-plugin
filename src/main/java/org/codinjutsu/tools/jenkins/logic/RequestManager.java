@@ -65,6 +65,7 @@ public interface RequestManager {
     String HUDSON_ROOT_TAG = "hudson";
     String FOLDER_ROOT_TAG = "folder";
     String JENKINS_DESCRIPTION = "description";
+    String BUILDHIVE_CLOUDBEES = "buildhive";
 
 
     Jenkins loadJenkinsWorkspace(JenkinsConfiguration configuration);

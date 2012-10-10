@@ -25,13 +25,16 @@ import static org.apache.commons.lang.builder.HashCodeBuilder.reflectionHashCode
 public class View {
 
     public static String FAVORITE = "My Favorites";
-    private final String name;
+    private String name;
 
-    private final String url;
+    private String url;
 
-    private final boolean isNested;
+    private boolean isNested;
 
     private final List<View> subViews = new LinkedList<View>();
+
+    public View() {
+    }
 
     protected View(String name, String url, boolean isNested) {
         this.name = name;
@@ -79,5 +82,17 @@ public class View {
 
     public static View createNestedView(String viewName, String viewUrl) {
         return new View(viewName, viewUrl, true);
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public void setNested(boolean nested) {
+        isNested = nested;
     }
 }

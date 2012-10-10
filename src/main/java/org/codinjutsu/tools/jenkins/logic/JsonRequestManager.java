@@ -16,6 +16,9 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -30,16 +33,15 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.URL;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class JsonRequestManager implements RequestManager {
 
@@ -51,9 +53,13 @@ public class JsonRequestManager implements RequestManager {
 
     private JenkinsPlateform jenkinsPlateform = JenkinsPlateform.CLASSIC;
 
+    private final JsonFactory factory;
+
+
     public JsonRequestManager(SecurityClient securityClient) {
         this.urlBuilder = UrlBuilder.json();
         this.securityClient = securityClient;
+        factory = new JsonFactory();
     }
 
     public JsonRequestManager(String crumbFile) {
@@ -64,16 +70,13 @@ public class JsonRequestManager implements RequestManager {
         URL url = urlBuilder.createJenkinsWorkspaceUrl(configuration);
         String jenkinsWorkspaceData = securityClient.execute(url);
 
-        JSONObject jsonObject = buildJSONObject(jenkinsWorkspaceData);
         if (configuration.getServerUrl().contains(BUILDHIVE_CLOUDBEES)) {//TODO hack need to refactor
             jenkinsPlateform = JenkinsPlateform.CLOUDBEES;
         } else {
             jenkinsPlateform = JenkinsPlateform.CLASSIC;
         }
 
-        Jenkins jenkins = createJenkins(jsonObject, configuration.getServerUrl());
-        jenkins.setPrimaryView(createPreferredView(jsonObject));
-        jenkins.setViews(createJenkinsViews(jsonObject));
+        Jenkins jenkins = createWorkspace(jenkinsWorkspaceData, configuration.getServerUrl());
 
         int jenkinsPort = url.getPort();
         URL viewUrl = urlBuilder.createViewUrl(jenkinsPlateform, jenkins.getPrimaryView().getUrl());
@@ -90,48 +93,6 @@ public class JsonRequestManager implements RequestManager {
         return jenkinsPort != -1;
     }
 
-    private List<View> createJenkinsViews(JSONObject jsonObject) {
-        List<View> views = new ArrayList<View>();
-
-        JSONArray jsonArray = (JSONArray) jsonObject.get(VIEWS);
-        for (Object obj : jsonArray) {
-            JSONObject jsonObject1 = (JSONObject) obj;
-            String viewName = (String) jsonObject1.get(VIEW_NAME);
-            String viewUrl = (String) jsonObject1.get(VIEW_URL);
-            View view = View.createView(viewName, viewUrl);
-            JSONArray jsonArray1 = (JSONArray) jsonObject1.get(VIEWS);
-            if (jsonArray1 != null) {
-                for (Object obj2 : jsonArray1) {
-                    JSONObject subViewElement = (JSONObject) obj2;
-                    String subViewName = (String) subViewElement.get(VIEW_NAME);
-                    String subViewUrl = (String) subViewElement.get(VIEW_URL);
-                    view.addSubView(View.createNestedView(subViewName, subViewUrl));
-                }
-            }
-            views.add(view);
-        }
-
-        return views;
-    }
-
-    private View createPreferredView(JSONObject jsonObject) {
-        JSONObject primaryView = (JSONObject) jsonObject.get(PRIMARY_VIEW);
-        if (primaryView != null) {
-            String viewName = (String) primaryView.get(VIEW_NAME);
-            String viewUrl = (String) primaryView.get(VIEW_URL);
-            return View.createView(viewName, viewUrl);
-        }
-        return null;
-    }
-
-    private Jenkins createJenkins(JSONObject jsonObject, String serverUrl) {
-        String description = (String) jsonObject.get(JENKINS_DESCRIPTION);
-        if (description == null) {
-            description = "";
-        }
-        return new Jenkins(description, serverUrl);
-    }
-
     public Map<String, Build> loadJenkinsRssLatestBuilds(JenkinsConfiguration configuration) {
         URL url = urlBuilder.createRssLatestUrl(configuration.getServerUrl());
 
@@ -144,136 +105,19 @@ public class JsonRequestManager implements RequestManager {
     public List<Job> loadJenkinsView(String viewUrl) {
         URL url = urlBuilder.createViewUrl(jenkinsPlateform, viewUrl);
         String jenkinsViewData = securityClient.execute(url);
-        JSONObject jsonObject = buildJSONObject(jenkinsViewData);
-        return jenkinsPlateform.loadViewStrategy.loadJenkinsView(jsonObject);
+        if (jenkinsPlateform.equals(JenkinsPlateform.CLASSIC)) {
+            return createViewJobs(jenkinsViewData);
+        } else {
+            return createCloudbeesViewJobs(jenkinsViewData);
+        }
     }
 
     public Job loadJob(String jenkinsJobUrl) {
         URL url = urlBuilder.createJobUrl(jenkinsJobUrl);
-
         String jenkinsJobData = securityClient.execute(url);
-        JSONObject jsonObject = buildJSONObject(jenkinsJobData);
-        return createJob(jsonObject);
+        return createJob(jenkinsJobData);
     }
 
-    private static Job createJob(JSONObject jsonObject) {
-        String jobName = (String) jsonObject.get(JOB_NAME);
-        String jobColor = (String) jsonObject.get(JOB_COLOR);
-        String jobUrl = (String) jsonObject.get(JOB_URL);
-        Boolean inQueue = (Boolean) jsonObject.get(JOB_IS_IN_QUEUE);
-        Boolean buildable = (Boolean) jsonObject.get(JOB_IS_BUILDABLE);
-
-        Job job = Job.createJob(jobName, jobColor, jobUrl, inQueue, buildable);
-
-        Job.Health jobHealth = getJobHealth(jsonObject);
-        if (jobHealth != null) {
-            job.setHealth(jobHealth);
-        }
-        JSONObject lastBuild = (JSONObject) jsonObject.get(JOB_LAST_BUILD);
-        if (lastBuild != null) {
-            job.setLastBuild(createLastBuild(lastBuild));
-        }
-
-        JSONArray propertyList = (JSONArray) jsonObject.get(PARAMETER_PROPERTY);
-        if (propertyList != null) {
-            for (Object property : propertyList) {
-                JSONObject jsonProperty = (JSONObject) property;
-                JSONArray parameterDefinitions = (JSONArray) jsonProperty.get(PARAMETER_DEFINITIONS);
-                if (parameterDefinitions != null && !parameterDefinitions.isEmpty()) {
-                    setJobParameters(job, parameterDefinitions);
-                }
-            }
-        }
-
-        return job;
-    }
-
-    private static Job.Health getJobHealth(JSONObject jsonObject) {
-        String jobHealthLevel = null;
-        String jobHealthDescription = null;
-        JSONArray jobHealthArray = (JSONArray) jsonObject.get(JOB_HEALTH);
-        if (jobHealthArray != null) {
-            jobHealthLevel = (String) ((JSONObject) jobHealthArray.get(0)).get(JOB_HEALTH_ICON);
-            if (StringUtils.isNotEmpty(jobHealthLevel)) {
-                if (jobHealthLevel.endsWith(".png"))
-                    jobHealthLevel = jobHealthLevel.substring(0, jobHealthLevel.lastIndexOf(".png"));
-                else {
-                    jobHealthLevel = jobHealthLevel.substring(0, jobHealthLevel.lastIndexOf(".gif"));
-                }
-            } else {
-                jobHealthLevel = null;
-            }
-
-            jobHealthDescription = (String) ((JSONObject) jobHealthArray.get(0)).get(JOB_HEALTH_DESCRIPTION);
-        }
-
-        if (!StringUtils.isEmpty(jobHealthLevel)) {
-            return Job.Health.createHealth(jobHealthLevel, jobHealthDescription);
-        }
-        return null;
-    }
-
-
-    private static Build createLastBuild(JSONObject jobLastBuild) {
-        Boolean isBuilding = (Boolean) jobLastBuild.get(BUILD_IS_BUILDING);
-        String status = (String) jobLastBuild.get(BUILD_RESULT);
-        Long number = (Long) jobLastBuild.get(BUILD_NUMBER);
-        String buildUrl = (String) jobLastBuild.get(BUILD_URL);
-        String date = (String) jobLastBuild.get(BUILD_ID);
-        return Build.createBuildFromWorkspace(buildUrl, number, status, isBuilding, date);
-    }
-
-
-    private static void setJobParameters(Job job, JSONArray parameterDefinitions) {
-
-        for (Object jsonParameterDefinition : parameterDefinitions) {
-            JSONObject parameterDefinition = (JSONObject) jsonParameterDefinition;
-
-            String paramName = (String) parameterDefinition.get(PARAMETER_NAME);
-            String paramType = (String) parameterDefinition.get(PARAMETER_TYPE);
-
-            String defaultParamValue = null;
-            JSONObject defaultParamElement = (JSONObject) parameterDefinition.get(PARAMETER_DEFAULT_PARAM);
-            if (defaultParamElement != null) {
-                defaultParamValue = (String) defaultParamElement.get(PARAMETER_DEFAULT_PARAM_VALUE);
-            }
-            String[] choices = extractChoices(parameterDefinition);
-
-            job.addParameter(paramName, paramType, defaultParamValue, choices);
-        }
-    }
-
-
-    private static String[] extractChoices(JSONObject parameterDefinition) {
-        JSONArray choices = (JSONArray) parameterDefinition.get(PARAMETER_CHOICE);
-        String[] paramValues = new String[0];
-        if (choices != null && !choices.isEmpty()) {
-            paramValues = new String[choices.size()];
-            for (int i = 0; i < choices.size(); i++) {
-                paramValues[i] = (String) choices.get(i);
-            }
-        }
-        return paramValues;
-    }
-
-    private JSONObject buildJSONObject(String jenkinsJobData) {
-        JSONParser parser = new JSONParser();
-        try {
-            return (JSONObject) parser.parse(jenkinsJobData);
-        } catch (ParseException e) {
-            LOG.error("Error during analyzing the Jenkins data.", e);
-            throw new RuntimeException("Error during analyzing the Jenkins data.");
-        }
-    }
-
-    public static List<Job> createJobs(JSONArray jsonArray) {
-        List<Job> jobs = new ArrayList<Job>(jsonArray.size());
-        for (Object obj : jsonArray) {
-            JSONObject jsonObject = (JSONObject) obj;
-            jobs.add(createJob(jsonObject));
-        }
-        return jobs;
-    }
 
     public void runBuild(Job job, JenkinsConfiguration configuration) {
         URL url = urlBuilder.createRunJobUrl(job.getUrl(), configuration);
@@ -287,7 +131,7 @@ public class JsonRequestManager implements RequestManager {
 
     public void authenticate(String serverUrl, SecurityMode securityMode, String username, String passwordFile, String crumbDataFile) {
         securityClient = SecurityClientFactory.create(securityMode, username, passwordFile, crumbDataFile);
-        String jenkinsData = securityClient.connect(urlBuilder.createAuthenticationUrl(serverUrl));
+        securityClient.connect(urlBuilder.createAuthenticationUrl(serverUrl));
     }
 
     public List<Job> loadFavoriteJobs(List<JenkinsConfiguration.FavoriteJob> favoriteJobs) {
@@ -296,6 +140,267 @@ public class JsonRequestManager implements RequestManager {
 
     public void setJenkinsPlateform(JenkinsPlateform jenkinsPlateform) {
         this.jenkinsPlateform = jenkinsPlateform;
+    }
+
+
+    public Job createJob(String jsonData) {
+        try {
+            JsonParser jsonParser = factory.createJsonParser(jsonData);
+            Job job = createJob(jsonParser);
+            jsonParser.close();
+            return job;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Job createJob(JsonParser jsonParser) throws IOException {
+        Job job = new Job();
+        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+            String currentName = jsonParser.getCurrentName();
+            escapeFieldName(jsonParser);
+
+            if ("name".equals(currentName)) {
+                job.setName(jsonParser.getText());
+            } else if ("url".equals(currentName)) {
+                job.setUrl(jsonParser.getText());
+            } else if ("color".equals(currentName)) {
+                job.setColor(jsonParser.getText());
+            } else if ("healthReport".equals(currentName)) {
+                job.setHealth(getHealth(jsonParser));
+            } else if ("buildable".equals(currentName)) {
+                job.setBuildable(jsonParser.getBooleanValue());
+            } else if ("inQueue".equals(currentName)) {
+                job.setInQueue(jsonParser.getBooleanValue());
+            } else if ("lastBuild".equals(currentName)) {
+                job.setLastBuild(getLastBuild(jsonParser));
+            } else if ("property".equals(currentName)) {
+                while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
+                    while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+                        String currentNameInProperty = jsonParser.getCurrentName();
+                        if ("parameterDefinitions".equals(currentNameInProperty)) {
+                            while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
+                                JobParameter jobParameter = new JobParameter();
+                                while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+                                    escapeFieldName(jsonParser);
+                                    String currentNameInParameterDefinition = jsonParser.getCurrentName();
+                                    if ("defaultParameterValue".equals(currentNameInParameterDefinition)) {
+                                        if (JsonToken.VALUE_NULL.equals(jsonParser.getCurrentToken())) {
+                                            continue;
+                                        }
+                                        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+                                            escapeFieldName(jsonParser);
+                                            String currentNameInDefaultParameterValue = jsonParser.getCurrentName();
+                                            if ("value".equals(currentNameInDefaultParameterValue)) {
+                                                jobParameter.setDefaultValue(jsonParser.getText());
+                                            }
+                                        }
+                                    } else if ("name".equals(currentNameInParameterDefinition)) {
+                                        jobParameter.setName(jsonParser.getText());
+                                    } else if ("type".equals(currentNameInParameterDefinition)) {
+                                        jobParameter.setType(jsonParser.getText());
+                                    } else if ("choice".equals(currentNameInParameterDefinition)) {
+                                        jobParameter.setChoices(createChoices(jsonParser));
+                                    }
+                                }
+                                job.addParameter(jobParameter);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return job;
+    }
+
+    private List<String> createChoices(JsonParser jsonParser) throws IOException {
+        List<String> choices = new LinkedList<String>();
+        while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
+            escapeFieldName(jsonParser);
+            String text = jsonParser.getText();
+            choices.add(text);
+        }
+        return choices;
+    }
+
+    private void escapeFieldName(JsonParser jsonParser) throws IOException {
+        if (jsonParser.getCurrentToken() == JsonToken.FIELD_NAME) {
+            jsonParser.nextToken();
+        }
+    }
+
+    private Job.Health getHealth(JsonParser jsonParser) throws IOException {
+        Job.Health health = new Job.Health();
+        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+            escapeFieldName(jsonParser);
+
+            String currentNameInHealthReport = jsonParser.getCurrentName();
+            if ("description".equals(currentNameInHealthReport)) {
+                health.setDescription(jsonParser.getText());
+            } else if ("iconUrl".equals(currentNameInHealthReport)) {
+                String jobHealthLevel = jsonParser.getText();
+                if (StringUtils.isNotEmpty(jobHealthLevel)) {
+                    if (jobHealthLevel.endsWith(".png"))
+                        jobHealthLevel = jobHealthLevel.substring(0, jobHealthLevel.lastIndexOf(".png"));
+                    else {
+                        jobHealthLevel = jobHealthLevel.substring(0, jobHealthLevel.lastIndexOf(".gif"));
+                    }
+                } else {
+                    jobHealthLevel = null;
+                }
+                health.setLevel(jobHealthLevel);
+            }
+        }
+        while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
+            jsonParser.nextToken();
+        }
+        if (!StringUtils.isEmpty(health.getLevel())) {
+            return health;
+        } else {
+            return null;
+        }
+    }
+
+    private Build getLastBuild(JsonParser jsonParser) throws IOException {
+        Build lastBuild = new Build();
+        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+            escapeFieldName(jsonParser);
+
+            String currentNameInLastBuild = jsonParser.getCurrentName();
+            if ("id".equals(currentNameInLastBuild)) {
+                lastBuild.setBuildDate(jsonParser.getText());
+            } else if ("building".equals(currentNameInLastBuild)) {
+                lastBuild.setBuilding(jsonParser.getBooleanValue());
+            } else if ("number".equals(currentNameInLastBuild)) {
+                lastBuild.setNumber(jsonParser.getIntValue());
+            } else if ("result".equals(currentNameInLastBuild)) {
+                lastBuild.setStatus(jsonParser.getText());
+            } else if ("url".equals(currentNameInLastBuild)) {
+                lastBuild.setUrl(jsonParser.getText());
+            }
+        }
+        return lastBuild;
+    }
+
+    public Jenkins createWorkspace(String jsonData, String serverUrl) {
+        Jenkins jenkins = new Jenkins("", serverUrl);
+        try {
+            JsonParser jsonParser = factory.createJsonParser(jsonData);
+            while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+                String currentName = jsonParser.getCurrentName();
+                escapeFieldName(jsonParser);
+
+                if ("primaryView".equals(currentName)) {
+                    jenkins.setPrimaryView(getView(jsonParser));
+
+                } else if ("views".equals(currentName)) {
+                    jenkins.setViews(getViews(jsonParser));
+                }
+            }
+            jsonParser.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return jenkins;
+    }
+
+    private List<View> getViews(JsonParser jsonParser) throws IOException {
+        List<View> views = new LinkedList<View>();
+        while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
+            View view = getView(jsonParser);
+            views.add(view);
+        }
+        return views;
+    }
+
+    private View getView(JsonParser jsonParser) throws IOException {
+        View view = new View();
+        view.setNested(false);
+        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+            escapeFieldName(jsonParser);
+
+            String currentName = jsonParser.getCurrentName();
+            if ("name".equals(currentName)) {
+                view.setName(jsonParser.getText());
+            } else if ("url".equals(currentName)) {
+                view.setUrl(jsonParser.getText());
+            } else if ("views".equals(currentName)) {
+                while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
+                    View nestedView = getNestedView(jsonParser);
+                    view.addSubView(nestedView);
+                }
+            }
+        }
+        return view;
+    }
+
+    private View getNestedView(JsonParser jsonParser) throws IOException {
+        View nestedView = new View();
+        nestedView.setNested(true);
+        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+            escapeFieldName(jsonParser);
+
+            String currentName = jsonParser.getCurrentName();
+            if ("name".equals(currentName)) {
+                nestedView.setName(jsonParser.getText());
+            } else if ("url".equals(currentName)) {
+                nestedView.setUrl(jsonParser.getText());
+            }
+        }
+        return nestedView;
+    }
+
+    public List<Job> createViewJobs(String jsonData) {
+        try {
+            JsonParser jsonParser = factory.createJsonParser(jsonData);
+            List<Job> jobs = createJobs(jsonParser);
+            jsonParser.close();
+            return jobs;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private List<Job> createJobs(JsonParser jsonParser) throws IOException {
+        List<Job> jobs = new LinkedList<Job>();
+        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+            escapeFieldName(jsonParser);
+
+            String currentName = jsonParser.getCurrentName();
+
+            if ("jobs".equals(currentName)) {
+                while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
+                    jobs.add(createJob(jsonParser));
+                }
+            }
+        }
+        return jobs;
+    }
+
+    public List<Job> createCloudbeesViewJobs(String jsonData) {
+        try {
+            JsonParser jsonParser = factory.createJsonParser(jsonData);
+            List<Job> jobs = new LinkedList<Job>();
+            while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+                escapeFieldName(jsonParser);
+                String currentName = jsonParser.getCurrentName();
+                if ("views".equals(currentName)) {
+                    while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
+                        String currentNameInView = jsonParser.getCurrentName();
+                        if ("jobs".equals(currentNameInView)) {
+                            List<Job> returnedJobs = createJobs(jsonParser);
+                            jobs.addAll(returnedJobs);
+                        }
+                    }
+                }
+            }
+
+            jsonParser.close();
+            return jobs;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private Document buildDocument(String jenkinsXmlData) {
@@ -338,12 +443,4 @@ public class JsonRequestManager implements RequestManager {
         return buildMap;
     }
 
-    private static Build createLastBuild(Element jobLastBuild) {
-        String isBuilding = jobLastBuild.getChildText(BUILD_IS_BUILDING);
-        String status = jobLastBuild.getChildText(BUILD_RESULT);
-        String number = jobLastBuild.getChildText(BUILD_NUMBER);
-        String buildUrl = jobLastBuild.getChildText(BUILD_URL);
-        String date = jobLastBuild.getChildText(BUILD_ID);
-        return Build.createBuildFromWorkspace(buildUrl, number, status, isBuilding, date);
-    }
 }

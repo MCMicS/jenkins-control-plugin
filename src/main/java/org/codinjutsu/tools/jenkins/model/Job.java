@@ -33,7 +33,7 @@ public class Job {
 
     private String color;
     private boolean inQueue;
-    private final boolean buildable;
+    private boolean buildable;
 
     private Health health;
 
@@ -50,6 +50,8 @@ public class Job {
         ICON_BY_JOB_HEALTH_MAP.put("null", GuiUtil.loadIcon("null.png"));
     }
 
+
+    public Job() { }
 
     private Job(String name, String color, String url, Boolean inQueue, Boolean buildable) {
         this.name = name;
@@ -104,23 +106,40 @@ public class Job {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public String getColor() {
         return color;
     }
 
+    public void setColor(String color) {
+        this.color = color;
+    }
 
     public String getUrl() {
         return url;
     }
 
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
     public boolean isInQueue() {
         return inQueue;
     }
 
+    public void setInQueue(boolean inQueue) {
+        this.inQueue = inQueue;
+    }
+
     public boolean isBuildable() {
         return buildable;
+    }
+
+    public void setBuildable(boolean buildable) {
+        this.buildable = buildable;
     }
 
     public Build getLastBuild() {
@@ -149,10 +168,21 @@ public class Job {
         return parameters;
     }
 
+    public void addParameter(JobParameter jobParameter) {
+        parameters.add(jobParameter);
+    }
+
+    public void addParameters(List<JobParameter> jobParameters) {
+        parameters.addAll(jobParameters);
+    }
+
     public static class Health {
 
-        private final String healthLevel;
-        private final String description;
+        private String healthLevel;
+        private String description;
+
+        public Health() {
+        }
 
         private Health(String healthLevel, String description) {
             this.healthLevel = healthLevel;
@@ -163,8 +193,16 @@ public class Job {
             return healthLevel;
         }
 
+        public void setLevel(String healthLevel) {
+            this.healthLevel = healthLevel;
+        }
+
         public String getDescription() {
             return description;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
         }
 
         public static Health createHealth(String healthLevel, String healthDescription) {

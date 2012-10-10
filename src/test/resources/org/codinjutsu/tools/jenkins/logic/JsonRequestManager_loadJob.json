@@ -6,6 +6,10 @@
         {
             "description":"0 tests en echec sur un total de 24 tests",
             "iconUrl":"health-80plus.png"
+        },
+        {
+            "description":"a ignorer",
+            "iconUrl":"a_ignorer"
         }
     ],
     "buildable":true,

@@ -18,6 +18,7 @@ package org.codinjutsu.tools.jenkins.model;
 
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 
 public class JobParameter {
 
@@ -32,13 +33,16 @@ public class JobParameter {
         ListSubversionTagsParameterDefinition
     }
 
-    private final String name;
+    private String name;
 
     private JobParameterType jobParameterType;
 
     private String defaultValue;
 
-    private final LinkedList<String> values = new LinkedList<String>();
+    private final List<String> values = new LinkedList<String>();
+
+    public JobParameter() {
+    }
 
     private JobParameter(String name) {
         this.name = name;
@@ -52,17 +56,21 @@ public class JobParameter {
         return jobParameter;
     }
 
-    private void setChoices(String... choices) {
+    public void setChoices(String... choices) {
         Collections.addAll(values, choices);
     }
 
+    public void setChoices(List<String> choices) {
+        values.addAll(choices);
+    }
 
-    private void setDefaultValue(String defaultValue) {
+
+    public void setDefaultValue(String defaultValue) {
         this.defaultValue = defaultValue;
     }
 
 
-    private void setType(String paramType) {
+    public void setType(String paramType) {
         jobParameterType = evaluate(paramType);
     }
 
@@ -79,8 +87,12 @@ public class JobParameter {
         return defaultValue;
     }
 
-    public LinkedList<String> getValues() {
+    public List<String> getValues() {
         return values;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     private static JobParameterType evaluate(String paramTypeToEvaluate) {

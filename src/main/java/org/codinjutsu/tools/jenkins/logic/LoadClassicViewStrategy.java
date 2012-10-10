@@ -19,8 +19,6 @@ package org.codinjutsu.tools.jenkins.logic;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.jdom.Document;
 import org.jdom.Element;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
 import java.util.List;
 
@@ -29,11 +27,5 @@ class LoadClassicViewStrategy implements LoadViewStrategy {
     public List<Job> loadJenkinsView(Document document) {
         List<Element> jobElements = document.getRootElement().getChildren(RequestManager.JOB);
         return XmlRequestManager.createJobs(jobElements);
-    }
-
-    @Override
-    public List<Job> loadJenkinsView(JSONObject jsonObject) {
-        JSONArray jsonArray = (JSONArray) jsonObject.get(RequestManager.JOBS);
-        return JsonRequestManager.createJobs(jsonArray);
     }
 }

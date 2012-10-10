@@ -20,7 +20,7 @@ import java.net.URL;
 
 public interface SecurityClient {
 
-    String connect(URL jenkinsUrl) ;
+    void connect(URL jenkinsUrl) ;
 
     String execute(URL url);
 }

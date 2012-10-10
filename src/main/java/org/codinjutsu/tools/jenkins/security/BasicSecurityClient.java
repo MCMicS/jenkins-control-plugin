@@ -44,17 +44,17 @@ class BasicSecurityClient extends DefaultSecurityClient {
     }
 
 
-    public String connect(URL url) {
+    public void connect(URL url) {
         setCrumbValueIfNeeded();
 
         if (StringUtils.isNotEmpty(passwordFile)) {
             password = extractValueFromFile(passwordFile);
         }
 
-        return doAuthentication(url);
+        doAuthentication(url);
     }
 
-    private String doAuthentication(URL jenkinsUrl) throws AuthenticationException {
+    private void doAuthentication(URL jenkinsUrl) throws AuthenticationException {
 
         if (username != null && password != null) {
             httpClient.getState().setCredentials(
@@ -79,7 +79,6 @@ class BasicSecurityClient extends DefaultSecurityClient {
             if (responseCode != HttpURLConnection.HTTP_OK) {
                 checkResponse(responseCode, responseBody);
             }
-            return responseBody;
         } catch (HttpException httpEx) {
             throw new ConfigurationException(String.format("Error during method execution %s", jenkinsUrl.toString()), httpEx);
         } catch (IOException ioEx) {

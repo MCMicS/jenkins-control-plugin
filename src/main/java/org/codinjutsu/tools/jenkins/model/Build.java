@@ -29,13 +29,13 @@ public class Build {
 
     public static final Map<BuildStatusEnum, Icon> ICON_BY_BUILD_STATUS_MAP = new HashMap<BuildStatusEnum, Icon>();
 
-    private final String url;
-    private final Date buildDate;
-    private final int number;
-    private final boolean building;
-    private final String message;
+    private String url;
+    private Date buildDate;
+    private int number;
+    private boolean building;
+    private String message;
 
-    private final BuildStatusEnum status;
+    private BuildStatusEnum status;
 
     static {
         ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.SUCCESS, GuiUtil.loadIcon("blue.png"));
@@ -48,10 +48,11 @@ public class Build {
 
 
     public static Build createBuildFromWorkspace(String buildUrl, Long number, String status, Boolean isBuilding, String buildDate) {
-        return createBuild(buildUrl, number, status, isBuilding, buildDate, DateUtil.WORKSPACE_DATE_FORMAT, "Dummy message");
+        return createBuild(buildUrl, number, status, isBuilding, buildDate, DateUtil.WORKSPACE_DATE_FORMAT, null);
     }
+
     public static Build createBuildFromWorkspace(String buildUrl, String number, String status, String isBuilding, String buildDate) {
-        return createBuild(buildUrl, Long.parseLong(number), status, Boolean.parseBoolean(isBuilding), buildDate, DateUtil.WORKSPACE_DATE_FORMAT, "Dummy message");
+        return createBuild(buildUrl, Long.parseLong(number), status, Boolean.parseBoolean(isBuilding), buildDate, DateUtil.WORKSPACE_DATE_FORMAT, null);
     }
 
     public static Build createBuildFromRss(String buildUrl, String number, String status, String isBuilding, String buildDate, String message) {
@@ -63,6 +64,9 @@ public class Build {
         Date date = DateUtil.parseDate(buildDate, simpleDateFormat);
 
         return new Build(buildUrl, number.intValue(), date, buildStatusEnum, isBuilding, message);
+    }
+
+    public Build() {
     }
 
     private Build(String url, int number, Date buildDate, BuildStatusEnum status, boolean isBuilding, String message) {
@@ -92,19 +96,32 @@ public class Build {
         return url;
     }
 
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
     public int getNumber() {
         return number;
     }
 
+    public void setNumber(int number) {
+        this.number = number;
+    }
 
     public BuildStatusEnum getStatus() {
         return status;
     }
 
+    public void setStatus(String status) {
+        this.status = BuildStatusEnum.parseStatus(status);;
+    }
 
     public Date getBuildDate() {
         return buildDate;
+    }
+
+    public void setBuildDate(String buildDate) {
+        this.buildDate = DateUtil.parseDate(buildDate, DateUtil.WORKSPACE_DATE_FORMAT);
     }
 
 
@@ -112,6 +129,9 @@ public class Build {
         return building;
     }
 
+    public void setBuilding(boolean building) {
+        this.building = building;
+    }
 
     public boolean isAfter(Build aBuild) {
         return this.getNumber() > aBuild.getNumber();

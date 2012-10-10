@@ -78,6 +78,12 @@ public class XmlRequestManager implements RequestManager {
         URL url = urlBuilder.createJenkinsWorkspaceUrl(configuration);
         String jenkinsWorkspaceData = securityClient.execute(url);
 
+        if (configuration.getServerUrl().contains(BUILDHIVE_CLOUDBEES)) {//TODO hack need to refactor
+            jenkinsPlateform = JenkinsPlateform.CLOUDBEES;
+        } else {
+            jenkinsPlateform = JenkinsPlateform.CLASSIC;
+        }
+
         Document doc = buildDocument(jenkinsWorkspaceData);
 
         Jenkins jenkins = createJenkins(doc, configuration.getServerUrl());
@@ -157,12 +163,7 @@ public class XmlRequestManager implements RequestManager {
 
     public void authenticate(final String serverUrl, SecurityMode securityMode, final String username, final String passwordFile, String crumbDataFile) {
         securityClient = SecurityClientFactory.create(securityMode, username, passwordFile, crumbDataFile);
-        String jenkinsData = securityClient.connect(urlBuilder.createAuthenticationUrl(serverUrl));
-        if (StringUtils.contains(jenkinsData, FOLDER_ROOT_TAG)) {
-            jenkinsPlateform = JenkinsPlateform.CLOUDBEES;
-        } else {
-            jenkinsPlateform = JenkinsPlateform.CLASSIC;
-        }
+        securityClient.connect(urlBuilder.createAuthenticationUrl(serverUrl));
     }
 
 

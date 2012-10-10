@@ -82,13 +82,4 @@ public class Jenkins {
     public String getServerUrl() {
         return serverUrl;
     }
-
-    public Job getJob(String jobName) {
-        for (Job job : jobs) {
-            if (StringUtils.equals(jobName, job.getName())) {
-                return job;
-            }
-        }
-        throw new IllegalArgumentException();
-    }
 }
