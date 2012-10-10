@@ -18,7 +18,6 @@ package org.codinjutsu.tools.jenkins.util;
 
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.IconLoader;
 
 import javax.swing.*;

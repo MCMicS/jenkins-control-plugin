@@ -16,8 +16,6 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
-import org.apache.commons.lang.StringUtils;
-
 import java.util.LinkedList;
 import java.util.List;
 

@@ -41,7 +41,6 @@ public class UrlBuilderTest {
         assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/My%20Job/build?delay=20sec"));
     }
 
-
     @Test
     public void createRunParameterizedJobUrl() throws Exception {
         configuration.setDelay(20);
@@ -54,46 +53,30 @@ public class UrlBuilderTest {
         assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/My%20Job/buildWithParameters?delay=20sec&param1=value1&param2=value2"));
     }
 
-
     @Test
     public void createJenkinsWorkspaceUrl() throws Exception {
         configuration.setServerUrl("http://localhost:8080/jenkins");
 
         URL url = urlBuilder.createJenkinsWorkspaceUrl(configuration);
-        assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/api/xml?tree=nodeName,nodeDescription,primaryView%5Bname,url%5D,views%5Bname,url,views%5Bname,url%5D%5D"));
+        assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/api/json?tree=nodeName,nodeDescription,primaryView%5Bname,url%5D,views%5Bname,url,views%5Bname,url%5D%5D"));
     }
 
-
     @Test
-    public void createViewXMLUrlForClassicPlateform() throws Exception {
+    public void createViewUrlForClassicPlateform() throws Exception {
         URL url = urlBuilder.createViewUrl(JenkinsPlateform.CLASSIC, "http://localhost:8080/jenkins/My%20View");
-        assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/My%20View/api/xml?tree=name,url,jobs%5Bname,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Bid,url,building,result,number%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,choices%5D%5D%5D"));
-    }
-
-
-    @Test
-    public void createViewJSONLUrlForClassicPlateform() throws Exception {
-        URL url = UrlBuilder.json().createViewUrl(JenkinsPlateform.CLASSIC, "http://localhost:8080/jenkins/My%20View");
         assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/My%20View/api/json?tree=name,url,jobs%5Bname,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Bid,url,building,result,number%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,choices%5D%5D%5D"));
-    }
-
-
-    @Test
-    public void createJobXMLUrl() throws Exception {
-        URL url = urlBuilder.createJobUrl("http://localhost:8080/jenkins/my%20Job");
-        assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/my%20Job/api/xml?tree=name,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Bid,url,building,result,number%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,choices%5D%5D"));
     }
 
     @Test
     public void createJobJSONUrl() throws Exception {
-        URL url = UrlBuilder.json().createJobUrl("http://localhost:8080/jenkins/my%20Job");
+        URL url = urlBuilder.createJobUrl("http://localhost:8080/jenkins/my%20Job");
         assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/my%20Job/api/json?tree=name,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Bid,url,building,result,number%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,choices%5D%5D"));
     }
 
     @Test
     public void createViewUrlForCloudbeesPlateform() throws Exception {
         URL url = urlBuilder.createViewUrl(JenkinsPlateform.CLOUDBEES, "http://localhost:8080/jenkins/My%20View");
-        assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/My%20View/api/xml?tree=name,url,views%5Bjobs%5Bname,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Bid,url,building,result,number%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,choices%5D%5D%5D%5D"));
+        assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/My%20View/api/json?tree=name,url,views%5Bjobs%5Bname,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Bid,url,building,result,number%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,choices%5D%5D%5D%5D"));
     }
 
     @Test
@@ -103,21 +86,15 @@ public class UrlBuilderTest {
     }
 
     @Test
-    public void createAuthenticationUrl() throws Exception {
-        URL url = urlBuilder.createAuthenticationUrl("http://localhost:8080/jenkins");
-        assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/api/xml?tree=nodeName"));
-    }
-
-    @Test
     public void createAuthenticationJSONUrl() throws Exception {
-        URL url = UrlBuilder.json().createAuthenticationUrl("http://localhost:8080/jenkins");
+        URL url = urlBuilder.createAuthenticationUrl("http://localhost:8080/jenkins");
         assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/api/json?tree=nodeName"));
     }
 
     @Before
     public void setUp() {
         configuration = new JenkinsConfiguration();
-        urlBuilder = UrlBuilder.xml();
+        urlBuilder = new UrlBuilder();
     }
 
 

@@ -17,13 +17,7 @@
 package org.codinjutsu.tools.jenkins.logic;
 
 public enum JenkinsPlateform {
-    CLASSIC(new LoadClassicViewStrategy()),
-    CLOUDBEES(new LoadCloudbeesViewStrategy());
+    CLASSIC,
+    CLOUDBEES
 
-    final LoadViewStrategy loadViewStrategy;
-
-    JenkinsPlateform(LoadViewStrategy loadViewStrategy) {
-
-        this.loadViewStrategy = loadViewStrategy;
-    }
 }

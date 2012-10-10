@@ -113,7 +113,7 @@ public class Build {
     }
 
     public void setStatus(String status) {
-        this.status = BuildStatusEnum.parseStatus(status);;
+        this.status = BuildStatusEnum.parseStatus(status);
     }
 
     public Date getBuildDate() {

@@ -26,7 +26,6 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import java.awt.*;
-import java.util.*;
 import java.util.List;
 
 class JenkinsTreeRenderer extends DefaultTreeCellRenderer {

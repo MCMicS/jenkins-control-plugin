@@ -26,18 +26,7 @@ import java.util.Map;
 
 class UrlBuilder {
 
-    private final Format format;
-
-    private enum Format {
-        XML("xml"), JSON("json");
-        private final String formatLabel;
-
-        Format(String formatLabel) {
-            this.formatLabel = formatLabel;
-        }
-    }
-
-    private static final String API = "/api";
+    private static final String API_JSON = "/api/json";
     private static final String BUILD = "/build";
     private static final String PARAMETERIZED_BUILD = "/buildWithParameters";
     private static final String RSS_LATEST = "/rssLatest";
@@ -48,17 +37,6 @@ class UrlBuilder {
     private static final String CLOUDBEES_VIEW_INFO = "name,url,views[jobs[" + BASIC_JOB_INFO + "]]";
     private static final String TEST_CONNECTION_REQUEST = "?tree=nodeName";
 
-    static UrlBuilder json() {
-        return new UrlBuilder(Format.JSON);
-    }
-
-    static UrlBuilder xml() {
-        return new UrlBuilder(Format.XML);
-    }
-
-    private UrlBuilder(Format format) {
-        this.format = format;
-    }
 
     URL createRunJobUrl(String jobBuildUrl, JenkinsConfiguration configuration) {
         try {
@@ -85,7 +63,7 @@ class UrlBuilder {
 
     URL createJenkinsWorkspaceUrl(JenkinsConfiguration configuration) {
         try {
-            return new URL(URIUtil.encodePathQuery(configuration.getServerUrl() + API + "/" + format.formatLabel + TREE_PARAM + BASIC_JENKINS_INFO));
+            return new URL(URIUtil.encodePathQuery(configuration.getServerUrl() + API_JSON + TREE_PARAM + BASIC_JENKINS_INFO));
         } catch (Exception ex) {
             handleException(ex);
         }
@@ -98,7 +76,7 @@ class UrlBuilder {
             basicViewInfo = CLOUDBEES_VIEW_INFO;
         }
         try {
-            return new URL(viewUrl + URIUtil.encodePathQuery(API + "/" + format.formatLabel + TREE_PARAM + basicViewInfo));
+            return new URL(viewUrl + URIUtil.encodePathQuery(API_JSON + TREE_PARAM + basicViewInfo));
         } catch (Exception ex) {
             handleException(ex);
         }
@@ -108,7 +86,7 @@ class UrlBuilder {
 
     URL createJobUrl(String jobUrl) {
         try {
-            return new URL(jobUrl + URIUtil.encodePathQuery(API + "/" + format.formatLabel + TREE_PARAM + BASIC_JOB_INFO));
+            return new URL(jobUrl + URIUtil.encodePathQuery(API_JSON + TREE_PARAM + BASIC_JOB_INFO));
         } catch (Exception ex) {
             handleException(ex);
         }
@@ -126,7 +104,7 @@ class UrlBuilder {
 
     URL createAuthenticationUrl(String serverUrl) {
         try {
-            return new URL(serverUrl + API + "/" + format.formatLabel + TEST_CONNECTION_REQUEST);
+            return new URL(serverUrl + API_JSON + TEST_CONNECTION_REQUEST);
         } catch (Exception ex) {
             handleException(ex);
         }

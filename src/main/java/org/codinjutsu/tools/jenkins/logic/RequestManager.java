@@ -17,72 +17,113 @@
 package org.codinjutsu.tools.jenkins.logic;
 
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
+import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.model.Job;
+import org.codinjutsu.tools.jenkins.security.SecurityClient;
+import org.codinjutsu.tools.jenkins.security.SecurityClientFactory;
 import org.codinjutsu.tools.jenkins.security.SecurityMode;
 
+import java.net.URL;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public interface RequestManager {
+public class RequestManager {
 
-    String JOB = "job";
-    String JOBS = "jobs";
-    String JOB_NAME = "name";
-    String JOB_HEALTH = "healthReport";
-    String JOB_HEALTH_ICON = "iconUrl";
-    String JOB_HEALTH_DESCRIPTION = "description";
-    String JOB_URL = "url";
-    String JOB_COLOR = "color";
-    String JOB_LAST_BUILD = "lastBuild";
-    String JOB_IS_BUILDABLE = "buildable";
-    String JOB_IS_IN_QUEUE = "inQueue";
-    String VIEW = "view";
-    String VIEWS = "views";
-    String PRIMARY_VIEW = "primaryView";
-    String VIEW_NAME = "name";
-    String VIEW_URL = "url";
-    String BUILD_IS_BUILDING = "building";
-    String BUILD_ID = "id";
-    String BUILD_RESULT = "result";
-    String BUILD_URL = "url";
-    String BUILD_NUMBER = "number";
-    String PARAMETER_PROPERTY = "property";
-    String PARAMETER_DEFINITION = "parameterDefinition";
-    String PARAMETER_DEFINITIONS = "parameterDefinitions";
-    String PARAMETER_NAME = "name";
-    String PARAMETER_TYPE = "type";
-    String PARAMETER_DEFAULT_PARAM = "defaultParameterValue";
-    String PARAMETER_DEFAULT_PARAM_VALUE = "value";
-    String PARAMETER_CHOICE = "choice";
-    String RSS_ENTRY = "entry";
-    String RSS_TITLE = "title";
-    String RSS_LINK = "link";
-    String RSS_LINK_HREF = "href";
-    String RSS_PUBLISHED = "published";
-    String JENKINS_ROOT_TAG = "jenkins";
-    String HUDSON_ROOT_TAG = "hudson";
-    String FOLDER_ROOT_TAG = "folder";
-    String JENKINS_DESCRIPTION = "description";
-    String BUILDHIVE_CLOUDBEES = "buildhive";
+    private static final String BUILDHIVE_CLOUDBEES = "buildhive";
+
+    private UrlBuilder urlBuilder;
+    private SecurityClient securityClient;
+
+    private JenkinsPlateform jenkinsPlateform = JenkinsPlateform.CLASSIC;
+
+    private RssParser rssParser = new RssParser();
+
+    private JenkinsJsonParser jsonParser = new JenkinsJsonParser();
 
 
-    Jenkins loadJenkinsWorkspace(JenkinsConfiguration configuration);
+    public RequestManager(SecurityClient securityClient) {
+        this.urlBuilder = new UrlBuilder();
+        this.securityClient = securityClient;
+    }
 
-    Map<String, Build> loadJenkinsRssLatestBuilds(JenkinsConfiguration configuration);
+    public RequestManager(String crumbFile) {
+        this(SecurityClientFactory.none(crumbFile));
+    }
 
-    List<Job> loadJenkinsView(String viewUrl);
+    public Jenkins loadJenkinsWorkspace(JenkinsConfiguration configuration) {
+        URL url = urlBuilder.createJenkinsWorkspaceUrl(configuration);
+        String jenkinsWorkspaceData = securityClient.execute(url);
 
-    Job loadJob(String jenkinsJobUrl);
+        if (configuration.getServerUrl().contains(BUILDHIVE_CLOUDBEES)) {//TODO hack need to refactor
+            jenkinsPlateform = JenkinsPlateform.CLOUDBEES;
+        } else {
+            jenkinsPlateform = JenkinsPlateform.CLASSIC;
+        }
 
-    void runBuild(Job job, JenkinsConfiguration configuration);
+        Jenkins jenkins = jsonParser.createWorkspace(jenkinsWorkspaceData, configuration.getServerUrl());
 
-    void runParameterizedBuild(Job job, JenkinsConfiguration configuration, Map<String, String> paramValueMap);
+        int jenkinsPort = url.getPort();
+        URL viewUrl = urlBuilder.createViewUrl(jenkinsPlateform, jenkins.getPrimaryView().getUrl());
+        int viewPort = viewUrl.getPort();
 
-    void authenticate(String serverUrl, SecurityMode securityMode, String username, String passwordFile, String crumbDataFile);
+        if (isJenkinsPortSet(jenkinsPort) && jenkinsPort != viewPort) {
+            throw new ConfigurationException(String.format("Jenkins Port seems to be incorrect in the Server configuration page. Please fix 'Jenkins URL' at %s/configure", configuration.getServerUrl()));
+        }
 
-    List<Job> loadFavoriteJobs(List<JenkinsConfiguration.FavoriteJob> favoriteJobs);
+        return jenkins;
+    }
 
-    void setJenkinsPlateform(JenkinsPlateform cloudbees);
+    private boolean isJenkinsPortSet(int jenkinsPort) {
+        return jenkinsPort != -1;
+    }
+
+    public Map<String, Build> loadJenkinsRssLatestBuilds(JenkinsConfiguration configuration) {
+        URL url = urlBuilder.createRssLatestUrl(configuration.getServerUrl());
+
+        String rssData = securityClient.execute(url);
+
+        return rssParser.loadJenkinsRssLatestBuilds(rssData);
+    }
+
+    public List<Job> loadJenkinsView(String viewUrl) {
+        URL url = urlBuilder.createViewUrl(jenkinsPlateform, viewUrl);
+        String jenkinsViewData = securityClient.execute(url);
+        if (jenkinsPlateform.equals(JenkinsPlateform.CLASSIC)) {
+            return jsonParser.createViewJobs(jenkinsViewData);
+        } else {
+            return jsonParser.createCloudbeesViewJobs(jenkinsViewData);
+        }
+    }
+
+    public Job loadJob(String jenkinsJobUrl) {
+        URL url = urlBuilder.createJobUrl(jenkinsJobUrl);
+        String jenkinsJobData = securityClient.execute(url);
+        return jsonParser.createJob(jenkinsJobData);
+    }
+
+    public void runBuild(Job job, JenkinsConfiguration configuration) {
+        URL url = urlBuilder.createRunJobUrl(job.getUrl(), configuration);
+        securityClient.execute(url);
+    }
+
+    public void runParameterizedBuild(Job job, JenkinsConfiguration configuration, Map<String, String> paramValueMap) {
+        URL url = urlBuilder.createRunParameterizedJobUrl(job.getUrl(), configuration, paramValueMap);
+        securityClient.execute(url);
+    }
+
+    public void authenticate(String serverUrl, SecurityMode securityMode, String username, String passwordFile, String crumbDataFile) {
+        securityClient = SecurityClientFactory.create(securityMode, username, passwordFile, crumbDataFile);
+        securityClient.connect(urlBuilder.createAuthenticationUrl(serverUrl));
+    }
+
+    public List<Job> loadFavoriteJobs(List<JenkinsConfiguration.FavoriteJob> favoriteJobs) {
+        List<Job> jobs = new LinkedList<Job>();
+        for (JenkinsConfiguration.FavoriteJob favoriteJob : favoriteJobs) {
+            jobs.add(loadJob(favoriteJob.url));
+        }
+        return jobs;
+    }
 }

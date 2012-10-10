@@ -151,7 +151,7 @@ public class JenkinsControlComponent
 
     private void installJenkinsPanel() {
 
-        requestManager = new JsonRequestManager(configuration.getCrumbFile());
+        requestManager = new RequestManager(configuration.getCrumbFile());
         jenkinsWidget = new JenkinsWidget();
 
         BrowserPanel browserPanel = new BrowserPanel(configuration.getFavoriteJobs());

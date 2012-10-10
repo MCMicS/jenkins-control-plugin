@@ -126,12 +126,12 @@ public class RssLogic {
     public void init() {
         initGui();
         reloadConfiguration();
+
+        loadLatestBuilds(false);
     }
 
     void reloadConfiguration() {
         cleanRssEntries();
-
-//        initScheduledJobs();
     }
 
     private void initGui() {

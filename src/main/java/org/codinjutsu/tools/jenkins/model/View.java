@@ -66,16 +66,6 @@ public class View {
         this.subViews.add(subView);
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        return reflectionEquals(this, obj);
-    }
-
-    @Override
-    public int hashCode() {
-        return reflectionHashCode(this);
-    }
-
     public static View createView(String viewName, String viewUrl) {
         return new View(viewName, viewUrl, false);
     }
