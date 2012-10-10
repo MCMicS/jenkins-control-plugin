@@ -41,6 +41,7 @@ import org.codinjutsu.tools.jenkins.view.action.settings.SortByStatusAction;
 import javax.swing.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -81,6 +82,7 @@ public class BrowserLogic implements Disposable {
     public void reloadConfiguration() {
         if (!configuration.isServerUrlSet()) {
             jobLoadListener.afterLoadingJobs(new BuildStatusAggregator());//TODO Crappy, need rewrite this
+            clearViewCombo();
             displayMissingConfiguration();
             return;
         }
@@ -100,10 +102,18 @@ public class BrowserLogic implements Disposable {
 
         String lastSelectedViewName = configuration.getLastSelectedView();
         if (StringUtils.isNotEmpty(lastSelectedViewName)) {
-            browserPanel.getViewByName(lastSelectedViewName);
+            browserPanel.selectView(lastSelectedViewName);
+        } else {
+            View primaryView = jenkins.getPrimaryView();
+            if (primaryView != null) {
+                browserPanel.selectView(primaryView.getName());
+            }
         }
-
         loadSelectedView();
+    }
+
+    private void clearViewCombo() {
+        browserPanel.resetViewCombo(Collections.<View>emptyList());
     }
 
 
@@ -292,8 +302,6 @@ public class BrowserLogic implements Disposable {
                 jenkinsView = jenkins.getPrimaryView();
             }
             final View selectedView = jenkinsView;
-
-            configuration.setLastSelectedView(selectedView.getName());
 
             browserPanel.startWaiting();
             final List<Job> jobList;

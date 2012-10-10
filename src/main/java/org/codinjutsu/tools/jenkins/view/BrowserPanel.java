@@ -98,7 +98,7 @@ public class BrowserPanel extends JPanel implements Disposable {
     }
 
 
-    public void getViewByName(String name) {
+    public void selectView(String name) {
         for (int i = 0; i < viewCombo.getItemCount(); i++) {
             View view = (View) viewCombo.getItemAt(i);
             if (StringUtils.equals(name, view.getName())) {

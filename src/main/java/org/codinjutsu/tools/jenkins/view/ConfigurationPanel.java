@@ -173,6 +173,11 @@ public class ConfigurationPanel {
     public void applyConfigurationData(JenkinsConfiguration configuration) throws ConfigurationException {
         formValidator.validate();
 
+        if (!StringUtils.equals(configuration.getServerUrl(), serverUrl.getText())) {
+            configuration.getFavoriteJobs().clear();
+            configuration.setLastSelectedView(null);
+        }
+
         configuration.setServerUrl(serverUrl.getText());
         configuration.setDelay(Integer.valueOf(buildDelay.getText()));
         configuration.setEnableJobAutoRefresh(enableJobAutoRefresh.isSelected());

@@ -50,6 +50,9 @@ public class JenkinsLogic implements Disposable {
     public void reloadConfiguration() {
         browserLogic.reloadConfiguration();
         rssLogic.reloadConfiguration();
+
+        browserLogic.initScheduledJobs(scheduledThreadPoolExecutor);
+        rssLogic.initScheduledJobs(scheduledThreadPoolExecutor);
     }
 
 
