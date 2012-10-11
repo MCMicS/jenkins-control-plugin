@@ -30,7 +30,7 @@ The panel is divided into 2 parts :
 * To view the jobs You have to refresh the Jenkins Workspace by right-clicking on the Server icon node
 * You can select some view by selecting of them in the combo box.
 * When you right click on a job some options are available such as Launch a Build, View The Job's Page and View the Last Build Results.
-* You can set some jobs as favorite. A new View will appear in the combobox that will include your selected job.
+* You can set some jobs as favorite. A new View will appear in the combobox that will include your selected jobs.
 
 ### Down part - Rss View
 To get the last rss feeds, you have to click on the Rss icon button, a list will appear and you will be able to go to the broken build web page.
