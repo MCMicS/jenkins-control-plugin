@@ -14,6 +14,6 @@
     </project-components>
 
     <change-notes><![CDATA[
-<a href="https://github.com/dboissier/jenkins-control-plugin/blob/jenkins-control-plugin-0.5.5/CHANGELOG.txt">Changelog</a>
+<a href="https://github.com/dboissier/jenkins-control-plugin/blob/jenkins-control-plugin-0.6.0/CHANGELOG.txt">Changelog</a>
 ]]> </change-notes>
 </idea-plugin>
