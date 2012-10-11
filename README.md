@@ -27,20 +27,21 @@ Download this plugin from your IDE or from the plugin website: http://plugins.in
 By default, Jenkins Plugin Panel is available on the right of the IDE. Click on the Jenkins Button to display it.
 The panel is divided into 2 parts :
 ### Up part - Job view
-To view the jobs You have to refresh the Jenkins Workspace by right-clicking on the Server icon node
-You can select some view by selecting of them in the combo box.
-When you right click on a job some options are available such as Launch a Build, View The Job's Page and View the Last Build Results.
-You can set some jobs as favorite. A new View will appear in the combobox that will include your selected job.
+* To view the jobs You have to refresh the Jenkins Workspace by right-clicking on the Server icon node
+* You can select some view by selecting of them in the combo box.
+* When you right click on a job some options are available such as Launch a Build, View The Job's Page and View the Last Build Results.
+* You can set some jobs as favorite. A new View will appear in the combobox that will include your selected job.
 
 ### Down part - Rss View
 To get the last rss feeds, you have to click on the Rss icon button, a list will appear and you will be able to go to the broken build web page.
 
-A small widget is available on the status bar. It indicates the overall status of the selected view. When there is no broken build then the icon color is blue (else, a red icon is displayed with the remaining broken builds. If the job auto-refresh is enabled then the widget updates itself.
-When you click on the icon, a popup is displayed with builds status summary (# broken, # succeeded, # unstable) and weather that indicates the health of the project view.
+### Widget
+* A small widget is available on the status bar. It indicates the overall status of the selected view. When there is no broken build then the icon color is blue (else, a red icon is displayed with the remaining broken builds. If the job auto-refresh is enabled then the widget updates itself.
+* When you click on the icon, a popup is displayed with builds status summary (# broken, # succeeded, # unstable) and weather that indicates the health of the project view.
 
 ## Limitations
-This software is written under Apache License 2.0.
-This software follows some agile practice: Provide basic functionality and get feedback from the users. So, this version
+* This software is written under Apache License 2.0.
+* This software follows some agile practice: Provide basic functionality and get feedback from the users. So, this version
 does not cover all needs and it is opened for any suggestion that you can use the issue feature of the github project
 
 ## Thanks
