@@ -179,7 +179,7 @@ public class ConfigurationPanelTest extends UISpecTestCase {
         connexionButton.click();
 
         TextBox connectionStatusLabel = uiSpecPanel.getTextBox("connectionStatusLabel");
-        connectionStatusLabel.textEquals("Fail: 'serverUrl' must be set").check();
+        connectionStatusLabel.textEquals("[Fail] 'serverUrl' must be set").check();
     }
 
     public void testConnectionWithEmptyUrlShouldFail() throws Exception {
@@ -192,7 +192,7 @@ public class ConfigurationPanelTest extends UISpecTestCase {
         connexionButton.click();
 
         TextBox connectionStatusLabel = uiSpecPanel.getTextBox("connectionStatusLabel");
-        connectionStatusLabel.textEquals("Fail: 'serverUrl' must be set").check();
+        connectionStatusLabel.textEquals("[Fail] 'serverUrl' must be set").check();
     }
 
     public void testConnectionWithUrlFilledWithCredentialsShouldFail() throws Exception {
@@ -205,7 +205,7 @@ public class ConfigurationPanelTest extends UISpecTestCase {
         connexionButton.click();
 
         TextBox connectionStatusLabel = uiSpecPanel.getTextBox("connectionStatusLabel");
-        connectionStatusLabel.textEquals("Fail: Credentials should not be embedded in the url. Use the above form instead.").check();
+        connectionStatusLabel.textEquals("[Fail] Credentials should not be embedded in the url. Use the above form instead.").check();
     }
 
     public void testConnectionWithAuthenticationExceptionThrownShouldFail() throws Exception {
@@ -220,7 +220,7 @@ public class ConfigurationPanelTest extends UISpecTestCase {
         connexionButton.click();
 
         TextBox connectionStatusLabel = uiSpecPanel.getTextBox("connectionStatusLabel");
-        connectionStatusLabel.textEquals("Fail: ouch").check();
+        connectionStatusLabel.textEquals("[Fail] ouch").check();
     }
 
     public void testApplyConfigWithInvalidIntegerShouldFail() throws Exception {
