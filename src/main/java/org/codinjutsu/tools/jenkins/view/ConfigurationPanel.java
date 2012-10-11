@@ -245,7 +245,7 @@ public class ConfigurationPanel {
                             serverUrl.getText(), securityMode, username.getText(), passwordFile.getComponent().getText(), crumbDataFile.getComponent().getText());
                     setConnectionFeedbackLabel(CONNECTION_TEST_SUCCESSFUL_COLOR, "Successful");
                 } catch (Exception ex) {
-                    setConnectionFeedbackLabel(CONNECTION_TEST_FAILED_COLOR, "Fail: " + ex.getMessage());
+                    setConnectionFeedbackLabel(CONNECTION_TEST_FAILED_COLOR, "[Fail] " + ex.getMessage());
                     if (ex instanceof AuthenticationException) {
                         AuthenticationException authenticationException = (AuthenticationException) ex;
                         String responseBody = authenticationException.getResponseBody();

@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.UnknownHostException;
 
 class DefaultSecurityClient implements SecurityClient {
 
@@ -90,6 +91,8 @@ class DefaultSecurityClient implements SecurityClient {
             }
         } catch (HttpException httpEx) {
             throw new ConfigurationException(String.format("Error during method execution %s", url), httpEx);
+        } catch (UnknownHostException uhEx) {
+            throw new ConfigurationException(String.format("Unknown server: %s", uhEx.getMessage()), uhEx);
         } catch (IOException ioEx) {
             throw new ConfigurationException(String.format("Error during method execution %s", url), ioEx);
         } finally {
