@@ -35,13 +35,14 @@ import java.awt.event.*;
 
 public class JobSearchComponent extends JPanel {
 
+    private static final Icon CLOSE_ICON = GuiUtil.loadIcon("close.png");
+
     private final JTextField searchField;
-
     private final JLabel infoLabel;
-
     private final JTree jobTree;
-    private DefaultMutableTreeNode lastSelectedNode;
     private final Color defaultBackground;
+
+    private DefaultMutableTreeNode lastSelectedNode;
 
     public JobSearchComponent(JTree jobTree) {
         this.jobTree = jobTree;
@@ -106,7 +107,7 @@ public class JobSearchComponent extends JPanel {
 
     private Component createCloseButton() {
         JLabel closeLabel = new JLabel();
-        closeLabel.setIcon(GuiUtil.loadIcon("close.png"));
+        closeLabel.setIcon(CLOSE_ICON);
         closeLabel.setToolTipText("Close search bar (Escape)");
         closeLabel.addMouseListener(new MouseAdapter() {
             @Override

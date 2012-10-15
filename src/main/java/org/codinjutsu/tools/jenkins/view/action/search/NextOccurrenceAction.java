@@ -34,6 +34,7 @@ public class NextOccurrenceAction extends AnAction implements DumbAware {
         this.jobSearchComponent = jobSearchComponent;
 
         registerCustomShortcutSet(KeyEvent.VK_F3, 0, jobSearchComponent);
+        registerCustomShortcutSet(KeyEvent.VK_DOWN, 0, jobSearchComponent);
     }
 
     @Override

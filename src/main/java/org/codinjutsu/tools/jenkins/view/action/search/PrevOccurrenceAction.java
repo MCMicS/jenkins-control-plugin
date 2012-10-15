@@ -35,6 +35,7 @@ public class PrevOccurrenceAction extends AnAction implements DumbAware {
         this.jobSearchComponent = jobSearchComponent;
 
         registerCustomShortcutSet(KeyEvent.VK_F3, InputEvent.SHIFT_MASK, jobSearchComponent);
+        registerCustomShortcutSet(KeyEvent.VK_UP, 0, jobSearchComponent);
     }
 
     @Override
