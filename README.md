@@ -15,7 +15,7 @@ Download this plugin from your IDE or from the plugin website: http://plugins.in
 ## Configuration steps
 * Click on the **Jenkins Settings** button located on the upper toolbar (or you can also open IntelliJ Settings Screen and select the Jenkins Control Plugin option).
 * Enter your Jenkins Server URL (e.g: http://ci.jenkins-ci.org).
-* If Security is enabled on the server, you have to provide credentials. Click on the **Enable Authentication** checkbox. Enter your username and the password file path.
+* If Security is enabled on the server, you have to provide credentials. Click on the **Enable Authentication** checkbox. Enter your username and the password file path. The password file should contains the password in clear, i.e. if my password is **astrongpassword**, I will create a file **myJenkinsPassword.txt** that will contain **astrongpassword**.
 * If Cross Site Request Forgery Prevention is enabled on the server, then you have to provide your crumb data file path. To get the value, you will have to open the following URL in your browser *_jenkins_url_/crumbIssuer/api/xml?tree=crumb*. Just copy and paste the crumb value in a file. please note for the authentication case, you have to run the crumb URL after login.  
 * To make sure that all parameters are correct, you can click on the **Test Connection** button. A feedback message will appear.
 * If you want the plugin to refresh periodically the Jenkins workspace or Rss Feed reader, you can set a period value
