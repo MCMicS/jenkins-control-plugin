@@ -54,7 +54,7 @@ define 'jenkins-control-plugin' do
   jenkins = package :jar
 
   distribution = package :zip, :id => PLUGIN_NAME, :version => VERSION_NUMBER
-  distribution.path('/lib').include jenkins, JSON, COMMONS_LOGGING, COMMONS_IO, COMMONS_CODEC
+  distribution.path('/lib').include jenkins, JSON, COMMONS_IO, COMMONS_CODEC
   distribution.path('/').include(['README.md', 'CHANGELOG.txt', 'LICENSE.txt'])
 
 end

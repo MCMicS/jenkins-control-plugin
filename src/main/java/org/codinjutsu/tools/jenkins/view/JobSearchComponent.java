@@ -166,7 +166,7 @@ public class JobSearchComponent extends JPanel {
                 break;
             }
             Job job = (Job) userObject;
-            if (StringUtils.startsWithIgnoreCase(job.getName(), text) && !foundNode) {
+            if (StringUtils.containsIgnoreCase(job.getName(), text) && !foundNode) {
                 lastSelectedNode = currentNode;
                 TreePath pathToSelect = new TreePath(currentNode.getPath());
                 jobTree.setSelectionPath(pathToSelect);
