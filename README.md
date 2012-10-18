@@ -27,7 +27,6 @@ Download this plugin from your IDE or from the plugin website: http://plugins.in
 
 ![Connection failed](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/images/Configuration-failure.png?raw=true)
 
-* If you want the plugin to refresh periodically the Jenkins workspace or Rss Feed reader, you can set a period value
 * You can specify a build start delay (in sec.).
 * You can enable Auto refresh and input a period value (in minutes) on both Job Browser and Rss Feed Reader.
 * When your configuration is set up, click on the **Apply** Button to save it.
