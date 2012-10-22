@@ -68,7 +68,7 @@ To get the last rss feeds, you have to click on the Rss icon button, a list will
 ## Limitations
 * This software is written under Apache License 2.0.
 * This software follows some agile practice: Provide basic functionality and get feedback from the users. So, this version
-does not cover all needs and it is opened for any suggestion that you can use the issue feature of the github project
+does not cover all needs and any suggestion can be posted on the issue section of the github project.
 
 ## Thanks
 I would like to thank
