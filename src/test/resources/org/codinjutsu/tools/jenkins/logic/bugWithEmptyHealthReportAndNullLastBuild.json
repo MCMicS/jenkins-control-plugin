@@ -1,0 +1,79 @@
+{
+    "jobs":[
+        {
+            "name":"abris",
+            "url":"http://jenkins.home.lobach.info:8080/job/abris/",
+            "buildable":true,
+            "color":"blue",
+            "healthReport":[
+                {
+                    "description":"Clover Coverage: Elements 23% (4292/18940)",
+                    "iconUrl":"health-20to39.png"
+                },
+                {
+                    "description":"Build stability: 3 out of the last 5 builds failed.",
+                    "iconUrl":"health-20to39.png"
+                },
+                {
+                    "description":"Test Result: 0 tests failing out of a total of 16 tests.",
+                    "iconUrl":"health-80plus.png"
+                }
+            ],
+            "inQueue":false,
+            "lastBuild":{
+                "building":false,
+                "id":"2012-11-04_14-56-10",
+                "number":80,
+                "result":"SUCCESS",
+                "url":"http://jenkins.home.lobach.info:8080/job/abris/80/"
+            },
+            "property":[
+                {}
+            ]
+        },
+        {
+            "name":"php-template",
+            "url":"http://jenkins.home.lobach.info:8080/job/php-template/",
+            "buildable":false,
+            "color":"disabled",
+            "healthReport":[],
+            "inQueue":false,
+            "lastBuild":null,
+            "property":[]
+        },
+        {
+            "name":"zfImageFilter",
+            "url":"http://jenkins.home.lobach.info:8080/job/zfImageFilter/",
+            "buildable":true,
+            "color":"blue",
+            "healthReport":[
+                {
+                    "description":"Clover Coverage: Statements 7% (10/136)",
+                    "iconUrl":"health-00to19.png"
+                },
+                {
+                    "description":"Number of checkstyle violations is 37",
+                    "iconUrl":"health-60to79.png"
+                },
+                {
+                    "description":"Test Result: 0 tests failing out of a total of 1 test.",
+                    "iconUrl":"health-80plus.png"
+                },
+                {
+                    "description":"Build stability: No recent builds failed.",
+                    "iconUrl":"health-80plus.png"
+                }
+            ],
+            "inQueue":false,
+            "lastBuild":{
+                "building":false,
+                "id":"2011-10-13_11-16-52",
+                "number":14,
+                "result":"SUCCESS",
+                "url":"http://jenkins.home.lobach.info:8080/job/zfImageFilter/14/"
+            },
+            "property":[
+                {}
+            ]
+        }
+    ]}

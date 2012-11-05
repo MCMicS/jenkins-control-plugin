@@ -211,6 +211,12 @@ public class JenkinsJsonParser {
 
     private Job.Health getHealth(JsonParser jsonParser) throws IOException {
         Job.Health health = new Job.Health();
+
+        JsonToken jsonToken = jsonParser.nextToken();
+        if (jsonToken == JsonToken.END_ARRAY) {
+            return null;
+        }
+
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             escapeFieldName(jsonParser);
 
@@ -242,6 +248,10 @@ public class JenkinsJsonParser {
     }
 
     private Build getLastBuild(JsonParser jsonParser) throws IOException {
+        if (jsonParser.getCurrentToken() == JsonToken.VALUE_NULL) {
+            return null;
+        }
+
         Build lastBuild = new Build();
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             escapeFieldName(jsonParser);

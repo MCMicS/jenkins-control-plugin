@@ -22,7 +22,6 @@ public class JenkinsJsonParserTest {
     private JenkinsJsonParser jsonParser;
 
     @Test
-//    @Ignore
     public void loadJenkinsWorkSpace() throws Exception {
         Jenkins jenkins = jsonParser.createWorkspace(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadWorkspace.json")), "http://myjenkins");
 
@@ -38,7 +37,6 @@ public class JenkinsJsonParserTest {
     }
 
     @Test
-//    @Ignore
     public void loadJenkinsWorkSpaceWithNestedViews() throws Exception {
         Jenkins jenkins = jsonParser.createWorkspace(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadWorkspaceWithNestedView.json")), "http://myjenkins");
 
@@ -61,7 +59,6 @@ public class JenkinsJsonParserTest {
 
 
     @Test
-//    @Ignore
     public void loadClassicView() throws Exception {
         List<Job> actualJobs = jsonParser.createViewJobs(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadClassicView.json")));
 
@@ -86,7 +83,6 @@ public class JenkinsJsonParserTest {
     }
 
     @Test
-//    @Ignore
     public void loadCloudbeesView() throws Exception {
         List<Job> actualJobs = jsonParser.createCloudbeesViewJobs(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadCloudbeesView.json")));
 
@@ -111,7 +107,6 @@ public class JenkinsJsonParserTest {
     }
 
     @Test
-//    @Ignore
     public void testLoadJob() throws Exception {
         Job actualJob = jsonParser.createJob(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadJob.json")));
 
@@ -120,6 +115,32 @@ public class JenkinsJsonParserTest {
                 .lastBuild("http://ci.jenkins-ci.org/job/config-provider-model/8/", "8", "SUCCESS", "false", "2012-04-02_16-26-29")
                 .health("health-80plus", "0 tests en echec sur un total de 24 tests")
                 .get(), actualJob);
+    }
+
+
+    @Test
+    public void testBugWithNullLastBuildAndEmptyHealthReport() throws Exception {
+        List<Job> actualJobs = jsonParser.createViewJobs(IOUtils.toString(getClass().getResourceAsStream("bugWithEmptyHealthReportAndNullLastBuild.json")));
+
+
+        List<Job> expectedJobs = Arrays.asList(
+                new JobBuilder()
+                        .job("abris", "blue", "http://jenkins.home.lobach.info:8080/job/abris/", "false", "true")
+                        .lastBuild("http://jenkins.home.lobach.info:8080/job/abris/80/", "80", "SUCCESS", "false", "2012-11-04_14-56-10")
+                        .health("health-20to39", "Clover Coverage: Elements 23% (4292/18940)")
+                        .get(),
+                new JobBuilder()
+                        .job("php-template", "disabled", "http://jenkins.home.lobach.info:8080/job/php-template/", "false", "false")
+                        .get(),
+                new JobBuilder()
+                        .job("zfImageFilter", "blue", "http://jenkins.home.lobach.info:8080/job/zfImageFilter/", "false", "true")
+                        .lastBuild("http://jenkins.home.lobach.info:8080/job/zfImageFilter/14/", "14", "SUCCESS", "false", "2011-10-13_11-16-52")
+                        .health("health-00to19", "Clover Coverage: Statements 7% (10/136)")
+                        .get()
+
+        );
+
+        assertReflectionEquals(expectedJobs, actualJobs);
     }
 
 
