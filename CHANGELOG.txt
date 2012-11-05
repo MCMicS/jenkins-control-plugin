@@ -2,6 +2,7 @@ Version 0.6.1
     * [Upd] UI: Remove unecessary titled 'job' panel
     * [Upd] Add UP and DOWN key for Search shortcut
     * [Upd] Replace Search matcher by contains
+    * [Fix] Bug in JSON parsing causes infinite loop
 Version 0.6.0
     * [Add] Support Cloudbees repository
     * [Add] Browser : Favorite Job feature (See README.md on github project)
