@@ -80,9 +80,9 @@ class BasicSecurityClient extends DefaultSecurityClient {
                 checkResponse(responseCode, responseBody);
             }
         } catch (HttpException httpEx) {
-            throw new ConfigurationException(String.format("Error during method execution %s", jenkinsUrl.toString()), httpEx);
+            throw new ConfigurationException(String.format("HTTP Error during method execution '%s': %s", jenkinsUrl.toString(), httpEx.getMessage()), httpEx);
         } catch (IOException ioEx) {
-            throw new ConfigurationException(String.format("Error during method execution %s", jenkinsUrl.toString()), ioEx);
+            throw new ConfigurationException(String.format("IO Error during method execution '%s': %s", jenkinsUrl.toString(), ioEx.getMessage()), ioEx);
         } finally {
             IOUtils.closeQuietly(inputStream);
             post.releaseConnection();
