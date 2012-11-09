@@ -90,11 +90,11 @@ class DefaultSecurityClient implements SecurityClient {
                 responseCollector.collect(statusCode, post.getResponseHeader("Location").getValue());
             }
         } catch (HttpException httpEx) {
-            throw new ConfigurationException(String.format("Error during method execution %s", url), httpEx);
+            throw new ConfigurationException(String.format("HTTP Error during method execution '%s': %s", url, httpEx.getMessage()), httpEx);
         } catch (UnknownHostException uhEx) {
             throw new ConfigurationException(String.format("Unknown server: %s", uhEx.getMessage()), uhEx);
         } catch (IOException ioEx) {
-            throw new ConfigurationException(String.format("Error during method execution %s", url), ioEx);
+            throw new ConfigurationException(String.format("IO Error during method execution '%s': %s", url, ioEx.getMessage()), ioEx);
         } finally {
             IOUtils.closeQuietly(inputStream);
             post.releaseConnection();
