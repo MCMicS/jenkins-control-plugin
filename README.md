@@ -69,6 +69,8 @@ To get the last rss feeds, you have to click on the Rss icon button, a list will
 * This software is written under Apache License 2.0.
 * This software follows some agile practice: Provide basic functionality and get feedback from the users. So, this version
 does not cover all needs and any suggestion can be posted on the issue section of the github project.
+* if HTTPS is used, the plugin only works with **trusted** certificates
+* LDAP is not supported
 
 ## Thanks
 I would like to thank
