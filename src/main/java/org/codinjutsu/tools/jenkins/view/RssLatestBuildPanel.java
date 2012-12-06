@@ -55,7 +55,6 @@ public class RssLatestBuildPanel extends JPanel {
         htmlDocument = new HTMLDocument();
 
         rssTextPane.setEditable(false);
-        rssTextPane.setBackground(Color.WHITE);
         rssTextPane.setEditorKit(htmlEditorKit);
         htmlEditorKit.install(rssTextPane);
         rssTextPane.setDocument(htmlDocument);

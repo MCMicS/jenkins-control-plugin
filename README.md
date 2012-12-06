@@ -1,4 +1,4 @@
-# Jenkins Control Plugin for IntelliJ IDEA
+# Jenkins Plugin for IntelliJ IDEA
 
 ## ChangeLog
 See CHANGELOG.txt

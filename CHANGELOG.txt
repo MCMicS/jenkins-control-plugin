@@ -1,4 +1,5 @@
 Version 0.6.1
+    * [Upd] UI: Fix Color for new Look&Feel Darcula of IDEA 12
     * [Upd] UI: Remove unecessary titled 'job' panel
     * [Upd] Add UP and DOWN key for Search shortcut
     * [Upd] Replace Search matcher by contains

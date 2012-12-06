@@ -16,6 +16,8 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
+import com.intellij.openapi.ui.Splitter;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -28,12 +30,12 @@ public class JenkinsPanel extends JPanel {
     private JenkinsPanel(BrowserPanel browserPanel, RssLatestBuildPanel rssLatestJobPanel) {
         setLayout(new BorderLayout());
 
-        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        splitPane.setOneTouchExpandable(true);
-        splitPane.setTopComponent(browserPanel);
-        splitPane.setBottomComponent(rssLatestJobPanel);
-        splitPane.setDividerLocation(600);
+        Splitter splitter = new Splitter(true);
+        splitter.setFirstComponent(browserPanel);
+        splitter.setSecondComponent(rssLatestJobPanel);
+        splitter.setShowDividerControls(true);
+        splitter.setProportion(0.60f);
 
-        add(splitPane, BorderLayout.CENTER);
+        add(splitter, BorderLayout.CENTER);
     }
 }
