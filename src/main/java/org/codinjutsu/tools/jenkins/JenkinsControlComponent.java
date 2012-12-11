@@ -50,7 +50,7 @@ import static org.codinjutsu.tools.jenkins.view.action.RunBuildAction.RUN_ICON;
 
 @State(
         name = JenkinsControlComponent.JENKINS_CONTROL_COMPONENT_NAME,
-        storages = {@Storage(id = "JenkinsControlSettings", file = "$PROJECT_FILE$")}
+        storages = {@Storage(id = "JenkinsControlSettings", file = "$WORKSPACE_FILE$")}
 )
 public class JenkinsControlComponent
         implements ProjectComponent, Configurable, PersistentStateComponent<JenkinsConfiguration> {
