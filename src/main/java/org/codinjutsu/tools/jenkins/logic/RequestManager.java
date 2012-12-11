@@ -114,8 +114,8 @@ public class RequestManager {
         securityClient.execute(url);
     }
 
-    public void authenticate(String serverUrl, SecurityMode securityMode, String username, String passwordFile, String crumbDataFile) {
-        securityClient = SecurityClientFactory.create(securityMode, username, passwordFile, crumbDataFile);
+    public void authenticate(String serverUrl, SecurityMode securityMode, String username, String password, String crumbData) {
+        securityClient = SecurityClientFactory.create(securityMode, username, password, crumbData);
         securityClient.connect(urlBuilder.createAuthenticationUrl(serverUrl));
     }
 

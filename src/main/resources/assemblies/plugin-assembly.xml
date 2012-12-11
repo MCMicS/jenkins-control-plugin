@@ -13,6 +13,7 @@
                 <exclude>commons-logging:commons-logging</exclude>
                 <exclude>commons-codec:commons-codec</exclude>
                 <exclude>com.intellij:forms_rt</exclude>
+                <exclude>com.intellij:idea</exclude>
                 <exclude>com.intellij:idea-openapi</exclude>
                 <exclude>log4j:log4j</exclude>
                 <exclude>jdom:jdom</exclude>

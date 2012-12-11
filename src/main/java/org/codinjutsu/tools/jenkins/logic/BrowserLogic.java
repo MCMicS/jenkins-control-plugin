@@ -88,7 +88,7 @@ public class BrowserLogic implements Disposable {
         }
 
         try {
-            requestManager.authenticate(configuration.getServerUrl(), configuration.getSecurityMode(), configuration.getUsername(), configuration.getPasswordFile(), configuration.getCrumbFile());
+            requestManager.authenticate(configuration.getServerUrl(), configuration.getSecurityMode(), configuration.getUsername(), configuration.getPassword(), configuration.getCrumbFile());
         } catch (Exception ex) {
             displayConnectionErrorMsg();
             return;

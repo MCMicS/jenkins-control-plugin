@@ -185,7 +185,17 @@ public class BrowserLogicTest extends UISpecTestCase {
     }
 
     private void createConfiguration(String serverUrl) {
-        configuration = new JenkinsConfiguration();
+        configuration = new JenkinsConfiguration() {//TODO should spy this object
+            @Override
+            public String getPassword() {
+                return "mypassword";
+            }
+
+            @Override
+            public void setPassword(String password) {
+
+            }
+        };
         configuration.setJobRefreshPeriod(60);
         configuration.setServerUrl(serverUrl);
     }

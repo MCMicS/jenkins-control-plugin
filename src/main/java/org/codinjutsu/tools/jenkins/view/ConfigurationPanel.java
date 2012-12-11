@@ -16,9 +16,6 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
-import com.intellij.openapi.fileChooser.FileChooserDescriptor;
-import com.intellij.openapi.ui.LabeledComponent;
-import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
@@ -72,11 +69,8 @@ public class ConfigurationPanel {
 
     private JTextField username;
 
-    @GuiField(validators = FILE)
-    private LabeledComponent<TextFieldWithBrowseButton> passwordFile;
-
-    @GuiField(validators = FILE)
-    private LabeledComponent<TextFieldWithBrowseButton> crumbDataFile;
+    private JPasswordField passwordField;
+    private JTextField crumbDataField;
 
     private JPanel rootPanel;
 
@@ -87,16 +81,11 @@ public class ConfigurationPanel {
 
     private final FormValidator formValidator;
 
-
     private SecurityMode securityMode = SecurityMode.NONE;
 
     private final RequestManager requestManager;
 
-    public ConfigurationPanel(RequestManager requestManager) {
-        this(requestManager, true);
-    }
-
-    public ConfigurationPanel(final RequestManager requestManager, boolean installBrowserFileBrowser) {
+    public ConfigurationPanel(final RequestManager requestManager) {
         this.requestManager = requestManager;
 
         serverUrl.setName("serverUrl");
@@ -108,8 +97,8 @@ public class ConfigurationPanel {
         enableAuthentication.setName("enableAuthentication");
         username.setName("username");
 
-        passwordFile.getComponent().getTextField().setName("passwordFile");
-        crumbDataFile.getComponent().getTextField().setName("crumbDataFile");
+        passwordField.setName("passwordFile");
+        crumbDataField.setName("crumbDataFile");
 
         testConnexionButton.setName("testConnexionButton");
         connectionStatusLabel.setName("connectionStatusLabel");
@@ -120,19 +109,15 @@ public class ConfigurationPanel {
 
         initListeners();
 
-        if (installBrowserFileBrowser) {
-            addBrowserLinkToPasswordFile();
-        }
-
         formValidator = FormValidator.init(this)
                 .addValidator(enableAuthentication, new UIValidator<JCheckBox>() {
                     public void validate(JCheckBox component) throws ConfigurationException {
                         if (enableAuthentication.isSelected()) {
                             new NotNullValidator().validate(username);
-                            if (passwordFile.isEnabled()) {    //TODO a revoir
-                                TextFieldWithBrowseButton passwordComponent = passwordFile.getComponent();
-                                if (StringUtils.isEmpty(passwordComponent.getText())) {
-                                    throw new ConfigurationException(String.format("'%s' must be set", passwordComponent.getTextField().getName()));
+                            if (passwordField.isEnabled()) {    //TODO a revoir
+                                String password = String.valueOf(passwordField.getPassword());
+                                if (StringUtils.isBlank(password)) {
+                                    throw new ConfigurationException(String.format("'%s' must be set", passwordField.getName()));
                                 }
                             }
                         }
@@ -163,8 +148,8 @@ public class ConfigurationPanel {
                 || !(configuration.getRssRefreshPeriod() == Integer.parseInt(rssRefreshPeriod.getText()))
                 || !(configuration.getSecurityMode() == securityMode)
                 || !(configuration.getUsername().equals(username.getText()))
-                || !(configuration.getPasswordFile().equals(passwordFile.getComponent().getText()))
-                || !(configuration.getCrumbFile().equals(crumbDataFile.getComponent().getText()))
+                || !(configuration.getPassword().equals(String.valueOf(passwordField.getPassword())))
+                || !(configuration.getCrumbFile().equals(crumbDataField.getText()))
                 ;
     }
 
@@ -188,8 +173,8 @@ public class ConfigurationPanel {
         configuration.setSecurityMode(securityMode);
 
         configuration.setUsername(username.getText());
-        configuration.setPasswordFile(passwordFile.getComponent().getText());
-        configuration.setCrumbFile(crumbDataFile.getComponent().getText());
+        configuration.setPassword(String.valueOf(passwordField.getPassword()));
+        configuration.setCrumbFile(crumbDataField.getText());
     }
 
     public void loadConfigurationData(JenkinsConfiguration configuration) {
@@ -206,7 +191,7 @@ public class ConfigurationPanel {
         rssRefreshPeriod.setText(String.valueOf(configuration.getRssRefreshPeriod()));
         rssRefreshPeriod.setEnabled(rssAutoRefresh);
 
-        setSecurityMode(configuration.getSecurityMode(), configuration.getUsername(), configuration.getPasswordFile(), configuration.getCrumbFile());
+        setSecurityMode(configuration.getSecurityMode(), configuration.getUsername(), configuration.getPassword(), configuration.getCrumbFile());
     }
 
     private void setSecurityMode(SecurityMode securityMode, @Nullable String usernameValue, @Nullable String passwordFileValue, @Nullable String crumbFile) {
@@ -217,10 +202,10 @@ public class ConfigurationPanel {
         username.setText(usernameValue);
         username.setEnabled(isEnableAuthentication);
 
-        passwordFile.getComponent().setText(passwordFileValue);
-        passwordFile.setEnabled(isEnableAuthentication);
+        passwordField.setText(passwordFileValue);
+        passwordField.setEnabled(isEnableAuthentication);
 
-        crumbDataFile.getComponent().setText(crumbFile);
+        crumbDataField.setText(crumbFile);
 
         this.securityMode = securityMode;
     }
@@ -242,7 +227,7 @@ public class ConfigurationPanel {
                     new NotNullValidator().validate(serverUrl);
                     new UrlValidator().validate(serverUrl);
                     requestManager.authenticate(
-                            serverUrl.getText(), securityMode, username.getText(), passwordFile.getComponent().getText(), crumbDataFile.getComponent().getText());
+                            serverUrl.getText(), securityMode, username.getText(), String.valueOf(passwordField.getPassword()), crumbDataField.getText());
                     setConnectionFeedbackLabel(CONNECTION_TEST_SUCCESSFUL_COLOR, "Successful");
                 } catch (Exception ex) {
                     setConnectionFeedbackLabel(CONNECTION_TEST_FAILED_COLOR, "[Fail] " + ex.getMessage());
@@ -263,10 +248,8 @@ public class ConfigurationPanel {
         enableRssAutoRefresh.addItemListener(new EnablerFieldListener(enableRssAutoRefresh,
                 rssRefreshPeriod, resetPeriodValue));
 
-        enableAuthentication.addItemListener(new EnablerFieldListener(enableAuthentication,
-                username, RESET_STR_VALUE));
-        enableAuthentication.addItemListener(new EnablerPasswordFileListener(enableAuthentication,
-                passwordFile));
+        enableAuthentication.addItemListener(new EnablerFieldListener(enableAuthentication, username, RESET_STR_VALUE));
+        enableAuthentication.addItemListener(new EnablerPasswordListener(enableAuthentication, passwordField));
 
         enableAuthentication.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
@@ -286,14 +269,6 @@ public class ConfigurationPanel {
                 connectionStatusLabel.setText(labelText);
             }
         });
-    }
-
-    void addBrowserLinkToPasswordFile() {
-        passwordFile.getComponent().addBrowseFolderListener("Jenkins User password File", "", null,
-                new FileChooserDescriptor(true, false, false, false, false, false));
-
-        crumbDataFile.getComponent().addBrowseFolderListener("Jenkins User Crumb File", "", null,
-                new FileChooserDescriptor(true, false, false, false, false, false));
     }
 
     private class EnablerFieldListener implements ItemListener {
@@ -323,25 +298,26 @@ public class ConfigurationPanel {
         }
     }
 
-    private class EnablerPasswordFileListener implements ItemListener {
+    private class EnablerPasswordListener implements ItemListener {
         private final JCheckBox enablerCheckBox;
-        private final LabeledComponent<TextFieldWithBrowseButton> fieldToEnable;
+        private final JPasswordField fieldToEnable;
 
 
-        private EnablerPasswordFileListener(JCheckBox enablerCheckBox,
-                                            LabeledComponent<TextFieldWithBrowseButton> fieldToEnable) {
+        private EnablerPasswordListener(JCheckBox enablerCheckBox,
+                                        JPasswordField fieldToEnable) {
             this.enablerCheckBox = enablerCheckBox;
             this.fieldToEnable = fieldToEnable;
         }
 
 
         public void itemStateChanged(ItemEvent event) {
-            final boolean isSelected = enablerCheckBox.isSelected();
-            if (!isSelected) {
-                fieldToEnable.getComponent().setText(RESET_STR_VALUE);
-            }
+
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
+                    final boolean isSelected = enablerCheckBox.isSelected();
+                    if (!isSelected) {
+                        fieldToEnable.setText(RESET_STR_VALUE);
+                    }
                     fieldToEnable.setEnabled(isSelected);
                 }
             });

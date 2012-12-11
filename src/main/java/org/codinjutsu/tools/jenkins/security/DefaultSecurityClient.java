@@ -24,8 +24,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -37,14 +35,13 @@ class DefaultSecurityClient implements SecurityClient {
     private static final String BAD_CRUMB_DATA = "No valid crumb was included in the request";
     static final String CRUMB_NAME = ".crumb";
 
-    private final String crumbDataFile;
-    String crumbValue;
+    String crumbData;
 
     protected final HttpClient httpClient;
 
-    DefaultSecurityClient(String crumbDataFile) {
+    DefaultSecurityClient(String crumbData) {
         this.httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
-        this.crumbDataFile = crumbDataFile;
+        this.crumbData = crumbData;
     }
 
     @Override
@@ -68,10 +65,9 @@ class DefaultSecurityClient implements SecurityClient {
 
     private void runMethod(String url, ResponseCollector responseCollector) {
         PostMethod post = new PostMethod(url);
-        setCrumbValueIfNeeded();
 
         if (isCrumbDataSet()) {
-            post.addRequestHeader(CRUMB_NAME, crumbValue);
+            post.addRequestHeader(CRUMB_NAME, crumbData);
         }
 
         InputStream inputStream = null;
@@ -123,34 +119,9 @@ class DefaultSecurityClient implements SecurityClient {
         return statusCode / 100 == 3;
     }
 
-    protected void setCrumbValueIfNeeded() {
-        if (!isCrumbDataSet()) {
-            if (StringUtils.isNotEmpty(crumbDataFile)) {
-                crumbValue = extractValueFromFile(crumbDataFile);
-            }
-        }
-    }
 
     protected boolean isCrumbDataSet() {
-        return crumbValue != null;
-    }
-
-    protected static String extractValueFromFile(String file) {
-        FileInputStream passwordFileInputStream = null;
-        try {
-            passwordFileInputStream = new FileInputStream(file);
-            String value = IOUtils.toString(passwordFileInputStream);
-            if (StringUtils.isNotEmpty(value)) {
-                value = StringUtils.remove(value, '\n');
-            }
-            return value;
-        } catch (FileNotFoundException e) {
-            throw new ConfigurationException(String.format("File '%s' not found", file));
-        } catch (IOException e) {
-            throw new IllegalStateException(String.format("Unable to read '%s'", file), e);
-        } finally {
-            IOUtils.closeQuietly(passwordFileInputStream);
-        }
+        return StringUtils.isNotBlank(crumbData);
     }
 
     private static class ResponseCollector {

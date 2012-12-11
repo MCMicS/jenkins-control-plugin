@@ -16,6 +16,16 @@
 
 package org.codinjutsu.tools.jenkins;
 
+import com.intellij.ide.passwordSafe.MasterPasswordUnavailableException;
+import com.intellij.ide.passwordSafe.PasswordSafe;
+import com.intellij.ide.passwordSafe.PasswordSafeException;
+import com.intellij.ide.passwordSafe.impl.PasswordSafeImpl;
+import com.intellij.ide.passwordSafe.impl.providers.masterKey.MasterKeyPasswordSafe;
+import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.util.xmlb.annotations.Attribute;
 import com.intellij.util.xmlb.annotations.Tag;
 import org.apache.commons.lang.StringUtils;
@@ -27,6 +37,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class JenkinsConfiguration {
+
+    private static final Logger LOG = Logger.getInstance(JenkinsConfiguration.class.getName());
+
+    public static final String JENKINS_SETTINGS_PASSWORD_KEY = "JENKINS_SETTINGS_PASSWORD_KEY";
 
     public static final String DUMMY_JENKINS_SERVER_URL = "http://dummyjenkinsserver";
     public static final int DEFAULT_BUILD_DELAY = 0;
@@ -41,7 +55,7 @@ public class JenkinsConfiguration {
     private SecurityMode securityMode = SecurityMode.NONE;
 
     private String username = RESET_STR_VALUE;
-    private String passwordFile = RESET_STR_VALUE;
+    protected String password = RESET_STR_VALUE;
 
     private String crumbFile = RESET_STR_VALUE;
 
@@ -54,6 +68,9 @@ public class JenkinsConfiguration {
     public List<FavoriteJob> favoriteJobs = new LinkedList<FavoriteJob>();
 
     private String lastSelectedView;
+
+    private boolean passwordChanged;
+    private boolean masterPasswordRefused;
 
     public String getServerUrl() {
         return serverUrl;
@@ -127,12 +144,42 @@ public class JenkinsConfiguration {
         this.username = username;
     }
 
-    public String getPasswordFile() {
-        return passwordFile;
+    public String getPassword() {
+        LOG.assertTrue(!ProgressManager.getInstance().hasProgressIndicator(), "Password should not be accessed under modal progress");
+        String password;
+        final Project project = ProjectManager.getInstance().getDefaultProject();
+        final PasswordSafeImpl passwordSafe = (PasswordSafeImpl)PasswordSafe.getInstance();
+        try {
+            password = passwordSafe.getMemoryProvider().getPassword(project, JenkinsConfiguration.class, JENKINS_SETTINGS_PASSWORD_KEY);
+            if (password != null) {
+                return password;
+            }
+            final MasterKeyPasswordSafe masterKeyProvider = passwordSafe.getMasterKeyProvider();
+            if (!masterKeyProvider.isEmpty()) {
+                // workaround for: don't ask for master password, if the requested password is not there.
+                // this should be fixed in PasswordSafe: don't ask master password to look for keys
+                // until then we assume that is PasswordSafe was used (there is anything there), then it makes sense to look there.
+                password = masterKeyProvider.getPassword(project, JenkinsConfiguration.class, JENKINS_SETTINGS_PASSWORD_KEY);
+            }
+        }
+        catch (PasswordSafeException e) {
+            LOG.info("Couldn't get password for key [" + JENKINS_SETTINGS_PASSWORD_KEY + "]", e);
+            masterPasswordRefused = true;
+            password = "";
+        }
+
+        passwordChanged = false;
+        return password != null ? password : "";
     }
 
-    public void setPasswordFile(String passwordFile) {
-        this.passwordFile = passwordFile;
+    public void setPassword(String password) {
+            passwordChanged = !getPassword().equals(password);
+            try {
+                PasswordSafe.getInstance().storePassword(null, JenkinsConfiguration.class, JENKINS_SETTINGS_PASSWORD_KEY, StringUtils.isNotBlank(password) ? password : "");
+            }
+            catch (PasswordSafeException e) {
+                LOG.info("Couldn't get password for key [" + JENKINS_SETTINGS_PASSWORD_KEY + "]", e);
+            }
     }
 
     public void setSecurityMode(SecurityMode SecurityMode) {
@@ -190,6 +237,25 @@ public class JenkinsConfiguration {
 
     public boolean isFavoriteViewEmpty() {
         return favoriteJobs.isEmpty();
+    }
+
+    public void ensurePasswordIsStored() {
+        LOG.assertTrue(!ProgressManager.getInstance().hasProgressIndicator(), "Password should not be accessed under modal progress");
+
+        try {
+            if (passwordChanged && !masterPasswordRefused) {
+                PasswordSafe.getInstance().storePassword(null, JenkinsConfiguration.class, JENKINS_SETTINGS_PASSWORD_KEY, getPassword());
+            }
+        }
+        catch (MasterPasswordUnavailableException e){
+            LOG.info("Couldn't store password for key [" + JENKINS_SETTINGS_PASSWORD_KEY + "]", e);
+            this.masterPasswordRefused = true;
+        }
+        catch (Exception e) {
+            Messages.showErrorDialog("Error happened while storing password for github", "Error");
+            LOG.info("Couldn't get password for key [" + JENKINS_SETTINGS_PASSWORD_KEY + "]", e);
+        }
+        this.passwordChanged = false;
     }
 
     @Tag("favorite")

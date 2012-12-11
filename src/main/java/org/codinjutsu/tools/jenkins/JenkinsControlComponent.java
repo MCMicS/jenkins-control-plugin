@@ -16,16 +16,20 @@
 
 package org.codinjutsu.tools.jenkins;
 
+import com.intellij.ide.passwordSafe.MasterPasswordUnavailableException;
+import com.intellij.ide.passwordSafe.PasswordSafe;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.DumbAwareRunnable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupManager;
 import com.intellij.openapi.ui.MessageType;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.popup.Balloon;
 import com.intellij.openapi.ui.popup.BalloonBuilder;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
@@ -46,6 +50,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.concurrent.TimeUnit;
 
+import static org.codinjutsu.tools.jenkins.JenkinsConfiguration.JENKINS_SETTINGS_PASSWORD_KEY;
 import static org.codinjutsu.tools.jenkins.view.action.RunBuildAction.RUN_ICON;
 
 @State(
@@ -107,6 +112,7 @@ public class JenkinsControlComponent
 
 
     public JenkinsConfiguration getState() {
+        configuration.ensurePasswordIsStored();
         return configuration;
     }
 

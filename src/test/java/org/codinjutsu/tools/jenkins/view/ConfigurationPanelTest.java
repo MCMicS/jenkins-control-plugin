@@ -74,19 +74,19 @@ public class ConfigurationPanelTest extends UISpecTestCase {
         assertFalse(usernameTextbox.isEnabled());
         usernameTextbox.textIsEmpty().check();
 
-        TextBox passwordTextField = uiSpecPanel.getTextBox("passwordFile");
+        PasswordField passwordTextField = uiSpecPanel.getPasswordField("passwordFile");
         assertFalse(passwordTextField.isEnabled());
-        passwordTextField.textIsEmpty().check();
+        passwordTextField.passwordEquals("").check();
 
-        TextBox crumbDataFileTextField = uiSpecPanel.getTextBox("crumbDataFile");
-        crumbDataFileTextField.textIsEmpty().check();
+        TextBox crumbDataTextField = uiSpecPanel.getTextBox("crumbData");
+        crumbDataTextField.textIsEmpty().check();
 
     }
 
 
     public void testValidationOk() throws Exception {
         temporaryFolder.newFile("password.txt");
-        temporaryFolder.newFile("crumbData.txt");
+        temporaryFolder.newFile("crumbDataValue");
 
 
         TextBox serverUrlBox = uiSpecPanel.getTextBox("serverUrl");
@@ -121,13 +121,13 @@ public class ConfigurationPanelTest extends UISpecTestCase {
         assertTrue(usernameTextbox.isEnabled());
         usernameTextbox.setText("johndoe");
 
-        TextBox passwordFileField = uiSpecPanel.getTextBox("passwordFile");
+        PasswordField passwordFileField = uiSpecPanel.getPasswordField("passwordFile");
         assertTrue(passwordFileField.isEnabled());
-        passwordFileField.setText("password.txt");
+        passwordFileField.setPassword("newPassword");
 
-        TextBox crumbDataFileField = uiSpecPanel.getTextBox("crumbDataFile");
-        assertTrue(crumbDataFileField.isEnabled());
-        crumbDataFileField.setText("crumbData.txt");
+        TextBox crumbDataField = uiSpecPanel.getTextBox("crumbData");
+        assertTrue(crumbDataField.isEnabled());
+        crumbDataField.setText("crumbDataValue");
 
         jenkinsConfigurationPanel.applyConfigurationData(configuration);
 
@@ -139,8 +139,8 @@ public class ConfigurationPanelTest extends UISpecTestCase {
         assertFalse(configuration.isEnableRssAutoRefresh());
         assertEquals(SecurityMode.BASIC, configuration.getSecurityMode());
         assertEquals("johndoe", configuration.getUsername());
-        assertEquals("password.txt", configuration.getPasswordFile());
-        assertEquals("crumbData.txt", configuration.getCrumbFile());
+//TODO       assertEquals("password.txt", configuration.getPassword());
+        assertEquals("crumbDataValue", configuration.getCrumbFile());
     }
 
 
@@ -277,27 +277,20 @@ public class ConfigurationPanelTest extends UISpecTestCase {
             assertEquals("'passwordFile' must be set", ex.getMessage());
         }
 
-        TextBox passwordTextField = uiSpecPanel.getTextBox("passwordFile");
-        passwordTextField.setText("password");
-        try {
-            jenkinsConfigurationPanel.applyConfigurationData(configuration);
-            fail();
-        } catch (ConfigurationException ex) {
-            assertEquals("'password' is not a file", ex.getMessage());
-        }
+        PasswordField passwordTextField = uiSpecPanel.getPasswordField("passwordFile");
+        passwordTextField.setPassword("password");
 
-        passwordTextField.setText("password.txt");
         jenkinsConfigurationPanel.applyConfigurationData(configuration);
         assertEquals(SecurityMode.BASIC, configuration.getSecurityMode());
         assertEquals("johndoe", configuration.getUsername());
-        assertEquals("password.txt", configuration.getPasswordFile());
+        assertEquals("password", configuration.getPassword());
 
 
         enableAuthenticationCheckBox.click();
         jenkinsConfigurationPanel.applyConfigurationData(configuration);
         assertEquals(SecurityMode.NONE, configuration.getSecurityMode());
         assertEquals("", configuration.getUsername());
-        assertEquals("", configuration.getPasswordFile());
+        assertEquals("", configuration.getPassword());
 
     }
 
@@ -306,9 +299,19 @@ public class ConfigurationPanelTest extends UISpecTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         MockitoAnnotations.initMocks(this);
-        jenkinsConfigurationPanel = new ConfigurationPanel(requestManager, false);
+        jenkinsConfigurationPanel = new ConfigurationPanel(requestManager);
 
-        configuration = new JenkinsConfiguration();
+        configuration = new JenkinsConfiguration() { //should spy this object
+            @Override
+            public String getPassword() {
+                return password;
+            }
+
+            @Override
+            public void setPassword(String password) {
+                this.password = password;
+            }
+        };
         jenkinsConfigurationPanel.loadConfigurationData(configuration);
 
         uiSpecPanel = new Panel(jenkinsConfigurationPanel.getRootPanel());

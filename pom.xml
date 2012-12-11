@@ -66,6 +66,11 @@
             <version>${intellij.sdk.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.intellij</groupId>
+            <artifactId>idea</artifactId>
+            <version>${intellij.sdk.version}</version>
+        </dependency>
+        <dependency>
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
             <version>3.1</version>
@@ -122,14 +127,6 @@
         </dependency>
 
         <!-- IntelliJ SDK -->
-
-        <dependency>
-            <groupId>com.intellij</groupId>
-            <artifactId>idea</artifactId>
-            <scope>system</scope>
-            <systemPath>${intellij.lib.path}/idea.jar</systemPath>
-            <version>${intellij.sdk.version}</version>
-        </dependency>
         <dependency>
             <groupId>com.intellij</groupId>
             <artifactId>idea-extensions</artifactId>

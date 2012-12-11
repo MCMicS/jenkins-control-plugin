@@ -21,7 +21,6 @@ import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 
 import java.io.IOException;
@@ -33,24 +32,17 @@ import java.net.URL;
 class BasicSecurityClient extends DefaultSecurityClient {
 
     private final String username;
-    private final String passwordFile;
     private String password = null;
 
 
-    BasicSecurityClient(String username, String passwordFile, String crumbDataFile) {
-        super(crumbDataFile);
+    BasicSecurityClient(String username, String password, String crumbData) {
+        super(crumbData);
         this.username = username;
-        this.passwordFile = passwordFile;
+        this.password = password;
     }
 
 
     public void connect(URL url) {
-        setCrumbValueIfNeeded();
-
-        if (StringUtils.isNotEmpty(passwordFile)) {
-            password = extractValueFromFile(passwordFile);
-        }
-
         doAuthentication(url);
     }
 
@@ -69,7 +61,7 @@ class BasicSecurityClient extends DefaultSecurityClient {
         InputStream inputStream = null;
         try {
             if (isCrumbDataSet()) {
-                post.addRequestHeader(CRUMB_NAME, crumbValue);
+                post.addRequestHeader(CRUMB_NAME, crumbData);
             }
 
             post.setDoAuthentication(true);
