@@ -158,7 +158,7 @@ public class JenkinsControlComponent
     private void installJenkinsPanel() {
 
         requestManager = new RequestManager(configuration.getCrumbFile());
-        jenkinsWidget = new JenkinsWidget();
+        jenkinsWidget = new JenkinsWidget(project);
 
         BrowserPanel browserPanel = new BrowserPanel(configuration.getFavoriteJobs());
         BrowserLogic.JobLoadListener jobLoadListener = new BrowserLogic.JobLoadListener() {
@@ -229,6 +229,6 @@ public class JenkinsControlComponent
 
 
     public void disposeComponent() {
-        jenkinsWidget.dispose();
+
     }
 }

@@ -145,7 +145,6 @@ public class JenkinsConfiguration {
     }
 
     public String getPassword() {
-        LOG.assertTrue(!ProgressManager.getInstance().hasProgressIndicator(), "Password should not be accessed under modal progress");
         String password;
         final Project project = ProjectManager.getInstance().getDefaultProject();
         final PasswordSafeImpl passwordSafe = (PasswordSafeImpl)PasswordSafe.getInstance();
@@ -240,8 +239,6 @@ public class JenkinsConfiguration {
     }
 
     public void ensurePasswordIsStored() {
-        LOG.assertTrue(!ProgressManager.getInstance().hasProgressIndicator(), "Password should not be accessed under modal progress");
-
         try {
             if (passwordChanged && !masterPasswordRefused) {
                 PasswordSafe.getInstance().storePassword(null, JenkinsConfiguration.class, JENKINS_SETTINGS_PASSWORD_KEY, getPassword());
