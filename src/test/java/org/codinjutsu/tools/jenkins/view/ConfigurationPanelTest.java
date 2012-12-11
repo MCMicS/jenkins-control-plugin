@@ -21,8 +21,6 @@ import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.security.AuthenticationException;
 import org.codinjutsu.tools.jenkins.security.SecurityMode;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.uispec4j.*;
@@ -38,9 +36,6 @@ public class ConfigurationPanelTest extends UISpecTestCase {
     private ConfigurationPanel jenkinsConfigurationPanel;
     private JenkinsConfiguration configuration;
     private Panel uiSpecPanel;
-
-    @Rule
-    private TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Mock
     private RequestManager requestManager;
@@ -85,9 +80,6 @@ public class ConfigurationPanelTest extends UISpecTestCase {
 
 
     public void testValidationOk() throws Exception {
-        temporaryFolder.newFile("password.txt");
-        temporaryFolder.newFile("crumbDataValue");
-
 
         TextBox serverUrlBox = uiSpecPanel.getTextBox("serverUrl");
         serverUrlBox.setText("http://anotherjenkinsserver:1010/jenkins");
@@ -256,8 +248,6 @@ public class ConfigurationPanelTest extends UISpecTestCase {
     }
 
     public void testApplyAuthenticationWithInvalidUserParameters() throws Exception {
-        temporaryFolder.newFile("password.txt");
-
         CheckBox enableAuthenticationCheckBox = uiSpecPanel.getCheckBox("enableAuthentication");
         enableAuthenticationCheckBox.click();
 
