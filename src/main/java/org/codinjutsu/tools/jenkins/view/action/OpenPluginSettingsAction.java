@@ -22,7 +22,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
-import org.codinjutsu.tools.jenkins.JenkinsControlComponent;
+import org.codinjutsu.tools.jenkins.JenkinsComponent;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
 public class OpenPluginSettingsAction extends AnAction implements DumbAware {
@@ -38,6 +38,6 @@ public class OpenPluginSettingsAction extends AnAction implements DumbAware {
     }
 
     private static void showSettingsFor(Project project) {
-        ShowSettingsUtil.getInstance().showSettingsDialog(project, JenkinsControlComponent.class);
+        ShowSettingsUtil.getInstance().showSettingsDialog(project, JenkinsComponent.class);
     }
 }

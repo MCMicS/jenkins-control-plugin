@@ -17,7 +17,7 @@
 package org.codinjutsu.tools.jenkins.view;
 
 import org.apache.commons.lang.StringUtils;
-import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
+import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.logic.JobBuilder;
 import org.codinjutsu.tools.jenkins.model.Job;
@@ -44,7 +44,7 @@ public class BuildParamDialogTest extends UISpecTestCase {
     @Mock
     private BuildParamDialog.RunBuildCallback callbackRun;
 
-    private JenkinsConfiguration configuration;
+    private JenkinsAppSettings configuration;
 
     private static final Job JOB_WITH_GOOD_PARAMS =
             new JobBuilder()
@@ -96,7 +96,7 @@ public class BuildParamDialogTest extends UISpecTestCase {
         uispecDialog.getButton("OK").click();
 
         ArgumentCaptor<Map> paramMap = ArgumentCaptor.forClass(Map.class);
-        verify(requestManager, times(1)).runParameterizedBuild(any(Job.class), any(JenkinsConfiguration.class), paramMap.capture());
+        verify(requestManager, times(1)).runParameterizedBuild(any(Job.class), any(JenkinsAppSettings.class), paramMap.capture());
 
         Map expectedParamMapValue = paramMap.getValue();
         assertEquals(3, expectedParamMapValue.size());
@@ -128,7 +128,7 @@ public class BuildParamDialogTest extends UISpecTestCase {
     public void setUp() throws Exception {
         super.setUp();
         MockitoAnnotations.initMocks(this);
-        configuration = new JenkinsConfiguration();
+        configuration = new JenkinsAppSettings();
 
 
     }

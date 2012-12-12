@@ -19,7 +19,7 @@ package org.codinjutsu.tools.jenkins.logic;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
-import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
+import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
@@ -41,7 +41,7 @@ public class RssLogic {
     private final RssLatestBuildPanel rssLatestJobPanel;
     private final BuildStatusListener buildStatusListener;
 
-    private final JenkinsConfiguration configuration;
+    private final JenkinsAppSettings configuration;
     private RequestManager requestManager;
 
     private final Map<String, Build> currentBuildMap = new HashMap<String, Build>();
@@ -49,7 +49,7 @@ public class RssLogic {
     private final Runnable refreshRssBuildsJob = new LoadLatestBuildsJob(true);
     private ScheduledFuture<?> refreshRssBuildFutureTask;
 
-    public RssLogic(JenkinsConfiguration configuration, RequestManager requestManager, RssLatestBuildPanel rssLatestJobPanel, BuildStatusListener buildStatusListener) {
+    public RssLogic(JenkinsAppSettings configuration, RequestManager requestManager, RssLatestBuildPanel rssLatestJobPanel, BuildStatusListener buildStatusListener) {
         this.configuration = configuration;
         this.requestManager = requestManager;
         this.rssLatestJobPanel = rssLatestJobPanel;

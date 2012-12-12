@@ -9,9 +9,18 @@
 
     <project-components>
         <component>
-            <implementation-class>org.codinjutsu.tools.jenkins.JenkinsControlComponent</implementation-class>
+            <implementation-class>org.codinjutsu.tools.jenkins.JenkinsComponent</implementation-class>
         </component>
     </project-components>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <projectService
+                serviceInterface="org.codinjutsu.tools.jenkins.JenkinsAppSettings"
+                serviceImplementation="org.codinjutsu.tools.jenkins.JenkinsAppSettings"/>
+        <projectService
+                serviceInterface="org.codinjutsu.tools.jenkins.JenkinsSettings"
+                serviceImplementation="org.codinjutsu.tools.jenkins.JenkinsSettings"/>
+    </extensions>
 
     <change-notes><![CDATA[
 <a href="https://github.com/dboissier/jenkins-control-plugin/blob/jenkins-control-plugin-0.7.0/CHANGELOG.txt">Changelog</a>

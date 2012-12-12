@@ -17,10 +17,10 @@
 package org.codinjutsu.tools.jenkins.logic;
 
 
-import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
+import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
+import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.security.AuthenticationException;
-import org.codinjutsu.tools.jenkins.security.SecurityMode;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.codinjutsu.tools.jenkins.view.JobSearchComponent;
 import org.mockito.Mock;
@@ -31,10 +31,7 @@ import javax.swing.*;
 
 import static java.util.Arrays.asList;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 
 public class BrowserLogicTest extends UISpecTestCase {
@@ -42,7 +39,8 @@ public class BrowserLogicTest extends UISpecTestCase {
     @Mock
     private RequestManager requestManagerMock;
 
-    private JenkinsConfiguration configuration;
+    private JenkinsAppSettings jenkinsAppSettings;
+    private JenkinsSettings jenkinsSettings;
     private BrowserLogic browserLogic;
 
     private Panel uiSpecBrowserPanel;
@@ -57,7 +55,7 @@ public class BrowserLogicTest extends UISpecTestCase {
     }
 
     public void test_displayWithDummyServerUrl() throws Exception {
-        init(JenkinsConfiguration.DUMMY_JENKINS_SERVER_URL);
+        init(JenkinsAppSettings.DUMMY_JENKINS_SERVER_URL);
 
         Tree jobTree = getJobTree(uiSpecBrowserPanel);
         jobTree.contentEquals("Jenkins (Missing configuration. Check Jenkins Plugin Settings.)\n").check();
@@ -67,7 +65,7 @@ public class BrowserLogicTest extends UISpecTestCase {
         //todo need to refactor this
         createConfiguration("http://anyserver");
         createLogic();
-        doThrow(new AuthenticationException("fail")).when(requestManagerMock).authenticate(anyString(), any(SecurityMode.class), anyString(), anyString(), anyString());
+        doThrow(new AuthenticationException("fail")).when(requestManagerMock).authenticate(jenkinsAppSettings, jenkinsSettings);
 
         this.browserLogic.init();
         Thread.sleep(500);
@@ -142,7 +140,7 @@ public class BrowserLogicTest extends UISpecTestCase {
 
     private void createLogic() {
         jobViewCallback = new MyJobLoadListener();
-        browserLogic = new BrowserLogic(configuration, requestManagerMock, new BrowserPanel(), jobViewCallback) {
+        browserLogic = new BrowserLogic(jenkinsAppSettings, jenkinsSettings, requestManagerMock, new BrowserPanel(), jobViewCallback) {
 
             @Override
             protected void installBrowserActions(JTree jobTree, JPanel panel) {
@@ -164,15 +162,15 @@ public class BrowserLogicTest extends UISpecTestCase {
                 .health("health-00to19", "15 tests en échec sur un total de 50 tests")
                 .get();
 
-        doNothing().when(requestManagerMock).authenticate(anyString(), any(SecurityMode.class), anyString(), anyString(), anyString());
+        doNothing().when(requestManagerMock).authenticate(jenkinsAppSettings, jenkinsSettings);
 
-        when(requestManagerMock.loadJenkinsWorkspace(configuration)).thenReturn(createJenkinsWorkspace());
+        when(requestManagerMock.loadJenkinsWorkspace(jenkinsAppSettings)).thenReturn(createJenkinsWorkspace());
 
         when(requestManagerMock.loadJenkinsView("http://myjenkinsserver/")).thenReturn(asList(mintJob, capriJob));
 
         when(requestManagerMock.loadJenkinsView("http://myjenkinsserver/vue1")).thenReturn(asList(capriJob));
 
-        when(requestManagerMock.loadJenkinsRssLatestBuilds(configuration)).thenReturn(BuildTest.buildLastJobResultMap(new String[][]{
+        when(requestManagerMock.loadJenkinsRssLatestBuilds(jenkinsAppSettings)).thenReturn(BuildTest.buildLastJobResultMap(new String[][]{
                 {"infra_main_svn_to_git", "http://ci.jenkins-ci.org/job/infra_main_svn_to_git/351/", "351", BuildStatusEnum.SUCCESS.getStatus(), "2010-11-21T17:01:51Z", "infra_main_svn_to_git #351 (stable)"},
                 {"infra_jenkins-ci.org_webcontents", "http://ci.jenkins-ci.org/job/infra_jenkins-ci.org_webcontents/2/", "2", BuildStatusEnum.SUCCESS.getStatus(), "2011-02-02T00:49:58Z", "infra_jenkins-ci.org_webcontents #2 (back to normal)"},
                 {"infa_release.rss", "http://ci.jenkins-ci.org/job/infa_release.rss/139/", "139", BuildStatusEnum.FAILURE.getStatus(), "2011-03-16T20:30:51Z", "infa_release.rss #139 (broken)"},
@@ -185,7 +183,11 @@ public class BrowserLogicTest extends UISpecTestCase {
     }
 
     private void createConfiguration(String serverUrl) {
-        configuration = new JenkinsConfiguration() {//TODO should spy this object
+        jenkinsAppSettings = new JenkinsAppSettings();
+        jenkinsAppSettings.setJobRefreshPeriod(60);
+        jenkinsAppSettings.setServerUrl(serverUrl);
+
+        jenkinsSettings = new JenkinsSettings() {//TODO should spy this object
             @Override
             public String getPassword() {
                 return "mypassword";
@@ -196,8 +198,6 @@ public class BrowserLogicTest extends UISpecTestCase {
 
             }
         };
-        configuration.setJobRefreshPeriod(60);
-        configuration.setServerUrl(serverUrl);
     }
 
     private Jenkins createJenkinsWorkspace() {

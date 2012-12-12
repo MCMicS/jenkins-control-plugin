@@ -30,6 +30,10 @@ public class SecurityClientFactory {
         return securityClient;
     }
 
+    public static SecurityClient basic(String username, String password, String crumbData) {
+        return new BasicSecurityClient(username, password, crumbData);
+    }
+
     public static SecurityClient none(String crumbData) {
         return new DefaultSecurityClient(crumbData);
     }

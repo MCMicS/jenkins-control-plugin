@@ -17,7 +17,8 @@
 package org.codinjutsu.tools.jenkins.view;
 
 import org.apache.commons.lang.StringUtils;
-import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
+import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
+import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.security.AuthenticationException;
@@ -39,7 +40,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
-import static org.codinjutsu.tools.jenkins.JenkinsConfiguration.RESET_STR_VALUE;
+import static org.codinjutsu.tools.jenkins.JenkinsAppSettings.RESET_STR_VALUE;
 import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.*;
 
 @SuppressWarnings({"unchecked"})
@@ -139,75 +140,83 @@ public class ConfigurationPanel {
     }
 
     //TODO use annotation to create a guiwrapper so isModified could be simplified
-    public boolean isModified(JenkinsConfiguration configuration) {
-        return !configuration.getServerUrl().equals(serverUrl.getText())
-                || !(configuration.getBuildDelay() == Integer.parseInt(buildDelay.getText()))
-                || !(configuration.isEnableJobAutoRefresh() == enableJobAutoRefresh.isSelected())
-                || !(configuration.getJobRefreshPeriod() == Integer.parseInt(jobRefreshPeriod.getText()))
-                || !(configuration.isEnableRssAutoRefresh() == enableRssAutoRefresh.isSelected())
-                || !(configuration.getRssRefreshPeriod() == Integer.parseInt(rssRefreshPeriod.getText()))
-                || !(configuration.getSecurityMode() == securityMode)
-                || !(configuration.getUsername().equals(username.getText()))
-                || !(configuration.getPassword().equals(String.valueOf(passwordField.getPassword())))
-                || !(configuration.getCrumbFile().equals(crumbDataField.getText()))
-                ;
+    public boolean isModified(JenkinsAppSettings jenkinsAppSettings, JenkinsSettings jenkinsSettings) {
+        boolean securityModified = !(jenkinsAppSettings.getSecurityMode() == securityMode);
+        boolean credentialModified = false;
+        if (securityModified && SecurityMode.BASIC.equals(securityMode)) {
+            credentialModified = !(jenkinsSettings.getUsername().equals(username.getText()))
+                    || !(jenkinsSettings.getPassword().equals(String.valueOf(passwordField.getPassword())));
+        }
+
+        return !jenkinsAppSettings.getServerUrl().equals(serverUrl.getText())
+                || !(jenkinsAppSettings.getBuildDelay() == Integer.parseInt(buildDelay.getText()))
+                || !(jenkinsAppSettings.isEnableJobAutoRefresh() == enableJobAutoRefresh.isSelected())
+                || !(jenkinsAppSettings.getJobRefreshPeriod() == Integer.parseInt(jobRefreshPeriod.getText()))
+                || !(jenkinsAppSettings.isEnableRssAutoRefresh() == enableRssAutoRefresh.isSelected())
+                || !(jenkinsAppSettings.getRssRefreshPeriod() == Integer.parseInt(rssRefreshPeriod.getText()))
+                || !(jenkinsSettings.getCrumbData().equals(crumbDataField.getText()))
+                || securityModified
+                || credentialModified;
     }
 
 
     //TODO use annotation to create a guiwrapper so isModified could be simplified
-    public void applyConfigurationData(JenkinsConfiguration configuration) throws ConfigurationException {
+    public void applyConfigurationData(JenkinsAppSettings jenkinsAppSettings, JenkinsSettings jenkinsSettings) throws ConfigurationException {
         formValidator.validate();
 
-        if (!StringUtils.equals(configuration.getServerUrl(), serverUrl.getText())) {
-            configuration.getFavoriteJobs().clear();
-            configuration.setLastSelectedView(null);
+        if (!StringUtils.equals(jenkinsAppSettings.getServerUrl(), serverUrl.getText())) {
+            jenkinsSettings.getFavoriteJobs().clear();
+            jenkinsSettings.setLastSelectedView(null);
         }
 
-        configuration.setServerUrl(serverUrl.getText());
-        configuration.setDelay(Integer.valueOf(buildDelay.getText()));
-        configuration.setEnableJobAutoRefresh(enableJobAutoRefresh.isSelected());
-        configuration.setJobRefreshPeriod(Integer.valueOf(jobRefreshPeriod.getText()));
-        configuration.setEnableRssAutoRefresh(enableRssAutoRefresh.isSelected());
-        configuration.setRssRefreshPeriod(Integer.valueOf(rssRefreshPeriod.getText()));
-        configuration.setRssRefreshPeriod(Integer.valueOf(rssRefreshPeriod.getText()));
-        configuration.setSecurityMode(securityMode);
+        jenkinsAppSettings.setServerUrl(serverUrl.getText());
+        jenkinsAppSettings.setDelay(Integer.valueOf(buildDelay.getText()));
+        jenkinsAppSettings.setEnableJobAutoRefresh(enableJobAutoRefresh.isSelected());
+        jenkinsAppSettings.setJobRefreshPeriod(Integer.valueOf(jobRefreshPeriod.getText()));
+        jenkinsAppSettings.setEnableRssAutoRefresh(enableRssAutoRefresh.isSelected());
+        jenkinsAppSettings.setRssRefreshPeriod(Integer.valueOf(rssRefreshPeriod.getText()));
+        jenkinsAppSettings.setRssRefreshPeriod(Integer.valueOf(rssRefreshPeriod.getText()));
+        jenkinsSettings.setCrumbData(crumbDataField.getText());
 
-        configuration.setUsername(username.getText());
-        configuration.setPassword(String.valueOf(passwordField.getPassword()));
-        configuration.setCrumbFile(crumbDataField.getText());
+        jenkinsAppSettings.setSecurityMode(securityMode);
+        jenkinsSettings.setUsername(username.getText());
+        jenkinsSettings.setPassword(String.valueOf(passwordField.getPassword()));
     }
 
-    public void loadConfigurationData(JenkinsConfiguration configuration) {
-        serverUrl.setText(configuration.getServerUrl());
-        buildDelay.setText(String.valueOf(configuration.getBuildDelay()));
+    public void loadConfigurationData(JenkinsAppSettings jenkinsAppSettings, JenkinsSettings jenkinsSettings) {
+        serverUrl.setText(jenkinsAppSettings.getServerUrl());
+        buildDelay.setText(String.valueOf(jenkinsAppSettings.getBuildDelay()));
 
-        boolean jobAutoRefresh = configuration.isEnableJobAutoRefresh();
+        boolean jobAutoRefresh = jenkinsAppSettings.isEnableJobAutoRefresh();
         enableJobAutoRefresh.setSelected(jobAutoRefresh);
-        jobRefreshPeriod.setText(String.valueOf(configuration.getJobRefreshPeriod()));
+        jobRefreshPeriod.setText(String.valueOf(jenkinsAppSettings.getJobRefreshPeriod()));
         jobRefreshPeriod.setEnabled(jobAutoRefresh);
 
-        boolean rssAutoRefresh = configuration.isEnableRssAutoRefresh();
+        boolean rssAutoRefresh = jenkinsAppSettings.isEnableRssAutoRefresh();
         enableRssAutoRefresh.setSelected(rssAutoRefresh);
-        rssRefreshPeriod.setText(String.valueOf(configuration.getRssRefreshPeriod()));
+        rssRefreshPeriod.setText(String.valueOf(jenkinsAppSettings.getRssRefreshPeriod()));
         rssRefreshPeriod.setEnabled(rssAutoRefresh);
 
-        setSecurityMode(configuration.getSecurityMode(), configuration.getUsername(), configuration.getPassword(), configuration.getCrumbFile());
+        setSecurityMode(jenkinsAppSettings, jenkinsSettings, jenkinsAppSettings.getSecurityMode(), jenkinsSettings.getUsername(), jenkinsSettings.getPassword());
+
+        crumbDataField.setText(jenkinsSettings.getCrumbData());
     }
 
-    private void setSecurityMode(SecurityMode securityMode, @Nullable String usernameValue, @Nullable String passwordFileValue, @Nullable String crumbFile) {
+    private void setSecurityMode(JenkinsAppSettings jenkinsAppSettings, JenkinsSettings jenkinsSettings, SecurityMode securityMode, @Nullable String usernameValue, @Nullable String passwordFileValue) {
+
+        this.securityMode = jenkinsAppSettings.getSecurityMode();
+
         boolean isEnableAuthentication = SecurityMode.BASIC.equals(securityMode);
 
         enableAuthentication.setSelected(isEnableAuthentication);
-
-        username.setText(usernameValue);
+        passwordField.setEnabled(isEnableAuthentication);
         username.setEnabled(isEnableAuthentication);
 
-        passwordField.setText(passwordFileValue);
-        passwordField.setEnabled(isEnableAuthentication);
+        if (isEnableAuthentication) {
+            username.setText(jenkinsSettings.getUsername());
+            passwordField.setText(jenkinsSettings.getPassword());
+        }
 
-        crumbDataField.setText(crumbFile);
-
-        this.securityMode = securityMode;
     }
 
 
@@ -217,7 +226,7 @@ public class ConfigurationPanel {
 
 
     private void initListeners() {
-        String resetPeriodValue = Integer.toString(JenkinsConfiguration.RESET_PERIOD_VALUE);
+        String resetPeriodValue = Integer.toString(JenkinsAppSettings.RESET_PERIOD_VALUE);
 
         testConnexionButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {

@@ -24,7 +24,8 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.ui.PopupHandler;
 import org.apache.commons.lang.StringUtils;
-import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
+import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
+import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.model.FavoriteView;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.model.Job;
@@ -50,7 +51,8 @@ public class BrowserLogic implements Disposable {
     private static final String JENKINS_JOB_ACTION_GROUP = "JenkinsJobGroup";
     private static final String JENKINS_ACTIONS = "jenkinsBrowserActions";
 
-    private final JenkinsConfiguration configuration;
+    private final JenkinsAppSettings jenkinsAppSettings;
+    private final JenkinsSettings jenkinsSettings;
     private final RequestManager requestManager;
 
 
@@ -64,8 +66,9 @@ public class BrowserLogic implements Disposable {
     private ScheduledFuture<?> refreshViewFutureTask;
 
 
-    public BrowserLogic(JenkinsConfiguration configuration, RequestManager requestManager, BrowserPanel browserPanel, JobLoadListener jobLoadListener) {
-        this.configuration = configuration;
+    public BrowserLogic(JenkinsAppSettings jenkinsAppSettings, JenkinsSettings jenkinsSettings, RequestManager requestManager, BrowserPanel browserPanel, JobLoadListener jobLoadListener) {
+        this.jenkinsAppSettings = jenkinsAppSettings;
+        this.jenkinsSettings = jenkinsSettings;
         this.requestManager = requestManager;
         this.browserPanel = browserPanel;
         this.jobLoadListener = jobLoadListener;
@@ -80,7 +83,7 @@ public class BrowserLogic implements Disposable {
 
 
     public void reloadConfiguration() {
-        if (!configuration.isServerUrlSet()) {
+        if (!jenkinsAppSettings.isServerUrlSet()) {
             jobLoadListener.afterLoadingJobs(new BuildStatusAggregator());//TODO Crappy, need rewrite this
             clearViewCombo();
             displayMissingConfiguration();
@@ -88,7 +91,7 @@ public class BrowserLogic implements Disposable {
         }
 
         try {
-            requestManager.authenticate(configuration.getServerUrl(), configuration.getSecurityMode(), configuration.getUsername(), configuration.getPassword(), configuration.getCrumbFile());
+            requestManager.authenticate(jenkinsAppSettings, jenkinsSettings);
         } catch (Exception ex) {
             displayConnectionErrorMsg();
             return;
@@ -96,11 +99,11 @@ public class BrowserLogic implements Disposable {
 
         loadJenkinsWorkspace();
 
-        if (!configuration.getFavoriteJobs().isEmpty()) {
+        if (!jenkinsSettings.getFavoriteJobs().isEmpty()) {
             createFavoriteViewIfNecessary();
         }
 
-        String lastSelectedViewName = configuration.getLastSelectedView();
+        String lastSelectedViewName = jenkinsSettings.getLastSelectedView();
         if (StringUtils.isNotEmpty(lastSelectedViewName)) {
             browserPanel.selectView(lastSelectedViewName);
         } else {
@@ -132,7 +135,7 @@ public class BrowserLogic implements Disposable {
 
 
     private void loadJenkinsWorkspace() {
-        jenkins = requestManager.loadJenkinsWorkspace(configuration);
+        jenkins = requestManager.loadJenkinsWorkspace(jenkinsAppSettings);
         browserPanel.fillData(jenkins);
     }
 
@@ -192,8 +195,8 @@ public class BrowserLogic implements Disposable {
         safeTaskCancel(refreshViewFutureTask);
         scheduledThreadPoolExecutor.remove(refreshViewJob);
 
-        if (configuration.isEnableJobAutoRefresh()) {
-            refreshViewFutureTask = scheduledThreadPoolExecutor.scheduleWithFixedDelay(refreshViewJob, configuration.getJobRefreshPeriod(), configuration.getJobRefreshPeriod(), TimeUnit.MINUTES);
+        if (jenkinsAppSettings.isEnableJobAutoRefresh()) {
+            refreshViewFutureTask = scheduledThreadPoolExecutor.scheduleWithFixedDelay(refreshViewJob, jenkinsAppSettings.getJobRefreshPeriod(), jenkinsAppSettings.getJobRefreshPeriod(), TimeUnit.MINUTES);
         }
     }
 
@@ -209,12 +212,12 @@ public class BrowserLogic implements Disposable {
 
 
     private void displayMissingConfiguration() {
-        browserPanel.setErrorMsg(configuration.getServerUrl(), "(Missing configuration. Check Jenkins Plugin Settings.)");
+        browserPanel.setErrorMsg(jenkinsAppSettings.getServerUrl(), "(Missing configuration. Check Jenkins Plugin Settings.)");
     }
 
 
     private void displayConnectionErrorMsg() {
-        browserPanel.setErrorMsg(configuration.getServerUrl(), "(Unable to connect. Check Jenkins Plugin Settings.)");
+        browserPanel.setErrorMsg(jenkinsAppSettings.getServerUrl(), "(Unable to connect. Check Jenkins Plugin Settings.)");
     }
 
 
@@ -259,7 +262,7 @@ public class BrowserLogic implements Disposable {
     }
 
     public void setAsFavorite(Job job) {
-        configuration.addFavorite(job);
+        jenkinsSettings.addFavorite(job);
         createFavoriteViewIfNecessary();
         browserPanel.update();
 
@@ -274,9 +277,9 @@ public class BrowserLogic implements Disposable {
     }
 
     public void removeFavorite(Job selectedJob) {
-        configuration.removeFavorite(selectedJob);
+        jenkinsSettings.removeFavorite(selectedJob);
         browserPanel.update();
-        if (configuration.isFavoriteViewEmpty() && getSelectedJenkinsView() instanceof FavoriteView) {
+        if (jenkinsSettings.isFavoriteViewEmpty() && getSelectedJenkinsView() instanceof FavoriteView) {
             browserPanel.resetViewCombo(jenkins.getViews());
             browserPanel.getViewCombo().getModel().setSelectedItem(jenkins.getPrimaryView());
         } else {
@@ -288,7 +291,7 @@ public class BrowserLogic implements Disposable {
     }
 
     public boolean isAFavoriteJob(String jobName) {
-        return configuration.isAFavoriteJob(jobName);
+        return jenkinsSettings.isAFavoriteJob(jobName);
     }
 
     private class LoadSelectedViewJob implements Runnable {
@@ -307,11 +310,11 @@ public class BrowserLogic implements Disposable {
             final List<Job> jobList;
 
             if (selectedView instanceof FavoriteView) {
-                jobList = requestManager.loadFavoriteJobs(configuration.getFavoriteJobs());
+                jobList = requestManager.loadFavoriteJobs(jenkinsSettings.getFavoriteJobs());
             } else {
                 jobList = requestManager.loadJenkinsView(selectedView.getUrl());
             }
-            configuration.setLastSelectedView(selectedView.getName());
+            jenkinsSettings.setLastSelectedView(selectedView.getName());
 
             jenkins.setJobs(jobList);
             final BuildStatusAggregator buildStatusAggregator = new BuildStatusAggregator();

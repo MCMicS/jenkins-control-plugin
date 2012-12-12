@@ -18,7 +18,7 @@ package org.codinjutsu.tools.jenkins.logic;
 
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
-import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
+import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -38,7 +38,7 @@ class UrlBuilder {
     private static final String TEST_CONNECTION_REQUEST = "?tree=nodeName";
 
 
-    URL createRunJobUrl(String jobBuildUrl, JenkinsConfiguration configuration) {
+    URL createRunJobUrl(String jobBuildUrl, JenkinsAppSettings configuration) {
         try {
             String s = jobBuildUrl + URIUtil.encodePathQuery(String.format("%s?delay=%dsec", BUILD, configuration.getBuildDelay()));
             return new URL(s);
@@ -48,7 +48,7 @@ class UrlBuilder {
         return null;
     }
 
-    URL createRunParameterizedJobUrl(String jobUrl, JenkinsConfiguration configuration, Map<String, String> paramValueMap) {
+    URL createRunParameterizedJobUrl(String jobUrl, JenkinsAppSettings configuration, Map<String, String> paramValueMap) {
         StringBuilder strBuilder = new StringBuilder(String.format("%s?delay=%dsec", PARAMETERIZED_BUILD, configuration.getBuildDelay()));
         for (Map.Entry<String, String> valueByName : paramValueMap.entrySet()) {
             strBuilder.append("&").append(valueByName.getKey()).append("=").append(valueByName.getValue());
@@ -61,7 +61,7 @@ class UrlBuilder {
         return null;
     }
 
-    URL createJenkinsWorkspaceUrl(JenkinsConfiguration configuration) {
+    URL createJenkinsWorkspaceUrl(JenkinsAppSettings configuration) {
         try {
             return new URL(URIUtil.encodePathQuery(configuration.getServerUrl() + API_JSON + TREE_PARAM + BASIC_JENKINS_INFO));
         } catch (Exception ex) {

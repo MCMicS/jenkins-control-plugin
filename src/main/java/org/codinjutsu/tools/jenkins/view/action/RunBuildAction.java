@@ -21,7 +21,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import org.apache.log4j.Logger;
-import org.codinjutsu.tools.jenkins.JenkinsControlComponent;
+import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
+import org.codinjutsu.tools.jenkins.JenkinsComponent;
 import org.codinjutsu.tools.jenkins.logic.BrowserLogic;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
@@ -49,32 +50,32 @@ public class RunBuildAction extends AnAction implements DumbAware {
     public void actionPerformed(AnActionEvent event) {
         Project project = ActionUtil.getProject(event);
 
-        final JenkinsControlComponent jenkinsControlComponent = project.getComponent(JenkinsControlComponent.class);
+        final JenkinsComponent jenkinsComponent = project.getComponent(JenkinsComponent.class);
         try {
 
             Job job = browserLogic.getSelectedJob();
 
             RequestManager requestManager = browserLogic.getJenkinsManager();
             if (job.hasParameters()) {
-                BuildParamDialog.showDialog(job, jenkinsControlComponent.getState(), requestManager, new BuildParamDialog.RunBuildCallback() {
+                BuildParamDialog.showDialog(job, JenkinsAppSettings.getSafeInstance(project), requestManager, new BuildParamDialog.RunBuildCallback() {
 
                     public void notifyOnOk(Job job) {
-                        notifyOnGoingMessage(jenkinsControlComponent, job);
+                        notifyOnGoingMessage(jenkinsComponent, job);
                     }
 
                     public void notifyOnError(Job job, Exception ex) {
-                        jenkinsControlComponent.notifyErrorJenkinsToolWindow("Build '" + job.getName() + "' cannot be run: " + ex.getMessage());
+                        jenkinsComponent.notifyErrorJenkinsToolWindow("Build '" + job.getName() + "' cannot be run: " + ex.getMessage());
                     }
                 });
             } else {
-                requestManager.runBuild(job, jenkinsControlComponent.getState());
-                notifyOnGoingMessage(jenkinsControlComponent, job);
+                requestManager.runBuild(job, JenkinsAppSettings.getSafeInstance(project));
+                notifyOnGoingMessage(jenkinsComponent, job);
                 browserLogic.loadSelectedJob();
             }
 
         } catch (Exception ex) {
             LOG.error(ex.getMessage(), ex);
-            jenkinsControlComponent.notifyErrorJenkinsToolWindow("Build cannot be run: " + ex.getMessage());
+            jenkinsComponent.notifyErrorJenkinsToolWindow("Build cannot be run: " + ex.getMessage());
         }
     }
 
@@ -85,8 +86,8 @@ public class RunBuildAction extends AnAction implements DumbAware {
     }
 
 
-    private static void notifyOnGoingMessage(JenkinsControlComponent jenkinsControlComponent, Job job) {
-        jenkinsControlComponent.notifyInfoJenkinsToolWindow(HtmlUtil.createHtmlLinkMessage(
+    private static void notifyOnGoingMessage(JenkinsComponent jenkinsComponent, Job job) {
+        jenkinsComponent.notifyInfoJenkinsToolWindow(HtmlUtil.createHtmlLinkMessage(
                 job.getName() + " build is on going",
                 job.getUrl()));
     }

@@ -16,7 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
-import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
+import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -28,7 +28,7 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 
 public class UrlBuilderTest {
-    private JenkinsConfiguration configuration;
+    private JenkinsAppSettings configuration;
 
     private UrlBuilder urlBuilder;
 
@@ -93,7 +93,7 @@ public class UrlBuilderTest {
 
     @Before
     public void setUp() {
-        configuration = new JenkinsConfiguration();
+        configuration = new JenkinsAppSettings();
         urlBuilder = new UrlBuilder();
     }
 

@@ -16,20 +16,13 @@
 
 package org.codinjutsu.tools.jenkins;
 
-import com.intellij.ide.passwordSafe.MasterPasswordUnavailableException;
-import com.intellij.ide.passwordSafe.PasswordSafe;
-import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ProjectComponent;
-import com.intellij.openapi.components.State;
-import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.DumbAwareRunnable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupManager;
 import com.intellij.openapi.ui.MessageType;
-import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.popup.Balloon;
 import com.intellij.openapi.ui.popup.BalloonBuilder;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
@@ -38,7 +31,6 @@ import com.intellij.ui.BrowserHyperlinkListener;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.codinjutsu.tools.jenkins.logic.*;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
@@ -50,23 +42,18 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.concurrent.TimeUnit;
 
-import static org.codinjutsu.tools.jenkins.JenkinsConfiguration.JENKINS_SETTINGS_PASSWORD_KEY;
 import static org.codinjutsu.tools.jenkins.view.action.RunBuildAction.RUN_ICON;
 
-@State(
-        name = JenkinsControlComponent.JENKINS_CONTROL_COMPONENT_NAME,
-        storages = {@Storage(id = "JenkinsControlSettings", file = "$WORKSPACE_FILE$")}
-)
-public class JenkinsControlComponent
-        implements ProjectComponent, Configurable, PersistentStateComponent<JenkinsConfiguration> {
+public class JenkinsComponent implements ProjectComponent, Configurable {
 
-    static final String JENKINS_CONTROL_COMPONENT_NAME = "JenkinsControlComponent";
+    static final String JENKINS_CONTROL_COMPONENT_NAME = "JenkinsComponent";
     private static final String JENKINS_CONTROL_PLUGIN_NAME = "Jenkins Plugin";
 
     private static final String JENKINS_BROWSER = "Jenkins";
     private static final String JENKINS_BROWSER_ICON = "jenkins_logo.png";
 
-    private final JenkinsConfiguration configuration;
+    private final JenkinsAppSettings jenkinsAppSettings;
+    private final JenkinsSettings jenkinsSettings;
     private ConfigurationPanel configurationPanel;
 
     private final Project project;
@@ -76,9 +63,10 @@ public class JenkinsControlComponent
     private JenkinsLogic jenkinsLogic;
 
 
-    public JenkinsControlComponent(Project project) {
+    public JenkinsComponent(Project project) {
         this.project = project;
-        this.configuration = new JenkinsConfiguration();
+        this.jenkinsAppSettings = JenkinsAppSettings.getSafeInstance(project);
+        this.jenkinsSettings = JenkinsSettings.getSafeInstance(project);
     }
 
 
@@ -102,25 +90,13 @@ public class JenkinsControlComponent
 
 
     public boolean isModified() {
-        return configurationPanel != null && configurationPanel.isModified(configuration);
+        return configurationPanel != null && configurationPanel.isModified(jenkinsAppSettings, jenkinsSettings);
     }
 
 
     public void disposeUIResources() {
         configurationPanel = null;
     }
-
-
-    public JenkinsConfiguration getState() {
-        configuration.ensurePasswordIsStored();
-        return configuration;
-    }
-
-
-    public void loadState(JenkinsConfiguration jenkinsConfiguration) {
-        XmlSerializerUtil.copyBean(jenkinsConfiguration, configuration);
-    }
-
 
     public String getHelpTopic() {
         return null;
@@ -130,7 +106,7 @@ public class JenkinsControlComponent
     public void apply() throws ConfigurationException {
         if (configurationPanel != null) {
             try {
-                configurationPanel.applyConfigurationData(configuration);
+                configurationPanel.applyConfigurationData(jenkinsAppSettings, jenkinsSettings);
                 jenkinsLogic.reloadConfiguration();
 
             } catch (org.codinjutsu.tools.jenkins.exception.ConfigurationException ex) {
@@ -157,17 +133,17 @@ public class JenkinsControlComponent
 
     private void installJenkinsPanel() {
 
-        requestManager = new RequestManager(configuration.getCrumbFile());
+        requestManager = new RequestManager(jenkinsSettings.getCrumbData());
         jenkinsWidget = new JenkinsWidget(project);
 
-        BrowserPanel browserPanel = new BrowserPanel(configuration.getFavoriteJobs());
+        BrowserPanel browserPanel = new BrowserPanel(jenkinsSettings.getFavoriteJobs());
         BrowserLogic.JobLoadListener jobLoadListener = new BrowserLogic.JobLoadListener() {
             @Override
             public void afterLoadingJobs(BuildStatusAggregator buildStatusAggregator) {
                 jenkinsWidget.updateInformation(buildStatusAggregator);
             }
         };
-        BrowserLogic browserLogic = new BrowserLogic(configuration, requestManager, browserPanel, jobLoadListener);
+        BrowserLogic browserLogic = new BrowserLogic(jenkinsAppSettings, jenkinsSettings, requestManager, browserPanel, jobLoadListener);
 
         RssLogic.BuildStatusListener buildStatusListener = new RssLogic.BuildStatusListener() {
             public void onBuildFailure(final String jobName, final Build build) {
@@ -177,7 +153,7 @@ public class JenkinsControlComponent
             }
         };
         RssLatestBuildPanel rssLatestJobPanel = new RssLatestBuildPanel();
-        RssLogic rssLogic = new RssLogic(configuration, requestManager, rssLatestJobPanel, buildStatusListener);
+        RssLogic rssLogic = new RssLogic(jenkinsAppSettings, requestManager, rssLatestJobPanel, buildStatusListener);
 
         jenkinsLogic = new JenkinsLogic(browserLogic, rssLogic);
 
@@ -219,7 +195,7 @@ public class JenkinsControlComponent
 
 
     public void reset() {
-        configurationPanel.loadConfigurationData(configuration);
+        configurationPanel.loadConfigurationData(jenkinsAppSettings, jenkinsSettings);
     }
 
 

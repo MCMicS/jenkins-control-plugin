@@ -17,7 +17,7 @@
 package org.codinjutsu.tools.jenkins.view;
 
 import org.apache.commons.lang.StringUtils;
-import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
+import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
@@ -42,7 +42,7 @@ public class BuildParamDialog extends JDialog {
     private boolean hasError = false;
 
     private final Job job;
-    private final JenkinsConfiguration configuration;
+    private final JenkinsAppSettings configuration;
     private final RequestManager requestManager;
     private final RunBuildCallback runBuildCallback;
     private final Map<JobParameter, JComponent> inputFieldByParameterMap = new HashMap<JobParameter, JComponent>();
@@ -54,7 +54,7 @@ public class BuildParamDialog extends JDialog {
 //        ListSubversionTagsParameterDefinition
 
 
-    BuildParamDialog(Job job, JenkinsConfiguration configuration, RequestManager requestManager, RunBuildCallback runBuildCallback) {
+    BuildParamDialog(Job job, JenkinsAppSettings configuration, RequestManager requestManager, RunBuildCallback runBuildCallback) {
         this.job = job;
         this.configuration = configuration;
         this.requestManager = requestManager;
@@ -71,7 +71,7 @@ public class BuildParamDialog extends JDialog {
         registerListeners();
     }
 
-    public static void showDialog(final Job job, final JenkinsConfiguration configuration, final RequestManager requestManager, final RunBuildCallback runBuildCallback) {
+    public static void showDialog(final Job job, final JenkinsAppSettings configuration, final RequestManager requestManager, final RunBuildCallback runBuildCallback) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 BuildParamDialog dialog = new BuildParamDialog(job, configuration, requestManager, runBuildCallback);

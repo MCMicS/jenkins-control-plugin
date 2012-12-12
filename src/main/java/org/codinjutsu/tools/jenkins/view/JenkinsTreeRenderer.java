@@ -16,7 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
-import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
+import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.model.Job;
@@ -34,9 +34,9 @@ class JenkinsTreeRenderer extends DefaultTreeCellRenderer {
     private static final Icon SERVER_ICON = GuiUtil.loadIcon("server_wrench.png");
     private static final Icon SERVER_ERROR_ICON = GuiUtil.loadIcon("server_error.png");
 
-    private final List<JenkinsConfiguration.FavoriteJob> favoriteJobs;
+    private final List<JenkinsSettings.FavoriteJob> favoriteJobs;
 
-    public JenkinsTreeRenderer(List<JenkinsConfiguration.FavoriteJob> favoriteJobs) {
+    public JenkinsTreeRenderer(List<JenkinsSettings.FavoriteJob> favoriteJobs) {
         this.favoriteJobs = favoriteJobs;
     }
 
@@ -90,7 +90,7 @@ class JenkinsTreeRenderer extends DefaultTreeCellRenderer {
     }
 
     private boolean isFavoriteJob(Job job) {
-        for (JenkinsConfiguration.FavoriteJob favoriteJob : favoriteJobs) {
+        for (JenkinsSettings.FavoriteJob favoriteJob : favoriteJobs) {
             if (favoriteJob.name.equals(job.getName())) {
                 return true;
             }

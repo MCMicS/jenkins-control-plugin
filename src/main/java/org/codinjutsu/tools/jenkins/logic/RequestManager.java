@@ -16,7 +16,8 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
-import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
+import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
+import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
@@ -53,7 +54,7 @@ public class RequestManager {
         this(SecurityClientFactory.none(crumbFile));
     }
 
-    public Jenkins loadJenkinsWorkspace(JenkinsConfiguration configuration) {
+    public Jenkins loadJenkinsWorkspace(JenkinsAppSettings configuration) {
         URL url = urlBuilder.createJenkinsWorkspaceUrl(configuration);
         String jenkinsWorkspaceData = securityClient.execute(url);
 
@@ -80,7 +81,7 @@ public class RequestManager {
         return jenkinsPort != -1;
     }
 
-    public Map<String, Build> loadJenkinsRssLatestBuilds(JenkinsConfiguration configuration) {
+    public Map<String, Build> loadJenkinsRssLatestBuilds(JenkinsAppSettings configuration) {
         URL url = urlBuilder.createRssLatestUrl(configuration.getServerUrl());
 
         String rssData = securityClient.execute(url);
@@ -104,24 +105,37 @@ public class RequestManager {
         return jsonParser.createJob(jenkinsJobData);
     }
 
-    public void runBuild(Job job, JenkinsConfiguration configuration) {
+    public void runBuild(Job job, JenkinsAppSettings configuration) {
         URL url = urlBuilder.createRunJobUrl(job.getUrl(), configuration);
         securityClient.execute(url);
     }
 
-    public void runParameterizedBuild(Job job, JenkinsConfiguration configuration, Map<String, String> paramValueMap) {
+    public void runParameterizedBuild(Job job, JenkinsAppSettings configuration, Map<String, String> paramValueMap) {
         URL url = urlBuilder.createRunParameterizedJobUrl(job.getUrl(), configuration, paramValueMap);
         securityClient.execute(url);
     }
 
+    public void authenticate(JenkinsAppSettings jenkinsAppSettings, JenkinsSettings jenkinsSettings) {
+        if (SecurityMode.BASIC.equals(jenkinsAppSettings.getSecurityMode())) {
+            securityClient = SecurityClientFactory.basic(jenkinsSettings.getUsername(), jenkinsSettings.getPassword(), jenkinsSettings.getCrumbData());
+        } else {
+            securityClient = SecurityClientFactory.none(jenkinsSettings.getCrumbData());
+        }
+        securityClient.connect(urlBuilder.createAuthenticationUrl(jenkinsAppSettings.getServerUrl()));
+    }
+
     public void authenticate(String serverUrl, SecurityMode securityMode, String username, String password, String crumbData) {
-        securityClient = SecurityClientFactory.create(securityMode, username, password, crumbData);
+        if (SecurityMode.BASIC.equals(securityMode)) {
+            securityClient = SecurityClientFactory.basic(username, password, crumbData);
+        } else {
+            securityClient = SecurityClientFactory.none(crumbData);
+        }
         securityClient.connect(urlBuilder.createAuthenticationUrl(serverUrl));
     }
 
-    public List<Job> loadFavoriteJobs(List<JenkinsConfiguration.FavoriteJob> favoriteJobs) {
+    public List<Job> loadFavoriteJobs(List<JenkinsSettings.FavoriteJob> favoriteJobs) {
         List<Job> jobs = new LinkedList<Job>();
-        for (JenkinsConfiguration.FavoriteJob favoriteJob : favoriteJobs) {
+        for (JenkinsSettings.FavoriteJob favoriteJob : favoriteJobs) {
             jobs.add(loadJob(favoriteJob.url));
         }
         return jobs;

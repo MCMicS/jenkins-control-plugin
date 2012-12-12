@@ -20,7 +20,7 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.ui.LoadingDecorator;
 import com.intellij.openapi.util.Disposer;
 import org.apache.commons.lang.StringUtils;
-import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
+import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusVisitor;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
@@ -49,11 +49,11 @@ public class BrowserPanel extends JPanel implements Disposable {
     private final JobComparator jobStatusComparator = new JobStatusComparator();
 
     public BrowserPanel() {
-        this(Collections.<JenkinsConfiguration.FavoriteJob>emptyList());
+        this(Collections.<JenkinsSettings.FavoriteJob>emptyList());
     }
 
 
-    public BrowserPanel(List<JenkinsConfiguration.FavoriteJob> favoriteJobs) {
+    public BrowserPanel(List<JenkinsSettings.FavoriteJob> favoriteJobs) {
         jobTree.setCellRenderer(new JenkinsTreeRenderer(favoriteJobs));
         jobTree.setName("jobTree");
         viewCombo.setName("viewCombo");

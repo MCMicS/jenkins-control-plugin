@@ -16,7 +16,8 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
-import org.codinjutsu.tools.jenkins.JenkinsConfiguration;
+import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
+import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.security.AuthenticationException;
@@ -25,8 +26,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.uispec4j.*;
 
-import static org.codinjutsu.tools.jenkins.JenkinsConfiguration.DEFAULT_BUILD_DELAY;
-import static org.codinjutsu.tools.jenkins.JenkinsConfiguration.DUMMY_JENKINS_SERVER_URL;
+import static org.codinjutsu.tools.jenkins.JenkinsAppSettings.DEFAULT_BUILD_DELAY;
+import static org.codinjutsu.tools.jenkins.JenkinsAppSettings.DUMMY_JENKINS_SERVER_URL;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
@@ -34,7 +35,8 @@ import static org.mockito.Mockito.doThrow;
 public class ConfigurationPanelTest extends UISpecTestCase {
 
     private ConfigurationPanel jenkinsConfigurationPanel;
-    private JenkinsConfiguration configuration;
+    private JenkinsAppSettings jenkinsAppSettings;
+    private JenkinsSettings jenkinsSettings;
     private Panel uiSpecPanel;
 
     @Mock
@@ -121,18 +123,18 @@ public class ConfigurationPanelTest extends UISpecTestCase {
         assertTrue(crumbDataField.isEnabled());
         crumbDataField.setText("crumbDataValue");
 
-        jenkinsConfigurationPanel.applyConfigurationData(configuration);
+        jenkinsConfigurationPanel.applyConfigurationData(jenkinsAppSettings, jenkinsSettings);
 
-        assertEquals("http://anotherjenkinsserver:1010/jenkins", configuration.getServerUrl());
-        assertEquals(10, configuration.getBuildDelay());
-        assertEquals(2, configuration.getJobRefreshPeriod());
-        assertEquals(0, configuration.getRssRefreshPeriod());
-        assertTrue(configuration.isEnableJobAutoRefresh());
-        assertFalse(configuration.isEnableRssAutoRefresh());
-        assertEquals(SecurityMode.BASIC, configuration.getSecurityMode());
-        assertEquals("johndoe", configuration.getUsername());
+        assertEquals("http://anotherjenkinsserver:1010/jenkins", jenkinsAppSettings.getServerUrl());
+        assertEquals(10, jenkinsAppSettings.getBuildDelay());
+        assertEquals(2, jenkinsAppSettings.getJobRefreshPeriod());
+        assertEquals(0, jenkinsAppSettings.getRssRefreshPeriod());
+        assertTrue(jenkinsAppSettings.isEnableJobAutoRefresh());
+        assertFalse(jenkinsAppSettings.isEnableRssAutoRefresh());
+        assertEquals(SecurityMode.BASIC, jenkinsAppSettings.getSecurityMode());
+        assertEquals("johndoe", jenkinsSettings.getUsername());
 //TODO       assertEquals("password.txt", configuration.getPassword());
-        assertEquals("crumbDataValue", configuration.getCrumbFile());
+        assertEquals("crumbDataValue", jenkinsSettings.getCrumbData());
     }
 
 
@@ -142,7 +144,7 @@ public class ConfigurationPanelTest extends UISpecTestCase {
         serverUrlBox.setText("portnawak");
 
         try {
-            jenkinsConfigurationPanel.applyConfigurationData(configuration);
+            jenkinsConfigurationPanel.applyConfigurationData(jenkinsAppSettings, jenkinsSettings);
             fail();
         } catch (ConfigurationException ex) {
             assertEquals("URL 'portnawak' is malformed", ex.getMessage());
@@ -155,7 +157,7 @@ public class ConfigurationPanelTest extends UISpecTestCase {
         serverUrlBox.setText("http://david:david@localhost:80");
 
         try {
-            jenkinsConfigurationPanel.applyConfigurationData(configuration);
+            jenkinsConfigurationPanel.applyConfigurationData(jenkinsAppSettings, jenkinsSettings);
             fail();
         } catch (ConfigurationException ex) {
             assertEquals("Credentials should not be embedded in the url. Use the above form instead.", ex.getMessage());
@@ -224,7 +226,7 @@ public class ConfigurationPanelTest extends UISpecTestCase {
         jobRefreshPeriod.setText("portnawak");
 
         try {
-            jenkinsConfigurationPanel.applyConfigurationData(configuration);
+            jenkinsConfigurationPanel.applyConfigurationData(jenkinsAppSettings, jenkinsSettings);
             fail();
         } catch (ConfigurationException ex) {
             assertEquals("'portnawak' is not a positive integer", ex.getMessage());
@@ -232,7 +234,7 @@ public class ConfigurationPanelTest extends UISpecTestCase {
 
         jobRefreshPeriod.setText("0");
         try {
-            jenkinsConfigurationPanel.applyConfigurationData(configuration);
+            jenkinsConfigurationPanel.applyConfigurationData(jenkinsAppSettings, jenkinsSettings);
             fail();
         } catch (ConfigurationException ex) {
             assertEquals("'0' is not a positive integer", ex.getMessage());
@@ -240,7 +242,7 @@ public class ConfigurationPanelTest extends UISpecTestCase {
 
         jobRefreshPeriod.setText("-1");
         try {
-            jenkinsConfigurationPanel.applyConfigurationData(configuration);
+            jenkinsConfigurationPanel.applyConfigurationData(jenkinsAppSettings, jenkinsSettings);
             fail();
         } catch (ConfigurationException ex) {
             assertEquals("'-1' is not a positive integer", ex.getMessage());
@@ -252,7 +254,7 @@ public class ConfigurationPanelTest extends UISpecTestCase {
         enableAuthenticationCheckBox.click();
 
         try {
-            jenkinsConfigurationPanel.applyConfigurationData(configuration);
+            jenkinsConfigurationPanel.applyConfigurationData(jenkinsAppSettings, jenkinsSettings);
             fail();
         } catch (ConfigurationException ex) {
             assertEquals("'username' must be set", ex.getMessage());
@@ -261,7 +263,7 @@ public class ConfigurationPanelTest extends UISpecTestCase {
         TextBox usernameTextbox = uiSpecPanel.getTextBox("username");
         usernameTextbox.setText("johndoe");
         try {
-            jenkinsConfigurationPanel.applyConfigurationData(configuration);
+            jenkinsConfigurationPanel.applyConfigurationData(jenkinsAppSettings, jenkinsSettings);
             fail();
         } catch (ConfigurationException ex) {
             assertEquals("'passwordFile' must be set", ex.getMessage());
@@ -270,17 +272,17 @@ public class ConfigurationPanelTest extends UISpecTestCase {
         PasswordField passwordTextField = uiSpecPanel.getPasswordField("passwordFile");
         passwordTextField.setPassword("password");
 
-        jenkinsConfigurationPanel.applyConfigurationData(configuration);
-        assertEquals(SecurityMode.BASIC, configuration.getSecurityMode());
-        assertEquals("johndoe", configuration.getUsername());
-        assertEquals("password", configuration.getPassword());
+        jenkinsConfigurationPanel.applyConfigurationData(jenkinsAppSettings, jenkinsSettings);
+        assertEquals(SecurityMode.BASIC, jenkinsAppSettings.getSecurityMode());
+        assertEquals("johndoe", jenkinsSettings.getUsername());
+        assertEquals("password", jenkinsSettings.getPassword());
 
 
         enableAuthenticationCheckBox.click();
-        jenkinsConfigurationPanel.applyConfigurationData(configuration);
-        assertEquals(SecurityMode.NONE, configuration.getSecurityMode());
-        assertEquals("", configuration.getUsername());
-        assertEquals("", configuration.getPassword());
+        jenkinsConfigurationPanel.applyConfigurationData(jenkinsAppSettings, jenkinsSettings);
+        assertEquals(SecurityMode.NONE, jenkinsAppSettings.getSecurityMode());
+        assertEquals("", jenkinsSettings.getUsername());
+        assertEquals("", jenkinsSettings.getPassword());
 
     }
 
@@ -291,7 +293,11 @@ public class ConfigurationPanelTest extends UISpecTestCase {
         MockitoAnnotations.initMocks(this);
         jenkinsConfigurationPanel = new ConfigurationPanel(requestManager);
 
-        configuration = new JenkinsConfiguration() { //should spy this object
+        jenkinsAppSettings = new JenkinsAppSettings();
+        jenkinsSettings = new JenkinsSettings() {//TODO Crappy
+
+            private String password;
+
             @Override
             public String getPassword() {
                 return password;
@@ -301,8 +307,10 @@ public class ConfigurationPanelTest extends UISpecTestCase {
             public void setPassword(String password) {
                 this.password = password;
             }
+
         };
-        jenkinsConfigurationPanel.loadConfigurationData(configuration);
+
+        jenkinsConfigurationPanel.loadConfigurationData(jenkinsAppSettings, jenkinsSettings);
 
         uiSpecPanel = new Panel(jenkinsConfigurationPanel.getRootPanel());
     }
