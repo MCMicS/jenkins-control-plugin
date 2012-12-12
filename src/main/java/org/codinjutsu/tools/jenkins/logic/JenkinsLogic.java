@@ -41,10 +41,10 @@ public class JenkinsLogic implements Disposable {
     }
 
     public void dispose() {
-       browserLogic.dispose();
-       rssLogic.dispose();
+        browserLogic.dispose();
+        rssLogic.dispose();
 
-       scheduledThreadPoolExecutor.shutdown();
+        scheduledThreadPoolExecutor.shutdown();
     }
 
     public void reloadConfiguration() {

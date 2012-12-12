@@ -30,7 +30,6 @@ import org.uispec4j.*;
 import javax.swing.*;
 
 import static java.util.Arrays.asList;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 

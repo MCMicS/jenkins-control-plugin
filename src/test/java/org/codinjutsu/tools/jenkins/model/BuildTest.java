@@ -60,7 +60,6 @@ public class BuildTest {
     }
 
 
-
     public static Map<String, Build> buildLastJobResultMap(String[][] datas) {
         Map<String, Build> expectedJobBuildMap = new HashMap<String, Build>();
         for (String[] data : datas) {

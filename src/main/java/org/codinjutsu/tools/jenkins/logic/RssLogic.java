@@ -41,7 +41,7 @@ public class RssLogic {
     private final RssLatestBuildPanel rssLatestJobPanel;
     private final BuildStatusListener buildStatusListener;
 
-    private final JenkinsAppSettings configuration;
+    private final JenkinsAppSettings jenkinsAppSettings;
     private RequestManager requestManager;
 
     private final Map<String, Build> currentBuildMap = new HashMap<String, Build>();
@@ -49,8 +49,8 @@ public class RssLogic {
     private final Runnable refreshRssBuildsJob = new LoadLatestBuildsJob(true);
     private ScheduledFuture<?> refreshRssBuildFutureTask;
 
-    public RssLogic(JenkinsAppSettings configuration, RequestManager requestManager, RssLatestBuildPanel rssLatestJobPanel, BuildStatusListener buildStatusListener) {
-        this.configuration = configuration;
+    public RssLogic(JenkinsAppSettings jenkinsAppSettings, RequestManager requestManager, RssLatestBuildPanel rssLatestJobPanel, BuildStatusListener buildStatusListener) {
+        this.jenkinsAppSettings = jenkinsAppSettings;
         this.requestManager = requestManager;
         this.rssLatestJobPanel = rssLatestJobPanel;
         this.buildStatusListener = buildStatusListener;
@@ -82,8 +82,8 @@ public class RssLogic {
 
         scheduledThreadPoolExecutor.remove(refreshRssBuildsJob);
 
-        if (configuration.isEnableRssAutoRefresh()) {
-            refreshRssBuildFutureTask = scheduledThreadPoolExecutor.scheduleWithFixedDelay(refreshRssBuildsJob, configuration.getRssRefreshPeriod(), configuration.getRssRefreshPeriod(), TimeUnit.MINUTES);
+        if (jenkinsAppSettings.getRssRefreshPeriod() > 0) {
+            refreshRssBuildFutureTask = scheduledThreadPoolExecutor.scheduleWithFixedDelay(refreshRssBuildsJob, jenkinsAppSettings.getRssRefreshPeriod(), jenkinsAppSettings.getRssRefreshPeriod(), TimeUnit.MINUTES);
         }
     }
 
@@ -108,7 +108,7 @@ public class RssLogic {
     }
 
     private Map<String, Build> loadAndReturnNewLatestBuilds() {
-        Map<String, Build> latestBuildMap = requestManager.loadJenkinsRssLatestBuilds(configuration);
+        Map<String, Build> latestBuildMap = requestManager.loadJenkinsRssLatestBuilds(jenkinsAppSettings);
         Map<String, Build> newBuildMap = new HashMap<String, Build>();
         for (Map.Entry<String, Build> entry : latestBuildMap.entrySet()) {
             String jobName = entry.getKey();

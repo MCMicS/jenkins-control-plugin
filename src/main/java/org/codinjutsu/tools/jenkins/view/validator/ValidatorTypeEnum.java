@@ -18,7 +18,6 @@ package org.codinjutsu.tools.jenkins.view.validator;
 
 public enum ValidatorTypeEnum {
 
-    STRICT_POSITIVE_INTEGER(new StrictPositiveIntegerValidator()),
     POSITIVE_INTEGER(new PositiveIntegerValidator()),
     URL(new UrlValidator()),
     NOTNULL(new NotNullValidator()),

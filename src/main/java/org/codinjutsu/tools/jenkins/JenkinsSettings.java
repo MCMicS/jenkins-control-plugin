@@ -175,6 +175,10 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
         return myState.lastSelectedView;
     }
 
+    public boolean isSecurityMode() {
+            return StringUtils.isNotBlank(getUsername());
+    }
+
 
     public static class State {
 

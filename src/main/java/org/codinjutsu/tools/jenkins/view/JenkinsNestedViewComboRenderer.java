@@ -25,7 +25,7 @@ import java.awt.*;
 
 class JenkinsNestedViewComboRenderer extends DefaultListCellRenderer {
 
-    private static final Icon FAVORITE_ICON = GuiUtil.loadIcon("star");
+    private static final Icon FAVORITE_ICON = GuiUtil.loadIcon("star.png");
 
 
     public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {

@@ -27,7 +27,8 @@ public class GuiUtil {
 
     private static final String ICON_FOLDER = "/images/";
 
-    private GuiUtil() {}
+    private GuiUtil() {
+    }
 
 
     public static Icon loadIcon(String iconFilename) {

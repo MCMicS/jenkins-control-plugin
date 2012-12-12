@@ -18,14 +18,17 @@ package org.codinjutsu.tools.jenkins.view;
 
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
-import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.logic.JobBuilder;
+import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.uispec4j.*;
+import org.uispec4j.ComboBox;
+import org.uispec4j.TextBox;
+import org.uispec4j.UISpecTestCase;
+import org.uispec4j.Window;
 import org.uispec4j.finder.ComponentMatchers;
 
 import javax.swing.*;

@@ -22,11 +22,7 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
-import com.intellij.util.xmlb.annotations.Tag;
 import org.apache.commons.lang.StringUtils;
-import org.codinjutsu.tools.jenkins.security.SecurityMode;
-
-import static org.codinjutsu.tools.jenkins.JenkinsAppSettings.*;
 
 @State(
         name = "Jenkins.Application.Settings",
@@ -102,47 +98,14 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
         myState.rssRefreshPeriod = rssRefreshPeriod;
     }
 
-
-    public boolean isEnableJobAutoRefresh() {
-        return myState.enableJobAutoRefresh;
-    }
-
-
-    public void setEnableJobAutoRefresh(boolean enableJobAutoRefresh) {
-        myState.enableJobAutoRefresh = enableJobAutoRefresh;
-    }
-
-
-    public boolean isEnableRssAutoRefresh() {
-        return myState.enableRssAutoRefresh;
-    }
-
-    public void setEnableRssAutoRefresh(boolean enableRssAutoRefresh) {
-        myState.enableRssAutoRefresh = enableRssAutoRefresh;
-    }
-
-    public void setSecurityMode(SecurityMode SecurityMode) {
-        myState.securityMode = SecurityMode;
-    }
-
-    public SecurityMode getSecurityMode() {
-        return myState.securityMode;
-    }
-
     public static class State {
 
         public String serverUrl = DUMMY_JENKINS_SERVER_URL;
 
         public int delay = DEFAULT_BUILD_DELAY;
 
-        public SecurityMode securityMode = SecurityMode.NONE;
-
         public int jobRefreshPeriod = RESET_PERIOD_VALUE;
 
         public int rssRefreshPeriod = RESET_PERIOD_VALUE;
-
-        public boolean enableJobAutoRefresh = false;
-
-        public boolean enableRssAutoRefresh = false;
     }
 }

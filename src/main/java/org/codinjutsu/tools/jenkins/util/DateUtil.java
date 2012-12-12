@@ -12,7 +12,8 @@ public class DateUtil {
 
     private static final SimpleDateFormat LOG_DATE_IN_HOUR_FORMAT = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
 
-    private DateUtil() {}
+    private DateUtil() {
+    }
 
     public static Date parseDate(String buildDate, SimpleDateFormat dateFormat) {
         Date date;

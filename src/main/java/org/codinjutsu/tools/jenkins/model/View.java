@@ -19,9 +19,6 @@ package org.codinjutsu.tools.jenkins.model;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.apache.commons.lang.builder.EqualsBuilder.reflectionEquals;
-import static org.apache.commons.lang.builder.HashCodeBuilder.reflectionHashCode;
-
 public class View {
 
     public static String FAVORITE = "My Favorites";

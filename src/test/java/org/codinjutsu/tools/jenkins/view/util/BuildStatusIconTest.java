@@ -16,13 +16,10 @@
 
 package org.codinjutsu.tools.jenkins.view.util;
 
-import junit.framework.Assert;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.awt.*;
 
 import static junit.framework.Assert.assertEquals;
 

@@ -21,14 +21,12 @@ import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.security.AuthenticationException;
-import org.codinjutsu.tools.jenkins.security.SecurityMode;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.uispec4j.*;
 
 import static org.codinjutsu.tools.jenkins.JenkinsAppSettings.DEFAULT_BUILD_DELAY;
 import static org.codinjutsu.tools.jenkins.JenkinsAppSettings.DUMMY_JENKINS_SERVER_URL;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
 
@@ -50,29 +48,16 @@ public class ConfigurationPanelTest extends UISpecTestCase {
         TextBox buildDelayBox = uiSpecPanel.getTextBox("buildDelay");
         buildDelayBox.textEquals(Integer.toString(DEFAULT_BUILD_DELAY)).check();
 
-        CheckBox enableJobCheckBox = uiSpecPanel.getCheckBox("enableJobAutoRefresh");
-        assertFalse(enableJobCheckBox.isSelected());
-
         TextBox jobRefreshPeriodBox = uiSpecPanel.getTextBox("jobRefreshPeriod");
         jobRefreshPeriodBox.textEquals("0").check();
-        assertFalse(jobRefreshPeriodBox.isEnabled());
-
-        CheckBox enableRssCheckBox = uiSpecPanel.getCheckBox("enableRssAutoRefresh");
-        assertFalse(enableRssCheckBox.isSelected());
 
         TextBox rssRefreshPeriodBox = uiSpecPanel.getTextBox("rssRefreshPeriod");
         rssRefreshPeriodBox.textEquals("0").check();
-        assertFalse(rssRefreshPeriodBox.isEnabled());
 
-        CheckBox enableAuthenticationCheckBox = uiSpecPanel.getCheckBox("enableAuthentication");
-        assertFalse(enableAuthenticationCheckBox.isSelected());
-
-        TextBox usernameTextbox = uiSpecPanel.getTextBox("username");
-        assertFalse(usernameTextbox.isEnabled());
+        TextBox usernameTextbox = uiSpecPanel.getTextBox("_username_");
         usernameTextbox.textIsEmpty().check();
 
         PasswordField passwordTextField = uiSpecPanel.getPasswordField("passwordFile");
-        assertFalse(passwordTextField.isEnabled());
         passwordTextField.passwordEquals("").check();
 
         TextBox crumbDataTextField = uiSpecPanel.getTextBox("crumbData");
@@ -90,37 +75,20 @@ public class ConfigurationPanelTest extends UISpecTestCase {
         buildDelay.setText("10");
 
         TextBox jobRefreshPeriodBox = uiSpecPanel.getTextBox("jobRefreshPeriod");
-        CheckBox enableJobCheckBox = uiSpecPanel.getCheckBox("enableJobAutoRefresh");
-
-        assertFalse(jobRefreshPeriodBox.isEnabled());
-        enableJobCheckBox.click();
-        assertTrue(jobRefreshPeriodBox.isEnabled());
         jobRefreshPeriodBox.setText("2");
 
         TextBox rssRefreshPeriodBox = uiSpecPanel.getTextBox("rssRefreshPeriod");
-        CheckBox enableRssCheckBox = uiSpecPanel.getCheckBox("enableRssAutoRefresh");
 
-        assertFalse(rssRefreshPeriodBox.isEnabled());
-        enableRssCheckBox.click();
-        assertTrue(rssRefreshPeriodBox.isEnabled());
         rssRefreshPeriodBox.setText("5");
-        enableRssCheckBox.click();
-        rssRefreshPeriodBox.textEquals("0").check();
-        assertFalse(rssRefreshPeriodBox.isEnabled());
 
-        CheckBox enableAuthenticationCheckBox = uiSpecPanel.getCheckBox("enableAuthentication");
-        enableAuthenticationCheckBox.click();
 
-        TextBox usernameTextbox = uiSpecPanel.getTextBox("username");
-        assertTrue(usernameTextbox.isEnabled());
+        TextBox usernameTextbox = uiSpecPanel.getTextBox("_username_");
         usernameTextbox.setText("johndoe");
 
         PasswordField passwordFileField = uiSpecPanel.getPasswordField("passwordFile");
-        assertTrue(passwordFileField.isEnabled());
         passwordFileField.setPassword("newPassword");
 
         TextBox crumbDataField = uiSpecPanel.getTextBox("crumbData");
-        assertTrue(crumbDataField.isEnabled());
         crumbDataField.setText("crumbDataValue");
 
         jenkinsConfigurationPanel.applyConfigurationData(jenkinsAppSettings, jenkinsSettings);
@@ -128,12 +96,9 @@ public class ConfigurationPanelTest extends UISpecTestCase {
         assertEquals("http://anotherjenkinsserver:1010/jenkins", jenkinsAppSettings.getServerUrl());
         assertEquals(10, jenkinsAppSettings.getBuildDelay());
         assertEquals(2, jenkinsAppSettings.getJobRefreshPeriod());
-        assertEquals(0, jenkinsAppSettings.getRssRefreshPeriod());
-        assertTrue(jenkinsAppSettings.isEnableJobAutoRefresh());
-        assertFalse(jenkinsAppSettings.isEnableRssAutoRefresh());
-        assertEquals(SecurityMode.BASIC, jenkinsAppSettings.getSecurityMode());
+        assertEquals(5, jenkinsAppSettings.getRssRefreshPeriod());
         assertEquals("johndoe", jenkinsSettings.getUsername());
-//TODO       assertEquals("password.txt", configuration.getPassword());
+        assertEquals("newPassword", jenkinsSettings.getPassword());
         assertEquals("crumbDataValue", jenkinsSettings.getCrumbData());
     }
 
@@ -203,7 +168,7 @@ public class ConfigurationPanelTest extends UISpecTestCase {
     }
 
     public void testConnectionWithAuthenticationExceptionThrownShouldFail() throws Exception {
-        doThrow(new AuthenticationException("ouch")).when(requestManager).authenticate(anyString(), any(SecurityMode.class), anyString(), anyString(), anyString());
+        doThrow(new AuthenticationException("ouch")).when(requestManager).authenticate(anyString(), anyString(), anyString(), anyString());
 
 
         TextBox serverUrlBox = uiSpecPanel.getTextBox("serverUrl");
@@ -217,50 +182,8 @@ public class ConfigurationPanelTest extends UISpecTestCase {
         connectionStatusLabel.textEquals("[Fail] ouch").check();
     }
 
-    public void testApplyConfigWithInvalidIntegerShouldFail() throws Exception {
-
-        CheckBox enableJobCheckBox = uiSpecPanel.getCheckBox("enableJobAutoRefresh");
-        enableJobCheckBox.click();
-
-        TextBox jobRefreshPeriod = uiSpecPanel.getTextBox("jobRefreshPeriod");
-        jobRefreshPeriod.setText("portnawak");
-
-        try {
-            jenkinsConfigurationPanel.applyConfigurationData(jenkinsAppSettings, jenkinsSettings);
-            fail();
-        } catch (ConfigurationException ex) {
-            assertEquals("'portnawak' is not a positive integer", ex.getMessage());
-        }
-
-        jobRefreshPeriod.setText("0");
-        try {
-            jenkinsConfigurationPanel.applyConfigurationData(jenkinsAppSettings, jenkinsSettings);
-            fail();
-        } catch (ConfigurationException ex) {
-            assertEquals("'0' is not a positive integer", ex.getMessage());
-        }
-
-        jobRefreshPeriod.setText("-1");
-        try {
-            jenkinsConfigurationPanel.applyConfigurationData(jenkinsAppSettings, jenkinsSettings);
-            fail();
-        } catch (ConfigurationException ex) {
-            assertEquals("'-1' is not a positive integer", ex.getMessage());
-        }
-    }
-
     public void testApplyAuthenticationWithInvalidUserParameters() throws Exception {
-        CheckBox enableAuthenticationCheckBox = uiSpecPanel.getCheckBox("enableAuthentication");
-        enableAuthenticationCheckBox.click();
-
-        try {
-            jenkinsConfigurationPanel.applyConfigurationData(jenkinsAppSettings, jenkinsSettings);
-            fail();
-        } catch (ConfigurationException ex) {
-            assertEquals("'username' must be set", ex.getMessage());
-        }
-
-        TextBox usernameTextbox = uiSpecPanel.getTextBox("username");
+        TextBox usernameTextbox = uiSpecPanel.getTextBox("_username_");
         usernameTextbox.setText("johndoe");
         try {
             jenkinsConfigurationPanel.applyConfigurationData(jenkinsAppSettings, jenkinsSettings);
@@ -273,14 +196,13 @@ public class ConfigurationPanelTest extends UISpecTestCase {
         passwordTextField.setPassword("password");
 
         jenkinsConfigurationPanel.applyConfigurationData(jenkinsAppSettings, jenkinsSettings);
-        assertEquals(SecurityMode.BASIC, jenkinsAppSettings.getSecurityMode());
         assertEquals("johndoe", jenkinsSettings.getUsername());
         assertEquals("password", jenkinsSettings.getPassword());
 
 
-        enableAuthenticationCheckBox.click();
+        usernameTextbox.setText("");
+        passwordTextField.setPassword("");
         jenkinsConfigurationPanel.applyConfigurationData(jenkinsAppSettings, jenkinsSettings);
-        assertEquals(SecurityMode.NONE, jenkinsAppSettings.getSecurityMode());
         assertEquals("", jenkinsSettings.getUsername());
         assertEquals("", jenkinsSettings.getPassword());
 
@@ -291,7 +213,6 @@ public class ConfigurationPanelTest extends UISpecTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         MockitoAnnotations.initMocks(this);
-        jenkinsConfigurationPanel = new ConfigurationPanel(requestManager);
 
         jenkinsAppSettings = new JenkinsAppSettings();
         jenkinsSettings = new JenkinsSettings() {//TODO Crappy
@@ -309,6 +230,8 @@ public class ConfigurationPanelTest extends UISpecTestCase {
             }
 
         };
+
+        jenkinsConfigurationPanel = new ConfigurationPanel(jenkinsSettings, requestManager);
 
         jenkinsConfigurationPanel.loadConfigurationData(jenkinsAppSettings, jenkinsSettings);
 

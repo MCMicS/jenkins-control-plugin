@@ -30,7 +30,6 @@ import java.net.URL;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
-import static org.unitils.reflectionassert.ReflectionAssert.assertReflectionEquals;
 
 public class RequestManagerTest {
 
@@ -54,7 +53,6 @@ public class RequestManagerTest {
             Assert.assertEquals("Jenkins Port seems to be incorrect in the Server configuration page. Please fix 'Jenkins URL' at http://myjenkins:8080/configure", ex.getMessage());
         }
     }
-
 
 
     @Before

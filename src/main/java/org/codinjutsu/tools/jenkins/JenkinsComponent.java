@@ -83,7 +83,7 @@ public class JenkinsComponent implements ProjectComponent, Configurable {
 
     public JComponent createComponent() {
         if (configurationPanel == null) {
-            configurationPanel = new ConfigurationPanel(requestManager);
+            configurationPanel = new ConfigurationPanel(jenkinsSettings, requestManager);
         }
         return configurationPanel.getRootPanel();
     }

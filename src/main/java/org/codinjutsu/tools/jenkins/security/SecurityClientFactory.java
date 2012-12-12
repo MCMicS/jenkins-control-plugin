@@ -18,18 +18,6 @@ package org.codinjutsu.tools.jenkins.security;
 
 public class SecurityClientFactory {
 
-    public static SecurityClient create(SecurityMode securityMode, String username, String password, String crumbData) {
-        SecurityClient securityClient;
-
-        if (SecurityMode.BASIC.equals(securityMode)) {
-            securityClient = new BasicSecurityClient(username, password, crumbData);
-        } else {
-            securityClient = none(crumbData);
-        }
-
-        return securityClient;
-    }
-
     public static SecurityClient basic(String username, String password, String crumbData) {
         return new BasicSecurityClient(username, password, crumbData);
     }

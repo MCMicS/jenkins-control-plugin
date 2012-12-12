@@ -51,7 +51,8 @@ public class Job {
     }
 
 
-    public Job() { }
+    public Job() {
+    }
 
     private Job(String name, String color, String url, Boolean inQueue, Boolean buildable) {
         this.name = name;

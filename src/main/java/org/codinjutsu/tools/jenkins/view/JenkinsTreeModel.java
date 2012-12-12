@@ -59,7 +59,7 @@ class JenkinsTreeModel extends DefaultTreeModel {
         DefaultMutableTreeNode customizedJobRoot = (DefaultMutableTreeNode) sourceJobRoot.clone();
         for (int i = 0; i < sourceJobRoot.getChildCount(); i++) {
             DefaultMutableTreeNode jobNodeChild = (DefaultMutableTreeNode) sourceJobRoot.getChildAt(i);
-            DefaultMutableTreeNode targetJobNode = (DefaultMutableTreeNode)jobNodeChild.clone();
+            DefaultMutableTreeNode targetJobNode = (DefaultMutableTreeNode) jobNodeChild.clone();
             jobNodeList.add(targetJobNode);
         }
 

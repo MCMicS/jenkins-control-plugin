@@ -195,7 +195,7 @@ public class BrowserLogic implements Disposable {
         safeTaskCancel(refreshViewFutureTask);
         scheduledThreadPoolExecutor.remove(refreshViewJob);
 
-        if (jenkinsAppSettings.isEnableJobAutoRefresh()) {
+        if (jenkinsAppSettings.getJobRefreshPeriod() > 0) {
             refreshViewFutureTask = scheduledThreadPoolExecutor.scheduleWithFixedDelay(refreshViewJob, jenkinsAppSettings.getJobRefreshPeriod(), jenkinsAppSettings.getJobRefreshPeriod(), TimeUnit.MINUTES);
         }
     }

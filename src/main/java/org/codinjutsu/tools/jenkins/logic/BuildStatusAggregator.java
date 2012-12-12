@@ -40,7 +40,8 @@ public class BuildStatusAggregator implements BuildStatusVisitor {
         nbUnstableBuilds++;
     }
 
-    public void visitUnknown() {}
+    public void visitUnknown() {
+    }
 
     public void visitAborted() {
         nbAbortedBuilds++;

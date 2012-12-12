@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
+import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
@@ -24,7 +25,6 @@ import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.security.SecurityClient;
 import org.codinjutsu.tools.jenkins.security.SecurityClientFactory;
-import org.codinjutsu.tools.jenkins.security.SecurityMode;
 
 import java.net.URL;
 import java.util.LinkedList;
@@ -116,7 +116,7 @@ public class RequestManager {
     }
 
     public void authenticate(JenkinsAppSettings jenkinsAppSettings, JenkinsSettings jenkinsSettings) {
-        if (SecurityMode.BASIC.equals(jenkinsAppSettings.getSecurityMode())) {
+        if (jenkinsSettings.isSecurityMode()) {
             securityClient = SecurityClientFactory.basic(jenkinsSettings.getUsername(), jenkinsSettings.getPassword(), jenkinsSettings.getCrumbData());
         } else {
             securityClient = SecurityClientFactory.none(jenkinsSettings.getCrumbData());
@@ -124,8 +124,8 @@ public class RequestManager {
         securityClient.connect(urlBuilder.createAuthenticationUrl(jenkinsAppSettings.getServerUrl()));
     }
 
-    public void authenticate(String serverUrl, SecurityMode securityMode, String username, String password, String crumbData) {
-        if (SecurityMode.BASIC.equals(securityMode)) {
+    public void authenticate(String serverUrl, String username, String password, String crumbData) {
+        if (StringUtils.isNotBlank(username)) {
             securityClient = SecurityClientFactory.basic(username, password, crumbData);
         } else {
             securityClient = SecurityClientFactory.none(crumbData);
