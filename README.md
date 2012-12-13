@@ -1,5 +1,16 @@
 # Jenkins Plugin for IntelliJ IDEA
 
+## Important Note for the 0.7.0 version
+
+The last release will break all existing configurations:
+
+* The server configuration is stored in **IPR** file and User specific configuration is the **IWS** file,
+* The password file was really inconvenient so it is now stored in Intellij by the **Password Manager**,
+* The crumb data file was also replaced,
+* Checkboxes were removed to improve usability.
+
+For more detail about configure the server, please read the [Configuration steps](https://github.com/dboissier/jenkins-control-plugin/edit/master/README.md#configuration-steps) section.
+
 ## ChangeLog
 See CHANGELOG.txt
 
@@ -17,8 +28,8 @@ Download this plugin from your IDE or from the plugin website: http://plugins.in
 ## Configuration steps
 * Click on the **Jenkins Settings** button located on the upper toolbar (or you can also open IntelliJ Settings Screen and select the Jenkins Control Plugin option).
 * Enter your Jenkins Server URL (e.g: http://ci.jenkins-ci.org).
-* If Security is enabled on the server, you have to provide credentials. Click on the **Enable Authentication** checkbox. Enter your username and the password file path. The password file should contains the password in clear, i.e. if my password is **astrongpassword**, I will create a file **myJenkinsPassword.txt** that will contain **astrongpassword**.
-* If Cross Site Request Forgery Prevention is enabled on the server, then you have to provide your crumb data file path. To get the value, you will have to open the following URL in your browser *_jenkins_url_/crumbIssuer/api/xml?tree=crumb*. Just copy and paste the crumb value in a file. please note for the authentication case, you have to run the crumb URL after login.  
+* If Security is enabled on the server, you have to provide credentials. Enter your username and the password. The password will be stored in Intellij Password Manager. It could ask you a Master password.
+* If Cross Site Request Forgery Prevention is enabled on the server, then you have to provide your crumb data. To get the value, you will have to open the following URL in your browser *_jenkins_url_/crumbIssuer/api/xml?tree=crumb*. Just copy and paste the crumb value in the field. please note for the authentication case, you have to run the crumb URL after login.
 * To make sure that all parameters are correct, you can click on the **Test Connection** button. A feedback message will appear.
 
 ![Connection succeeded](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/images/Configuration-Success.png?raw=true)
@@ -28,7 +39,7 @@ Download this plugin from your IDE or from the plugin website: http://plugins.in
 ![Connection failed](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/images/Configuration-failure.png?raw=true)
 
 * You can specify a build start delay (in sec.).
-* You can enable Auto refresh and input a period value (in minutes) on both Job Browser and Rss Feed Reader.
+* You can set an auto refresh Period value (in minutes) for both Job Browser and Rss Feed Reader.
 * When your configuration is set up, click on the **Apply** Button to save it.
 
 ## Usage
