@@ -1,12 +1,13 @@
-Version 0.7
+Version 0.7.0
     * [Upd] UI: Fix Color for new Look&Feel Darcula of IDEA 12
     * [Upd] UI: Remove unecessary titled 'job' panel
-    * [Upd] Configuration: Crumb Data is now a raw value (not a file anymore)
-    * [Upd] #38 Password storage is managed by IntelliJ
-    * [Upd] #37 configuration stored in IWS file instead of IPR file
+    * [Upd] Configuration: Complete UI Refactor
+    * [Upd] #38 Password storage is managed by IntelliJ (not backward compatible)
+    * [Upd] #37 user specific configuration is stored in IWS file instead of IPR file (not backward compatible)
     * [Upd] Search: Add UP and DOWN key for key shortcut
     * [Upd] Search: Replace matcher by contains
     * [Fix] Bug in JSON parsing causes infinite loop
+
 Version 0.6.0
     * [Add] Support Cloudbees repository
     * [Add] Browser : Favorite Job feature (See README.md on github project)

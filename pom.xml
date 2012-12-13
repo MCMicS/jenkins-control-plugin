@@ -26,7 +26,7 @@
     <!--
       | Project Information
     -->
-    <name>Jenkins Control Plugin</name>
+    <name>Jenkins Plugin</name>
     <description>A Jenkins Plugin for Intellij</description>
     <inceptionYear>2011</inceptionYear>
 
@@ -49,11 +49,6 @@
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>1.2.14</version>
-        </dependency>
-        <dependency>
-            <groupId>jdom</groupId>
-            <artifactId>jdom</artifactId>
-            <version>1.0</version>
         </dependency>
         <dependency>
             <groupId>com.intellij</groupId>
@@ -167,14 +162,6 @@
             <artifactId>icons</artifactId>
             <scope>system</scope>
             <systemPath>${intellij.lib.path}/icons.jar</systemPath>
-            <version>${intellij.sdk.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.intellij</groupId>
-            <artifactId>idea-resources-en</artifactId>
-            <scope>system</scope>
-            <systemPath>${intellij.lib.path}/resources_en.jar</systemPath>
             <version>${intellij.sdk.version}</version>
         </dependency>
     </dependencies>

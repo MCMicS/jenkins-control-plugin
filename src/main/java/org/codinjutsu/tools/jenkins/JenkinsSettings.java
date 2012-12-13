@@ -48,9 +48,6 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
 
     public static final String JENKINS_SETTINGS_PASSWORD_KEY = "JENKINS_SETTINGS_PASSWORD_KEY";
 
-    private boolean passwordChanged;
-    private boolean masterPasswordRefused;
-
     private State myState = new State();
 
     public static JenkinsSettings getSafeInstance(Project project) {
@@ -87,51 +84,23 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
 
     public String getPassword() {
         String password;
-        final PasswordSafeImpl passwordSafe = (PasswordSafeImpl) PasswordSafe.getInstance();
         try {
-            password = passwordSafe.getMemoryProvider().getPassword(null, JenkinsAppSettings.class, JENKINS_SETTINGS_PASSWORD_KEY);
-            if (password != null) {
-                return password;
-            }
-            final MasterKeyPasswordSafe masterKeyProvider = passwordSafe.getMasterKeyProvider();
-            if (!masterKeyProvider.isEmpty()) {
-                // workaround for: don't ask for master password, if the requested password is not there.
-                // this should be fixed in PasswordSafe: don't ask master password to look for keys
-                // until then we assume that is PasswordSafe was used (there is anything there), then it makes sense to look there.
-                password = masterKeyProvider.getPassword(null, JenkinsAppSettings.class, JENKINS_SETTINGS_PASSWORD_KEY);
-            }
+            PasswordSafeImpl passwordSafe = (PasswordSafeImpl) PasswordSafe.getInstance();
+            password = passwordSafe.getPassword(null, JenkinsAppSettings.class, JENKINS_SETTINGS_PASSWORD_KEY);
         } catch (PasswordSafeException e) {
             LOG.info("Couldn't get password for key [" + JENKINS_SETTINGS_PASSWORD_KEY + "]", e);
-            masterPasswordRefused = true;
             password = "";
         }
 
-        passwordChanged = false;
-        return password != null ? password : "";
+        return StringUtils.defaultIfEmpty(password, "");
     }
 
     public void setPassword(String password) {
-        passwordChanged = !getPassword().equals(password);
         try {
             PasswordSafe.getInstance().storePassword(null, JenkinsAppSettings.class, JENKINS_SETTINGS_PASSWORD_KEY, StringUtils.isNotBlank(password) ? password : "");
         } catch (PasswordSafeException e) {
             LOG.info("Couldn't get password for key [" + JENKINS_SETTINGS_PASSWORD_KEY + "]", e);
         }
-    }
-
-    public void ensurePasswordIsStored() {
-        try {
-            if (passwordChanged && !masterPasswordRefused) {
-                PasswordSafe.getInstance().storePassword(null, JenkinsAppSettings.class, JENKINS_SETTINGS_PASSWORD_KEY, getPassword());
-            }
-        } catch (MasterPasswordUnavailableException e) {
-            LOG.info("Couldn't store password for key [" + JENKINS_SETTINGS_PASSWORD_KEY + "]", e);
-            this.masterPasswordRefused = true;
-        } catch (Exception e) {
-            Messages.showErrorDialog("Error happened while storing password for github", "Error");
-            LOG.info("Couldn't get password for key [" + JENKINS_SETTINGS_PASSWORD_KEY + "]", e);
-        }
-        this.passwordChanged = false;
     }
 
     public void addFavorite(Job job) {
@@ -178,7 +147,6 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
     public boolean isSecurityMode() {
             return StringUtils.isNotBlank(getUsername());
     }
-
 
     public static class State {
 

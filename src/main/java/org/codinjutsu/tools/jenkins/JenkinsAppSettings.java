@@ -34,8 +34,6 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
     public static final int DEFAULT_BUILD_DELAY = 0;
     public static final int RESET_PERIOD_VALUE = 0;
 
-    public static final String RESET_STR_VALUE = "";
-
     private State myState = new State();
 
     public static JenkinsAppSettings getSafeInstance(Project project) {

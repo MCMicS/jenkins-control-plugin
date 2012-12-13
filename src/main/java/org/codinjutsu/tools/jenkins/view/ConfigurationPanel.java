@@ -152,12 +152,66 @@ public class ConfigurationPanel {
 
     }
 
-    private void setPassword(String password) {
-        passwordField.setText(StringUtils.isBlank(password) ? null : password);
+    //TODO use annotation to create a guiwrapper so isModified could be simplified
+    public boolean isModified(JenkinsAppSettings jenkinsAppSettings, JenkinsSettings jenkinsSettings) {
+        boolean credentialModified = !(jenkinsSettings.getUsername().equals(username.getText()))
+                || isPasswordModified();
+
+
+        return !jenkinsAppSettings.getServerUrl().equals(serverUrl.getText())
+                || !(jenkinsAppSettings.getBuildDelay() == getBuildDelay())
+                || !(jenkinsAppSettings.getJobRefreshPeriod() == getJobRefreshPeriod())
+                || !(jenkinsAppSettings.getRssRefreshPeriod() == getRssRefreshPeriod())
+                || !(jenkinsSettings.getCrumbData().equals(crumbDataField.getText()))
+                || credentialModified;
     }
 
-    private String getPassword() {
-        return String.valueOf(passwordField.getPassword());
+    //TODO use annotation to create a guiwrapper so isModified could be simplified
+    public void applyConfigurationData(JenkinsAppSettings jenkinsAppSettings, JenkinsSettings jenkinsSettings) throws ConfigurationException {
+        formValidator.validate();
+
+        if (!StringUtils.equals(jenkinsAppSettings.getServerUrl(), serverUrl.getText())) {
+            jenkinsSettings.getFavoriteJobs().clear();
+            jenkinsSettings.setLastSelectedView(null);
+        }
+
+        jenkinsAppSettings.setServerUrl(serverUrl.getText());
+        jenkinsAppSettings.setDelay(getBuildDelay());
+        jenkinsAppSettings.setJobRefreshPeriod(getJobRefreshPeriod());
+        jenkinsAppSettings.setRssRefreshPeriod(getRssRefreshPeriod());
+        jenkinsSettings.setCrumbData(crumbDataField.getText());
+
+        if (StringUtils.isNotBlank(username.getText())) {
+            jenkinsSettings.setUsername(username.getText());
+        } else {
+            jenkinsSettings.setUsername("");
+        }
+
+        if (isPasswordModified()) {
+            jenkinsSettings.setPassword(getPassword());
+            resetPasswordModification();
+        }
+    }
+
+    public void loadConfigurationData(JenkinsAppSettings jenkinsAppSettings, JenkinsSettings jenkinsSettings) {
+        serverUrl.setText(jenkinsAppSettings.getServerUrl());
+        buildDelay.setText(String.valueOf(jenkinsAppSettings.getBuildDelay()));
+
+        jobRefreshPeriod.setText(String.valueOf(jenkinsAppSettings.getJobRefreshPeriod()));
+
+        rssRefreshPeriod.setText(String.valueOf(jenkinsAppSettings.getRssRefreshPeriod()));
+
+        username.setText(jenkinsSettings.getUsername());
+        if (StringUtils.isNotBlank(jenkinsSettings.getUsername())) {
+            passwordField.setText(jenkinsSettings.getPassword());
+            resetPasswordModification();
+        }
+
+        crumbDataField.setText(jenkinsSettings.getCrumbData());
+    }
+
+    private boolean isPasswordModified() {
+        return myPasswordModified;
     }
 
     private void initDebugTextPane() {
@@ -171,18 +225,16 @@ public class ConfigurationPanel {
         debugTextPane.setDocument(htmlDocument);
     }
 
-    //TODO use annotation to create a guiwrapper so isModified could be simplified
-    public boolean isModified(JenkinsAppSettings jenkinsAppSettings, JenkinsSettings jenkinsSettings) {
-        boolean credentialModified = !(jenkinsSettings.getUsername().equals(username.getText()))
-                || isPasswordModified();
+    private void resetPasswordModification() {
+        myPasswordModified = false;
+    }
 
+    private void setPassword(String password) {
+        passwordField.setText(StringUtils.isBlank(password) ? null : password);
+    }
 
-        return !jenkinsAppSettings.getServerUrl().equals(serverUrl.getText())
-                || !(jenkinsAppSettings.getBuildDelay() == getBuildDelay())
-                || !(jenkinsAppSettings.getJobRefreshPeriod() == getJobRefreshPeriod())
-                || !(jenkinsAppSettings.getRssRefreshPeriod() == getRssRefreshPeriod())
-                || !(jenkinsSettings.getCrumbData().equals(crumbDataField.getText()))
-                || credentialModified;
+    private String getPassword() {
+        return String.valueOf(passwordField.getPassword());
     }
 
     private int getRssRefreshPeriod() {
@@ -208,61 +260,6 @@ public class ConfigurationPanel {
         }
         return 0;
     }
-
-
-    //TODO use annotation to create a guiwrapper so isModified could be simplified
-    public void applyConfigurationData(JenkinsAppSettings jenkinsAppSettings, JenkinsSettings jenkinsSettings) throws ConfigurationException {
-        formValidator.validate();
-
-        if (!StringUtils.equals(jenkinsAppSettings.getServerUrl(), serverUrl.getText())) {
-            jenkinsSettings.getFavoriteJobs().clear();
-            jenkinsSettings.setLastSelectedView(null);
-        }
-
-        jenkinsAppSettings.setServerUrl(serverUrl.getText());
-        jenkinsAppSettings.setDelay(Integer.valueOf(buildDelay.getText()));
-        jenkinsAppSettings.setJobRefreshPeriod(Integer.valueOf(jobRefreshPeriod.getText()));
-        jenkinsAppSettings.setRssRefreshPeriod(Integer.valueOf(rssRefreshPeriod.getText()));
-        jenkinsAppSettings.setRssRefreshPeriod(Integer.valueOf(rssRefreshPeriod.getText()));
-        jenkinsSettings.setCrumbData(crumbDataField.getText());
-
-        if (StringUtils.isNotBlank(username.getText())) {
-            jenkinsSettings.setUsername(username.getText());
-        } else {
-            jenkinsSettings.setUsername("");
-        }
-
-        if (isPasswordModified()) {
-            jenkinsSettings.setPassword(getPassword());
-            resetPasswordModification();
-        }
-    }
-
-    private void resetPasswordModification() {
-        myPasswordModified = false;
-    }
-
-    public void loadConfigurationData(JenkinsAppSettings jenkinsAppSettings, JenkinsSettings jenkinsSettings) {
-        serverUrl.setText(jenkinsAppSettings.getServerUrl());
-        buildDelay.setText(String.valueOf(jenkinsAppSettings.getBuildDelay()));
-
-        jobRefreshPeriod.setText(String.valueOf(jenkinsAppSettings.getJobRefreshPeriod()));
-
-        rssRefreshPeriod.setText(String.valueOf(jenkinsAppSettings.getRssRefreshPeriod()));
-
-        username.setText(jenkinsSettings.getUsername());
-        if (StringUtils.isNotBlank(jenkinsSettings.getUsername())) {
-            passwordField.setText(jenkinsSettings.getPassword());
-            resetPasswordModification();
-        }
-
-        crumbDataField.setText(jenkinsSettings.getCrumbData());
-    }
-
-    public boolean isPasswordModified() {
-        return myPasswordModified;
-    }
-
 
     public JPanel getRootPanel() {
         return rootPanel;
