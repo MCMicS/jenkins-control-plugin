@@ -1,7 +1,7 @@
 <idea-plugin>
-    <name>Jenkins Plugin</name>
+    <name>Jenkins Control Plugin</name>
     <description>A Jenkins Plugin for Intellij for IDEA 10+</description>
-    <version>0.7.0</version>
+    <version>0.7.1</version>
     <vendor email="david.boissier [at] gmail [dot] com" url="http://codinjutsu.blogspot.com">David Boissier</vendor>
     <idea-version since-build="107.587"/>
 
@@ -23,6 +23,6 @@
     </extensions>
 
     <change-notes><![CDATA[
-<a href="https://github.com/dboissier/jenkins-control-plugin/blob/jenkins-control-plugin-0.7.0/CHANGELOG.txt">Changelog</a>
+<a href="https://github.com/dboissier/jenkins-control-plugin/blob/jenkins-control-plugin-0.7.1/CHANGELOG.txt">Changelog</a>
 ]]> </change-notes>
 </idea-plugin>

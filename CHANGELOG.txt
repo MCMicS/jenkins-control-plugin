@@ -1,3 +1,6 @@
+Version 0.7.1
+    * TBD
+
 Version 0.7.0
     * [Upd] UI: Fix Color for new Look&Feel Darcula of IDEA 12
     * [Upd] UI: Remove unecessary titled 'job' panel
