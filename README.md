@@ -9,7 +9,7 @@ The last release will break all existing configurations:
 * The crumb data file was also replaced,
 * Checkboxes were removed to improve usability.
 
-For more detail about configure the server, please read the [Configuration steps](https://github.com/dboissier/jenkins-control-plugin/edit/master/README.md#configuration-steps) section.
+For more detail about configure the server, please read the [Configuration steps](https://github.com/dboissier/jenkins-control-plugin#configuration-steps) section.
 
 ## ChangeLog
 See CHANGELOG.txt
