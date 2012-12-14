@@ -4,7 +4,7 @@
 
 The last release will break all existing configurations:
 
-* The server configuration is stored in **IPR** file and User specific configuration is the **IWS** file,
+* The server configuration is stored in **IPR** file and the user specific configuration in the **IWS** file,
 * The password file was really inconvenient so it is now stored in Intellij by the **Password Manager**,
 * The crumb data file was also replaced,
 * Checkboxes were removed to improve usability.
