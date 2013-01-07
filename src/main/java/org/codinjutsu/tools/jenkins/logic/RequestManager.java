@@ -42,7 +42,7 @@ public class RequestManager {
 
     private RssParser rssParser = new RssParser();
 
-    private JenkinsJsonParser jsonParser = new JenkinsJsonParser();
+    private JenkinsParser jsonParser = new JenkinsSimpleJsonParser();
 
 
     public RequestManager(SecurityClient securityClient) {

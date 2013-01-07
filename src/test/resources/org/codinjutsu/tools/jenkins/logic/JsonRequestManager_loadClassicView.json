@@ -58,7 +58,7 @@
                             },
                             "name":"param1",
                             "type":"ChoiceParameterDefinition",
-                            "choice":["value1", "value2", "value3"]
+                            "choices":["value1", "value2", "value3"]
                         },
                         {
                             "defaultParameterValue":null,

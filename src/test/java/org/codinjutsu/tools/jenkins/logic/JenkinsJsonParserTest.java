@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.mockito.MockitoAnnotations;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -19,7 +20,7 @@ import static org.unitils.reflectionassert.ReflectionAssert.assertReflectionEqua
 
 public class JenkinsJsonParserTest {
 
-    private JenkinsJsonParser jsonParser;
+    private JenkinsParser jsonParser;
 
     @Test
     public void loadJenkinsWorkSpace() throws Exception {
@@ -143,10 +144,34 @@ public class JenkinsJsonParserTest {
         assertReflectionEquals(expectedJobs, actualJobs);
     }
 
+    @Test
+    public void testBugWithManyParameters() throws Exception {
+        List<Job> actualJobs = jsonParser.createViewJobs(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadJobManyParameters.json")));
+
+
+        List<Job> expectedJobs = Arrays.asList(
+                new JobBuilder()
+                        .job("DummyProject", "red", "http://localhost:8484/jenkins/job/DummyProject/", "false", "true")
+                        .lastBuild("http://localhost:8484/jenkins/job/DummyProject/26/", "26", "FAILURE", "false", "2011-12-01_16-53-48")
+                        .health("health-00to19", "Stabilité du build: Tous les builds récents ont échoué.")
+                        .parameter("runIntegrationTest", "BooleanParameterDefinition", "true")
+                        .parameter("environment", "ChoiceParameterDefinition", "itg", "itg", "prp", "prd", "bench")
+                        .parameter("tag", "StringParameterDefinition", "")
+                        .parameter("pass", "PasswordParameterDefinition", null)
+                        .parameter("file", "FileParameterDefinition", null)
+                        .parameter("desc", "TextParameterDefinition", "")
+                        .parameter("runner", "RunParameterDefinition", null)
+                        .parameter("tag", "ListSubversionTagsParameterDefinition", null)
+                        .get()
+
+        );
+        assertReflectionEquals(expectedJobs, actualJobs);
+    }
+
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        jsonParser = new JenkinsJsonParser();
+        jsonParser = new JenkinsSimpleJsonParser();
     }
 }

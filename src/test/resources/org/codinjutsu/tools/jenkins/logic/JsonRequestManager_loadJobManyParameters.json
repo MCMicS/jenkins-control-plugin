@@ -1,0 +1,77 @@
+{"jobs": [
+    {
+        "name": "DummyProject",
+        "url": "http://localhost:8484/jenkins/job/DummyProject/",
+        "buildable": true,
+        "color": "red",
+        "healthReport": [
+            {
+                "description": "Stabilité du build: Tous les builds récents ont échoué.",
+                "iconUrl": "health-00to19.png"
+            }
+        ],
+        "inQueue": false,
+        "lastBuild": {
+            "building": false,
+            "id": "2011-12-01_16-53-48",
+            "number": 26,
+            "result": "FAILURE",
+            "url": "http://localhost:8484/jenkins/job/DummyProject/26/"
+        },
+        "property": [
+            {
+                "parameterDefinitions": [
+                    {
+                        "defaultParameterValue": {
+                            "value": true
+                        },
+                        "name": "runIntegrationTest",
+                        "type": "BooleanParameterDefinition"
+                    },
+                    {
+                        "defaultParameterValue": {
+                            "value": "itg"
+                        },
+                        "name": "environment",
+                        "type": "ChoiceParameterDefinition",
+                        "choices": ["itg", "prp", "prd", "bench"]
+                    },
+                    {
+                        "defaultParameterValue": {
+                            "value": ""
+                        },
+                        "name": "tag",
+                        "type": "StringParameterDefinition"
+                    },
+                    {
+                        "defaultParameterValue": {},
+                        "name": "pass",
+                        "type": "PasswordParameterDefinition"
+                    },
+                    {
+                        "defaultParameterValue": null,
+                        "name": "file",
+                        "type": "FileParameterDefinition"
+                    },
+                    {
+                        "defaultParameterValue": {
+                            "value": ""
+                        },
+                        "name": "desc",
+                        "type": "TextParameterDefinition"
+                    },
+                    {
+                        "defaultParameterValue": {},
+                        "name": "runner",
+                        "type": "RunParameterDefinition"
+                    },
+                    {
+                        "defaultParameterValue": null,
+                        "name": "tag",
+                        "type": "ListSubversionTagsParameterDefinition"
+                    }
+                ]
+            }
+        ]
+    }
+]}
