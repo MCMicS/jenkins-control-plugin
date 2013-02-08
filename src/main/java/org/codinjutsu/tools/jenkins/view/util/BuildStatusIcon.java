@@ -29,6 +29,8 @@ public class BuildStatusIcon extends JComponent {
 
     private static final int PIXEL_WIDTH = 8;
 
+    private static final Color FOREGROUND_COLOR = new JLabel().getForeground();
+
     final Icon icon;
     final String toolTipText;
 
@@ -97,7 +99,7 @@ public class BuildStatusIcon extends JComponent {
             y += icon.getIconHeight() - g.getFontMetrics().getDescent();
             x += icon.getIconWidth();
 
-            g.setColor(Color.BLACK);
+            g.setColor(FOREGROUND_COLOR);
             g.drawString(String.valueOf(numberToDisplay), x, y);
 
             g.setFont(originalFont);
