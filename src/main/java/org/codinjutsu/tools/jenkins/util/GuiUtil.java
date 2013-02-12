@@ -22,6 +22,7 @@ import com.intellij.openapi.util.IconLoader;
 
 import javax.swing.*;
 import java.awt.*;
+import java.net.URL;
 
 public class GuiUtil {
 
@@ -58,5 +59,9 @@ public class GuiUtil {
 
     public static boolean isUnderDarcula() {//keep it for backward compatibility
         return UIManager.getLookAndFeel().getName().contains("Darcula");
+    }
+
+    public static URL getIconResource(String iconFilename) {
+        return GuiUtil.class.getResource(ICON_FOLDER + iconFilename);
     }
 }

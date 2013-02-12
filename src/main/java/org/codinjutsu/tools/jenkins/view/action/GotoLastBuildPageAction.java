@@ -25,7 +25,7 @@ public class GotoLastBuildPageAction extends AbstractGotoWebPageAction {
     public GotoLastBuildPageAction(BrowserPanel browserPanel) {
         super("Go to the latest build page",
                 "Open the latest build page in a web browser",
-                "page_gear.png", browserPanel);
+                browserPanel);
     }
 
 

@@ -34,7 +34,9 @@ import com.intellij.ui.content.ContentFactory;
 import org.codinjutsu.tools.jenkins.logic.*;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
-import org.codinjutsu.tools.jenkins.view.*;
+import org.codinjutsu.tools.jenkins.view.BrowserPanel;
+import org.codinjutsu.tools.jenkins.view.ConfigurationPanel;
+import org.codinjutsu.tools.jenkins.view.JenkinsWidget;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,7 +44,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.concurrent.TimeUnit;
 
-import static org.codinjutsu.tools.jenkins.view.action.RunBuildAction.RUN_ICON;
 
 public class JenkinsComponent implements ProjectComponent, Configurable {
 
@@ -121,7 +122,7 @@ public class JenkinsComponent implements ProjectComponent, Configurable {
                 JENKINS_BROWSER,
                 MessageType.INFO,
                 message,
-                RUN_ICON,
+                null,
                 new BrowserHyperlinkListener());
     }
 
@@ -134,7 +135,7 @@ public class JenkinsComponent implements ProjectComponent, Configurable {
     private void installJenkinsPanel() {
 
         requestManager = new RequestManager(jenkinsSettings.getCrumbData());
-        jenkinsWidget = new JenkinsWidget(project);
+        jenkinsWidget = JenkinsWidget.getInstance(project);
 
         BrowserPanel browserPanel = new BrowserPanel(jenkinsSettings.getFavoriteJobs());
         BrowserLogic.JobLoadListener jobLoadListener = new BrowserLogic.JobLoadListener() {
@@ -143,19 +144,25 @@ public class JenkinsComponent implements ProjectComponent, Configurable {
                 jenkinsWidget.updateInformation(buildStatusAggregator);
             }
         };
-        BrowserLogic browserLogic = new BrowserLogic(jenkinsAppSettings, jenkinsSettings, requestManager, browserPanel, jobLoadListener);
 
         RssLogic.BuildStatusListener buildStatusListener = new RssLogic.BuildStatusListener() {
             public void onBuildFailure(final String jobName, final Build build) {
                 BalloonBuilder balloonBuilder = JBPopupFactory.getInstance().createHtmlTextBalloonBuilder(jobName + "#" + build.getNumber() + ": FAILED", MessageType.ERROR, null);
-                Balloon balloon = balloonBuilder.setFadeoutTime(TimeUnit.SECONDS.toMillis(1)).createBalloon();
-                balloon.show(new RelativePoint(jenkinsWidget.getComponent(), new Point(0, 0)), Balloon.Position.above);
+                final Balloon balloon = balloonBuilder.setFadeoutTime(TimeUnit.SECONDS.toMillis(1)).createBalloon();
+                GuiUtil.runInSwingThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        balloon.show(new RelativePoint(jenkinsWidget.getComponent(), new Point(0, 0)), Balloon.Position.above);
+                    }
+                });
+
             }
         };
-        RssLatestBuildPanel rssLatestJobPanel = new RssLatestBuildPanel();
-        RssLogic rssLogic = new RssLogic(jenkinsAppSettings, requestManager, rssLatestJobPanel, buildStatusListener);
 
-        jenkinsLogic = new JenkinsLogic(browserLogic, rssLogic);
+        jenkinsLogic = new JenkinsLogic(
+                new BrowserLogic(jenkinsAppSettings, jenkinsSettings, requestManager, browserPanel, jobLoadListener),
+                new RssLogic(project, jenkinsAppSettings, requestManager, buildStatusListener)
+        );
 
         StartupManager.getInstance(project).registerPostStartupActivity(new DumbAwareRunnable() {
             @Override
@@ -168,8 +175,7 @@ public class JenkinsComponent implements ProjectComponent, Configurable {
         statusBar.addWidget(jenkinsWidget);
         jenkinsWidget.install(statusBar);
 
-        Content content = ContentFactory.SERVICE.getInstance()
-                .createContent(JenkinsPanel.onePanel(browserPanel, rssLatestJobPanel), null, false);
+        Content content = ContentFactory.SERVICE.getInstance().createContent(browserPanel, null, false);
         ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
         ToolWindow toolWindow = toolWindowManager.registerToolWindow(JENKINS_BROWSER, false, ToolWindowAnchor.RIGHT);
         toolWindow.getContentManager().addContent(content);

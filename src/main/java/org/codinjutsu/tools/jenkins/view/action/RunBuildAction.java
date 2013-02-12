@@ -34,14 +34,14 @@ import javax.swing.*;
 
 public class RunBuildAction extends AnAction implements DumbAware {
 
-    public static final Icon RUN_ICON = GuiUtil.loadIcon("toolWindowRun.png");
+    private static final Icon EXECUTE_ICON = GuiUtil.isUnderDarcula() ? GuiUtil.loadIcon("execute_dark.png") : GuiUtil.loadIcon("execute.png");
     private static final Logger LOG = Logger.getLogger(RunBuildAction.class.getName());
 
     private final BrowserLogic browserLogic;
 
 
     public RunBuildAction(BrowserLogic browserLogic) {
-        super("Build on Jenkins", "Run a build on Jenkins Server", GuiUtil.loadIcon("cog_go.png"));
+        super("Build on Jenkins", "Run a build on Jenkins Server", EXECUTE_ICON);
         this.browserLogic = browserLogic;
     }
 

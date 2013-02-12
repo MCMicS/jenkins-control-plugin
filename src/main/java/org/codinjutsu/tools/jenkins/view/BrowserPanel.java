@@ -17,8 +17,9 @@
 package org.codinjutsu.tools.jenkins.view;
 
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.ui.LoadingDecorator;
-import com.intellij.openapi.util.Disposer;
+import com.intellij.ui.components.JBScrollPane;
+import com.intellij.ui.treeStructure.SimpleTree;
+import com.intellij.ui.treeStructure.Tree;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusVisitor;
@@ -29,24 +30,29 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
+import java.net.URL;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 public class BrowserPanel extends JPanel implements Disposable {
-    private JComboBox viewCombo;
-    private JTree jobTree;
+
+    private static final URL pluginSettingsUrl = GuiUtil.isUnderDarcula() ? GuiUtil.getIconResource("settings_dark.png") : GuiUtil.getIconResource("settings.png");
+
     private JPanel rootPanel;
     private JPanel actionPanel;
     private JPanel utilityPanel;
     private JPanel jobPanel;
-    private JScrollPane scrollPane;
-    private JobSearchComponent searchComponent;
 
-    private final LoadingDecorator loadingDecorator;
+    private JComboBox viewCombo;
+    private JobSearchComponent searchComponent;
+    private Tree jobTree;
+
     private boolean sortedByBuildStatus;
     private final JobComparator jobStatusComparator = new JobStatusComparator();
+    private Jenkins jenkins;
 
     public BrowserPanel() {
         this(Collections.<JenkinsSettings.FavoriteJob>emptyList());
@@ -54,22 +60,20 @@ public class BrowserPanel extends JPanel implements Disposable {
 
 
     public BrowserPanel(List<JenkinsSettings.FavoriteJob> favoriteJobs) {
-        jobTree.setCellRenderer(new JenkinsTreeRenderer(favoriteJobs));
-        jobTree.setName("jobTree");
+
         viewCombo.setName("viewCombo");
+
+        jobTree = createTree(favoriteJobs);
+        jobPanel.setLayout(new BorderLayout());
+        jobPanel.add(new JBScrollPane(jobTree), BorderLayout.CENTER);
 
         setLayout(new BorderLayout());
         add(rootPanel, BorderLayout.CENTER);
-
-        loadingDecorator = new LoadingDecorator(scrollPane, Disposer.newDisposable(), 0);
-        loadingDecorator.setLoadingText("");
-
-        jobPanel.setLayout(new BorderLayout());
-        jobPanel.add(loadingDecorator.getComponent(), BorderLayout.CENTER);
     }
 
 
     public void fillData(Jenkins jenkins) {
+        this.jenkins = jenkins;
         fillViewCombo(jenkins);
         fillJobTree(jenkins, BuildStatusVisitor.NULL);
     }
@@ -123,17 +127,24 @@ public class BrowserPanel extends JPanel implements Disposable {
 
     public void fillJobTree(Jenkins jenkins, BuildStatusVisitor buildStatusVisitor) {
         List<Job> jobList = jenkins.getJobList();
-        final DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode(jenkins);
-        if (!jobList.isEmpty()) {
-            for (Job job : jobList) {
-                DefaultMutableTreeNode jobNode = new DefaultMutableTreeNode(job);
-                rootNode.add(jobNode);
-                visit(job, buildStatusVisitor);
-            }
+        if (jenkins.getJobList().isEmpty()) {
+            jobTree.setRootVisible(false);
+            return;
         }
+
+        final DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode(jenkins);
+
+        for (Job job : jobList) {
+            DefaultMutableTreeNode jobNode = new DefaultMutableTreeNode(job);
+            rootNode.add(jobNode);
+            visit(job, buildStatusVisitor);
+        }
+
         JenkinsTreeModel treeModel = new JenkinsTreeModel(rootNode);
         treeModel.setJobStatusComparator(jobStatusComparator);
         jobTree.setModel(treeModel);
+        jobTree.setRootVisible(true);
+
     }
 
 
@@ -141,26 +152,6 @@ public class BrowserPanel extends JPanel implements Disposable {
         DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode(new Jenkins(description, serverUrl));
         jobTree.setModel(new DefaultTreeModel(rootNode));
     }
-
-
-    public void startWaiting() {
-        if (!loadingDecorator.isLoading()) {
-            GuiUtil.runInSwingThread(new Runnable() {
-                @Override
-                public void run() {
-                    loadingDecorator.startLoading(false);
-                }
-            });
-        }
-    }
-
-
-    public void endWaiting() {
-        if (loadingDecorator.isLoading()) {
-            loadingDecorator.stopLoading();
-        }
-    }
-
 
     public void setSortedByStatus(boolean selected) {
         sortedByBuildStatus = selected;
@@ -344,5 +335,44 @@ public class BrowserPanel extends JPanel implements Disposable {
         return BuildStatusEnum.NULL;
     }
 
+    private Tree createTree(List<JenkinsSettings.FavoriteJob> favoriteJobs) {
 
+        SimpleTree tree = new SimpleTree() {
+
+            private final JLabel myLabel = new JLabel(
+                    String.format("<html><center>No Jenkins server available<br><br>You may use <img src=\"%s\"> to add or fix configuration</center></html>", pluginSettingsUrl)
+            );
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (jenkins != null && !jenkins.getJobList().isEmpty()) return;
+
+                myLabel.setFont(getFont());
+                myLabel.setBackground(getBackground());
+                myLabel.setForeground(getForeground());
+                Rectangle bounds = getBounds();
+                Dimension size = myLabel.getPreferredSize();
+                myLabel.setBounds(0, 0, size.width, size.height);
+
+                int x = (bounds.width - size.width) / 2;
+                Graphics g2 = g.create(bounds.x + x, bounds.y + 20, bounds.width, bounds.height);
+                try {
+                    myLabel.paint(g2);
+                } finally {
+                    g2.dispose();
+                }
+            }
+        };
+
+        tree.getEmptyText().clear();
+        tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+
+        tree.setCellRenderer(new JenkinsTreeRenderer(favoriteJobs));
+        tree.setName("jobTree");
+
+        tree.setRootVisible(false);
+
+        return tree;
+    }
 }

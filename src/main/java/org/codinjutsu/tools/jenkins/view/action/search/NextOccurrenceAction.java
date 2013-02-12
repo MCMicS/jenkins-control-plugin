@@ -23,14 +23,17 @@ import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.JobSearchComponent;
 
+import javax.swing.*;
 import java.awt.event.KeyEvent;
 
 public class NextOccurrenceAction extends AnAction implements DumbAware {
 
+    private static final Icon NEXT_ICON = GuiUtil.isUnderDarcula() ? GuiUtil.loadIcon("next_dark.png") : GuiUtil.loadIcon("next.png");
+
     private final JobSearchComponent jobSearchComponent;
 
     public NextOccurrenceAction(JobSearchComponent jobSearchComponent) {
-        super("Search Next", "Search the next occurrence", GuiUtil.loadIcon("next.png"));
+        super("Search Next", "Search the next occurrence", NEXT_ICON);
         this.jobSearchComponent = jobSearchComponent;
 
         registerCustomShortcutSet(KeyEvent.VK_F3, 0, jobSearchComponent);

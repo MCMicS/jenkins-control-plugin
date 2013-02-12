@@ -29,9 +29,8 @@ abstract class AbstractGotoWebPageAction extends AnAction implements DumbAware {
 
     AbstractGotoWebPageAction(String label,
                               String description,
-                              String iconFilename,
                               BrowserPanel browserPanel) {
-        super(label, description, GuiUtil.loadIcon(iconFilename));
+        super(label, description, null);
         this.browserPanel = browserPanel;
     }
 

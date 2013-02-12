@@ -17,6 +17,7 @@
 package org.codinjutsu.tools.jenkins.logic;
 
 import com.intellij.openapi.Disposable;
+import org.codinjutsu.tools.jenkins.view.action.RefreshRssAction;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
@@ -33,7 +34,7 @@ public class JenkinsLogic implements Disposable {
     }
 
     public void init() {
-        browserLogic.init();
+        browserLogic.init(new RefreshRssAction(rssLogic));
         rssLogic.init();
 
         browserLogic.initScheduledJobs(scheduledThreadPoolExecutor);
@@ -42,14 +43,12 @@ public class JenkinsLogic implements Disposable {
 
     public void dispose() {
         browserLogic.dispose();
-        rssLogic.dispose();
 
         scheduledThreadPoolExecutor.shutdown();
     }
 
     public void reloadConfiguration() {
         browserLogic.reloadConfiguration();
-        rssLogic.reloadConfiguration();
 
         browserLogic.initScheduledJobs(scheduledThreadPoolExecutor);
         rssLogic.initScheduledJobs(scheduledThreadPoolExecutor);

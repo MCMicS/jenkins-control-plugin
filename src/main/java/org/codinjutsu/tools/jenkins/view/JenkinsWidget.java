@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
@@ -43,6 +44,10 @@ public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidg
     private final BuildSummaryPanel buildStatusSummaryPanel;
 
     private JBPopup myPopup;
+
+    public static JenkinsWidget getInstance(Project project) {
+        return ServiceManager.getService(project, JenkinsWidget.class);
+    }
 
     public JenkinsWidget(Project project) {
         this.buildStatusSummaryPanel = new BuildSummaryPanel();

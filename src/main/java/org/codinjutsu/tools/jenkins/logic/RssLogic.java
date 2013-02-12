@@ -16,31 +16,24 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.notification.NotificationGroup;
+import com.intellij.notification.NotificationListener;
+import com.intellij.notification.NotificationType;
+import com.intellij.openapi.project.Project;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
-import org.codinjutsu.tools.jenkins.util.GuiUtil;
-import org.codinjutsu.tools.jenkins.view.RssLatestBuildPanel;
-import org.codinjutsu.tools.jenkins.view.action.CleanRssAction;
-import org.codinjutsu.tools.jenkins.view.action.RefreshRssAction;
 
-import javax.swing.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
-
-import static org.codinjutsu.tools.jenkins.util.GuiUtil.installActionGroupInToolBar;
 
 public class RssLogic {
 
-    private static final String JENKINS_RSS_ACTIONS = "JenkinsRssActions";
+    private final NotificationGroup JENKINS_RSS_GROUP = NotificationGroup.logOnlyGroup("Jenkins Rss");
 
-    private final RssLatestBuildPanel rssLatestJobPanel;
     private final BuildStatusListener buildStatusListener;
 
+    private final Project project;
     private final JenkinsAppSettings jenkinsAppSettings;
     private RequestManager requestManager;
 
@@ -49,21 +42,11 @@ public class RssLogic {
     private final Runnable refreshRssBuildsJob = new LoadLatestBuildsJob(true);
     private ScheduledFuture<?> refreshRssBuildFutureTask;
 
-    public RssLogic(JenkinsAppSettings jenkinsAppSettings, RequestManager requestManager, RssLatestBuildPanel rssLatestJobPanel, BuildStatusListener buildStatusListener) {
+    public RssLogic(Project project, JenkinsAppSettings jenkinsAppSettings, RequestManager requestManager, BuildStatusListener buildStatusListener) {
+        this.project = project;
         this.jenkinsAppSettings = jenkinsAppSettings;
         this.requestManager = requestManager;
-        this.rssLatestJobPanel = rssLatestJobPanel;
         this.buildStatusListener = buildStatusListener;
-    }
-
-    protected void installRssActions(JPanel rssActionPanel) {
-        DefaultActionGroup actionGroup = new DefaultActionGroup(JENKINS_RSS_ACTIONS, true);
-        if (ApplicationManager.getApplication() != null) {
-            actionGroup.add(new RefreshRssAction(this));
-            actionGroup.addSeparator();
-            actionGroup.add(new CleanRssAction(this));
-        }
-        installActionGroupInToolBar(actionGroup, rssActionPanel, ActionManager.getInstance(), JENKINS_RSS_ACTIONS);
     }
 
     public void loadLatestBuilds(boolean shouldDisplayResult) {
@@ -72,10 +55,6 @@ public class RssLogic {
         executorService.shutdown();
     }
 
-
-    public void cleanRssEntries() {
-        rssLatestJobPanel.cleanRssEntries();
-    }
 
     void initScheduledJobs(ScheduledThreadPoolExecutor scheduledThreadPoolExecutor) {
         safeTaskCancel(refreshRssBuildFutureTask);
@@ -87,6 +66,7 @@ public class RssLogic {
         }
     }
 
+
     private void safeTaskCancel(ScheduledFuture<?> futureTask) {
         if (futureTask == null) {
             return;
@@ -95,7 +75,6 @@ public class RssLogic {
             futureTask.cancel(false);
         }
     }
-
 
     private Map.Entry<String, Build> getFirstFailedBuild(Map<String, Build> finishedBuilds) {
         for (Map.Entry<String, Build> buildByJobName : finishedBuilds.entrySet()) {
@@ -106,6 +85,7 @@ public class RssLogic {
         }
         return null;
     }
+
 
     private Map<String, Build> loadAndReturnNewLatestBuilds() {
         Map<String, Build> latestBuildMap = requestManager.loadJenkinsRssLatestBuilds(jenkinsAppSettings);
@@ -124,21 +104,7 @@ public class RssLogic {
     }
 
     public void init() {
-        initGui();
-        reloadConfiguration();
-
         loadLatestBuilds(false);
-    }
-
-    void reloadConfiguration() {
-        cleanRssEntries();
-    }
-
-    private void initGui() {
-        installRssActions(rssLatestJobPanel.getRssActionPanel());
-    }
-
-    public void dispose() {
     }
 
     private class LoadLatestBuildsJob implements Runnable {
@@ -151,24 +117,53 @@ public class RssLogic {
         @Override
         public void run() {
             final Map<String, Build> finishedBuilds = loadAndReturnNewLatestBuilds();
-            if (!shouldDisplayResult) {
+            if (!shouldDisplayResult || finishedBuilds.isEmpty()) {
                 return;
             }
 
-            GuiUtil.runInSwingThread(new Runnable() {
-                @Override
-                public void run() {
-                    rssLatestJobPanel.addFinishedBuild(finishedBuilds);
 
-                    Map.Entry<String, Build> firstFailedBuild = getFirstFailedBuild(finishedBuilds);
-                    if (firstFailedBuild != null) {
-                        buildStatusListener.onBuildFailure(firstFailedBuild.getKey(), firstFailedBuild.getValue());
-                    }
+            final ArrayList<Build> buildToSortByDateDescending = new ArrayList<Build>(finishedBuilds.values());
+
+            Collections.sort(buildToSortByDateDescending, new Comparator<Build>() {
+                @Override
+                public int compare(Build firstBuild, Build secondBuild) {
+                    return firstBuild.getBuildDate().compareTo(secondBuild.getBuildDate());
                 }
             });
 
+            for (Build build : buildToSortByDateDescending) {
+                BuildStatusEnum status = build.getStatus();
+                NotificationType notificationType;
+                if (BuildStatusEnum.SUCCESS.equals(status) || BuildStatusEnum.STABLE.equals(status)) {
+                    notificationType = NotificationType.INFORMATION;
+                } else if (BuildStatusEnum.FAILURE.equals(status) || (BuildStatusEnum.UNSTABLE.equals(status))) {
+                    notificationType = NotificationType.ERROR;
+                } else {
+                    notificationType = NotificationType.WARNING;
+                }
+                JENKINS_RSS_GROUP
+                        .createNotification("", buildMessage(build), notificationType, NotificationListener.URL_OPENING_LISTENER)
+                        .notify(project);
+            }
+
+            Map.Entry<String, Build> firstFailedBuild = getFirstFailedBuild(finishedBuilds);
+            if (firstFailedBuild != null) {
+                buildStatusListener.onBuildFailure(firstFailedBuild.getKey(), firstFailedBuild.getValue());
+            }
         }
+
     }
+
+    public static String buildMessage(Build build) {
+        BuildStatusEnum buildStatus = build.getStatus();
+        String buildMessage = build.getMessage();
+
+        if (buildStatus != BuildStatusEnum.SUCCESS && buildStatus != BuildStatusEnum.STABLE) {
+            return String.format("<html><body>[Jenkins] <a href='%s'>%s</a><body></html>", build.getUrl(), buildMessage);
+        }
+        return String.format("[Jenkins] %s", buildMessage);
+    }
+
 
     public interface BuildStatusListener {
 

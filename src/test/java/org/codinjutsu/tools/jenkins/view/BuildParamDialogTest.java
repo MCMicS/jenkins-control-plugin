@@ -111,9 +111,9 @@ public class BuildParamDialogTest extends UISpecTestCase {
     public void testUnsupportedParams() throws Exception {
         Window uispecDialog = createUISpecWindow(JOB_WITH_UNSUPPORTED_PARAMS);
 
-        TextBox runTextBox = uispecDialog.getTextBox(ComponentMatchers.componentLabelFor("run"));
-        assertTrue(runTextBox.textEquals("RunParameterDefinition is unsupported."));
-        assertTrue(runTextBox.iconEquals(GuiUtil.loadIcon("error.png")));
+        TextBox runLabel = uispecDialog.getTextBox(ComponentMatchers.componentLabelFor("run"));
+        assertTrue(runLabel.textEquals("RunParameterDefinition is unsupported."));
+        assertIconEquals("error.png", runLabel);
 
         assertFalse(uispecDialog.getButton("OK").isEnabled());
     }
@@ -121,11 +121,15 @@ public class BuildParamDialogTest extends UISpecTestCase {
     public void testUnknowParams() throws Exception {
         Window uispecDialog = createUISpecWindow(JOB_WITH_UNKNOWN_PARAMS);
 
-        TextBox runTextBox = uispecDialog.getTextBox(ComponentMatchers.componentLabelFor("run"));
-        assertTrue(runTextBox.textEquals("Unkown parameter"));
-        assertTrue(runTextBox.iconEquals(GuiUtil.loadIcon("error.png")));
+        TextBox runLabel = uispecDialog.getTextBox(ComponentMatchers.componentLabelFor("run"));
+        assertTrue(runLabel.textEquals("Unkown parameter"));
+        assertIconEquals("error.png", runLabel);
 
         assertFalse(uispecDialog.getButton("OK").isEnabled());
+    }
+
+    private void assertIconEquals(String expectedIconFilename, TextBox actualLabel) {
+        assertEquals(GuiUtil.loadIcon(expectedIconFilename).toString(), ((JLabel) actualLabel.getAwtComponent()).getIcon().toString());
     }
 
     public void setUp() throws Exception {

@@ -25,11 +25,15 @@ import com.intellij.openapi.project.Project;
 import org.codinjutsu.tools.jenkins.JenkinsComponent;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
+import javax.swing.*;
+
 public class OpenPluginSettingsAction extends AnAction implements DumbAware {
 
 
+    private static final Icon SETTINGS_ICON = GuiUtil.isUnderDarcula() ? GuiUtil.loadIcon("settings_dark.png") : GuiUtil.loadIcon("settings.png");
+
     public OpenPluginSettingsAction() {
-        super("Jenkins Settings", "Edit the Jenkins settings for the current project", GuiUtil.loadIcon("pluginSettings.png"));
+        super("Jenkins Settings", "Edit the Jenkins settings for the current project", SETTINGS_ICON);
     }
 
     @Override

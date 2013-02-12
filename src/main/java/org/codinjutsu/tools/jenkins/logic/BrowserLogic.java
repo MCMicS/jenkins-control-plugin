@@ -21,7 +21,6 @@ import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.ui.PopupHandler;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
@@ -48,23 +47,18 @@ import java.util.concurrent.*;
 
 public class BrowserLogic implements Disposable {
 
-    private static final String JENKINS_JOB_ACTION_GROUP = "JenkinsJobGroup";
-    private static final String JENKINS_ACTIONS = "jenkinsBrowserActions";
-
     private final JenkinsAppSettings jenkinsAppSettings;
     private final JenkinsSettings jenkinsSettings;
     private final RequestManager requestManager;
-
+    private final BrowserPanel browserPanel;
 
     private final Runnable refreshViewJob = new LoadSelectedViewJob();
 
-    private final BrowserPanel browserPanel;
-
-    private Jenkins jenkins;
-
-    private JobLoadListener jobLoadListener = JobLoadListener.NULL;
     private ScheduledFuture<?> refreshViewFutureTask;
 
+    private JobLoadListener jobLoadListener = JobLoadListener.NULL;
+
+    private Jenkins jenkins;
 
     public BrowserLogic(JenkinsAppSettings jenkinsAppSettings, JenkinsSettings jenkinsSettings, RequestManager requestManager, BrowserPanel browserPanel, JobLoadListener jobLoadListener) {
         this.jenkinsAppSettings = jenkinsAppSettings;
@@ -75,8 +69,8 @@ public class BrowserLogic implements Disposable {
     }
 
 
-    public void init() {
-        initGui();
+    public void init(RefreshRssAction refreshRssAction) {
+        initGui(refreshRssAction);
         reloadConfiguration();
         initListeners();
     }
@@ -127,9 +121,9 @@ public class BrowserLogic implements Disposable {
     }
 
 
-    private void initGui() {
+    private void initGui(RefreshRssAction refreshRssAction) {
         browserPanel.createSearchPanel();
-        installBrowserActions(browserPanel.getJobTree(), browserPanel.getActionPanel());
+        installBrowserActions(browserPanel.getJobTree(), browserPanel.getActionPanel(), refreshRssAction);
         installSearchActions(browserPanel.getSearchComponent());
     }
 
@@ -157,24 +151,25 @@ public class BrowserLogic implements Disposable {
     }
 
 
-    protected void installBrowserActions(JTree jobTree, JPanel toolBar) {
-        DefaultActionGroup actionGroup = new DefaultActionGroup(JENKINS_JOB_ACTION_GROUP, true);
-        if (ApplicationManager.getApplication() != null) {
-            actionGroup.add(new RefreshNodeAction(this));
-            actionGroup.addSeparator();
-            actionGroup.add(new RunBuildAction(this));
-            actionGroup.addSeparator();
-            actionGroup.add(new GotoJobPageAction(browserPanel));
-            actionGroup.add(new GotoLastBuildPageAction(browserPanel));
-            actionGroup.addSeparator();
-            actionGroup.add(new SetJobAsFavoriteAction(this));
-            actionGroup.add(new UnsetJobAsFavoriteAction(this));
-            actionGroup.add(new SortByStatusAction(this));
-            actionGroup.addSeparator();
-            actionGroup.add(new OpenPluginSettingsAction());
-        }
-        GuiUtil.installActionGroupInToolBar(actionGroup, toolBar, ActionManager.getInstance(), JENKINS_ACTIONS);
-        installActionGroupInPopupMenu(actionGroup, jobTree, ActionManager.getInstance());
+    protected void installBrowserActions(JTree jobTree, JPanel toolBar, RefreshRssAction refreshRssAction) {
+        DefaultActionGroup actionGroup = new DefaultActionGroup("JenkinsToolbarGroup", false);
+        actionGroup.add(new RefreshNodeAction(this));
+        actionGroup.add(new RunBuildAction(this));
+        actionGroup.add(new SortByStatusAction(this));
+        actionGroup.add(refreshRssAction);
+        actionGroup.addSeparator();
+        actionGroup.add(new OpenPluginSettingsAction());
+
+        GuiUtil.installActionGroupInToolBar(actionGroup, toolBar, ActionManager.getInstance(), "jenkinsBrowserActions");
+
+        DefaultActionGroup popupGroup = new DefaultActionGroup("JenkinsPopupAction", true);
+        popupGroup.add(new SetJobAsFavoriteAction(this));
+        popupGroup.add(new UnsetJobAsFavoriteAction(this));
+        popupGroup.addSeparator();
+        popupGroup.add(new GotoJobPageAction(browserPanel));
+        popupGroup.add(new GotoLastBuildPageAction(browserPanel));
+
+        installActionGroupInPopupMenu(popupGroup, jobTree, ActionManager.getInstance());
     }
 
 
@@ -306,7 +301,6 @@ public class BrowserLogic implements Disposable {
             }
             final View selectedView = jenkinsView;
 
-            browserPanel.startWaiting();
             final List<Job> jobList;
 
             if (selectedView instanceof FavoriteView) {
@@ -323,7 +317,6 @@ public class BrowserLogic implements Disposable {
                 @Override
                 public void run() {
                     browserPanel.fillJobTree(jenkins, buildStatusAggregator);
-                    browserPanel.endWaiting();
                     buildStatusAggregator.setNbJobs(jobList.size());
                     jobLoadListener.afterLoadingJobs(buildStatusAggregator);
                 }

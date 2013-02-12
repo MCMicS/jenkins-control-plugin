@@ -22,13 +22,18 @@ import com.intellij.openapi.project.DumbAware;
 import org.codinjutsu.tools.jenkins.logic.BrowserLogic;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
+import javax.swing.*;
+
 public class SortByStatusAction extends ToggleAction implements DumbAware {
 
-    private boolean sortedByStatus = false;
+    private static final Icon SORT_ICON = GuiUtil.loadIcon("arrow_up.png");
+
     private final BrowserLogic browserLogic;
 
+    private boolean sortedByStatus = false;
+
     public SortByStatusAction(BrowserLogic browserLogic) {
-        super("Sort by Build Status", "Fail, Unstable, Success, ...", GuiUtil.loadIcon("arrow_up.png"));
+        super("Sort by Build Status", "Fail, Unstable, Success, ...", SORT_ICON);
         this.browserLogic = browserLogic;
     }
 

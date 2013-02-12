@@ -25,13 +25,16 @@ import org.codinjutsu.tools.jenkins.logic.BrowserLogic;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
+import javax.swing.*;
+
 public class RefreshNodeAction extends AnAction implements DumbAware {
 
+    private static final Icon REFRESH_ICON = GuiUtil.isUnderDarcula() ? GuiUtil.loadIcon("refresh_dark.png") : GuiUtil.loadIcon("refresh.png");
     private final BrowserLogic logic;
 
 
     public RefreshNodeAction(BrowserLogic logic) {
-        super("Refresh", "Refresh current node", GuiUtil.loadIcon("loadingTree.png"));
+        super("Refresh", "Refresh current node", REFRESH_ICON);
         this.logic = logic;
     }
 

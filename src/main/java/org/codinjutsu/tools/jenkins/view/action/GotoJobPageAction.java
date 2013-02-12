@@ -22,7 +22,7 @@ import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 public class GotoJobPageAction extends AbstractGotoWebPageAction {
 
     public GotoJobPageAction(BrowserPanel browserPanel) {
-        super("Go to the job page", "Open the job page in a web browser", "page_go.png", browserPanel);
+        super("Go to the job page", "Open the job page in a web browser", browserPanel);
     }
 
 

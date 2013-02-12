@@ -32,7 +32,6 @@ class JenkinsTreeRenderer extends DefaultTreeCellRenderer {
 
     private static final Icon FAVORITE_ICON = GuiUtil.loadIcon("star_tn.png");
     private static final Icon SERVER_ICON = GuiUtil.loadIcon("server_wrench.png");
-    private static final Icon SERVER_ERROR_ICON = GuiUtil.loadIcon("server_error.png");
 
     private final List<JenkinsSettings.FavoriteJob> favoriteJobs;
 
@@ -60,7 +59,7 @@ class JenkinsTreeRenderer extends DefaultTreeCellRenderer {
             if (!jenkins.getJobs().isEmpty()) {
                 setIcon(SERVER_ICON);
             } else {
-                setIcon(SERVER_ERROR_ICON);
+                return this;
             }
             setToolTipText(jenkins.getServerUrl());
             setFont(getFont().deriveFont(Font.ITALIC));

@@ -23,15 +23,18 @@ import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.JobSearchComponent;
 
+import javax.swing.*;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
 public class PrevOccurrenceAction extends AnAction implements DumbAware {
 
+    private static final Icon PREVIOUS_ICON = GuiUtil.isUnderDarcula() ? GuiUtil.loadIcon("previous_dark.png") : GuiUtil.loadIcon("previous.png");
+
     private final JobSearchComponent jobSearchComponent;
 
     public PrevOccurrenceAction(JobSearchComponent jobSearchComponent) {
-        super("Search Previous", "Search the previous occurrence", GuiUtil.loadIcon("previous.png"));
+        super("Search Previous", "Search the previous occurrence", PREVIOUS_ICON);
         this.jobSearchComponent = jobSearchComponent;
 
         registerCustomShortcutSet(KeyEvent.VK_F3, InputEvent.SHIFT_MASK, jobSearchComponent);
