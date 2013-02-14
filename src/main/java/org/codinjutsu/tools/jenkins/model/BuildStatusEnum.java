@@ -46,7 +46,7 @@ public enum BuildStatusEnum {
             buildStatusEnum = valueOf(status.toUpperCase());
 
         } catch (IllegalArgumentException ex) {
-            System.out.println("Unknown status : " + status);
+            System.out.println("Unsupported status : " + status);
             buildStatusEnum = NULL;
         }
         return buildStatusEnum;

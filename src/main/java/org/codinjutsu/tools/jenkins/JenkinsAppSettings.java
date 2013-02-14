@@ -16,17 +16,19 @@
 
 package org.codinjutsu.tools.jenkins;
 
-import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.components.State;
-import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.components.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.apache.commons.lang.StringUtils;
+import org.codinjutsu.tools.jenkins.model.Build;
+import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
 
 @State(
         name = "Jenkins.Application.Settings",
-        storages = {@Storage(id = "JenkinsAppSettings", file = "$PROJECT_FILE$")}
+        storages = {
+                @Storage(id = "JenkinsAppSettings", file = "$PROJECT_FILE$"),
+                @Storage(file = "$PROJECT_CONFIG_DIR$/jenkinsSettings.xml", scheme = StorageScheme.DIRECTORY_BASED)
+        }
 )
 public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSettings.State> {
 
@@ -91,19 +93,62 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
         return myState.rssRefreshPeriod;
     }
 
-
     public void setRssRefreshPeriod(int rssRefreshPeriod) {
         myState.rssRefreshPeriod = rssRefreshPeriod;
+    }
+
+    public boolean shouldDisplaySuccessOrStable() {
+        return myState.rssSettings.displaySuccessOrStable;
+    }
+
+    public boolean shouldDisplayFailOrUnstable() {
+        return myState.rssSettings.displayUnstableOrFail;
+    }
+
+    public boolean shouldDisplayAborted() {
+        return myState.rssSettings.displayAborted;
+    }
+
+    public void setIgnoreSuccessOrStable(boolean ignoreSucessOrStable) {
+        myState.rssSettings.displaySuccessOrStable = ignoreSucessOrStable;
+    }
+
+    public void setDisplayUnstableOrFail(boolean displayUnstableOrFail) {
+        myState.rssSettings.displayUnstableOrFail = displayUnstableOrFail;
+    }
+
+    public void setDisplayAborted(boolean displayAborted) {
+        myState.rssSettings.displayAborted = displayAborted;
+    }
+
+    public boolean shouldDisplayOnLogEvent(Build build) {
+        BuildStatusEnum buildStatus = build.getStatus();
+        if (BuildStatusEnum.SUCCESS.equals(buildStatus) || BuildStatusEnum.STABLE.equals(buildStatus)) {
+            return shouldDisplaySuccessOrStable();
+        }
+        if (BuildStatusEnum.FAILURE.equals(buildStatus) || BuildStatusEnum.UNSTABLE.equals(buildStatus)) {
+            return shouldDisplayFailOrUnstable();
+        }
+        if (BuildStatusEnum.ABORTED.equals(buildStatus)) {
+            return shouldDisplayAborted();
+        }
+
+        return false;
     }
 
     public static class State {
 
         public String serverUrl = DUMMY_JENKINS_SERVER_URL;
-
         public int delay = DEFAULT_BUILD_DELAY;
-
         public int jobRefreshPeriod = RESET_PERIOD_VALUE;
-
         public int rssRefreshPeriod = RESET_PERIOD_VALUE;
+
+        public RssSettings rssSettings = new RssSettings();
+    }
+
+    public static class RssSettings {
+        public boolean displaySuccessOrStable = true;
+        public boolean displayUnstableOrFail = true;
+        public boolean displayAborted = true;
     }
 }

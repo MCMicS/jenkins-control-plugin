@@ -94,6 +94,11 @@ public class RssLogic {
             String jobName = entry.getKey();
             Build newBuild = entry.getValue();
             Build currentBuild = currentBuildMap.get(jobName);
+
+            if (!jenkinsAppSettings.shouldDisplayOnLogEvent(newBuild)) {
+                continue;
+            }
+
             if (!currentBuildMap.containsKey(jobName) || newBuild.isAfter(currentBuild)) {
                 currentBuildMap.put(jobName, newBuild);
                 newBuildMap.put(jobName, newBuild);

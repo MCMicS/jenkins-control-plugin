@@ -80,7 +80,7 @@ public class BrowserLogic implements Disposable {
         if (!jenkinsAppSettings.isServerUrlSet()) {
             jobLoadListener.afterLoadingJobs(new BuildStatusAggregator());//TODO Crappy, need rewrite this
             clearViewCombo();
-            displayMissingConfiguration();
+//            displayMissingConfiguration();
             return;
         }
 
@@ -206,11 +206,11 @@ public class BrowserLogic implements Disposable {
     }
 
 
-    private void displayMissingConfiguration() {
-        browserPanel.setErrorMsg(jenkinsAppSettings.getServerUrl(), "(Missing configuration. Check Jenkins Plugin Settings.)");
-    }
-
-
+//    private void displayMissingConfiguration() {
+//        browserPanel.setErrorMsg(jenkinsAppSettings.getServerUrl(), "(Missing configuration. Check Jenkins Plugin Settings.)");
+//    }
+//
+//
     private void displayConnectionErrorMsg() {
         browserPanel.setErrorMsg(jenkinsAppSettings.getServerUrl(), "(Unable to connect. Check Jenkins Plugin Settings.)");
     }

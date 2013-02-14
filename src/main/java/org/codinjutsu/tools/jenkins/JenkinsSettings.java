@@ -16,18 +16,15 @@
 
 package org.codinjutsu.tools.jenkins;
 
-import com.intellij.ide.passwordSafe.MasterPasswordUnavailableException;
 import com.intellij.ide.passwordSafe.PasswordSafe;
 import com.intellij.ide.passwordSafe.PasswordSafeException;
 import com.intellij.ide.passwordSafe.impl.PasswordSafeImpl;
-import com.intellij.ide.passwordSafe.impl.providers.masterKey.MasterKeyPasswordSafe;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.Attribute;
 import com.intellij.util.xmlb.annotations.Tag;
@@ -40,7 +37,9 @@ import java.util.List;
 
 @State(
         name = "Jenkins.Settings",
-        storages = {@Storage(id = "JenkinsSettings", file = "$WORKSPACE_FILE$")}
+        storages = {
+                @Storage(id = "JenkinsSettings", file = "$WORKSPACE_FILE$")
+        }
 )
 public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings.State> {
 
@@ -145,7 +144,7 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
     }
 
     public boolean isSecurityMode() {
-            return StringUtils.isNotBlank(getUsername());
+        return StringUtils.isNotBlank(getUsername());
     }
 
     public static class State {

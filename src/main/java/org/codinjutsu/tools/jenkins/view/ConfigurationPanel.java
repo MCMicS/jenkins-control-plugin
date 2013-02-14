@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
+import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.NumberDocument;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
@@ -66,6 +67,12 @@ public class ConfigurationPanel {
     private JPanel debugPanel;
     private JTextPane debugTextPane;
 
+    private JPanel rssStatusFilterPanel;
+
+    private JCheckBox successOrStableCheckBox;
+    private JCheckBox unstableOrFailCheckBox;
+    private JCheckBox abortedCheckBox;
+
     private final FormValidator formValidator;
 
     private boolean myPasswordModified = false;
@@ -83,6 +90,12 @@ public class ConfigurationPanel {
 
         testConnexionButton.setName("testConnexionButton");
         connectionStatusLabel.setName("connectionStatusLabel");
+
+        successOrStableCheckBox.setName("successOrStableCheckBox");
+        unstableOrFailCheckBox.setName("unstableOrFailCheckBox");
+        abortedCheckBox.setName("abortedCheckBox");
+
+        rssStatusFilterPanel.setBorder(IdeBorderFactory.createTitledBorder("RSS Settings", false));
 
         debugPanel.setVisible(false);
 
@@ -157,13 +170,17 @@ public class ConfigurationPanel {
         boolean credentialModified = !(jenkinsSettings.getUsername().equals(username.getText()))
                 || isPasswordModified();
 
+        boolean statusToIgnoreModified = successOrStableCheckBox.isSelected() != jenkinsAppSettings.shouldDisplaySuccessOrStable()
+                || unstableOrFailCheckBox.isSelected() != jenkinsAppSettings.shouldDisplayFailOrUnstable()
+                || abortedCheckBox.isSelected() != jenkinsAppSettings.shouldDisplayAborted();
 
         return !jenkinsAppSettings.getServerUrl().equals(serverUrl.getText())
                 || !(jenkinsAppSettings.getBuildDelay() == getBuildDelay())
                 || !(jenkinsAppSettings.getJobRefreshPeriod() == getJobRefreshPeriod())
                 || !(jenkinsAppSettings.getRssRefreshPeriod() == getRssRefreshPeriod())
                 || !(jenkinsSettings.getCrumbData().equals(crumbDataField.getText()))
-                || credentialModified;
+                || credentialModified
+                || statusToIgnoreModified;
     }
 
     //TODO use annotation to create a guiwrapper so isModified could be simplified
@@ -180,6 +197,11 @@ public class ConfigurationPanel {
         jenkinsAppSettings.setJobRefreshPeriod(getJobRefreshPeriod());
         jenkinsAppSettings.setRssRefreshPeriod(getRssRefreshPeriod());
         jenkinsSettings.setCrumbData(crumbDataField.getText());
+
+        jenkinsAppSettings.setIgnoreSuccessOrStable(successOrStableCheckBox.isSelected());
+        jenkinsAppSettings.setDisplayUnstableOrFail(unstableOrFailCheckBox.isSelected());
+        jenkinsAppSettings.setDisplayAborted(abortedCheckBox.isSelected());
+
 
         if (StringUtils.isNotBlank(username.getText())) {
             jenkinsSettings.setUsername(username.getText());
@@ -208,6 +230,10 @@ public class ConfigurationPanel {
         }
 
         crumbDataField.setText(jenkinsSettings.getCrumbData());
+
+        successOrStableCheckBox.setSelected(jenkinsAppSettings.shouldDisplaySuccessOrStable());
+        unstableOrFailCheckBox.setSelected(jenkinsAppSettings.shouldDisplayFailOrUnstable());
+        abortedCheckBox.setSelected(jenkinsAppSettings.shouldDisplayAborted());
     }
 
     private boolean isPasswordModified() {
