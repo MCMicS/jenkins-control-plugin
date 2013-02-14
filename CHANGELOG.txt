@@ -1,4 +1,5 @@
 Version 0.8.0
+    * [Upd] Integrate Rss Reader into the Event Log
     * [Fix] Color and icons for Darcula theme
     * [Upd] Replace Jackson lib by json-simple
     * [Upd] Migrate to IntelliJ 11
