@@ -17,6 +17,7 @@
 package org.codinjutsu.tools.jenkins.view;
 
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.ui.treeStructure.Tree;
@@ -37,7 +38,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-public class BrowserPanel extends JPanel implements Disposable {
+public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
     private static final URL pluginSettingsUrl = GuiUtil.isUnderDarcula() ? GuiUtil.getIconResource("settings_dark.png") : GuiUtil.getIconResource("settings.png");
 
@@ -54,12 +55,10 @@ public class BrowserPanel extends JPanel implements Disposable {
     private final JobComparator jobStatusComparator = new JobStatusComparator();
     private Jenkins jenkins;
 
-    public BrowserPanel() {
-        this(Collections.<JenkinsSettings.FavoriteJob>emptyList());
-    }
-
 
     public BrowserPanel(List<JenkinsSettings.FavoriteJob> favoriteJobs) {
+        super(true);
+        setProvideQuickActions(false);
 
         viewCombo.setName("viewCombo");
 
@@ -67,8 +66,7 @@ public class BrowserPanel extends JPanel implements Disposable {
         jobPanel.setLayout(new BorderLayout());
         jobPanel.add(new JBScrollPane(jobTree), BorderLayout.CENTER);
 
-        setLayout(new BorderLayout());
-        add(rootPanel, BorderLayout.CENTER);
+        setContent(rootPanel);
     }
 
 

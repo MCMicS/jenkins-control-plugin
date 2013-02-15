@@ -21,6 +21,7 @@ import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.PopupHandler;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
@@ -123,7 +124,7 @@ public class BrowserLogic implements Disposable {
 
     private void initGui(RefreshRssAction refreshRssAction) {
         browserPanel.createSearchPanel();
-        installBrowserActions(browserPanel.getJobTree(), browserPanel.getActionPanel(), refreshRssAction);
+        installBrowserActions(browserPanel.getJobTree(), browserPanel, refreshRssAction);
         installSearchActions(browserPanel.getSearchComponent());
     }
 
@@ -151,7 +152,7 @@ public class BrowserLogic implements Disposable {
     }
 
 
-    protected void installBrowserActions(JTree jobTree, JPanel toolBar, RefreshRssAction refreshRssAction) {
+    protected void installBrowserActions(JTree jobTree, SimpleToolWindowPanel toolWindowPanel, RefreshRssAction refreshRssAction) {
         DefaultActionGroup actionGroup = new DefaultActionGroup("JenkinsToolbarGroup", false);
         actionGroup.add(new RefreshNodeAction(this));
         actionGroup.add(new RunBuildAction(this));
@@ -160,7 +161,7 @@ public class BrowserLogic implements Disposable {
         actionGroup.addSeparator();
         actionGroup.add(new OpenPluginSettingsAction());
 
-        GuiUtil.installActionGroupInToolBar(actionGroup, toolBar, ActionManager.getInstance(), "jenkinsBrowserActions");
+        GuiUtil.installActionGroupInToolBar(actionGroup, toolWindowPanel, ActionManager.getInstance(), "jenkinsBrowserActions");
 
         DefaultActionGroup popupGroup = new DefaultActionGroup("JenkinsPopupAction", true);
         popupGroup.add(new SetJobAsFavoriteAction(this));
