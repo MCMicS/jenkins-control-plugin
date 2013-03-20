@@ -17,6 +17,7 @@
 package org.codinjutsu.tools.jenkins.logic;
 
 import com.intellij.openapi.Disposable;
+import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.codinjutsu.tools.jenkins.view.action.RefreshRssAction;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -25,33 +26,33 @@ public class JenkinsLogic implements Disposable {
 
     private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(2);
 
-    private final BrowserLogic browserLogic;
+    private final BrowserPanel browserPanel;
     private final RssLogic rssLogic;
 
-    public JenkinsLogic(BrowserLogic browserLogic, RssLogic rssLogic) {
-        this.browserLogic = browserLogic;
+    public JenkinsLogic(BrowserPanel browserPanel, RssLogic rssLogic) {
+        this.browserPanel = browserPanel;
         this.rssLogic = rssLogic;
     }
 
     public void init() {
-        browserLogic.init(new RefreshRssAction(rssLogic));
+        browserPanel.init(new RefreshRssAction(rssLogic));
         rssLogic.init();
 
-        browserLogic.initScheduledJobs(scheduledThreadPoolExecutor);
-        rssLogic.initScheduledJobs(scheduledThreadPoolExecutor);
+        browserPanel.initScheduledJobs();
+        rssLogic.initScheduledJobs();
     }
 
     public void dispose() {
-        browserLogic.dispose();
+        browserPanel.dispose();
 
         scheduledThreadPoolExecutor.shutdown();
     }
 
     public void reloadConfiguration() {
-        browserLogic.reloadConfiguration();
+        browserPanel.reloadConfiguration();
 
-        browserLogic.initScheduledJobs(scheduledThreadPoolExecutor);
-        rssLogic.initScheduledJobs(scheduledThreadPoolExecutor);
+        browserPanel.initScheduledJobs();
+        rssLogic.initScheduledJobs();
     }
 
 

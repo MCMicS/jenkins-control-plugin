@@ -20,10 +20,18 @@ import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationListener;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.MessageType;
+import com.intellij.openapi.ui.popup.Balloon;
+import com.intellij.openapi.ui.popup.BalloonBuilder;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.ui.awt.RelativePoint;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
+import org.codinjutsu.tools.jenkins.util.GuiUtil;
+import org.codinjutsu.tools.jenkins.view.JenkinsWidget;
 
+import java.awt.*;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -31,7 +39,7 @@ public class RssLogic {
 
     private final NotificationGroup JENKINS_RSS_GROUP = NotificationGroup.logOnlyGroup("Jenkins Rss");
 
-    private final BuildStatusListener buildStatusListener;
+    private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(2);
 
     private final Project project;
     private final JenkinsAppSettings jenkinsAppSettings;
@@ -42,11 +50,10 @@ public class RssLogic {
     private final Runnable refreshRssBuildsJob = new LoadLatestBuildsJob(true);
     private ScheduledFuture<?> refreshRssBuildFutureTask;
 
-    public RssLogic(Project project, JenkinsAppSettings jenkinsAppSettings, RequestManager requestManager, BuildStatusListener buildStatusListener) {
+    public RssLogic(Project project) {
         this.project = project;
-        this.jenkinsAppSettings = jenkinsAppSettings;
-        this.requestManager = requestManager;
-        this.buildStatusListener = buildStatusListener;
+        this.jenkinsAppSettings = JenkinsAppSettings.getSafeInstance(project);
+        this.requestManager = RequestManager.getInstance(project);
     }
 
     public void loadLatestBuilds(boolean shouldDisplayResult) {
@@ -56,7 +63,7 @@ public class RssLogic {
     }
 
 
-    void initScheduledJobs(ScheduledThreadPoolExecutor scheduledThreadPoolExecutor) {
+    public void initScheduledJobs() {
         safeTaskCancel(refreshRssBuildFutureTask);
 
         scheduledThreadPoolExecutor.remove(refreshRssBuildsJob);
@@ -112,6 +119,11 @@ public class RssLogic {
         loadLatestBuilds(false);
     }
 
+    public void dispose() {
+        scheduledThreadPoolExecutor.shutdown();
+    }
+
+
     private class LoadLatestBuildsJob implements Runnable {
         private final boolean shouldDisplayResult;
 
@@ -153,7 +165,16 @@ public class RssLogic {
 
             Map.Entry<String, Build> firstFailedBuild = getFirstFailedBuild(finishedBuilds);
             if (firstFailedBuild != null) {
-                buildStatusListener.onBuildFailure(firstFailedBuild.getKey(), firstFailedBuild.getValue());
+                String jobName = firstFailedBuild.getKey();
+                Build build = firstFailedBuild.getValue();
+                BalloonBuilder balloonBuilder = JBPopupFactory.getInstance().createHtmlTextBalloonBuilder(jobName + "#" + build.getNumber() + ": FAILED", MessageType.ERROR, null);
+                final Balloon balloon = balloonBuilder.setFadeoutTime(TimeUnit.SECONDS.toMillis(1)).createBalloon();
+                GuiUtil.runInSwingThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        balloon.show(new RelativePoint(JenkinsWidget.getInstance(project).getComponent(), new Point(0, 0)), Balloon.Position.above);
+                    }
+                });
             }
         }
 
@@ -167,16 +188,5 @@ public class RssLogic {
             return String.format("<html><body>[Jenkins] <a href='%s'>%s</a><body></html>", build.getUrl(), buildMessage);
         }
         return String.format("[Jenkins] %s", buildMessage);
-    }
-
-
-    public interface BuildStatusListener {
-
-        void onBuildFailure(String jobName, Build build);
-
-        public static BuildStatusListener NULL = new BuildStatusListener() {
-            public void onBuildFailure(String jobName, Build build) {
-            }
-        };
     }
 }

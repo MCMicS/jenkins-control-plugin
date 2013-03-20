@@ -23,11 +23,11 @@ import com.intellij.openapi.project.Project;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsComponent;
-import org.codinjutsu.tools.jenkins.logic.BrowserLogic;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.util.HtmlUtil;
+import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.codinjutsu.tools.jenkins.view.BuildParamDialog;
 
 import javax.swing.*;
@@ -37,12 +37,12 @@ public class RunBuildAction extends AnAction implements DumbAware {
     private static final Icon EXECUTE_ICON = GuiUtil.isUnderDarcula() ? GuiUtil.loadIcon("execute_dark.png") : GuiUtil.loadIcon("execute.png");
     private static final Logger LOG = Logger.getLogger(RunBuildAction.class.getName());
 
-    private final BrowserLogic browserLogic;
+    private final BrowserPanel browserPanel;
 
 
-    public RunBuildAction(BrowserLogic browserLogic) {
+    public RunBuildAction(BrowserPanel browserPanel) {
         super("Build on Jenkins", "Run a build on Jenkins Server", EXECUTE_ICON);
-        this.browserLogic = browserLogic;
+        this.browserPanel = browserPanel;
     }
 
 
@@ -53,9 +53,9 @@ public class RunBuildAction extends AnAction implements DumbAware {
         final JenkinsComponent jenkinsComponent = project.getComponent(JenkinsComponent.class);
         try {
 
-            Job job = browserLogic.getSelectedJob();
+            Job job = browserPanel.getSelectedJob();
 
-            RequestManager requestManager = browserLogic.getJenkinsManager();
+            RequestManager requestManager = browserPanel.getJenkinsManager();
             if (job.hasParameters()) {
                 BuildParamDialog.showDialog(job, JenkinsAppSettings.getSafeInstance(project), requestManager, new BuildParamDialog.RunBuildCallback() {
 
@@ -70,7 +70,7 @@ public class RunBuildAction extends AnAction implements DumbAware {
             } else {
                 requestManager.runBuild(job, JenkinsAppSettings.getSafeInstance(project));
                 notifyOnGoingMessage(jenkinsComponent, job);
-                browserLogic.loadSelectedJob();
+                browserPanel.loadSelectedJob();
             }
 
         } catch (Exception ex) {
@@ -81,7 +81,7 @@ public class RunBuildAction extends AnAction implements DumbAware {
 
     @Override
     public void update(AnActionEvent event) {
-        Job selectedJob = browserLogic.getSelectedJob();
+        Job selectedJob = browserPanel.getSelectedJob();
         event.getPresentation().setVisible(selectedJob != null && selectedJob.isBuildable());
     }
 

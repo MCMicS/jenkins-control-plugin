@@ -16,6 +16,8 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
+import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.project.Project;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
@@ -36,6 +38,7 @@ public class RequestManager {
     private static final String BUILDHIVE_CLOUDBEES = "buildhive";
 
     private UrlBuilder urlBuilder;
+
     private SecurityClient securityClient;
 
     private JenkinsPlateform jenkinsPlateform = JenkinsPlateform.CLASSIC;
@@ -44,14 +47,18 @@ public class RequestManager {
 
     private JenkinsParser jsonParser = new JenkinsSimpleJsonParser();
 
-
-    public RequestManager(SecurityClient securityClient) {
-        this.urlBuilder = new UrlBuilder();
-        this.securityClient = securityClient;
+    public static RequestManager getInstance(Project project) {
+        return ServiceManager.getService(project, RequestManager.class);
     }
 
-    public RequestManager(String crumbFile) {
-        this(SecurityClientFactory.none(crumbFile));
+
+    public RequestManager(Project project) {
+        this.urlBuilder = UrlBuilder.getInstance(project);
+    }
+
+    RequestManager(UrlBuilder urlBuilder, SecurityClient securityClient) {
+        this.urlBuilder = urlBuilder;
+        this.securityClient = securityClient;
     }
 
     public Jenkins loadJenkinsWorkspace(JenkinsAppSettings configuration) {

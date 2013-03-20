@@ -19,28 +19,28 @@ package org.codinjutsu.tools.jenkins.view.action;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
-import org.codinjutsu.tools.jenkins.logic.BrowserLogic;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
+import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 
 public class SetJobAsFavoriteAction extends AnAction implements DumbAware {
 
-    private BrowserLogic browserLogic;
+    private BrowserPanel browserPanel;
 
-    public SetJobAsFavoriteAction(BrowserLogic browserLogic) {
+    public SetJobAsFavoriteAction(BrowserPanel browserPanel) {
         super("Set as Favorite", "Set the selected job as favorite", GuiUtil.loadIcon("star_add.png"));
-        this.browserLogic = browserLogic;
+        this.browserPanel = browserPanel;
     }
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        Job selectedJob = browserLogic.getSelectedJob();
-        browserLogic.setAsFavorite(selectedJob);
+        Job selectedJob = browserPanel.getSelectedJob();
+        browserPanel.setAsFavorite(selectedJob);
     }
 
     @Override
     public void update(AnActionEvent event) {
-        Job selectedJob = browserLogic.getSelectedJob();
-        event.getPresentation().setVisible(selectedJob != null && !browserLogic.isAFavoriteJob(selectedJob.getName()));
+        Job selectedJob = browserPanel.getSelectedJob();
+        event.getPresentation().setVisible(selectedJob != null && !browserPanel.isAFavoriteJob(selectedJob.getName()));
     }
 }

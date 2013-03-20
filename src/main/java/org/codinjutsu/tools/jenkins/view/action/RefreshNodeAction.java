@@ -21,18 +21,18 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import org.codinjutsu.tools.jenkins.JenkinsComponent;
-import org.codinjutsu.tools.jenkins.logic.BrowserLogic;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
+import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 
 import javax.swing.*;
 
 public class RefreshNodeAction extends AnAction implements DumbAware {
 
     private static final Icon REFRESH_ICON = GuiUtil.isUnderDarcula() ? GuiUtil.loadIcon("refresh_dark.png") : GuiUtil.loadIcon("refresh.png");
-    private final BrowserLogic logic;
+    private final BrowserPanel logic;
 
 
-    public RefreshNodeAction(BrowserLogic logic) {
+    public RefreshNodeAction(BrowserPanel logic) {
         super("Refresh", "Refresh current node", REFRESH_ICON);
         this.logic = logic;
     }

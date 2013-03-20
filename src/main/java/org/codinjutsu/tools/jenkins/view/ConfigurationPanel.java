@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.NumberDocument;
 import org.apache.commons.lang.StringUtils;
@@ -77,7 +78,7 @@ public class ConfigurationPanel {
 
     private boolean myPasswordModified = false;
 
-    public ConfigurationPanel(final JenkinsSettings jenkinsSettings, final RequestManager requestManager) {
+    public ConfigurationPanel(final Project project) {
 
         serverUrl.setName("serverUrl");
         buildDelay.setName("buildDelay");
@@ -131,9 +132,11 @@ public class ConfigurationPanel {
                     new NotNullValidator().validate(serverUrl);
                     new UrlValidator().validate(serverUrl);
 
+                    JenkinsSettings jenkinsSettings = JenkinsSettings.getSafeInstance(project);
+
                     String password = isPasswordModified() ? getPassword() : jenkinsSettings.getPassword();
 
-                    requestManager.authenticate(serverUrl.getText(), username.getText(), password, crumbDataField.getText());
+                    RequestManager.getInstance(project).authenticate(serverUrl.getText(), username.getText(), password, crumbDataField.getText());
                     setConnectionFeedbackLabel(CONNECTION_TEST_SUCCESSFUL_COLOR, "Successful");
                     setPassword(password);
                 } catch (Exception ex) {

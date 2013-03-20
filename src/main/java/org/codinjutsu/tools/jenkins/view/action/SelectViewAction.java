@@ -105,9 +105,9 @@ import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.PopupChooserBuilder;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.components.JBList;
-import org.codinjutsu.tools.jenkins.logic.BrowserLogic;
 import org.codinjutsu.tools.jenkins.model.View;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
+import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.codinjutsu.tools.jenkins.view.JenkinsViewComboRenderer;
 
 import javax.swing.*;
@@ -125,10 +125,10 @@ public class SelectViewAction extends DumbAwareAction implements CustomComponent
 
     protected final JLabel myLabel;
     protected final JPanel myPanel;
-    private final BrowserLogic browserLogic;
+    private final BrowserPanel browserPanel;
 
-    public SelectViewAction(BrowserLogic browserLogic) {
-        this.browserLogic = browserLogic;
+    public SelectViewAction(final BrowserPanel browserPanel) {
+        this.browserPanel = browserPanel;
         myPanel = new JPanel();
         final BoxLayout layout = new BoxLayout(myPanel, BoxLayout.X_AXIS);
         myPanel.setLayout(layout);
@@ -145,7 +145,7 @@ public class SelectViewAction extends DumbAwareAction implements CustomComponent
         myPanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                List<View> views = SelectViewAction.this.browserLogic.getJenkins().getViews();
+                List<View> views = browserPanel.getJenkins().getViews();
                 if (views.isEmpty()) {
                     return;
                 }
@@ -160,7 +160,7 @@ public class SelectViewAction extends DumbAwareAction implements CustomComponent
                                 final View view = (View) viewList.getSelectedValue();
                                 if (view == null) return;
 
-                                SelectViewAction.this.browserLogic.loadView(view);
+                                SelectViewAction.this.browserPanel.loadView(view);
                             }
                         })
                         .createPopup();
@@ -179,7 +179,7 @@ public class SelectViewAction extends DumbAwareAction implements CustomComponent
 
     @Override
     public void update(AnActionEvent e) {
-        View currentSelectedView = browserLogic.getCurrentSelectedView();
+        View currentSelectedView = browserPanel.getCurrentSelectedView();
         if (currentSelectedView != null) {
             myLabel.setText(currentSelectedView.getName());
         }

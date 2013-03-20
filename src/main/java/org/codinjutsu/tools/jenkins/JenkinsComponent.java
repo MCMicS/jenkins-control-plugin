@@ -23,27 +23,21 @@ import com.intellij.openapi.project.DumbAwareRunnable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupManager;
 import com.intellij.openapi.ui.MessageType;
-import com.intellij.openapi.ui.popup.Balloon;
-import com.intellij.openapi.ui.popup.BalloonBuilder;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.wm.*;
 import com.intellij.ui.BrowserHyperlinkListener;
-import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.content.ContentManager;
-import org.codinjutsu.tools.jenkins.logic.*;
-import org.codinjutsu.tools.jenkins.model.Build;
+import org.codinjutsu.tools.jenkins.logic.RssLogic;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.codinjutsu.tools.jenkins.view.ConfigurationPanel;
 import org.codinjutsu.tools.jenkins.view.JenkinsWidget;
+import org.codinjutsu.tools.jenkins.view.action.RefreshRssAction;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import java.awt.*;
-import java.util.concurrent.TimeUnit;
 
 
 public class JenkinsComponent implements ProjectComponent, Configurable {
@@ -60,9 +54,9 @@ public class JenkinsComponent implements ProjectComponent, Configurable {
 
     private final Project project;
 
-    private RequestManager requestManager;
     private JenkinsWidget jenkinsWidget;
-    private JenkinsLogic jenkinsLogic;
+    private BrowserPanel browserPanel;
+    private RssLogic rssLogic;
 
 
     public JenkinsComponent(Project project) {
@@ -78,14 +72,18 @@ public class JenkinsComponent implements ProjectComponent, Configurable {
 
 
     public void projectClosed() {
-        jenkinsLogic.dispose();
+        browserPanel.dispose();
+        rssLogic.dispose();
         ToolWindowManager.getInstance(project).unregisterToolWindow(JENKINS_BROWSER);
+
+        final StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
+        statusBar.removeWidget(jenkinsWidget.ID());
     }
 
 
     public JComponent createComponent() {
         if (configurationPanel == null) {
-            configurationPanel = new ConfigurationPanel(jenkinsSettings, requestManager);
+            configurationPanel = new ConfigurationPanel(project);
         }
         return configurationPanel.getRootPanel();
     }
@@ -109,7 +107,7 @@ public class JenkinsComponent implements ProjectComponent, Configurable {
         if (configurationPanel != null) {
             try {
                 configurationPanel.applyConfigurationData(jenkinsAppSettings, jenkinsSettings);
-                jenkinsLogic.reloadConfiguration();
+                browserPanel.reloadConfiguration();
 
             } catch (org.codinjutsu.tools.jenkins.exception.ConfigurationException ex) {
                 throw new ConfigurationException(ex.getMessage());
@@ -135,40 +133,20 @@ public class JenkinsComponent implements ProjectComponent, Configurable {
 
     private void installJenkinsPanel() {
 
-        requestManager = new RequestManager(jenkinsSettings.getCrumbData());
         jenkinsWidget = JenkinsWidget.getInstance(project);
 
-        BrowserPanel browserPanel = new BrowserPanel(jenkinsSettings.getFavoriteJobs());
-        BrowserLogic.JobLoadListener jobLoadListener = new BrowserLogic.JobLoadListener() {
-            @Override
-            public void afterLoadingJobs(BuildStatusAggregator buildStatusAggregator) {
-                jenkinsWidget.updateStatusIcon(buildStatusAggregator);
-            }
-        };
+        browserPanel = new BrowserPanel(project);
 
-        RssLogic.BuildStatusListener buildStatusListener = new RssLogic.BuildStatusListener() {
-            public void onBuildFailure(final String jobName, final Build build) {
-                BalloonBuilder balloonBuilder = JBPopupFactory.getInstance().createHtmlTextBalloonBuilder(jobName + "#" + build.getNumber() + ": FAILED", MessageType.ERROR, null);
-                final Balloon balloon = balloonBuilder.setFadeoutTime(TimeUnit.SECONDS.toMillis(1)).createBalloon();
-                GuiUtil.runInSwingThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        balloon.show(new RelativePoint(jenkinsWidget.getComponent(), new Point(0, 0)), Balloon.Position.above);
-                    }
-                });
-
-            }
-        };
-
-        jenkinsLogic = new JenkinsLogic(
-                new BrowserLogic(project, jenkinsAppSettings, jenkinsSettings, requestManager, browserPanel, jobLoadListener),
-                new RssLogic(project, jenkinsAppSettings, requestManager, buildStatusListener)
-        );
+        rssLogic = new RssLogic(project);
 
         StartupManager.getInstance(project).registerPostStartupActivity(new DumbAwareRunnable() {
             @Override
             public void run() {
-                jenkinsLogic.init();
+                browserPanel.init(new RefreshRssAction(rssLogic));
+                rssLogic.init();
+
+                browserPanel.initScheduledJobs();
+                rssLogic.initScheduledJobs();
             }
         });
 

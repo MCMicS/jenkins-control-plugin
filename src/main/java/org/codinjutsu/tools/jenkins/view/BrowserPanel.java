@@ -17,17 +17,30 @@
 package org.codinjutsu.tools.jenkins.view;
 
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.actionSystem.ActionGroup;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.ui.PopupHandler;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.ui.treeStructure.Tree;
+import org.apache.commons.lang.StringUtils;
+import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
+import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusVisitor;
-import org.codinjutsu.tools.jenkins.model.Build;
-import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
-import org.codinjutsu.tools.jenkins.model.Jenkins;
-import org.codinjutsu.tools.jenkins.model.Job;
+import org.codinjutsu.tools.jenkins.logic.RequestManager;
+import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
+import org.codinjutsu.tools.jenkins.view.action.*;
+import org.codinjutsu.tools.jenkins.view.action.search.NextOccurrenceAction;
+import org.codinjutsu.tools.jenkins.view.action.search.OpenJobSearchPanelAction;
+import org.codinjutsu.tools.jenkins.view.action.search.PrevOccurrenceAction;
+import org.codinjutsu.tools.jenkins.view.action.settings.SortByStatusAction;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -37,10 +50,17 @@ import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.net.URL;
 import java.util.List;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
     private static final URL pluginSettingsUrl = GuiUtil.isUnderDarcula() ? GuiUtil.getIconResource("settings_dark.png") : GuiUtil.getIconResource("settings.png");
+
+    private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(2);
+
+    private final Project project;
 
     private JPanel rootPanel;
     private JPanel utilityPanel;
@@ -51,14 +71,29 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
     private boolean sortedByBuildStatus;
     private final JobComparator jobStatusComparator = new JobStatusComparator();
+
     private Jenkins jenkins;
 
+    private JenkinsAppSettings jenkinsAppSettings;
+    private JenkinsSettings jenkinsSettings;
+    private RequestManager requestManager;
 
-    public BrowserPanel(List<JenkinsSettings.FavoriteJob> favoriteJobs) {
+    private FavoriteView favoriteView;
+    private View currentSelectedView;
+
+    private ScheduledFuture<?> refreshViewFutureTask;
+    private final Runnable refreshViewJob = new LoadSelectedViewJob();
+
+    public BrowserPanel(Project project) {
+
         super(true);
+        this.project = project;
+        requestManager = RequestManager.getInstance(project);
+        jenkinsAppSettings = JenkinsAppSettings.getSafeInstance(project);
+        jenkinsSettings = JenkinsSettings.getSafeInstance(project);
         setProvideQuickActions(false);
 
-        jobTree = createTree(favoriteJobs);
+        jobTree = createTree(jenkinsSettings.getFavoriteJobs());
         jobPanel.setLayout(new BorderLayout());
         jobPanel.add(new JBScrollPane(jobTree), BorderLayout.CENTER);
 
@@ -71,12 +106,28 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         fillJobTree(BuildStatusVisitor.NULL);
     }
 
-
     public void createSearchPanel() {
         searchComponent = new JobSearchComponent(jobTree);
         utilityPanel.add(searchComponent, BorderLayout.CENTER);
     }
 
+    public void initScheduledJobs() {
+        safeTaskCancel(refreshViewFutureTask);
+        scheduledThreadPoolExecutor.remove(refreshViewJob);
+
+        if (jenkinsAppSettings.getJobRefreshPeriod() > 0) {
+            refreshViewFutureTask = scheduledThreadPoolExecutor.scheduleWithFixedDelay(refreshViewJob, jenkinsAppSettings.getJobRefreshPeriod(), jenkinsAppSettings.getJobRefreshPeriod(), TimeUnit.MINUTES);
+        }
+    }
+
+    private void safeTaskCancel(ScheduledFuture<?> futureTask) {
+        if (futureTask == null) {
+            return;
+        }
+        if (!futureTask.isDone() || !futureTask.isCancelled()) {
+            futureTask.cancel(false);
+        }
+    }
 
     public Job getSelectedJob() {
         DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) jobTree.getLastSelectedPathComponent();
@@ -110,7 +161,6 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         jobTree.setRootVisible(false);
     }
 
-
     public void setErrorMsg(String serverUrl, String description) {
         DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode(new Jenkins(description, serverUrl));
         jobTree.setModel(new DefaultTreeModel(rootNode));
@@ -122,22 +172,18 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         jobTree.repaint();
     }
 
-
     public JTree getJobTree() {
         return jobTree;
     }
-
 
     public JobSearchComponent getSearchComponent() {
         return searchComponent;
     }
 
-
     @Override
     public void dispose() {
-
+        scheduledThreadPoolExecutor.shutdown();
     }
-
 
     private static void visit(Job job, BuildStatusVisitor buildStatusVisitor) {
         Build lastBuild = job.getLastBuild();
@@ -168,9 +214,26 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         buildStatusVisitor.visitUnknown();
     }
 
-
     public void update() {
         ((DefaultTreeModel) jobTree.getModel()).nodeChanged((TreeNode) jobTree.getSelectionPath().getLastPathComponent());
+    }
+
+    public Jenkins getJenkins() {
+        return jenkins;
+    }
+
+    public View getCurrentSelectedView() {
+        return currentSelectedView;
+    }
+
+    public RequestManager getJenkinsManager() {
+        return requestManager;
+    }
+
+    public void loadSelectedJob() {
+        Job job = getSelectedJob();
+        Job updatedJob = requestManager.loadJob(job.getUrl());
+        job.updateContentWith(updatedJob);
     }
 
     private class JobStatusComparator implements JobComparator {
@@ -240,5 +303,166 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         tree.setRootVisible(false);
 
         return tree;
+    }
+
+    public void reloadConfiguration() {
+        if (!jenkinsAppSettings.isServerUrlSet()) {
+            JenkinsWidget.getInstance(project).updateStatusIcon(new BuildStatusAggregator());//TODO Crappy, need rewrite this
+            return;
+        }
+
+        try {
+            requestManager.authenticate(jenkinsAppSettings, jenkinsSettings);
+        } catch (Exception ex) {
+            displayConnectionErrorMsg();
+            return;
+        }
+
+        loadJenkinsWorkspace();
+
+        if (!jenkinsSettings.getFavoriteJobs().isEmpty()) {
+            createFavoriteViewIfNecessary();
+        }
+
+        String lastSelectedViewName = jenkinsSettings.getLastSelectedView();
+        View viewToLoad;
+        if (StringUtils.isNotEmpty(lastSelectedViewName)) {
+            viewToLoad = jenkins.getViewByName(lastSelectedViewName);
+        } else {
+            viewToLoad = jenkins.getPrimaryView();
+        }
+        loadView(viewToLoad);
+    }
+
+    public void init(RefreshRssAction refreshRssAction) {
+        initGui(refreshRssAction);
+        reloadConfiguration();
+    }
+
+    private void initGui(RefreshRssAction refreshRssAction) {
+        createSearchPanel();
+        installBrowserActions(getJobTree(), refreshRssAction);
+        installSearchActions(getSearchComponent());
+    }
+
+    protected void installBrowserActions(JTree jobTree, RefreshRssAction refreshRssAction) {
+        DefaultActionGroup actionGroup = new DefaultActionGroup("JenkinsToolbarGroup", false);
+        actionGroup.add(new SelectViewAction(this));
+        actionGroup.add(new RefreshNodeAction(this));
+        actionGroup.add(new RunBuildAction(this));
+        actionGroup.add(new SortByStatusAction(this));
+        actionGroup.add(refreshRssAction);
+        actionGroup.addSeparator();
+        actionGroup.add(new OpenPluginSettingsAction());
+
+        GuiUtil.installActionGroupInToolBar(actionGroup, this, ActionManager.getInstance(), "jenkinsBrowserActions");
+
+        DefaultActionGroup popupGroup = new DefaultActionGroup("JenkinsPopupAction", true);
+        popupGroup.add(new SetJobAsFavoriteAction(this));
+        popupGroup.add(new UnsetJobAsFavoriteAction(this));
+        popupGroup.addSeparator();
+        popupGroup.add(new GotoJobPageAction(this));
+        popupGroup.add(new GotoLastBuildPageAction(this));
+
+        installActionGroupInPopupMenu(popupGroup, jobTree, ActionManager.getInstance());
+    }
+
+    protected void installSearchActions(JobSearchComponent searchComponent) {
+
+        DefaultActionGroup actionGroup = new DefaultActionGroup("search bar", false);
+        actionGroup.add(new PrevOccurrenceAction(searchComponent));
+        actionGroup.add(new NextOccurrenceAction(searchComponent));
+
+        ActionToolbar searchBar = ActionManager.getInstance().createActionToolbar("SearchBar", actionGroup, true);
+        searchComponent.installSearchToolBar(searchBar);
+
+        new OpenJobSearchPanelAction(this, this.getSearchComponent());
+    }
+
+    private static void installActionGroupInPopupMenu(ActionGroup group,
+                                                      JComponent component,
+                                                      ActionManager actionManager) {
+        if (actionManager == null) {
+            return;
+        }
+        PopupHandler.installPopupHandler(component, group, "POPUP", actionManager);
+    }
+
+    private void displayConnectionErrorMsg() {
+        setErrorMsg(jenkinsAppSettings.getServerUrl(), "(Unable to connect. Check Jenkins Plugin Settings.)");
+    }
+
+    private void loadJenkinsWorkspace() {
+        jenkins = requestManager.loadJenkinsWorkspace(jenkinsAppSettings);
+        fillData(jenkins);
+    }
+
+    public void loadView(View view) {
+        if (view != null) {//TODO to be removed
+            this.currentSelectedView = view;
+        }
+        ApplicationManager.getApplication().invokeLater(new LoadSelectedViewJob());
+    }
+
+    public void setAsFavorite(Job job) {
+        jenkinsSettings.addFavorite(job);
+        createFavoriteViewIfNecessary();
+        update();
+
+    }
+
+    private void createFavoriteViewIfNecessary() {
+        if (favoriteView == null) {
+            favoriteView = FavoriteView.create();
+        }
+    }
+
+    public void removeFavorite(Job selectedJob) {
+        jenkinsSettings.removeFavorite(selectedJob);
+        update();
+        if (jenkinsSettings.isFavoriteViewEmpty() && currentSelectedView instanceof FavoriteView) {
+            favoriteView = null;
+            loadView(jenkins.getPrimaryView());
+        } else {
+            if (currentSelectedView instanceof FavoriteView) {
+                loadView(currentSelectedView);
+            }
+        }
+    }
+
+    public boolean isAFavoriteJob(String jobName) {
+        return jenkinsSettings.isAFavoriteJob(jobName);
+    }
+
+    private class LoadSelectedViewJob implements Runnable {
+        @Override
+        public void run() {
+            if (currentSelectedView == null) {
+                if (jenkins == null) {
+                    return;
+                }
+                currentSelectedView = jenkins.getPrimaryView();
+            }
+            final List<Job> jobList;
+            if (currentSelectedView instanceof FavoriteView) {
+                jobList = requestManager.loadFavoriteJobs(jenkinsSettings.getFavoriteJobs());
+            } else {
+                jobList = requestManager.loadJenkinsView(currentSelectedView.getUrl());
+            }
+            jenkinsSettings.setLastSelectedView(currentSelectedView.getName());
+
+            jenkins.setJobs(jobList);
+            final BuildStatusAggregator buildStatusAggregator = new BuildStatusAggregator();
+
+            GuiUtil.runInSwingThread(new Runnable() {
+                @Override
+                public void run() {
+                    fillJobTree(buildStatusAggregator);
+                    buildStatusAggregator.setNbJobs(jobList.size());
+                    JenkinsWidget.getInstance(project).updateStatusIcon(buildStatusAggregator);
+                }
+
+            });
+        }
     }
 }

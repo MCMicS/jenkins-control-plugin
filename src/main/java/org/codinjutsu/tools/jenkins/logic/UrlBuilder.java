@@ -16,6 +16,8 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
+import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.project.Project;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
@@ -24,7 +26,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 
-class UrlBuilder {
+public class UrlBuilder {
 
     private static final String API_JSON = "/api/json";
     private static final String BUILD = "/build";
@@ -36,6 +38,10 @@ class UrlBuilder {
     private static final String BASIC_VIEW_INFO = "name,url,jobs[" + BASIC_JOB_INFO + "]";
     private static final String CLOUDBEES_VIEW_INFO = "name,url,views[jobs[" + BASIC_JOB_INFO + "]]";
     private static final String TEST_CONNECTION_REQUEST = "?tree=nodeName";
+
+    public static UrlBuilder getInstance(Project project) {
+        return ServiceManager.getService(project, UrlBuilder.class);
+    }
 
 
     URL createRunJobUrl(String jobBuildUrl, JenkinsAppSettings configuration) {

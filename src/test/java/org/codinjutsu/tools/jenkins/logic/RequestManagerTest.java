@@ -20,6 +20,7 @@ import org.apache.commons.io.IOUtils;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.security.SecurityClient;
+import org.codinjutsu.tools.jenkins.security.SecurityClientFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +30,8 @@ import org.mockito.MockitoAnnotations;
 import java.net.URL;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class RequestManagerTest {
@@ -40,11 +43,20 @@ public class RequestManagerTest {
     @Mock
     private SecurityClient securityClientMock;
 
+    @Mock
+    private UrlBuilder urlBuilderMock;
+
 
     @Test
     public void loadJenkinsWorkspaceWithIncorrectServerPortInTheResponse() throws Exception {
         configuration.setServerUrl("http://myjenkins:8080");
-        when(securityClientMock.execute(any(URL.class)))
+        URL urlFromConf = new URL("http://myjenkins:8080");
+        URL urlFromJenkins = new URL("http://myjenkins:8082");
+        when(urlBuilderMock.createJenkinsWorkspaceUrl(configuration))
+                .thenReturn(urlFromConf);
+        when(urlBuilderMock.createViewUrl(any(JenkinsPlateform.class), anyString()))
+                .thenReturn(urlFromJenkins);
+        when(securityClientMock.execute(urlFromConf))
                 .thenReturn(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadJenkinsWorkspaceWithIncorrectPortInTheResponse.json")));
         try {
             requestManager.loadJenkinsWorkspace(configuration);
@@ -59,6 +71,6 @@ public class RequestManagerTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         configuration = new JenkinsAppSettings();
-        requestManager = new RequestManager(securityClientMock);
+        requestManager = new RequestManager(urlBuilderMock, securityClientMock);
     }
 }
