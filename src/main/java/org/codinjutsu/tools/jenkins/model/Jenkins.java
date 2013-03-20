@@ -16,6 +16,8 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -79,5 +81,14 @@ public class Jenkins {
 
     public String getServerUrl() {
         return serverUrl;
+    }
+
+    public View getViewByName(String lastSelectedViewName) {
+        for (View view : views) {
+            if (StringUtils.equals(lastSelectedViewName, view.getName())) {
+                return view;
+            }
+        }
+        return null;
     }
 }

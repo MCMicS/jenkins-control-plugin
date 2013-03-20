@@ -60,7 +60,6 @@ public class BuildStatusIcon extends JComponent {
         this.toolTipText = toolTipText;
         this.numberToDisplay = numberToDisplay;
         this.numberWith = numberToDisplay == 0 ? 0 : String.valueOf(numberToDisplay).length() * PIXEL_WIDTH;
-        UIUtil.removeQuaquaVisualMarginsIn(this);
         setOpaque(false);
 
     }

@@ -22,7 +22,6 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import org.codinjutsu.tools.jenkins.JenkinsComponent;
 import org.codinjutsu.tools.jenkins.logic.BrowserLogic;
-import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
 import javax.swing.*;
@@ -45,11 +44,7 @@ public class RefreshNodeAction extends AnAction implements DumbAware {
         JenkinsComponent jenkinsComponent = project.getComponent(JenkinsComponent.class);
 
         try {
-            if (logic.getSelectedJob() != null) {
-                logic.loadSelectedJob();
-            } else {
-                logic.loadSelectedView();
-            }
+            logic.loadView(null);//TODO to be refactored
         } catch (Exception ex) {
             jenkinsComponent.notifyErrorJenkinsToolWindow("Unable to refresh: " + ex.getMessage());
         }
@@ -58,7 +53,6 @@ public class RefreshNodeAction extends AnAction implements DumbAware {
 
     @Override
     public void update(AnActionEvent event) {
-        Jenkins jenkins = logic.getJenkins();
-        event.getPresentation().setEnabled(jenkins != null || logic.getSelectedJob() != null);
+        event.getPresentation().setEnabled(logic.getJenkins() != null);
     }
 }

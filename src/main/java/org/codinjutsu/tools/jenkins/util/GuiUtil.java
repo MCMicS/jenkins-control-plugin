@@ -38,6 +38,11 @@ public class GuiUtil {
     }
 
 
+    public static Icon loadIcon(String parentPath, String iconFilename) {
+        return IconLoader.findIcon(parentPath + iconFilename);
+    }
+
+
     public static void runInSwingThread(Runnable runnable) {
         if (SwingUtilities.isEventDispatchThread()) {
             runnable.run();

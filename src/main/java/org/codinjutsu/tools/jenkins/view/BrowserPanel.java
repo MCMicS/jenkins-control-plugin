@@ -21,10 +21,12 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.ui.treeStructure.Tree;
-import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusVisitor;
-import org.codinjutsu.tools.jenkins.model.*;
+import org.codinjutsu.tools.jenkins.model.Build;
+import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
+import org.codinjutsu.tools.jenkins.model.Jenkins;
+import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
 import javax.swing.*;
@@ -34,8 +36,6 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.net.URL;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
@@ -43,11 +43,9 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
     private static final URL pluginSettingsUrl = GuiUtil.isUnderDarcula() ? GuiUtil.getIconResource("settings_dark.png") : GuiUtil.getIconResource("settings.png");
 
     private JPanel rootPanel;
-    private JPanel actionPanel;
     private JPanel utilityPanel;
     private JPanel jobPanel;
 
-    private JComboBox viewCombo;
     private JobSearchComponent searchComponent;
     private Tree jobTree;
 
@@ -60,8 +58,6 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         super(true);
         setProvideQuickActions(false);
 
-        viewCombo.setName("viewCombo");
-
         jobTree = createTree(favoriteJobs);
         jobPanel.setLayout(new BorderLayout());
         jobPanel.add(new JBScrollPane(jobTree), BorderLayout.CENTER);
@@ -72,8 +68,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
     public void fillData(Jenkins jenkins) {
         this.jenkins = jenkins;
-        fillViewCombo(jenkins);
-        fillJobTree(jenkins, BuildStatusVisitor.NULL);
+        fillJobTree(BuildStatusVisitor.NULL);
     }
 
 
@@ -94,36 +89,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         return null;
     }
 
-
-    public View getSelectedJenkinsView() {
-        return (View) viewCombo.getSelectedItem();
-    }
-
-
-    public void selectView(String name) {
-        for (int i = 0; i < viewCombo.getItemCount(); i++) {
-            View view = (View) viewCombo.getItemAt(i);
-            if (StringUtils.equals(name, view.getName())) {
-                viewCombo.setSelectedItem(view);
-                return;
-            }
-        }
-    }
-
-
-    public Jenkins getJenkins() {
-        DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) jobTree.getLastSelectedPathComponent();
-        if (treeNode != null) {
-            Object userObject = treeNode.getUserObject();
-            if (userObject instanceof Jenkins) {
-                return (Jenkins) userObject;
-            }
-        }
-        return null;
-    }
-
-
-    public void fillJobTree(Jenkins jenkins, BuildStatusVisitor buildStatusVisitor) {
+    public void fillJobTree(BuildStatusVisitor buildStatusVisitor) {
         List<Job> jobList = jenkins.getJobList();
         if (jenkins.getJobList().isEmpty()) {
             jobTree.setRootVisible(false);
@@ -141,8 +107,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         JenkinsTreeModel treeModel = new JenkinsTreeModel(rootNode);
         treeModel.setJobStatusComparator(jobStatusComparator);
         jobTree.setModel(treeModel);
-        jobTree.setRootVisible(true);
-
+        jobTree.setRootVisible(false);
     }
 
 
@@ -155,50 +120,6 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         sortedByBuildStatus = selected;
         ((DefaultTreeModel) jobTree.getModel()).reload();
         jobTree.repaint();
-
-    }
-
-
-    public void updateViewCombo(final FavoriteView favoriteView) {
-        GuiUtil.runInSwingThread(new Runnable() {
-            @Override
-            public void run() {
-                viewCombo.invalidate();
-                DefaultComboBoxModel model = (DefaultComboBoxModel) viewCombo.getModel();
-                model.addElement(favoriteView);
-                viewCombo.repaint();
-                viewCombo.revalidate();
-            }
-        });
-    }
-
-
-    public void resetViewCombo(final List<View> views) {
-        GuiUtil.runInSwingThread(new Runnable() {
-            @Override
-            public void run() {
-                viewCombo.invalidate();
-                DefaultComboBoxModel model = (DefaultComboBoxModel) viewCombo.getModel();
-                model.removeAllElements();
-                for (View view : views) {
-                    model.addElement(view);
-                }
-                viewCombo.repaint();
-                viewCombo.revalidate();
-            }
-        });
-    }
-
-
-    public FavoriteView getFavoriteView() {
-        DefaultComboBoxModel model = (DefaultComboBoxModel) viewCombo.getModel();
-        for (int i = 0; i < model.getSize(); i++) {
-            View view = (View) model.getElementAt(i);
-            if (view instanceof FavoriteView) {
-                return (FavoriteView) view;
-            }
-        }
-        return null;
     }
 
 
@@ -207,23 +128,8 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
     }
 
 
-    public JComboBox getViewCombo() {
-        return viewCombo;
-    }
-
-
-    public JPanel getActionPanel() {
-        return actionPanel;
-    }
-
-
     public JobSearchComponent getSearchComponent() {
         return searchComponent;
-    }
-
-
-    public boolean isSortedByStatus() {
-        return sortedByBuildStatus;
     }
 
 
@@ -263,47 +169,9 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
     }
 
 
-    private void fillViewCombo(final Jenkins jenkins) {
-        GuiUtil.runInSwingThread(new Runnable() {
-            public void run() {
-                List<View> views = jenkins.getViews();
-                viewCombo.setModel(new JenkinsViewComboboxModel(flatViewList(views)));
-                if (hasNestedViews(views)) {
-                    viewCombo.setRenderer(new JenkinsNestedViewComboRenderer());
-                } else {
-                    viewCombo.setRenderer(new JenkinsViewComboRenderer());
-                }
-            }
-        });
-    }
-
-
-    private static List<View> flatViewList(List<View> views) {
-        List<View> flattenViewList = new LinkedList<View>();
-        for (View view : views) {
-            flattenViewList.add(view);
-            if (view.hasNestedView()) {
-                for (View subView : view.getSubViews()) {
-                    flattenViewList.add(subView);
-                }
-            }
-        }
-
-        return flattenViewList;
-    }
-
-
-    private static boolean hasNestedViews(List<View> views) {
-        for (View view : views) {
-            if (view.hasNestedView()) return true;
-        }
-        return false;
-    }
-
     public void update() {
         ((DefaultTreeModel) jobTree.getModel()).nodeChanged((TreeNode) jobTree.getSelectionPath().getLastPathComponent());
     }
-
 
     private class JobStatusComparator implements JobComparator {
         @Override

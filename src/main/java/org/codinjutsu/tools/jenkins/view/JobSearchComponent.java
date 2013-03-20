@@ -35,7 +35,7 @@ import java.awt.event.*;
 
 public class JobSearchComponent extends JPanel {
 
-    private static final Icon CLOSE_ICON = GuiUtil.loadIcon("close.png");
+    private static final Icon CLOSE_ICON = GuiUtil.isUnderDarcula() ? GuiUtil.loadIcon("close_dark.png") : GuiUtil.loadIcon("close.png");
 
     private final JTextField searchField;
     private final JLabel infoLabel;
@@ -125,7 +125,7 @@ public class JobSearchComponent extends JPanel {
 
     public void findNextOccurrence(String text) {
 
-        SearchMovement forwardMovement = new SearchMovement() {
+        findOccurrence(text, new SearchMovement() {
             public DefaultMutableTreeNode get(DefaultMutableTreeNode node) {
                 return node.getNextNode();
             }
@@ -136,14 +136,12 @@ public class JobSearchComponent extends JPanel {
             }
 
 
-        };
-
-        findOccurrence(text, forwardMovement);
+        });
     }
 
     public void findPreviousOccurrence(String text) {
 
-        SearchMovement backwardMovement = new SearchMovement() {
+        findOccurrence(text, new SearchMovement() {
             public DefaultMutableTreeNode get(DefaultMutableTreeNode node) {
                 return node.getPreviousNode();
             }
@@ -152,9 +150,7 @@ public class JobSearchComponent extends JPanel {
             public DefaultMutableTreeNode getFirst(TreeModel model, DefaultMutableTreeNode rootNode) {
                 return (DefaultMutableTreeNode) model.getChild(rootNode, (model.getChildCount(rootNode) - 1));
             }
-        };
-
-        findOccurrence(text, backwardMovement);
+        });
     }
 
     private void findOccurrence(String text, SearchMovement searchMovement) {
@@ -181,7 +177,7 @@ public class JobSearchComponent extends JPanel {
 
     private void updateFeebackComponent(boolean foundNode) {
         searchField.setBackground(!foundNode ? MessageType.ERROR.getPopupBackground() : defaultBackground);
-        infoLabel.setText(!foundNode ? "No matches" : "");
+        infoLabel.setText(!foundNode ? "No more matches" : "");
         if (!foundNode) {
             lastSelectedNode = null;
         }

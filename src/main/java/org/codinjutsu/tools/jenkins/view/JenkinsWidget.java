@@ -16,18 +16,13 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.popup.JBPopup;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
-import com.intellij.openapi.ui.popup.util.MinimizeButton;
 import com.intellij.openapi.util.Disposer;
-import com.intellij.openapi.wm.CustomStatusBarWidget;
-import com.intellij.openapi.wm.StatusBar;
-import com.intellij.openapi.wm.StatusBarWidget;
-import com.intellij.ui.awt.RelativePoint;
+import com.intellij.openapi.wm.*;
 import com.intellij.ui.components.panels.NonOpaquePanel;
-import com.intellij.util.ui.UIUtil;
+import org.codinjutsu.tools.jenkins.JenkinsComponent;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
 import org.codinjutsu.tools.jenkins.view.util.BuildStatusIcon;
 import org.jetbrains.annotations.NotNull;
@@ -39,18 +34,15 @@ import java.awt.event.MouseEvent;
 
 public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidget {
 
+    private final Project project;
     private StatusBar myStatusBar;
-
-    private final BuildSummaryPanel buildStatusSummaryPanel;
-
-    private JBPopup myPopup;
 
     public static JenkinsWidget getInstance(Project project) {
         return ServiceManager.getService(project, JenkinsWidget.class);
     }
 
     public JenkinsWidget(Project project) {
-        this.buildStatusSummaryPanel = new BuildSummaryPanel();
+        this.project = project;
         Disposer.register(project, this);
 
         JComponent buildStatusIcon = createStatusIcon(new BuildStatusAggregator());
@@ -58,15 +50,17 @@ public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidg
         add(buildStatusIcon, BorderLayout.CENTER);
     }
 
-    public void updateInformation(BuildStatusAggregator buildStatusAggregator) {
-        buildStatusSummaryPanel.setInformation(buildStatusAggregator);
+    public void updateStatusIcon(final BuildStatusAggregator buildStatusAggregator) {
+        ApplicationManager.getApplication().invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                final JComponent buildIcon = createStatusIcon(buildStatusAggregator);
+                removeAll();
+                add(buildIcon, BorderLayout.CENTER);
+                updateUI();
+            }
+        });
 
-        final JComponent buildIcon = createStatusIcon(buildStatusAggregator);
-
-        invalidate();
-        removeAll();
-        add(buildIcon, BorderLayout.CENTER);
-        validate();
     }
 
     private JComponent createStatusIcon(BuildStatusAggregator aggregator) {
@@ -74,12 +68,12 @@ public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidg
         statusIcon.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                handle(e);
+                activateBrowserToolWindow();
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                handle(e);
+                activateBrowserToolWindow();
             }
         });
 
@@ -89,45 +83,12 @@ public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidg
         return statusIcon;
     }
 
-    private void handle(MouseEvent e) {
-        if (myPopup != null && myPopup.isVisible()) {
-            if (!myPopup.isFocused()) {
-                myPopup.setRequestFocus(true);
-            }
-            return;
+    private void activateBrowserToolWindow() {
 
+        ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow(JenkinsComponent.JENKINS_BROWSER);
+        if (toolWindow != null) {
+            toolWindow.activate(null);
         }
-        if (UIUtil.isActionClick(e, MouseEvent.MOUSE_PRESSED)) {
-            Point point = new Point(e.getX(), e.getY());
-            final Dimension dimension = buildStatusSummaryPanel.getPreferredSize();
-            point = new Point(point.x - dimension.width, point.y - dimension.height);
-            showPanel(new RelativePoint(e.getComponent(), point));
-        }
-    }
-
-    private void showPanel(RelativePoint point) {
-        myPopup = JBPopupFactory.getInstance()
-                .createComponentPopupBuilder(buildStatusSummaryPanel, buildStatusSummaryPanel)
-                .setMovable(true)
-                .setResizable(true)
-                .setTitle("Build Status summary")
-                .setDimensionServiceKey(null, "JenkinsBuildStatusPopupWindow", true)
-                .setMinSize(getMinSize())
-                .setCancelOnClickOutside(false)
-                .setRequestFocus(false)
-                .setBelongsToGlobalPopupStack(true)
-                .setLocateByContent(true)
-                .setCancelButton(new MinimizeButton("Hide"))
-                .createPopup();
-
-        myPopup.show(point);
-    }
-
-    private Dimension getMinSize() {
-        final Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
-        size.width *= 0.15d;
-        size.height *= 0.1d;
-        return size;
     }
 
     @NotNull

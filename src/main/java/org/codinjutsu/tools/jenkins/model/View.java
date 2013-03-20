@@ -22,6 +22,7 @@ import java.util.List;
 public class View {
 
     public static String FAVORITE = "My Favorites";
+
     private String name;
 
     private String url;

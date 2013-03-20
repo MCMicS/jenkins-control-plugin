@@ -31,6 +31,7 @@ import com.intellij.ui.BrowserHyperlinkListener;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
+import com.intellij.ui.content.ContentManager;
 import org.codinjutsu.tools.jenkins.logic.*;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
@@ -50,7 +51,7 @@ public class JenkinsComponent implements ProjectComponent, Configurable {
     static final String JENKINS_CONTROL_COMPONENT_NAME = "JenkinsComponent";
     private static final String JENKINS_CONTROL_PLUGIN_NAME = "Jenkins Plugin";
 
-    private static final String JENKINS_BROWSER = "Jenkins";
+    public static final String JENKINS_BROWSER = "Jenkins";
     private static final String JENKINS_BROWSER_ICON = "jenkins_logo.png";
 
     private final JenkinsAppSettings jenkinsAppSettings;
@@ -141,7 +142,7 @@ public class JenkinsComponent implements ProjectComponent, Configurable {
         BrowserLogic.JobLoadListener jobLoadListener = new BrowserLogic.JobLoadListener() {
             @Override
             public void afterLoadingJobs(BuildStatusAggregator buildStatusAggregator) {
-                jenkinsWidget.updateInformation(buildStatusAggregator);
+                jenkinsWidget.updateStatusIcon(buildStatusAggregator);
             }
         };
 
@@ -160,7 +161,7 @@ public class JenkinsComponent implements ProjectComponent, Configurable {
         };
 
         jenkinsLogic = new JenkinsLogic(
-                new BrowserLogic(jenkinsAppSettings, jenkinsSettings, requestManager, browserPanel, jobLoadListener),
+                new BrowserLogic(project, jenkinsAppSettings, jenkinsSettings, requestManager, browserPanel, jobLoadListener),
                 new RssLogic(project, jenkinsAppSettings, requestManager, buildStatusListener)
         );
 
@@ -178,8 +179,9 @@ public class JenkinsComponent implements ProjectComponent, Configurable {
         Content content = ContentFactory.SERVICE.getInstance().createContent(browserPanel, null, false);
         ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
         ToolWindow toolWindow = toolWindowManager.registerToolWindow(JENKINS_BROWSER, false, ToolWindowAnchor.RIGHT);
-        toolWindow.getContentManager().addContent(content);
         toolWindow.setIcon(GuiUtil.loadIcon(JENKINS_BROWSER_ICON));
+        ContentManager contentManager = toolWindow.getContentManager();
+        contentManager.addContent(content);
     }
 
 
