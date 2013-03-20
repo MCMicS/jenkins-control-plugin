@@ -22,6 +22,7 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.PopupHandler;
@@ -83,6 +84,11 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
     private ScheduledFuture<?> refreshViewFutureTask;
     private final Runnable refreshViewJob = new LoadSelectedViewJob();
+
+
+    public static BrowserPanel getInstance(Project project) {
+        return ServiceManager.getService(project, BrowserPanel.class);
+    }
 
     public BrowserPanel(Project project) {
 
@@ -157,8 +163,8 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
         JenkinsTreeModel treeModel = new JenkinsTreeModel(rootNode);
         treeModel.setJobStatusComparator(jobStatusComparator);
+        jobTree.setRootVisible(true);
         jobTree.setModel(treeModel);
-        jobTree.setRootVisible(false);
     }
 
     public void setErrorMsg(String serverUrl, String description) {

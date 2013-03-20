@@ -30,7 +30,7 @@ import static org.junit.Assert.*;
 public class BuildTest {
 
     @Test
-    public void test_isAfter() throws Exception {
+    public void isAfter() throws Exception {
         Build aBuild = build("815");
         Build anotherBuild = build("814");
 
@@ -41,7 +41,7 @@ public class BuildTest {
 
 
     @Test
-    public void test_isDisplayable() throws Exception {
+    public void isDisplayable() throws Exception {
         Build currentBuild = build("815");
         Build newBuild = build("815");
         assertFalse(newBuild.isAfter(currentBuild));
@@ -57,14 +57,5 @@ public class BuildTest {
                 buildNumber,
                 SUCCESS.getStatus(),
                 "true", "2011-03-16T14:28:59Z", "a message");
-    }
-
-
-    public static Map<String, Build> buildLastJobResultMap(String[][] datas) {
-        Map<String, Build> expectedJobBuildMap = new HashMap<String, Build>();
-        for (String[] data : datas) {
-            expectedJobBuildMap.put(data[0], Build.createBuildFromRss(data[1], data[2], data[3], "false", data[4], data[5]));
-        }
-        return expectedJobBuildMap;
     }
 }

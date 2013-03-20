@@ -42,22 +42,20 @@ import javax.swing.*;
 
 public class JenkinsComponent implements ProjectComponent, Configurable {
 
-    static final String JENKINS_CONTROL_COMPONENT_NAME = "JenkinsComponent";
+    private static final Icon JENKINS_ICON = GuiUtil.loadIcon("jenkins_logo.png");
+
     private static final String JENKINS_CONTROL_PLUGIN_NAME = "Jenkins Plugin";
 
+    static final String JENKINS_CONTROL_COMPONENT_NAME = "JenkinsComponent";
+
     public static final String JENKINS_BROWSER = "Jenkins";
-    private static final String JENKINS_BROWSER_ICON = "jenkins_logo.png";
 
     private final JenkinsAppSettings jenkinsAppSettings;
     private final JenkinsSettings jenkinsSettings;
+
     private ConfigurationPanel configurationPanel;
 
     private final Project project;
-
-    private JenkinsWidget jenkinsWidget;
-    private BrowserPanel browserPanel;
-    private RssLogic rssLogic;
-
 
     public JenkinsComponent(Project project) {
         this.project = project;
@@ -67,17 +65,42 @@ public class JenkinsComponent implements ProjectComponent, Configurable {
 
 
     public void projectOpened() {
-        installJenkinsPanel();
+
+        JenkinsWidget jenkinsWidget = JenkinsWidget.getInstance(project);
+
+        final BrowserPanel browserPanel = BrowserPanel.getInstance(project);
+
+        final RssLogic rssLogic = RssLogic.getInstance(project);
+
+        StartupManager.getInstance(project).registerPostStartupActivity(new DumbAwareRunnable() {
+            @Override
+            public void run() {
+                browserPanel.init(new RefreshRssAction(rssLogic));
+                rssLogic.init();
+
+                browserPanel.initScheduledJobs();
+                rssLogic.initScheduledJobs();
+            }
+        });
+
+        final StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
+        statusBar.addWidget(jenkinsWidget);
+        jenkinsWidget.install(statusBar);
+
+        Content content = ContentFactory.SERVICE.getInstance().createContent(browserPanel, null, false);
+        ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
+        ToolWindow toolWindow = toolWindowManager.registerToolWindow(JENKINS_BROWSER, false, ToolWindowAnchor.RIGHT);
+        toolWindow.setIcon(JENKINS_ICON);
+        ContentManager contentManager = toolWindow.getContentManager();
+        contentManager.addContent(content);
     }
 
 
     public void projectClosed() {
-        browserPanel.dispose();
-        rssLogic.dispose();
         ToolWindowManager.getInstance(project).unregisterToolWindow(JENKINS_BROWSER);
-
-        final StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
-        statusBar.removeWidget(jenkinsWidget.ID());
+        BrowserPanel.getInstance(project).dispose();
+        RssLogic.getInstance(project).dispose();
+        JenkinsWidget.getInstance(project).dispose();
     }
 
 
@@ -107,7 +130,7 @@ public class JenkinsComponent implements ProjectComponent, Configurable {
         if (configurationPanel != null) {
             try {
                 configurationPanel.applyConfigurationData(jenkinsAppSettings, jenkinsSettings);
-                browserPanel.reloadConfiguration();
+                BrowserPanel.getInstance(project).reloadConfiguration();
 
             } catch (org.codinjutsu.tools.jenkins.exception.ConfigurationException ex) {
                 throw new ConfigurationException(ex.getMessage());
@@ -128,38 +151,6 @@ public class JenkinsComponent implements ProjectComponent, Configurable {
 
     public void notifyErrorJenkinsToolWindow(final String message) {
         ToolWindowManager.getInstance(project).notifyByBalloon(JENKINS_BROWSER, MessageType.ERROR, message);
-    }
-
-
-    private void installJenkinsPanel() {
-
-        jenkinsWidget = JenkinsWidget.getInstance(project);
-
-        browserPanel = new BrowserPanel(project);
-
-        rssLogic = new RssLogic(project);
-
-        StartupManager.getInstance(project).registerPostStartupActivity(new DumbAwareRunnable() {
-            @Override
-            public void run() {
-                browserPanel.init(new RefreshRssAction(rssLogic));
-                rssLogic.init();
-
-                browserPanel.initScheduledJobs();
-                rssLogic.initScheduledJobs();
-            }
-        });
-
-        final StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
-        statusBar.addWidget(jenkinsWidget);
-        jenkinsWidget.install(statusBar);
-
-        Content content = ContentFactory.SERVICE.getInstance().createContent(browserPanel, null, false);
-        ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
-        ToolWindow toolWindow = toolWindowManager.registerToolWindow(JENKINS_BROWSER, false, ToolWindowAnchor.RIGHT);
-        toolWindow.setIcon(GuiUtil.loadIcon(JENKINS_BROWSER_ICON));
-        ContentManager contentManager = toolWindow.getContentManager();
-        contentManager.addContent(content);
     }
 
 

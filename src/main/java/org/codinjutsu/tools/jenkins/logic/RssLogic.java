@@ -19,6 +19,7 @@ package org.codinjutsu.tools.jenkins.logic;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationListener;
 import com.intellij.notification.NotificationType;
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.popup.Balloon;
@@ -49,6 +50,10 @@ public class RssLogic {
 
     private final Runnable refreshRssBuildsJob = new LoadLatestBuildsJob(true);
     private ScheduledFuture<?> refreshRssBuildFutureTask;
+
+    public static RssLogic getInstance(Project project) {
+        return ServiceManager.getService(project, RssLogic.class);
+    }
 
     public RssLogic(Project project) {
         this.project = project;
