@@ -102,11 +102,14 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
         }
     }
 
-    public void addFavorite(Job job) {
-        FavoriteJob favoriteJob = new FavoriteJob();
-        favoriteJob.name = job.getName();
-        favoriteJob.url = job.getUrl();
-        myState.favoriteJobs.add(favoriteJob);
+    public void addFavorite(List<Job> jobs) {
+        for (Job job : jobs) {
+            FavoriteJob favoriteJob = new FavoriteJob();
+            favoriteJob.name = job.getName();
+            favoriteJob.url = job.getUrl();
+            myState.favoriteJobs.add(favoriteJob);
+
+        }
     }
 
     public boolean isAFavoriteJob(String jobName) {
@@ -118,11 +121,13 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
         return false;
     }
 
-    public void removeFavorite(Job selectedJob) {
-        for (Iterator<FavoriteJob> iterator = myState.favoriteJobs.iterator(); iterator.hasNext(); ) {
-            FavoriteJob favoriteJob = iterator.next();
-            if (StringUtils.equals(selectedJob.getName(), favoriteJob.name)) {
-                iterator.remove();
+    public void removeFavorite(List<Job> selectedJobs) {//TODO crappy!
+        for (Job selectedJob : selectedJobs) {
+            for (Iterator<FavoriteJob> iterator = myState.favoriteJobs.iterator(); iterator.hasNext(); ) {
+                FavoriteJob favoriteJob = iterator.next();
+                if (StringUtils.equals(selectedJob.getName(), favoriteJob.name)) {
+                    iterator.remove();
+                }
             }
         }
     }

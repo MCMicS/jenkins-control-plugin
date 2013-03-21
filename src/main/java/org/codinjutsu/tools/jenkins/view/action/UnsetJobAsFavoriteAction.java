@@ -23,6 +23,8 @@ import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 
+import java.util.List;
+
 public class UnsetJobAsFavoriteAction extends AnAction implements DumbAware {
 
     private BrowserPanel browserPanel;
@@ -34,8 +36,8 @@ public class UnsetJobAsFavoriteAction extends AnAction implements DumbAware {
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        Job selectedJob = browserPanel.getSelectedJob();
-        browserPanel.removeFavorite(selectedJob);
+        List<Job> selectedJobs = browserPanel.getAllSelectedJobs();
+        browserPanel.removeFavorite(selectedJobs);
     }
 
     @Override

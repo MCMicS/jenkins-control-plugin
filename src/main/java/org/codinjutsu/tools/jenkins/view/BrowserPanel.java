@@ -29,6 +29,7 @@ import com.intellij.ui.PopupHandler;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.ui.treeStructure.Tree;
+import com.intellij.util.ui.tree.TreeUtil;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
@@ -144,6 +145,10 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
             }
         }
         return null;
+    }
+
+    public List<Job> getAllSelectedJobs() {
+        return TreeUtil.collectSelectedObjectsOfType(jobTree, Job.class);
     }
 
     public void fillJobTree(BuildStatusVisitor buildStatusVisitor) {
@@ -305,7 +310,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         };
 
         tree.getEmptyText().clear();
-        tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+//        tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 
         tree.setCellRenderer(new JenkinsTreeRenderer(favoriteJobs));
         tree.setName("jobTree");
@@ -414,8 +419,8 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         ApplicationManager.getApplication().invokeLater(new LoadSelectedViewJob());
     }
 
-    public void setAsFavorite(Job job) {
-        jenkinsSettings.addFavorite(job);
+    public void setAsFavorite(List<Job> jobs) {
+        jenkinsSettings.addFavorite(jobs);
         createFavoriteViewIfNecessary();
         update();
 
@@ -427,8 +432,8 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         }
     }
 
-    public void removeFavorite(Job selectedJob) {
-        jenkinsSettings.removeFavorite(selectedJob);
+    public void removeFavorite(List<Job> selectedJobs) {
+        jenkinsSettings.removeFavorite(selectedJobs);
         update();
         if (jenkinsSettings.isFavoriteViewEmpty() && currentSelectedView instanceof FavoriteView) {
             favoriteView = null;
