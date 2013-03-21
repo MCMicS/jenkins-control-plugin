@@ -1,6 +1,7 @@
 Version 0.8.0
+    * [Add] #43 Support multiple selection for favorites
     * [Upd] Redesign the toolbar in the browser panel
-    * [Upd] Integrate Rss Reader into the Event Log
+    * [Upd] Integrate Rss Reader in the Event Log
     * [Upd] Replace Jackson lib by json-simple
     * [Upd] Migrate to IntelliJ 11
     * [Fix] Color and icons for Darcula theme
