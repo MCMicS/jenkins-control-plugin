@@ -105,6 +105,7 @@ import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.PopupChooserBuilder;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.components.JBList;
+import org.codinjutsu.tools.jenkins.model.FavoriteView;
 import org.codinjutsu.tools.jenkins.model.View;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
@@ -152,17 +153,7 @@ public class SelectViewAction extends DumbAwareAction implements CustomComponent
                     return;
                 }
 
-                views = flatViewList(views);
-
-
-                final JBList viewList = new JBList(views);
-                viewList.setCellRenderer(new JenkinsViewComboRenderer());
-
-                if (hasNestedViews(views)) {
-                    viewList.setCellRenderer(new JenkinsNestedViewComboRenderer());
-                } else {
-                    viewList.setCellRenderer(new JenkinsViewComboRenderer());
-                }
+                final JBList viewList = buildViewList(views, browserPanel);
 
                 JBPopup popup = new PopupChooserBuilder(viewList)
                         .setMovable(false)
@@ -186,6 +177,23 @@ public class SelectViewAction extends DumbAwareAction implements CustomComponent
                 }
             }
         });
+    }
+
+    private JBList buildViewList(List<View> views, BrowserPanel browserPanel) {
+        List<View> unflattenViews = flatViewList(views);
+
+        if (browserPanel.hasFavoriteJobs()) {
+            unflattenViews.add(FavoriteView.create());
+        }
+
+        final JBList viewList = new JBList(unflattenViews);
+
+        if (hasNestedViews(unflattenViews)) {
+            viewList.setCellRenderer(new JenkinsNestedViewComboRenderer());
+        } else {
+            viewList.setCellRenderer(new JenkinsViewComboRenderer());
+        }
+        return viewList;
     }
 
 

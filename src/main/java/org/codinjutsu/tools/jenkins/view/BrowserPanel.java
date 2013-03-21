@@ -242,6 +242,10 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         job.updateContentWith(updatedJob);
     }
 
+    public boolean hasFavoriteJobs() {
+        return !jenkinsSettings.getFavoriteJobs().isEmpty();
+    }
+
     private class JobStatusComparator implements JobComparator {
         @Override
         public int compare(DefaultMutableTreeNode treeNode1, DefaultMutableTreeNode treeNode2) {
