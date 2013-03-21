@@ -1,8 +1,9 @@
 Version 0.8.0
+    * [Upd] Redesign the toolbar in the browser panel
     * [Upd] Integrate Rss Reader into the Event Log
-    * [Fix] Color and icons for Darcula theme
     * [Upd] Replace Jackson lib by json-simple
     * [Upd] Migrate to IntelliJ 11
+    * [Fix] Color and icons for Darcula theme
 
 Version 0.7.0
     * [Upd] UI: Fix Color for new Look&Feel Darcula of IDEA 12

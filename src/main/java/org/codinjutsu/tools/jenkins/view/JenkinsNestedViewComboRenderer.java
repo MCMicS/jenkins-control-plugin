@@ -23,7 +23,7 @@ import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import javax.swing.*;
 import java.awt.*;
 
-class JenkinsNestedViewComboRenderer extends DefaultListCellRenderer {
+public class JenkinsNestedViewComboRenderer extends DefaultListCellRenderer {
 
     private static final Icon FAVORITE_ICON = GuiUtil.loadIcon("star.png");
 

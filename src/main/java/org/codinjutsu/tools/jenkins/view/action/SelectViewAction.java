@@ -108,12 +108,14 @@ import com.intellij.ui.components.JBList;
 import org.codinjutsu.tools.jenkins.model.View;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
+import org.codinjutsu.tools.jenkins.view.JenkinsNestedViewComboRenderer;
 import org.codinjutsu.tools.jenkins.view.JenkinsViewComboRenderer;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -150,15 +152,25 @@ public class SelectViewAction extends DumbAwareAction implements CustomComponent
                     return;
                 }
 
+                views = flatViewList(views);
+
+
                 final JBList viewList = new JBList(views);
                 viewList.setCellRenderer(new JenkinsViewComboRenderer());
+
+                if (hasNestedViews(views)) {
+                    viewList.setCellRenderer(new JenkinsNestedViewComboRenderer());
+                } else {
+                    viewList.setCellRenderer(new JenkinsViewComboRenderer());
+                }
+
                 JBPopup popup = new PopupChooserBuilder(viewList)
                         .setMovable(false)
                         .setCancelKeyEnabled(true)
                         .setItemChoosenCallback(new Runnable() {
                             public void run() {
                                 final View view = (View) viewList.getSelectedValue();
-                                if (view == null) return;
+                                if (view == null || view.hasNestedView()) return;
 
                                 SelectViewAction.this.browserPanel.loadView(view);
                             }
@@ -192,6 +204,29 @@ public class SelectViewAction extends DumbAwareAction implements CustomComponent
 
     @Override
     public void actionPerformed(AnActionEvent e) {
+    }
+
+
+    private static List<View> flatViewList(List<View> views) {
+        List<View> flattenViewList = new LinkedList<View>();
+        for (View view : views) {
+            flattenViewList.add(view);
+            if (view.hasNestedView()) {
+                for (View subView : view.getSubViews()) {
+                    flattenViewList.add(subView);
+                }
+            }
+        }
+
+        return flattenViewList;
+    }
+
+
+    private static boolean hasNestedViews(List<View> views) {
+        for (View view : views) {
+            if (view.hasNestedView()) return true;
+        }
+        return false;
     }
 }
 
