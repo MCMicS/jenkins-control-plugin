@@ -96,7 +96,7 @@ public class ConfigurationPanel {
         unstableOrFailCheckBox.setName("unstableOrFailCheckBox");
         abortedCheckBox.setName("abortedCheckBox");
 
-        rssStatusFilterPanel.setBorder(IdeBorderFactory.createTitledBorder("RSS Settings", false));
+        rssStatusFilterPanel.setBorder(IdeBorderFactory.createTitledBorder("Event Log Settings", false));
 
         debugPanel.setVisible(false);
 
