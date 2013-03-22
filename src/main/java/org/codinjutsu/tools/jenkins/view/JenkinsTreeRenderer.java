@@ -16,6 +16,8 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
+import com.intellij.ui.ColoredTreeCellRenderer;
+import com.intellij.ui.SimpleTextAttributes;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
@@ -24,11 +26,9 @@ import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeCellRenderer;
-import java.awt.*;
 import java.util.List;
 
-class JenkinsTreeRenderer extends DefaultTreeCellRenderer {
+class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
 
     private static final Icon FAVORITE_ICON = GuiUtil.loadIcon("star_tn.png");
     private static final Icon SERVER_ICON = GuiUtil.loadIcon("server_wrench.png");
@@ -40,52 +40,29 @@ class JenkinsTreeRenderer extends DefaultTreeCellRenderer {
     }
 
     @Override
-    public Component getTreeCellRendererComponent(JTree tree,
-                                                  Object value,
-                                                  boolean sel,
-                                                  boolean expanded,
-                                                  boolean leaf,
-                                                  int row,
-                                                  boolean hasFocus) {
+    public void customizeCellRenderer(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
 
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
 
         Object userObject = node.getUserObject();
         if (userObject instanceof Jenkins) {
             Jenkins jenkins = (Jenkins) userObject;
-            super.getTreeCellRendererComponent(tree, buildLabel(jenkins), sel,
-                    expanded, leaf, row,
-                    hasFocus);
-            if (!jenkins.getJobs().isEmpty()) {
-                setIcon(SERVER_ICON);
-            } else {
-                return this;
-            }
+            append(buildLabel(jenkins), SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
             setToolTipText(jenkins.getServerUrl());
-            setFont(getFont().deriveFont(Font.ITALIC));
+            setIcon(SERVER_ICON);
 
-            return this;
         } else if (userObject instanceof Job) {
             Job job = (Job) node.getUserObject();
 
-            String jobLabel = buildLabel(job);
+            append(buildLabel(job), getAttribute(job));
 
-            super.getTreeCellRendererComponent(tree, jobLabel, sel,
-                    expanded, leaf, row,
-                    hasFocus);
-
-            setFont(job);
             setToolTipText(job.findHealthDescription());
             if (isFavoriteJob(job)) {
                 setIcon(new CompositeIcon(job.getStateIcon(), job.getHealthIcon(), FAVORITE_ICON));
-                this.repaint();
             } else {
                 setIcon(new CompositeIcon(job.getStateIcon(), job.getHealthIcon()));
             }
-            updateUI();
-            return this;
         }
-        return super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     private boolean isFavoriteJob(Job job) {
@@ -97,16 +74,15 @@ class JenkinsTreeRenderer extends DefaultTreeCellRenderer {
         return false;
     }
 
-    private void setFont(Job job) {
-        Font font = getFont().deriveFont(Font.PLAIN);
+    private SimpleTextAttributes getAttribute(Job job) {
         Build build = job.getLastBuild();
         if (build != null) {
             if (job.isInQueue() || build.isBuilding()) {
-                font = font.deriveFont(Font.BOLD);
+                return SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES;
             }
         }
 
-        setFont(font);
+        return SimpleTextAttributes.REGULAR_ATTRIBUTES;
     }
 
 

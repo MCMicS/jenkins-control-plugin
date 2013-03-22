@@ -40,6 +40,7 @@ import org.codinjutsu.tools.jenkins.JenkinsWindowManager;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusVisitor;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
+import org.codinjutsu.tools.jenkins.logic.RssLogic;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.action.*;
@@ -52,7 +53,6 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
-import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.net.URL;
 import java.util.List;
@@ -64,31 +64,32 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
     private static final URL pluginSettingsUrl = GuiUtil.isUnderDarcula() ? GuiUtil.getIconResource("settings_dark.png") : GuiUtil.getIconResource("settings.png");
 
-    private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(2);
+    private JPanel rootPanel;
+
+    private JPanel jobPanel;
+    private Tree jobTree;
+
+    private JPanel searchPanel;
+    private JobSearchComponent searchComponent;
+
+    private final JobComparator jobStatusComparator = new JobStatusComparator();
+    private boolean sortedByBuildStatus;
+
+    private final Runnable refreshViewJob = new LoadSelectedViewJob();
+    private ScheduledFuture<?> refreshViewFutureTask;
 
     private final Project project;
 
-    private JPanel rootPanel;
-    private JPanel utilityPanel;
-    private JPanel jobPanel;
+    private final JenkinsAppSettings jenkinsAppSettings;
+    private final JenkinsSettings jenkinsSettings;
 
-    private JobSearchComponent searchComponent;
-    private Tree jobTree;
-
-    private boolean sortedByBuildStatus;
-    private final JobComparator jobStatusComparator = new JobStatusComparator();
+    private final RssLogic rssLogic;
+    private final RequestManager requestManager;
 
     private Jenkins jenkins;
-
-    private JenkinsAppSettings jenkinsAppSettings;
-    private JenkinsSettings jenkinsSettings;
-    private RequestManager requestManager;
-
     private FavoriteView favoriteView;
     private View currentSelectedView;
 
-    private ScheduledFuture<?> refreshViewFutureTask;
-    private final Runnable refreshViewJob = new LoadSelectedViewJob();
 
 
     public static BrowserPanel getInstance(Project project) {
@@ -102,6 +103,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         requestManager = RequestManager.getInstance(project);
         jenkinsAppSettings = JenkinsAppSettings.getSafeInstance(project);
         jenkinsSettings = JenkinsSettings.getSafeInstance(project);
+        rssLogic = RssLogic.getInstance(project);
         setProvideQuickActions(false);
 
         jobTree = createTree(jenkinsSettings.getFavoriteJobs());
@@ -119,16 +121,18 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
     public void createSearchPanel() {
         searchComponent = new JobSearchComponent(jobTree);
-        utilityPanel.add(searchComponent, BorderLayout.CENTER);
+        searchPanel.add(searchComponent, BorderLayout.CENTER);
     }
 
-    public void initScheduledJobs() {
+    public void initScheduledJobs(ScheduledThreadPoolExecutor scheduledThreadPoolExecutor) {
         safeTaskCancel(refreshViewFutureTask);
         scheduledThreadPoolExecutor.remove(refreshViewJob);
 
         if (jenkinsAppSettings.getJobRefreshPeriod() > 0) {
             refreshViewFutureTask = scheduledThreadPoolExecutor.scheduleWithFixedDelay(refreshViewJob, jenkinsAppSettings.getJobRefreshPeriod(), jenkinsAppSettings.getJobRefreshPeriod(), TimeUnit.MINUTES);
         }
+
+        rssLogic.initScheduledJobs(scheduledThreadPoolExecutor);
     }
 
     private void safeTaskCancel(ScheduledFuture<?> futureTask) {
@@ -197,7 +201,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
     @Override
     public void dispose() {
-        scheduledThreadPoolExecutor.shutdown();
+
     }
 
     private static void visit(Job job, BuildStatusVisitor buildStatusVisitor) {
@@ -370,24 +374,25 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         loadView(viewToLoad);
     }
 
-    public void init(RefreshRssAction refreshRssAction) {
-        initGui(refreshRssAction);
+    public void init() {
+        initGui();
         reloadConfiguration();
+        rssLogic.init();
     }
 
-    private void initGui(RefreshRssAction refreshRssAction) {
+    private void initGui() {
         createSearchPanel();
-        installBrowserActions(getJobTree(), refreshRssAction);
+        installBrowserActions(getJobTree());
         installSearchActions(getSearchComponent());
     }
 
-    protected void installBrowserActions(JTree jobTree, RefreshRssAction refreshRssAction) {
+    protected void installBrowserActions(JTree jobTree) {
         DefaultActionGroup actionGroup = new DefaultActionGroup("JenkinsToolbarGroup", false);
         actionGroup.add(new SelectViewAction(this));
         actionGroup.add(new RefreshNodeAction(this));
         actionGroup.add(new RunBuildAction(this));
         actionGroup.add(new SortByStatusAction(this));
-        actionGroup.add(refreshRssAction);
+        actionGroup.add(new RefreshRssAction(rssLogic));
         actionGroup.addSeparator();
         actionGroup.add(new OpenPluginSettingsAction());
 

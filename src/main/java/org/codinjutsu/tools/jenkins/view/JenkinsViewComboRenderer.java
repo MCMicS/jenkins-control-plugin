@@ -16,38 +16,27 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
+import com.intellij.ui.ColoredListCellRenderer;
 import org.codinjutsu.tools.jenkins.model.FavoriteView;
 import org.codinjutsu.tools.jenkins.model.View;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
 import javax.swing.*;
-import java.awt.*;
 
-public class JenkinsViewComboRenderer extends DefaultListCellRenderer {
+public class JenkinsViewComboRenderer extends ColoredListCellRenderer {
 
     private static final Icon FAVORITE_ICON = GuiUtil.loadIcon("star.png");
 
     @Override
-    public Component getListCellRendererComponent(JList list,
-                                                  Object value,
-                                                  int index,
-                                                  boolean isSelected,
-                                                  boolean cellHasFocus) {
-
-        if (value instanceof FavoriteView) {
-            FavoriteView view = (FavoriteView) value;
-
-            JLabel comp = (JLabel) super.getListCellRendererComponent(list, view.getName(), index, isSelected, cellHasFocus);
-            comp.setIcon(FAVORITE_ICON);
-
-            return comp;
-        }
+    protected void customizeCellRenderer(JList list, Object value, int index, boolean selected, boolean hasFocus) {
 
         if (value instanceof View) {
             View view = (View) value;
-            return super.getListCellRendererComponent(list, view.getName(), index, isSelected, cellHasFocus);
-        }
+            append(view.getName());
 
-        return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            if (value instanceof FavoriteView) {
+                setIcon(FAVORITE_ICON);
+            }
+        }
     }
 }

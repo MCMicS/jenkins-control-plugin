@@ -16,6 +16,8 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
+import com.intellij.ui.ColoredListCellRenderer;
+import com.intellij.ui.SimpleTextAttributes;
 import org.codinjutsu.tools.jenkins.model.FavoriteView;
 import org.codinjutsu.tools.jenkins.model.View;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
@@ -23,43 +25,33 @@ import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import javax.swing.*;
 import java.awt.*;
 
-public class JenkinsNestedViewComboRenderer extends DefaultListCellRenderer {
+public class JenkinsNestedViewComboRenderer extends ColoredListCellRenderer {
 
     private static final Icon FAVORITE_ICON = GuiUtil.loadIcon("star.png");
 
-
-    public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-
-        if (value instanceof FavoriteView) {
-            FavoriteView view = (FavoriteView) value;
-
-            super.getListCellRendererComponent(list, view.getName(), index, isSelected, cellHasFocus);
-            setIcon(FAVORITE_ICON);
-
-            return this;
-        }
+    @Override
+    protected void customizeCellRenderer(JList list, Object value, int index, boolean selected, boolean hasFocus) {
 
         if (value instanceof View) {
             View view = (View) value;
             if (view.hasNestedView()) {
-                Component comp = super.getListCellRendererComponent(list, view.getName(), index, isSelected, cellHasFocus);
-                comp.setEnabled(false);
-                comp.setFocusable(false);
-                comp.setBackground(Color.LIGHT_GRAY);
-                comp.setFont(comp.getFont().deriveFont(Font.BOLD));
-                return comp;
+                setEnabled(false);
+                setFocusable(false);
+                setBackground(Color.LIGHT_GRAY);
+                append(view.getName(), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
             } else {
                 String viewName = view.getName();
                 if (view.isNested()) {
-                    return super.getListCellRendererComponent(list, "   " + viewName, index, isSelected, cellHasFocus);
+                    append("   " + viewName);
                 } else {
-                    return super.getListCellRendererComponent(list, viewName, index, isSelected, cellHasFocus);
+                    append(viewName);
                 }
+            }
+
+            if (value instanceof FavoriteView) {
+                setIcon(FAVORITE_ICON);
             }
         }
 
-        return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
     }
-
-
 }

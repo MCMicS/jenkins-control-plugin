@@ -31,6 +31,7 @@ import org.codinjutsu.tools.jenkins.view.JenkinsWidget;
 import org.codinjutsu.tools.jenkins.view.action.RefreshRssAction;
 
 import javax.swing.*;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 public class JenkinsWindowManager {
 
@@ -38,6 +39,9 @@ public class JenkinsWindowManager {
 
     public static final String JENKINS_BROWSER = "Jenkins";
     private final Project project;
+
+    private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(2);
+
 
     public static JenkinsWindowManager getInstance(Project project) {
         return ServiceManager.getService(project, JenkinsWindowManager.class);
@@ -65,11 +69,9 @@ public class JenkinsWindowManager {
         StartupManager.getInstance(project).registerPostStartupActivity(new DumbAwareRunnable() {
             @Override
             public void run() {
-                browserPanel.init(new RefreshRssAction(rssLogic));
-                rssLogic.init();
 
-                browserPanel.initScheduledJobs();
-                rssLogic.initScheduledJobs();
+                browserPanel.init();
+                browserPanel.initScheduledJobs(scheduledThreadPoolExecutor);
             }
         });
     }
@@ -77,8 +79,8 @@ public class JenkinsWindowManager {
     public void unregisterMyself() {
         ToolWindowManager.getInstance(project).unregisterToolWindow(JenkinsWindowManager.JENKINS_BROWSER);
         BrowserPanel.getInstance(project).dispose();
-        RssLogic.getInstance(project).dispose();
         JenkinsWidget.getInstance(project).dispose();
+        scheduledThreadPoolExecutor.shutdown();
     }
 
     public void reloadConfiguration() {

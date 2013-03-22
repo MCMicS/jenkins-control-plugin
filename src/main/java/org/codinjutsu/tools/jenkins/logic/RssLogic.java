@@ -19,6 +19,7 @@ package org.codinjutsu.tools.jenkins.logic;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationListener;
 import com.intellij.notification.NotificationType;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageType;
@@ -36,17 +37,15 @@ import java.awt.*;
 import java.util.*;
 import java.util.concurrent.*;
 
-public class RssLogic {
+public class RssLogic implements Disposable {
 
     private final NotificationGroup JENKINS_RSS_GROUP = NotificationGroup.logOnlyGroup("Jenkins Rss");
-
-    private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(2);
 
     private final Project project;
     private final JenkinsAppSettings jenkinsAppSettings;
     private RequestManager requestManager;
 
-    private final Map<String, Build> currentBuildMap = new HashMap<String, Build>();
+    private Map<String, Build> currentBuildMap = new HashMap<String, Build>();
 
     private final Runnable refreshRssBuildsJob = new LoadLatestBuildsJob(true);
     private ScheduledFuture<?> refreshRssBuildFutureTask;
@@ -68,13 +67,13 @@ public class RssLogic {
     }
 
 
-    public void initScheduledJobs() {
+    public void initScheduledJobs(ScheduledThreadPoolExecutor scheduledThreadPoolExecutor1) {
         safeTaskCancel(refreshRssBuildFutureTask);
 
-        scheduledThreadPoolExecutor.remove(refreshRssBuildsJob);
+        scheduledThreadPoolExecutor1.remove(refreshRssBuildsJob);
 
         if (jenkinsAppSettings.getRssRefreshPeriod() > 0) {
-            refreshRssBuildFutureTask = scheduledThreadPoolExecutor.scheduleWithFixedDelay(refreshRssBuildsJob, jenkinsAppSettings.getRssRefreshPeriod(), jenkinsAppSettings.getRssRefreshPeriod(), TimeUnit.MINUTES);
+            refreshRssBuildFutureTask = scheduledThreadPoolExecutor1.scheduleWithFixedDelay(refreshRssBuildsJob, jenkinsAppSettings.getRssRefreshPeriod(), jenkinsAppSettings.getRssRefreshPeriod(), TimeUnit.MINUTES);
         }
     }
 
@@ -124,8 +123,9 @@ public class RssLogic {
         loadLatestBuilds(false);
     }
 
+    @Override
     public void dispose() {
-        scheduledThreadPoolExecutor.shutdown();
+        currentBuildMap = null;
     }
 
 
