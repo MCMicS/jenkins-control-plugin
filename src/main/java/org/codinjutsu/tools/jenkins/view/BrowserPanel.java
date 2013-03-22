@@ -24,7 +24,10 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.openapi.wm.ToolWindowManager;
+import com.intellij.ui.BrowserHyperlinkListener;
 import com.intellij.ui.PopupHandler;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.SimpleTree;
@@ -33,6 +36,7 @@ import com.intellij.util.ui.tree.TreeUtil;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
+import org.codinjutsu.tools.jenkins.JenkinsWindowManager;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusVisitor;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
@@ -249,6 +253,23 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
     public boolean hasFavoriteJobs() {
         return !jenkinsSettings.getFavoriteJobs().isEmpty();
+    }
+
+    public void notifyInfoJenkinsToolWindow(String htmlLinkMessage) {
+        ToolWindowManager.getInstance(project).notifyByBalloon(
+                JenkinsWindowManager.JENKINS_BROWSER,
+                MessageType.INFO,
+                htmlLinkMessage,
+                null,
+                new BrowserHyperlinkListener());
+    }
+
+    public void notifyErrorJenkinsToolWindow(String message) {
+        ToolWindowManager.getInstance(project).notifyByBalloon(JenkinsWindowManager.JENKINS_BROWSER, MessageType.ERROR, message);
+    }
+
+    public Project getProject() {
+        return project;
     }
 
     private class JobStatusComparator implements JobComparator {

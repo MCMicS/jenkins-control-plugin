@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.NumberDocument;
@@ -77,6 +78,10 @@ public class ConfigurationPanel {
     private final FormValidator formValidator;
 
     private boolean myPasswordModified = false;
+
+    public static ConfigurationPanel getInstance(Project project) {
+        return ServiceManager.getService(project, ConfigurationPanel.class);
+    }
 
     public ConfigurationPanel(final Project project) {
 

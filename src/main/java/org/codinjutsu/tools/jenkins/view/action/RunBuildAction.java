@@ -22,7 +22,6 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
-import org.codinjutsu.tools.jenkins.JenkinsComponent;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
@@ -48,10 +47,8 @@ public class RunBuildAction extends AnAction implements DumbAware {
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        Project project = ActionUtil.getProject(event);
-
-        final JenkinsComponent jenkinsComponent = project.getComponent(JenkinsComponent.class);
         try {
+            Project project = browserPanel.getProject();
 
             Job job = browserPanel.getSelectedJob();
 
@@ -60,22 +57,22 @@ public class RunBuildAction extends AnAction implements DumbAware {
                 BuildParamDialog.showDialog(job, JenkinsAppSettings.getSafeInstance(project), requestManager, new BuildParamDialog.RunBuildCallback() {
 
                     public void notifyOnOk(Job job) {
-                        notifyOnGoingMessage(jenkinsComponent, job);
+                        notifyOnGoingMessage(job);
                     }
 
                     public void notifyOnError(Job job, Exception ex) {
-                        jenkinsComponent.notifyErrorJenkinsToolWindow("Build '" + job.getName() + "' cannot be run: " + ex.getMessage());
+                        browserPanel.notifyErrorJenkinsToolWindow("Build '" + job.getName() + "' cannot be run: " + ex.getMessage());
                     }
                 });
             } else {
                 requestManager.runBuild(job, JenkinsAppSettings.getSafeInstance(project));
-                notifyOnGoingMessage(jenkinsComponent, job);
+                notifyOnGoingMessage(job);
                 browserPanel.loadSelectedJob();
             }
 
         } catch (Exception ex) {
             LOG.error(ex.getMessage(), ex);
-            jenkinsComponent.notifyErrorJenkinsToolWindow("Build cannot be run: " + ex.getMessage());
+            browserPanel.notifyErrorJenkinsToolWindow("Build cannot be run: " + ex.getMessage());
         }
     }
 
@@ -86,8 +83,8 @@ public class RunBuildAction extends AnAction implements DumbAware {
     }
 
 
-    private static void notifyOnGoingMessage(JenkinsComponent jenkinsComponent, Job job) {
-        jenkinsComponent.notifyInfoJenkinsToolWindow(HtmlUtil.createHtmlLinkMessage(
+    private void notifyOnGoingMessage(Job job) {
+        browserPanel.notifyInfoJenkinsToolWindow(HtmlUtil.createHtmlLinkMessage(
                 job.getName() + " build is on going",
                 job.getUrl()));
     }

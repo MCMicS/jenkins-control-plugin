@@ -23,6 +23,7 @@ import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.wm.*;
 import com.intellij.ui.components.panels.NonOpaquePanel;
 import org.codinjutsu.tools.jenkins.JenkinsComponent;
+import org.codinjutsu.tools.jenkins.JenkinsWindowManager;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
 import org.codinjutsu.tools.jenkins.view.util.BuildStatusIcon;
 import org.jetbrains.annotations.NotNull;
@@ -85,7 +86,7 @@ public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidg
 
     private void activateBrowserToolWindow() {
 
-        ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow(JenkinsComponent.JENKINS_BROWSER);
+        ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow(JenkinsWindowManager.JENKINS_BROWSER);
         if (toolWindow != null) {
             toolWindow.activate(null);
         }

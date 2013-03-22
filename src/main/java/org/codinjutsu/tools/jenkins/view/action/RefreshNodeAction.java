@@ -29,30 +29,27 @@ import javax.swing.*;
 public class RefreshNodeAction extends AnAction implements DumbAware {
 
     private static final Icon REFRESH_ICON = GuiUtil.isUnderDarcula() ? GuiUtil.loadIcon("refresh_dark.png") : GuiUtil.loadIcon("refresh.png");
-    private final BrowserPanel logic;
+    private final BrowserPanel browserPanel;
 
 
-    public RefreshNodeAction(BrowserPanel logic) {
+    public RefreshNodeAction(BrowserPanel browserPanel) {
         super("Refresh", "Refresh current node", REFRESH_ICON);
-        this.logic = logic;
+        this.browserPanel = browserPanel;
     }
 
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        Project project = ActionUtil.getProject(event);
-        JenkinsComponent jenkinsComponent = project.getComponent(JenkinsComponent.class);
-
         try {
-            logic.loadView(null);//TODO to be refactored
+            browserPanel.loadView(null);//TODO to be refactored
         } catch (Exception ex) {
-            jenkinsComponent.notifyErrorJenkinsToolWindow("Unable to refresh: " + ex.getMessage());
+            browserPanel.notifyErrorJenkinsToolWindow("Unable to refresh: " + ex.getMessage());
         }
     }
 
 
     @Override
     public void update(AnActionEvent event) {
-        event.getPresentation().setEnabled(logic.getJenkins() != null);
+        event.getPresentation().setEnabled(browserPanel.getJenkins() != null);
     }
 }
