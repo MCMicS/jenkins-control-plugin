@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 David Boissier
+ * Copyright (c) 2013 David Boissier
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 
 import java.io.IOException;
@@ -48,7 +49,7 @@ class BasicSecurityClient extends DefaultSecurityClient {
 
     private void doAuthentication(URL jenkinsUrl) throws AuthenticationException {
 
-        if (username != null && password != null) {
+        if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
             httpClient.getState().setCredentials(
                     new AuthScope(jenkinsUrl.getHost(), jenkinsUrl.getPort()),
                     new UsernamePasswordCredentials(username, password));
