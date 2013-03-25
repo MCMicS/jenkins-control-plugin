@@ -52,6 +52,18 @@ public enum BuildStatusEnum {
         return buildStatusEnum;
     }
 
+    public static BuildStatusEnum getStatus(String jobColor) {
+        BuildStatusEnum[] jobStates = values();
+        for (BuildStatusEnum jobStatus : jobStates) {
+            String stateName = jobStatus.getColor();
+            if (jobColor.startsWith(stateName)) {
+                return jobStatus;
+            }
+        }
+
+        return NULL;
+    }
+
 
     public String getStatus() {
         return status;

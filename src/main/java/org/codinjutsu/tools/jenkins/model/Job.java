@@ -210,4 +210,11 @@ public class Job {
             return new Health(healthLevel, healthDescription);
         }
     }
+
+    @Override
+    public String toString() {
+        return "Job{" +
+                "name='" + name + '\'' +
+                '}';
+    }
 }

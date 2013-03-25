@@ -154,8 +154,8 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
     }
 
     public void fillJobTree(BuildStatusVisitor buildStatusVisitor) {
-        List<Job> jobList = jenkins.getJobList();
-        if (jenkins.getJobList().isEmpty()) {
+        List<Job> jobList = jenkins.getJobs();
+        if (jobList.isEmpty()) {
             jobTree.setRootVisible(false);
             return;
         }
@@ -272,7 +272,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
             Job job1 = ((Job) treeNode1.getUserObject());
             Job job2 = ((Job) treeNode2.getUserObject());
 
-            return new Integer(getStatus(job1.getColor()).ordinal()).compareTo(getStatus(job2.getColor()).ordinal());
+            return new Integer(BuildStatusEnum.getStatus(job1.getColor()).ordinal()).compareTo(BuildStatusEnum.getStatus(job2.getColor()).ordinal());
         }
 
 
@@ -281,18 +281,6 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         }
     }
 
-
-    private static BuildStatusEnum getStatus(String jobColor) {
-        BuildStatusEnum[] jobStates = BuildStatusEnum.values();
-        for (BuildStatusEnum jobStatus : jobStates) {
-            String stateName = jobStatus.getColor();
-            if (jobColor.startsWith(stateName)) {
-                return jobStatus;
-            }
-        }
-
-        return BuildStatusEnum.NULL;
-    }
 
     private Tree createTree(List<JenkinsSettings.FavoriteJob> favoriteJobs) {
 
@@ -305,7 +293,8 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                if (jenkins != null && !jenkins.getJobList().isEmpty()) return;
+
+                if (jenkins != null && !jenkins.getJobs().isEmpty()) return;
 
                 myLabel.setFont(getFont());
                 myLabel.setBackground(getBackground());
@@ -335,7 +324,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
     public void reloadConfiguration() {
         if (!jenkinsAppSettings.isServerUrlSet()) {
-            JenkinsWidget.getInstance(project).updateStatusIcon(new BuildStatusAggregator());//TODO Crappy, need rewrite this
+            JenkinsWidget.getInstance(project).updateStatusIcon(new BuildStatusAggregator(0));//TODO Crappy, need rewrite this
             return;
         }
 
@@ -472,6 +461,9 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
                 currentSelectedView = jenkins.getPrimaryView();
             }
             final List<Job> jobList;
+
+            jobTree.setPaintBusy(true);
+
             if (currentSelectedView instanceof FavoriteView) {
                 jobList = requestManager.loadFavoriteJobs(jenkinsSettings.getFavoriteJobs());
             } else {
@@ -480,13 +472,13 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
             jenkinsSettings.setLastSelectedView(currentSelectedView.getName());
 
             jenkins.setJobs(jobList);
-            final BuildStatusAggregator buildStatusAggregator = new BuildStatusAggregator();
+            final BuildStatusAggregator buildStatusAggregator = new BuildStatusAggregator(jobList.size());
 
             GuiUtil.runInSwingThread(new Runnable() {
                 @Override
                 public void run() {
                     fillJobTree(buildStatusAggregator);
-                    buildStatusAggregator.setNbJobs(jobList.size());
+                    jobTree.setPaintBusy(false);
                     JenkinsWidget.getInstance(project).updateStatusIcon(buildStatusAggregator);
                 }
 

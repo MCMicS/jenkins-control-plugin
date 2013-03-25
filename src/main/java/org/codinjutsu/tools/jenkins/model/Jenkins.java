@@ -23,14 +23,18 @@ import java.util.List;
 
 public class Jenkins {
 
-    private final String name;
-    private final String serverUrl;
+    private String name;
+    private String serverUrl;
 
     private List<Job> jobs;
 
     private List<View> views;
     private View primaryView;
 
+
+    public Jenkins() {
+        this(null, null);
+    }
 
     public Jenkins(String description, String serverUrl) {
         this.name = description;
@@ -46,11 +50,6 @@ public class Jenkins {
 
 
     public List<Job> getJobs() {
-        return jobs;
-    }
-
-
-    public List<Job> getJobList() {
         return jobs;
     }
 
@@ -90,5 +89,15 @@ public class Jenkins {
             }
         }
         return null;
+    }
+
+    public void update(Jenkins jenkins) {
+        this.name = jenkins.getName();
+        this.serverUrl = jenkins.getServerUrl();
+        this.jobs.clear();
+        this.jobs.addAll(jenkins.getJobs());
+        this.views.clear();
+        this.views.addAll(jenkins.getViews());
+        this.primaryView = jenkins.getPrimaryView();
     }
 }

@@ -1,9 +1,9 @@
 <idea-plugin>
     <name>Jenkins Control Plugin</name>
-    <description>A Jenkins Plugin for Intellij for IDEA 10+</description>
-    <version>0.7.1</version>
+    <description>A Jenkins Plugin for Intellij for IDEA</description>
+    <version>0.8.0</version>
     <vendor email="david.boissier [at] gmail [dot] com" url="http://codinjutsu.blogspot.com">David Boissier</vendor>
-    <idea-version since-build="107.587"/>
+    <idea-version since-build="117.963"/>
 
     <depends>com.intellij.modules.lang</depends>
 
@@ -14,10 +14,9 @@
     </project-components>
 
     <extensions defaultExtensionNs="com.intellij">
-        <projectService serviceInterface="org.codinjutsu.tools.jenkins.JenkinsWindowManager" serviceImplementation="org.codinjutsu.tools.jenkins.JenkinsWindowManager"/>
-        <projectService serviceInterface="org.codinjutsu.tools.jenkins.view.ConfigurationPanel" serviceImplementation="org.codinjutsu.tools.jenkins.view.ConfigurationPanel"/>
         <projectService serviceInterface="org.codinjutsu.tools.jenkins.JenkinsAppSettings" serviceImplementation="org.codinjutsu.tools.jenkins.JenkinsAppSettings"/>
         <projectService serviceInterface="org.codinjutsu.tools.jenkins.JenkinsSettings" serviceImplementation="org.codinjutsu.tools.jenkins.JenkinsSettings"/>
+        <projectService serviceInterface="org.codinjutsu.tools.jenkins.JenkinsWindowManager" serviceImplementation="org.codinjutsu.tools.jenkins.JenkinsWindowManager"/>
         <projectService serviceInterface="org.codinjutsu.tools.jenkins.view.JenkinsWidget" serviceImplementation="org.codinjutsu.tools.jenkins.view.JenkinsWidget"/>
         <projectService serviceInterface="org.codinjutsu.tools.jenkins.logic.RequestManager" serviceImplementation="org.codinjutsu.tools.jenkins.logic.RequestManager"/>
         <projectService serviceInterface="org.codinjutsu.tools.jenkins.logic.UrlBuilder" serviceImplementation="org.codinjutsu.tools.jenkins.logic.UrlBuilder"/>

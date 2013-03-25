@@ -17,6 +17,7 @@
 package org.codinjutsu.tools.jenkins.view;
 
 import com.intellij.ui.ColoredTreeCellRenderer;
+import com.intellij.ui.RowIcon;
 import com.intellij.ui.SimpleTextAttributes;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.model.Build;
@@ -28,10 +29,10 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.util.List;
 
-class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
+public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
 
-    private static final Icon FAVORITE_ICON = GuiUtil.loadIcon("star_tn.png");
-    private static final Icon SERVER_ICON = GuiUtil.loadIcon("server_wrench.png");
+    public static final Icon FAVORITE_ICON = GuiUtil.loadIcon("star_tn.png");
+    public static final Icon SERVER_ICON = GuiUtil.loadIcon("server_wrench.png");
 
     private final List<JenkinsSettings.FavoriteJob> favoriteJobs;
 
@@ -65,7 +66,7 @@ class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
         }
     }
 
-    private boolean isFavoriteJob(Job job) {
+    boolean isFavoriteJob(Job job) {
         for (JenkinsSettings.FavoriteJob favoriteJob : favoriteJobs) {
             if (favoriteJob.name.equals(job.getName())) {
                 return true;
@@ -74,7 +75,7 @@ class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
         return false;
     }
 
-    private SimpleTextAttributes getAttribute(Job job) {
+    public static SimpleTextAttributes getAttribute(Job job) {
         Build build = job.getLastBuild();
         if (build != null) {
             if (job.isInQueue() || build.isBuilding()) {
@@ -86,7 +87,7 @@ class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
     }
 
 
-    private static String buildLabel(Job job) {
+    public static String buildLabel(Job job) {
 
         Build build = job.getLastBuild();
         if (build == null) {
@@ -102,7 +103,18 @@ class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
     }
 
 
-    private static String buildLabel(Jenkins jenkins) {
+    public static String buildLabel(Jenkins jenkins) {
         return "Jenkins " + jenkins.getName();
+    }
+
+    private static class CompositeIcon extends RowIcon {
+
+        public CompositeIcon(Icon... icons) {
+            super(icons.length);
+            for (int i = 0; i < icons.length; i++) {
+                Icon icon = icons[i];
+                setIcon(icon, i);
+            }
+        }
     }
 }
