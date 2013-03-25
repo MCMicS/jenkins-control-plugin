@@ -44,7 +44,7 @@ public class JenkinsComponent implements ProjectComponent, Configurable {
         this.project = project;
         this.jenkinsAppSettings = JenkinsAppSettings.getSafeInstance(project);
         this.jenkinsSettings = JenkinsSettings.getSafeInstance(project);
-        this.configurationPanel = ConfigurationPanel.getInstance(project);
+        this.configurationPanel = new ConfigurationPanel(project);
     }
 
 

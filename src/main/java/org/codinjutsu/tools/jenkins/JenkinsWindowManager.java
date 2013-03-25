@@ -72,6 +72,8 @@ public class JenkinsWindowManager {
 
                 browserPanel.init();
                 browserPanel.initScheduledJobs(scheduledThreadPoolExecutor);
+                rssLogic.init();
+                rssLogic.initScheduledJobs(scheduledThreadPoolExecutor);
             }
         });
     }
@@ -79,7 +81,6 @@ public class JenkinsWindowManager {
     public void unregisterMyself() {
         ToolWindowManager.getInstance(project).unregisterToolWindow(JenkinsWindowManager.JENKINS_BROWSER);
         BrowserPanel.getInstance(project).dispose();
-        JenkinsWidget.getInstance(project).dispose();
         scheduledThreadPoolExecutor.shutdown();
     }
 

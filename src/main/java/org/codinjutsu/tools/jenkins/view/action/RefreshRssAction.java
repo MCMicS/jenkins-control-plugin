@@ -19,22 +19,21 @@ package org.codinjutsu.tools.jenkins.view.action;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
+import com.intellij.openapi.project.Project;
 import org.codinjutsu.tools.jenkins.logic.RssLogic;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
 public class RefreshRssAction extends AnAction implements DumbAware {
 
-    private final RssLogic logic;
 
-
-    public RefreshRssAction(RssLogic logic) {
+    public RefreshRssAction() {
         super("Refresh last completed builds", "Refresh last completed builds from Jenkins server", GuiUtil.loadIcon("rss.png"));
-        this.logic = logic;
     }
 
 
     @Override
-    public void actionPerformed(AnActionEvent e) {
-        logic.loadLatestBuilds(true);
+    public void actionPerformed(AnActionEvent event) {
+        Project project = ActionUtil.getProject(event);
+        RssLogic.getInstance(project).loadLatestBuilds(true);
     }
 }

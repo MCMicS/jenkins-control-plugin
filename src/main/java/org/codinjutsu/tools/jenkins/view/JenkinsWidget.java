@@ -22,7 +22,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.wm.*;
 import com.intellij.ui.components.panels.NonOpaquePanel;
-import org.codinjutsu.tools.jenkins.JenkinsComponent;
 import org.codinjutsu.tools.jenkins.JenkinsWindowManager;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
 import org.codinjutsu.tools.jenkins.view.util.BuildStatusIcon;
@@ -80,27 +79,24 @@ public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidg
             }
         });
 
-        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         setBorder(StatusBarWidget.WidgetBorder.INSTANCE);
 
         return statusIcon;
     }
 
     private void activateBrowserToolWindow() {
-
         ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow(JenkinsWindowManager.JENKINS_BROWSER);
-        if (toolWindow != null) {
-            toolWindow.activate(null);
+
+        if (toolWindow == null) {
+            return;
         }
+
+        toolWindow.activate(null);
     }
 
     @NotNull
     public String ID() {
         return JenkinsWidget.class.getName();
-    }
-
-    public WidgetPresentation getPresentation(@NotNull PlatformType platformType) {
-        return null;
     }
 
     public void install(@NotNull StatusBar statusBar) {
@@ -115,5 +111,9 @@ public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidg
 
     public JComponent getComponent() {
         return this;
+    }
+
+    public WidgetPresentation getPresentation(@NotNull PlatformType platformType) {
+        return null;
     }
 }

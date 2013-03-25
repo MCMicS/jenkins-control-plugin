@@ -79,10 +79,6 @@ public class ConfigurationPanel {
 
     private boolean myPasswordModified = false;
 
-    public static ConfigurationPanel getInstance(Project project) {
-        return ServiceManager.getService(project, ConfigurationPanel.class);
-    }
-
     public ConfigurationPanel(final Project project) {
 
         serverUrl.setName("serverUrl");
@@ -101,7 +97,7 @@ public class ConfigurationPanel {
         unstableOrFailCheckBox.setName("unstableOrFailCheckBox");
         abortedCheckBox.setName("abortedCheckBox");
 
-        rssStatusFilterPanel.setBorder(IdeBorderFactory.createTitledBorder("Event Log Settings", false));
+        rssStatusFilterPanel.setBorder(IdeBorderFactory.createTitledBorder("Event Log Settings", true));
 
         debugPanel.setVisible(false);
 

@@ -40,7 +40,6 @@ import org.codinjutsu.tools.jenkins.JenkinsWindowManager;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusVisitor;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
-import org.codinjutsu.tools.jenkins.logic.RssLogic;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.action.*;
@@ -83,13 +82,11 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
     private final JenkinsAppSettings jenkinsAppSettings;
     private final JenkinsSettings jenkinsSettings;
 
-    private final RssLogic rssLogic;
     private final RequestManager requestManager;
 
     private Jenkins jenkins;
     private FavoriteView favoriteView;
     private View currentSelectedView;
-
 
 
     public static BrowserPanel getInstance(Project project) {
@@ -103,7 +100,6 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         requestManager = RequestManager.getInstance(project);
         jenkinsAppSettings = JenkinsAppSettings.getSafeInstance(project);
         jenkinsSettings = JenkinsSettings.getSafeInstance(project);
-        rssLogic = RssLogic.getInstance(project);
         setProvideQuickActions(false);
 
         jobTree = createTree(jenkinsSettings.getFavoriteJobs());
@@ -131,8 +127,6 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         if (jenkinsAppSettings.getJobRefreshPeriod() > 0) {
             refreshViewFutureTask = scheduledThreadPoolExecutor.scheduleWithFixedDelay(refreshViewJob, jenkinsAppSettings.getJobRefreshPeriod(), jenkinsAppSettings.getJobRefreshPeriod(), TimeUnit.MINUTES);
         }
-
-        rssLogic.initScheduledJobs(scheduledThreadPoolExecutor);
     }
 
     private void safeTaskCancel(ScheduledFuture<?> futureTask) {
@@ -272,10 +266,6 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         ToolWindowManager.getInstance(project).notifyByBalloon(JenkinsWindowManager.JENKINS_BROWSER, MessageType.ERROR, message);
     }
 
-    public Project getProject() {
-        return project;
-    }
-
     private class JobStatusComparator implements JobComparator {
         @Override
         public int compare(DefaultMutableTreeNode treeNode1, DefaultMutableTreeNode treeNode2) {
@@ -335,8 +325,6 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         };
 
         tree.getEmptyText().clear();
-//        tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-
         tree.setCellRenderer(new JenkinsTreeRenderer(favoriteJobs));
         tree.setName("jobTree");
 
@@ -377,7 +365,6 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
     public void init() {
         initGui();
         reloadConfiguration();
-        rssLogic.init();
     }
 
     private void initGui() {
@@ -392,7 +379,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         actionGroup.add(new RefreshNodeAction(this));
         actionGroup.add(new RunBuildAction(this));
         actionGroup.add(new SortByStatusAction(this));
-        actionGroup.add(new RefreshRssAction(rssLogic));
+        actionGroup.add(new RefreshRssAction());
         actionGroup.addSeparator();
         actionGroup.add(new OpenPluginSettingsAction());
 
