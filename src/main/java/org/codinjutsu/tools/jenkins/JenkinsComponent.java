@@ -47,26 +47,35 @@ public class JenkinsComponent implements ProjectComponent, Configurable {
         this.configurationPanel = ConfigurationPanel.getInstance(project);
     }
 
-    @NotNull
-    public String getComponentName() {
-        return JENKINS_CONTROL_COMPONENT_NAME;
-    }
 
     public void projectOpened() {
         JenkinsWindowManager.getInstance(project);
     }
 
+
     public void projectClosed() {
         JenkinsWindowManager.getInstance(project).unregisterMyself();
     }
+
 
     public JComponent createComponent() {
         return configurationPanel.getRootPanel();
     }
 
+
     public boolean isModified() {
         return configurationPanel != null && configurationPanel.isModified(jenkinsAppSettings, jenkinsSettings);
     }
+
+
+    public void disposeUIResources() {
+        configurationPanel = null;
+    }
+
+    public String getHelpTopic() {
+        return null;
+    }
+
 
     public void apply() throws ConfigurationException {
         if (configurationPanel != null) {
@@ -79,32 +88,35 @@ public class JenkinsComponent implements ProjectComponent, Configurable {
         }
     }
 
-    public void reset() {
-        configurationPanel.loadConfigurationData(jenkinsAppSettings, jenkinsSettings);
+
+    @NotNull
+    public String getComponentName() {
+        return JENKINS_CONTROL_COMPONENT_NAME;
     }
 
-    public void disposeUIResources() {
-        configurationPanel = null;
+
+    @Nls
+    public String getDisplayName() {
+        return JENKINS_CONTROL_PLUGIN_NAME;
     }
+
 
     public Icon getIcon() {
         return null;
     }
 
+
+    public void reset() {
+        configurationPanel.loadConfigurationData(jenkinsAppSettings, jenkinsSettings);
+    }
+
+
     public void initComponent() {
 
     }
 
+
     public void disposeComponent() {
 
-    }
-
-    public String getHelpTopic() {
-        return null;
-    }
-
-    @Nls
-    public String getDisplayName() {
-        return JENKINS_CONTROL_PLUGIN_NAME;
     }
 }
