@@ -78,7 +78,11 @@ public class RequestManager {
         int viewPort = viewUrl.getPort();
 
         if (isJenkinsPortSet(jenkinsPort) && jenkinsPort != viewPort) {
-            throw new ConfigurationException(String.format("Jenkins Port seems to be incorrect in the Server configuration page. Please fix 'Jenkins URL' at %s/configure", configuration.getServerUrl()));
+            throw new ConfigurationException(String.format("Jenkins Server Port Mismatch: expected='%s' - actual='%s'. Look at the value of 'Jenkins URL' at %s/configure", jenkinsPort, viewPort, configuration.getServerUrl()));
+        }
+
+        if (!StringUtils.equals(url.getHost(), viewUrl.getHost())) {
+            throw new ConfigurationException(String.format("Jenkins Server Host Mismatch: expected='%s' - actual='%s'. Look at the value of 'Jenkins URL' at %s/configure", url.getHost(), viewUrl.getHost(), configuration.getServerUrl()));
         }
 
         return jenkins;

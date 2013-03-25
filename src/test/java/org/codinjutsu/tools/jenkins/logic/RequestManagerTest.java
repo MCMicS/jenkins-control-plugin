@@ -48,7 +48,7 @@ public class RequestManagerTest {
 
 
     @Test
-    public void loadJenkinsWorkspaceWithIncorrectServerPortInTheResponse() throws Exception {
+    public void loadJenkinsWorkspaceWithMismatchServerPortInTheResponse() throws Exception {
         configuration.setServerUrl("http://myjenkins:8080");
         URL urlFromConf = new URL("http://myjenkins:8080");
         URL urlFromJenkins = new URL("http://myjenkins:8082");
@@ -62,7 +62,26 @@ public class RequestManagerTest {
             requestManager.loadJenkinsWorkspace(configuration);
             Assert.fail();
         } catch (ConfigurationException ex) {
-            Assert.assertEquals("Jenkins Port seems to be incorrect in the Server configuration page. Please fix 'Jenkins URL' at http://myjenkins:8080/configure", ex.getMessage());
+            Assert.assertEquals("Jenkins Server Port Mismatch: expected='8080' - actual='8082'. Look at the value of 'Jenkins URL' at http://myjenkins:8080/configure", ex.getMessage());
+        }
+    }
+
+    @Test
+    public void loadJenkinsWorkspaceWithMismatchServerHostInTheResponse() throws Exception {
+        configuration.setServerUrl("http://myjenkins:8080");
+        URL urlFromConf = new URL("http://myjenkins:8080");
+        URL urlFromJenkins = new URL("http://anotherjenkins:8080");
+        when(urlBuilderMock.createJenkinsWorkspaceUrl(configuration))
+                .thenReturn(urlFromConf);
+        when(urlBuilderMock.createViewUrl(any(JenkinsPlateform.class), anyString()))
+                .thenReturn(urlFromJenkins);
+        when(securityClientMock.execute(urlFromConf))
+                .thenReturn(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadJenkinsWorkspaceWithIncorrectPortInTheResponse.json")));
+        try {
+            requestManager.loadJenkinsWorkspace(configuration);
+            Assert.fail();
+        } catch (ConfigurationException ex) {
+            Assert.assertEquals("Jenkins Server Host Mismatch: expected='myjenkins' - actual='anotherjenkins'. Look at the value of 'Jenkins URL' at http://myjenkins:8080/configure", ex.getMessage());
         }
     }
 
