@@ -17,6 +17,7 @@
 package org.codinjutsu.tools.jenkins.model;
 
 import org.apache.commons.lang.StringUtils;
+import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -99,5 +100,9 @@ public class Jenkins {
         this.views.clear();
         this.views.addAll(jenkins.getViews());
         this.primaryView = jenkins.getPrimaryView();
+    }
+
+    public static Jenkins byDefault() {
+        return new Jenkins("", JenkinsAppSettings.DUMMY_JENKINS_SERVER_URL);
     }
 }

@@ -21,6 +21,9 @@ import com.intellij.notification.NotificationListener;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.progress.PerformInBackgroundOption;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.popup.Balloon;
@@ -32,10 +35,13 @@ import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.JenkinsWidget;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class RssLogic implements Disposable {
 
@@ -47,23 +53,34 @@ public class RssLogic implements Disposable {
 
     private Map<String, Build> currentBuildMap = new HashMap<String, Build>();
 
-    private final Runnable refreshRssBuildsJob = new LoadLatestBuildsJob(true);
+    private final Runnable refreshRssBuildsJob;
     private ScheduledFuture<?> refreshRssBuildFutureTask;
 
     public static RssLogic getInstance(Project project) {
         return ServiceManager.getService(project, RssLogic.class);
     }
 
-    public RssLogic(Project project) {
+    public RssLogic(final Project project) {
         this.project = project;
         this.jenkinsAppSettings = JenkinsAppSettings.getSafeInstance(project);
         this.requestManager = RequestManager.getInstance(project);
+        refreshRssBuildsJob = new Runnable() {
+            @Override
+            public void run() {
+                GuiUtil.runInSwingThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        new LoadLatestBuildsJob(project, true).queue();
+                    }
+                });
+            }
+        };
     }
 
     public void loadLatestBuilds(boolean shouldDisplayResult) {
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.submit(new LoadLatestBuildsJob(shouldDisplayResult));
-        executorService.shutdown();
+        if (jenkinsAppSettings.isServerUrlSet()) {
+            new LoadLatestBuildsJob(project, shouldDisplayResult).queue();
+        }
     }
 
 
@@ -129,15 +146,16 @@ public class RssLogic implements Disposable {
     }
 
 
-    private class LoadLatestBuildsJob implements Runnable {
+    private class LoadLatestBuildsJob extends Task.Backgroundable {
         private final boolean shouldDisplayResult;
 
-        public LoadLatestBuildsJob(boolean shouldDisplayResult) {
+        public LoadLatestBuildsJob(Project project, boolean shouldDisplayResult) {
+            super(project, "Load last builds", true);
             this.shouldDisplayResult = shouldDisplayResult;
         }
 
         @Override
-        public void run() {
+        public void run(@NotNull ProgressIndicator indicator) {
             final Map<String, Build> finishedBuilds = loadAndReturnNewLatestBuilds();
             if (!shouldDisplayResult || finishedBuilds.isEmpty()) {
                 return;
@@ -182,7 +200,6 @@ public class RssLogic implements Disposable {
                 });
             }
         }
-
     }
 
     public static String buildMessage(Build build) {

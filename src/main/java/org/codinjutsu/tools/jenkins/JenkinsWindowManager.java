@@ -85,6 +85,10 @@ public class JenkinsWindowManager {
     }
 
     public void reloadConfiguration() {
-        BrowserPanel.getInstance(project).reloadConfiguration();
+        BrowserPanel browserPanel = BrowserPanel.getInstance(project);
+        browserPanel.reloadConfiguration();
+        browserPanel.initScheduledJobs(scheduledThreadPoolExecutor);
+
+        RssLogic.getInstance(project).initScheduledJobs(scheduledThreadPoolExecutor);
     }
 }

@@ -21,15 +21,17 @@ import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.progress.PerformInBackgroundOption;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.BrowserHyperlinkListener;
 import com.intellij.ui.PopupHandler;
-import com.intellij.ui.components.JBScrollPane;
+import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.ui.tree.TreeUtil;
@@ -47,6 +49,8 @@ import org.codinjutsu.tools.jenkins.view.action.search.NextOccurrenceAction;
 import org.codinjutsu.tools.jenkins.view.action.search.OpenJobSearchPanelAction;
 import org.codinjutsu.tools.jenkins.view.action.search.PrevOccurrenceAction;
 import org.codinjutsu.tools.jenkins.view.action.settings.SortByStatusAction;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -63,6 +67,9 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
     private static final URL pluginSettingsUrl = GuiUtil.isUnderDarcula() ? GuiUtil.getIconResource("settings_dark.png") : GuiUtil.getIconResource("settings.png");
 
+    private static final String UNAVAILABLE = String.format("<html><center>No Jenkins server available<br><br>You may use <img src=\"%s\"> to add or fix configuration</center></html>", pluginSettingsUrl);
+    private static final String LOADING = "Loading...";
+
     private JPanel rootPanel;
 
     private JPanel jobPanel;
@@ -74,7 +81,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
     private final JobComparator jobStatusComparator = new JobStatusComparator();
     private boolean sortedByBuildStatus;
 
-    private final Runnable refreshViewJob = new LoadSelectedViewJob();
+    private final Runnable refreshViewJob;
     private ScheduledFuture<?> refreshViewFutureTask;
 
     private final Project project;
@@ -84,7 +91,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
     private final RequestManager requestManager;
 
-    private Jenkins jenkins;
+    private final Jenkins jenkins;
     private FavoriteView favoriteView;
     private View currentSelectedView;
 
@@ -93,25 +100,41 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         return ServiceManager.getService(project, BrowserPanel.class);
     }
 
-    public BrowserPanel(Project project) {
+    public BrowserPanel(final Project project) {
 
         super(true);
         this.project = project;
+
+        refreshViewJob = new Runnable() {
+            @Override
+            public void run() {
+                GuiUtil.runInSwingThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        new LoadSelectedViewJob(project).queue();
+                    }
+                });
+            }
+        };
+
         requestManager = RequestManager.getInstance(project);
         jenkinsAppSettings = JenkinsAppSettings.getSafeInstance(project);
         jenkinsSettings = JenkinsSettings.getSafeInstance(project);
         setProvideQuickActions(false);
 
+        jenkins = Jenkins.byDefault();
         jobTree = createTree(jenkinsSettings.getFavoriteJobs());
+
+
         jobPanel.setLayout(new BorderLayout());
-        jobPanel.add(new JBScrollPane(jobTree), BorderLayout.CENTER);
+        jobPanel.add(ScrollPaneFactory.createScrollPane(jobTree), BorderLayout.CENTER);
 
         setContent(rootPanel);
     }
 
 
     public void fillData(Jenkins jenkins) {
-        this.jenkins = jenkins;
+        this.jenkins.update(jenkins);
         fillJobTree(BuildStatusVisitor.NULL);
     }
 
@@ -156,7 +179,6 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
     public void fillJobTree(BuildStatusVisitor buildStatusVisitor) {
         List<Job> jobList = jenkins.getJobs();
         if (jobList.isEmpty()) {
-            jobTree.setRootVisible(false);
             return;
         }
 
@@ -284,17 +306,22 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
     private Tree createTree(List<JenkinsSettings.FavoriteJob> favoriteJobs) {
 
+
         SimpleTree tree = new SimpleTree() {
 
-            private final JLabel myLabel = new JLabel(
-                    String.format("<html><center>No Jenkins server available<br><br>You may use <img src=\"%s\"> to add or fix configuration</center></html>", pluginSettingsUrl)
-            );
+            private final JLabel myLabel = new JLabel(LOADING);
 
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
 
-                if (jenkins != null && !jenkins.getJobs().isEmpty()) return;
+                if (jenkinsAppSettings.isServerUrlSet() && !jenkins.getJobs().isEmpty()) return;
+
+                if (!jenkinsAppSettings.isServerUrlSet()) {
+                    myLabel.setText(UNAVAILABLE);
+                } else {
+                    myLabel.setText(LOADING);
+                }
 
                 myLabel.setFont(getFont());
                 myLabel.setBackground(getBackground());
@@ -410,7 +437,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
     }
 
     private void loadJenkinsWorkspace() {
-        jenkins = requestManager.loadJenkinsWorkspace(jenkinsAppSettings);
+        Jenkins jenkins = requestManager.loadJenkinsWorkspace(jenkinsAppSettings);
         fillData(jenkins);
     }
 
@@ -418,7 +445,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         if (view != null) {//TODO to be removed
             this.currentSelectedView = view;
         }
-        ApplicationManager.getApplication().invokeLater(new LoadSelectedViewJob());
+        new LoadSelectedViewJob(project).queue();
     }
 
     public void setAsFavorite(List<Job> jobs) {
@@ -451,24 +478,35 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         return jenkinsSettings.isAFavoriteJob(jobName);
     }
 
-    private class LoadSelectedViewJob implements Runnable {
+    private class LoadSelectedViewJob extends Task.Backgroundable {
+        public LoadSelectedViewJob(@Nullable Project project) {
+            super(project, "Loading Jenkins Jobs", true);
+        }
+
         @Override
-        public void run() {
+        public void run(@NotNull ProgressIndicator indicator) {
+
             if (currentSelectedView == null) {
                 if (jenkins == null) {
                     return;
                 }
                 currentSelectedView = jenkins.getPrimaryView();
             }
+
+            GuiUtil.runInSwingThread(new Runnable() {
+                @Override
+                public void run() {
+                    jobTree.setPaintBusy(true);
+                }
+            });
+
             final List<Job> jobList;
-
-            jobTree.setPaintBusy(true);
-
             if (currentSelectedView instanceof FavoriteView) {
                 jobList = requestManager.loadFavoriteJobs(jenkinsSettings.getFavoriteJobs());
             } else {
                 jobList = requestManager.loadJenkinsView(currentSelectedView.getUrl());
             }
+
             jenkinsSettings.setLastSelectedView(currentSelectedView.getName());
 
             jenkins.setJobs(jobList);
@@ -477,11 +515,12 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
             GuiUtil.runInSwingThread(new Runnable() {
                 @Override
                 public void run() {
+
+
                     fillJobTree(buildStatusAggregator);
                     jobTree.setPaintBusy(false);
                     JenkinsWidget.getInstance(project).updateStatusIcon(buildStatusAggregator);
                 }
-
             });
         }
     }

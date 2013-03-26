@@ -44,7 +44,6 @@ public class JenkinsComponent implements ProjectComponent, Configurable {
         this.project = project;
         this.jenkinsAppSettings = JenkinsAppSettings.getSafeInstance(project);
         this.jenkinsSettings = JenkinsSettings.getSafeInstance(project);
-        this.configurationPanel = new ConfigurationPanel(project);
     }
 
 
@@ -59,6 +58,9 @@ public class JenkinsComponent implements ProjectComponent, Configurable {
 
 
     public JComponent createComponent() {
+        if (configurationPanel == null) {
+            configurationPanel = new ConfigurationPanel(project);
+        }
         return configurationPanel.getRootPanel();
     }
 
