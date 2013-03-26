@@ -19,10 +19,8 @@ package org.codinjutsu.tools.jenkins.view;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.progress.PerformInBackgroundOption;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -32,8 +30,10 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.BrowserHyperlinkListener;
 import com.intellij.ui.PopupHandler;
 import com.intellij.ui.ScrollPaneFactory;
+import com.intellij.ui.TreeSpeedSearch;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.ui.treeStructure.Tree;
+import com.intellij.util.containers.Convertor;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
@@ -46,9 +46,6 @@ import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.action.*;
-import org.codinjutsu.tools.jenkins.view.action.search.NextOccurrenceAction;
-import org.codinjutsu.tools.jenkins.view.action.search.OpenJobSearchPanelAction;
-import org.codinjutsu.tools.jenkins.view.action.search.PrevOccurrenceAction;
 import org.codinjutsu.tools.jenkins.view.action.settings.SortByStatusAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -57,6 +54,7 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.net.URL;
 import java.util.List;
@@ -75,9 +73,6 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
     private JPanel jobPanel;
     private Tree jobTree;
-
-    private JPanel searchPanel;
-    private JobSearchComponent searchComponent;
 
     private final JobComparator jobStatusComparator = new JobStatusComparator();
     private boolean sortedByBuildStatus;
@@ -137,11 +132,6 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
     public void fillData(Jenkins jenkins) {
         this.jenkins.update(jenkins);
         fillJobTree(BuildStatusVisitor.NULL);
-    }
-
-    public void createSearchPanel() {
-        searchComponent = new JobSearchComponent(jobTree);
-        searchPanel.add(searchComponent, BorderLayout.CENTER);
     }
 
     public void initScheduledJobs(ScheduledThreadPoolExecutor scheduledThreadPoolExecutor) {
@@ -210,10 +200,6 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
     public JTree getJobTree() {
         return jobTree;
-    }
-
-    public JobSearchComponent getSearchComponent() {
-        return searchComponent;
     }
 
     @Override
@@ -347,6 +333,19 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
         tree.setRootVisible(false);
 
+        new TreeSpeedSearch(tree, new Convertor<TreePath, String>() {
+
+            @Override
+            public String convert(TreePath treePath) {
+                final DefaultMutableTreeNode node = (DefaultMutableTreeNode) treePath.getLastPathComponent();
+                final Object userObject = node.getUserObject();
+                if (userObject instanceof Job) {
+                    return ((Job) userObject).getName();
+                }
+                return "<empty>";
+            }
+        });
+
         return tree;
     }
 
@@ -385,9 +384,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
     }
 
     private void initGui() {
-        createSearchPanel();
         installBrowserActions(getJobTree());
-        installSearchActions(getSearchComponent());
     }
 
     protected void installBrowserActions(JTree jobTree) {
@@ -410,18 +407,6 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         popupGroup.add(new GotoLastBuildPageAction(this));
 
         installActionGroupInPopupMenu(popupGroup, jobTree, ActionManager.getInstance());
-    }
-
-    protected void installSearchActions(JobSearchComponent searchComponent) {
-
-        DefaultActionGroup actionGroup = new DefaultActionGroup("search bar", false);
-        actionGroup.add(new PrevOccurrenceAction(searchComponent));
-        actionGroup.add(new NextOccurrenceAction(searchComponent));
-
-        ActionToolbar searchBar = ActionManager.getInstance().createActionToolbar("SearchBar", actionGroup, true);
-        searchComponent.installSearchToolBar(searchBar);
-
-        new OpenJobSearchPanelAction(this, this.getSearchComponent());
     }
 
     private static void installActionGroupInPopupMenu(ActionGroup group,
