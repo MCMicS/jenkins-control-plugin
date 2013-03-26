@@ -150,7 +150,7 @@ public class RssLogic implements Disposable {
         private final boolean shouldDisplayResult;
 
         public LoadLatestBuildsJob(Project project, boolean shouldDisplayResult) {
-            super(project, "Load last builds", true);
+            super(project, "Load last builds", true, JenkinsLoadingTaskOption.INSTANCE);
             this.shouldDisplayResult = shouldDisplayResult;
         }
 

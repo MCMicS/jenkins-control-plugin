@@ -41,6 +41,7 @@ import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.JenkinsWindowManager;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusVisitor;
+import org.codinjutsu.tools.jenkins.logic.JenkinsLoadingTaskOption;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
@@ -480,7 +481,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
     private class LoadSelectedViewJob extends Task.Backgroundable {
         public LoadSelectedViewJob(@Nullable Project project) {
-            super(project, "Loading Jenkins Jobs", true);
+            super(project, "Loading Jenkins Jobs", true, JenkinsLoadingTaskOption.INSTANCE);
         }
 
         @Override
