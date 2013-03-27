@@ -33,6 +33,8 @@ public class JenkinsSimpleJsonParser implements JenkinsParser {
 
     @Override
     public Jenkins createWorkspace(String jsonData, String serverUrl) {
+        checkJsonDataAndThrowExceptionIfNecessary(jsonData);
+
         JSONParser parser = new JSONParser();
         Jenkins jenkins = new Jenkins("", serverUrl);
 
@@ -101,6 +103,8 @@ public class JenkinsSimpleJsonParser implements JenkinsParser {
 
     @Override
     public Job createJob(String jsonData) {
+        checkJsonDataAndThrowExceptionIfNecessary(jsonData);
+
         JSONParser parser = new JSONParser();
         try {
             JSONObject jsonObject = (JSONObject) parser.parse(jsonData);
@@ -237,11 +241,12 @@ public class JenkinsSimpleJsonParser implements JenkinsParser {
 
     @Override
     public List<Job> createViewJobs(String jsonData) {
-        List<Job> jobs = new LinkedList<Job>();
+        checkJsonDataAndThrowExceptionIfNecessary(jsonData);
 
         JSONParser parser = new JSONParser();
 
         try {
+            List<Job> jobs = new LinkedList<Job>();
             JSONObject jsonObject = (JSONObject) parser.parse(jsonData);
             JSONArray jobObjects = (JSONArray) jsonObject.get(JOBS);
             for (Object object : jobObjects) {
@@ -259,11 +264,12 @@ public class JenkinsSimpleJsonParser implements JenkinsParser {
 
     @Override
     public List<Job> createCloudbeesViewJobs(String jsonData) {
-        List<Job> jobs = new LinkedList<Job>();
+        checkJsonDataAndThrowExceptionIfNecessary(jsonData);
 
         JSONParser parser = new JSONParser();
 
         try {
+            List<Job> jobs = new LinkedList<Job>();
             JSONObject jsonObject = (JSONObject) parser.parse(jsonData);
             JSONArray viewObjs = (JSONArray) jsonObject.get(VIEWS);
             if (viewObjs == null && viewObjs.isEmpty()) {
@@ -286,6 +292,15 @@ public class JenkinsSimpleJsonParser implements JenkinsParser {
             String message = String.format("Error during parsing JSON data : %s", jsonData);
             LOG.error(message, e);
             throw new RuntimeException(e);
+        }
+    }
+
+
+    private void checkJsonDataAndThrowExceptionIfNecessary(String jsonData) {
+        if (StringUtils.isEmpty(jsonData)) {
+            String message = String.format("Empty JSON data!");
+            LOG.error(message);
+            throw new IllegalStateException(message);
         }
     }
 }

@@ -17,6 +17,7 @@
 package org.codinjutsu.tools.jenkins.logic;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
@@ -51,12 +52,17 @@ public class RssParser {
         return createLatestBuildList(doc);
     }
 
-    private Document buildDocument(String jenkinsXmlData) {
-        Reader jenkinsDataReader = new StringReader(jenkinsXmlData);
+    private Document buildDocument(String xmlData) {
+        if (StringUtils.isEmpty(xmlData)) {
+            LOG.error("Empty XML data");
+            throw new IllegalStateException("Empty XML data");
+        }
+
+        Reader jenkinsDataReader = new StringReader(xmlData);
         try {
             return new SAXBuilder(false).build(jenkinsDataReader);
         } catch (JDOMException e) {
-            LOG.error("Invalid data received from the Jenkins Server. Actual :\n" + jenkinsXmlData, e);
+            LOG.error("Invalid data received from the Jenkins Server. Actual :\n" + xmlData, e);
             throw new RuntimeException("Invalid data received from the Jenkins Server. Please retry");
         } catch (IOException e) {
             LOG.error("Error during analyzing the Jenkins data.", e);
