@@ -28,6 +28,8 @@ public class BuildStatusAggregator implements BuildStatusVisitor {
 
     private int nbJobs = 0;
 
+    public static BuildStatusAggregator EMPTY = new BuildStatusAggregator(0);
+
     public BuildStatusAggregator(int nbJobs) {
         this.nbJobs = nbJobs;
     }

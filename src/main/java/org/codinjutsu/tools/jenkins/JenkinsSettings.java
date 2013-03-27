@@ -121,7 +121,7 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
         return false;
     }
 
-    public void removeFavorite(List<Job> selectedJobs) {//TODO crappy!
+    public void removeFavorite(List<Job> selectedJobs) {//TODO need to refactor
         for (Job selectedJob : selectedJobs) {
             for (Iterator<FavoriteJob> iterator = myState.favoriteJobs.iterator(); iterator.hasNext(); ) {
                 FavoriteJob favoriteJob = iterator.next();

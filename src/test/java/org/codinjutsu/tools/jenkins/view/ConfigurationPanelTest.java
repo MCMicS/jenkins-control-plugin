@@ -215,7 +215,7 @@ public class ConfigurationPanelTest extends UISpecTestCase {
         MockitoAnnotations.initMocks(this);
 
         jenkinsAppSettings = new JenkinsAppSettings();
-        jenkinsSettings = new JenkinsSettings() {//TODO Crappy
+        jenkinsSettings = new JenkinsSettings() {
 
             private String password;
 

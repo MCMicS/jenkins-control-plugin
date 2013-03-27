@@ -295,7 +295,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
     public void reloadConfiguration() {
         if (!jenkinsAppSettings.isServerUrlSet()) {
-            JenkinsWidget.getInstance(project).updateStatusIcon(new BuildStatusAggregator(0));//TODO Crappy, need rewrite this
+            JenkinsWidget.getInstance(project).updateStatusIcon(BuildStatusAggregator.EMPTY);
             DefaultTreeModel model = (DefaultTreeModel) jobTree.getModel();
             DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
             root.removeAllChildren();
@@ -471,12 +471,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         @Override
         public void run(@NotNull ProgressIndicator indicator) {
 
-//            GuiUtil.runInSwingThread(new Runnable() {
-//                @Override
-//                public void run() {
             jobTree.setPaintBusy(true);
-//                }
-//            });
 
             View viewToLoad = getViewToLoad();
             if (viewToLoad == null) {
@@ -485,15 +480,10 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
             currentSelectedView = viewToLoad;
             loadJobs(viewToLoad);
 
-//            GuiUtil.runInSwingThread(new Runnable() {
-//                @Override
-//                public void run() {
             final BuildStatusAggregator buildStatusAggregator = new BuildStatusAggregator(jenkins.getJobs().size());
             fillJobTree(buildStatusAggregator);
             jobTree.setPaintBusy(false);
             JenkinsWidget.getInstance(project).updateStatusIcon(buildStatusAggregator);
-//                }
-//            });
         }
     }
 }
