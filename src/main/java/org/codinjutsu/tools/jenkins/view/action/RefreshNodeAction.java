@@ -20,7 +20,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
-import org.codinjutsu.tools.jenkins.JenkinsComponent;
+import com.intellij.util.PlatformIcons;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 
@@ -41,7 +41,7 @@ public class RefreshNodeAction extends AnAction implements DumbAware {
     @Override
     public void actionPerformed(AnActionEvent event) {
         try {
-            browserPanel.loadView(null);//TODO to be refactored
+            browserPanel.refreshCurrentView();
         } catch (Exception ex) {
             browserPanel.notifyErrorJenkinsToolWindow("Unable to refresh: " + ex.getMessage());
         }
@@ -50,6 +50,6 @@ public class RefreshNodeAction extends AnAction implements DumbAware {
 
     @Override
     public void update(AnActionEvent event) {
-        event.getPresentation().setEnabled(browserPanel.getJenkins() != null);
+        event.getPresentation().setEnabled(!browserPanel.getJenkins().getJobs().isEmpty());
     }
 }

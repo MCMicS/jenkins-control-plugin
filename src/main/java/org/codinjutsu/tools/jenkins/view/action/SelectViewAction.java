@@ -101,6 +101,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.actionSystem.ex.CustomComponentAction;
 import com.intellij.openapi.project.DumbAwareAction;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.PopupChooserBuilder;
 import com.intellij.ui.awt.RelativePoint;
@@ -145,38 +146,7 @@ public class SelectViewAction extends DumbAwareAction implements CustomComponent
         iconLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 2));
         myPanel.add(iconLabel, myLabel);
 
-        myPanel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                List<View> views = browserPanel.getJenkins().getViews();
-                if (views.isEmpty()) {
-                    return;
-                }
-
-                final JBList viewList = buildViewList(views, browserPanel);
-
-                JBPopup popup = new PopupChooserBuilder(viewList)
-                        .setMovable(false)
-                        .setCancelKeyEnabled(true)
-                        .setItemChoosenCallback(new Runnable() {
-                            public void run() {
-                                final View view = (View) viewList.getSelectedValue();
-                                if (view == null || view.hasNestedView()) return;
-
-                                SelectViewAction.this.browserPanel.loadView(view);
-                            }
-                        })
-                        .createPopup();
-
-                if (e != null) {
-                    popup.show(new RelativePoint(e));
-                } else {
-                    final Dimension dimension = popup.getContent().getPreferredSize();
-                    final Point at = new Point(-dimension.width / 2, -dimension.height);
-                    popup.show(new RelativePoint(myLabel, at));
-                }
-            }
-        });
+        myPanel.addMouseListener(new MyMouseAdapter());
     }
 
     private JBList buildViewList(List<View> views, BrowserPanel browserPanel) {
@@ -202,6 +172,8 @@ public class SelectViewAction extends DumbAwareAction implements CustomComponent
         View currentSelectedView = browserPanel.getCurrentSelectedView();
         if (currentSelectedView != null) {
             myLabel.setText(currentSelectedView.getName());
+        } else {
+            myLabel.setText("");
         }
     }
 
@@ -235,6 +207,39 @@ public class SelectViewAction extends DumbAwareAction implements CustomComponent
             if (view.hasNestedView()) return true;
         }
         return false;
+    }
+
+    private class MyMouseAdapter extends MouseAdapter {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            List<View> views = browserPanel.getJenkins().getViews();
+            if (views.isEmpty()) {
+                return;
+            }
+
+            final JBList viewList = buildViewList(views, browserPanel);
+
+            JBPopup popup = new PopupChooserBuilder(viewList)
+                    .setMovable(false)
+                    .setCancelKeyEnabled(true)
+                    .setItemChoosenCallback(new Runnable() {
+                        public void run() {
+                            final View view = (View) viewList.getSelectedValue();
+                            if (view == null || view.hasNestedView()) return;
+
+                            browserPanel.loadView(view);
+                        }
+                    })
+                    .createPopup();
+
+            if (e != null) {
+                popup.show(new RelativePoint(e));
+            } else {
+                final Dimension dimension = popup.getContent().getPreferredSize();
+                final Point at = new Point(-dimension.width / 2, -dimension.height);
+                popup.show(new RelativePoint(myLabel, at));
+            }
+        }
     }
 }
 

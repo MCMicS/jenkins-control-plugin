@@ -22,7 +22,6 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
-import org.codinjutsu.tools.jenkins.JenkinsComponent;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
@@ -50,8 +49,8 @@ public class RunBuildAction extends AnAction implements DumbAware {
     public void actionPerformed(AnActionEvent event) {
         Project project = ActionUtil.getProject(event);
 
+        final BrowserPanel browserPanel = BrowserPanel.getInstance(project);
         try {
-
             Job job = browserPanel.getSelectedJob();
 
             RequestManager requestManager = browserPanel.getJenkinsManager();

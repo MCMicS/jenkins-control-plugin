@@ -21,7 +21,6 @@ import com.intellij.notification.NotificationListener;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.progress.PerformInBackgroundOption;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -89,7 +88,7 @@ public class RssLogic implements Disposable {
 
         scheduledThreadPoolExecutor1.remove(refreshRssBuildsJob);
 
-        if (jenkinsAppSettings.getRssRefreshPeriod() > 0) {
+        if (jenkinsAppSettings.isServerUrlSet() && jenkinsAppSettings.getRssRefreshPeriod() > 0) {
             refreshRssBuildFutureTask = scheduledThreadPoolExecutor1.scheduleWithFixedDelay(refreshRssBuildsJob, jenkinsAppSettings.getRssRefreshPeriod(), jenkinsAppSettings.getRssRefreshPeriod(), TimeUnit.MINUTES);
         }
     }
