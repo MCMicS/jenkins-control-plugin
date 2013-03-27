@@ -1,15 +1,9 @@
 # Jenkins Plugin for IntelliJ IDEA
 
-## Important Note for the 0.7.0 version
+## Important Notes for the version 0.8.0
 
-The last release will break all existing configurations:
-
-* The server configuration is stored in **IPR** file and the user specific configuration in the **IWS** file,
-* The password file was really inconvenient so it is now stored in Intellij by the **Password Manager**,
-* The crumb data file was also replaced,
-* Checkboxes were removed to improve usability.
-
-For more detail about configure the server, please read the [Configuration steps](https://github.com/dboissier/jenkins-control-plugin#configuration-steps) section.
+This release is not compatible with IDEA 10.
+This release is not available on the Plugin repository. The snapshot version is weekly updated and can be downloaded [here](https://github.com/dboissier/jenkins-control-plugin/raw/master/snapshot/jenkins-control-plugin-0.8.0-SNAPSHOT-distribution.zip)
 
 ## ChangeLog
 See CHANGELOG.txt
@@ -20,7 +14,7 @@ This plugin allows to view the content of your Jenkins Continous Integration Ser
 ![Browser](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/images/Browser.png?raw=true)
 
 ## Plugin Compatibility
-This plugin was built with JDK 1.6 and ideaIU-10.5.0 version. Jenkins CIs of jenkins-ci and apache.org are used for manual and stress testing.
+This plugin was built with JDK 1.6 and IDEA 11 version. Jenkins CIs of jenkins-ci and apache.org are used for manual and stress testing.
 
 ## Installation steps
 Download this plugin from your IDE or from the plugin website: http://plugins.intellij.net/?idea&id=6110.
@@ -39,13 +33,11 @@ Download this plugin from your IDE or from the plugin website: http://plugins.in
 ![Connection failed](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/images/Configuration-failure.png?raw=true)
 
 * You can specify a build start delay (in sec.).
-* You can set an auto refresh Period value (in minutes) for both Job Browser and Rss Feed Reader.
+* You can set an auto refresh Period value (in minutes) for both Job Browser and Rss Reader.
+* **NEW** You can filter the RSS data based on the status of the build
 * When your configuration is set up, click on the **Apply** Button to save it.
 
 ## Usage
-By default, Jenkins Plugin Panel is available on the right of the IDE. Click on the Jenkins Button to display it.
-The panel is divided into 2 parts :
-### Up part - Job view
 * To view the jobs You have to refresh the Jenkins Workspace by right-clicking on the Server icon node
 * You can select some view by selecting of them in the combo box.
 * When you right click on a job some options are available such as Launch a Build, View The Job's Page and View the Last Build Results.
@@ -53,9 +45,7 @@ The panel is divided into 2 parts :
 
 ![Build sorting](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/images/Browser-sortingByStatus.png?raw=true)
 
-* Search Panel appears whenever you type CTRL+F. Use F3/SHIFT+F3 to search forward/backward.
-
-![Up part](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/images/Browser-search.png?raw=true)
+* **NEW** To search specific Job, just start typing in the Browser and use UP and DOWN keys to navigate.
 
 * You can set some jobs as favorite.
 
@@ -65,29 +55,25 @@ The panel is divided into 2 parts :
 
 ![Favorite view](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/images/Browser-favoriteView.png?raw=true)
 
-### Down part - Rss View
-To get the last rss feeds, you have to click on the Rss icon button, a list will appear and you will be able to go to the broken build web page.
+### RSS Reader
+The RSS reader has moved to the Event Log. If you need to refresh manually, click on the Rss icon button.
 
 ![Rss view](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/images/RssLatestBuilds.png?raw=true)
 
 ### Widget
 * A small widget is available on the status bar. It indicates the overall status of the selected view. When there is no broken build then the icon color is blue (else, a red icon is displayed with the remaining broken builds. If the job auto-refresh is enabled then the widget updates itself.
-* When you click on the icon, a popup is displayed with builds status summary (# broken, # succeeded, # unstable) and weather that indicates the health of the project view.
 
 ![Widget](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/images/Widget.png?raw=true)
 
 ## Limitations
 * This software is written under Apache License 2.0.
-* This software follows some agile practice: Provide basic functionality and get feedback from the users. So, this version
-does not cover all needs and any suggestion can be posted on the issue section of the github project.
-* if HTTPS is used, the plugin only works with **trusted** certificates
-* LDAP is not supported
+* if Jenkins is behing an HTTPS web server, set a **trusted** certificate.
 
 ## Thanks
-I would like to thank
+I would like to thank:
 * Kohsuke Kawaguchi for providing us such a great CI server
 * Jetbrains Team for providing us such an incredible IDE (certainly the best that Java developers could have).
-* Marcin Zajączkowski for his smart suggestions
+* All users who sent me valuable suggestions
 * Mark James author of the famfamfam web site who provides beautiful icons.
 * Guys from Lex Group : Boris Gonnot, Regis Medina, Sébastien Crego, Olivier Catteau, Jean Baptiste Potonnier and others Agile ninjas.
 * My wife and my daughter who support me to have fun in software development and also remind me my husband/father duty ;).

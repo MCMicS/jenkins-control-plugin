@@ -1,10 +1,12 @@
 Version 0.8.0
     * [Add] #43 Support multiple selection for favorites
-    * [Upd] Redesign the toolbar in the browser panel
+    * [Add] #51 Check the hostname sent by the jenkins server
+    * [Upd] Improve background loading of jenkins data
+    * [Upd] Browser: Complete UI refactor
     * [Upd] Integrate Rss Reader in the Event Log
     * [Upd] Replace Jackson lib by json-simple
     * [Upd] Migrate to IntelliJ 11
-    * [Fix] Color and icons for Darcula theme
+    * [Upd] Color and icons for Darcula theme
 
 Version 0.7.0
     * [Upd] UI: Fix Color for new Look&Feel Darcula of IDEA 12
