@@ -53,7 +53,7 @@ Download this plugin from your IDE or from the plugin website: http://plugins.in
 
 * A new View will appear in the combobox that will include your selected jobs.
 
-![Favorite view](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/images/Browser-favoriteView.png?raw=true)
+![Favorite view](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/images/Browser-selectFavoriteView.png?raw=true)
 
 ### RSS Reader
 The RSS reader has moved to the Event Log. If you need to refresh manually, click on the Rss icon button.
