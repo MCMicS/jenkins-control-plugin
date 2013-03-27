@@ -38,6 +38,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -76,12 +77,15 @@ public class RssLogic implements Disposable {
         };
     }
 
+    public void init() {
+        loadLatestBuilds(false);
+    }
+
     public void loadLatestBuilds(boolean shouldDisplayResult) {
         if (jenkinsAppSettings.isServerUrlSet()) {
             new LoadLatestBuildsJob(project, shouldDisplayResult).queue();
         }
     }
-
 
     public void initScheduledJobs(ScheduledThreadPoolExecutor scheduledThreadPoolExecutor1) {
         safeTaskCancel(refreshRssBuildFutureTask);
@@ -93,7 +97,6 @@ public class RssLogic implements Disposable {
         }
     }
 
-
     private void safeTaskCancel(ScheduledFuture<?> futureTask) {
         if (futureTask == null) {
             return;
@@ -102,17 +105,6 @@ public class RssLogic implements Disposable {
             futureTask.cancel(false);
         }
     }
-
-    private Map.Entry<String, Build> getFirstFailedBuild(Map<String, Build> finishedBuilds) {
-        for (Map.Entry<String, Build> buildByJobName : finishedBuilds.entrySet()) {
-            Build build = buildByJobName.getValue();
-            if (build.getStatus() == BuildStatusEnum.FAILURE) {
-                return buildByJobName;
-            }
-        }
-        return null;
-    }
-
 
     private Map<String, Build> loadAndReturnNewLatestBuilds() {
         Map<String, Build> latestBuildMap = requestManager.loadJenkinsRssLatestBuilds(jenkinsAppSettings);
@@ -135,15 +127,74 @@ public class RssLogic implements Disposable {
         return newBuildMap;
     }
 
-    public void init() {
-        loadLatestBuilds(false);
+    private void sendNotificationForEachBuild(List<Build> buildToSortByDateDescending) {
+        for (Build build : buildToSortByDateDescending) {
+            BuildStatusEnum status = build.getStatus();
+            NotificationType notificationType;
+            if (BuildStatusEnum.SUCCESS.equals(status) || BuildStatusEnum.STABLE.equals(status)) {
+                notificationType = NotificationType.INFORMATION;
+            } else if (BuildStatusEnum.FAILURE.equals(status) || (BuildStatusEnum.UNSTABLE.equals(status))) {
+                notificationType = NotificationType.ERROR;
+            } else {
+                notificationType = NotificationType.WARNING;
+            }
+            JENKINS_RSS_GROUP
+                    .createNotification("", buildMessage(build), notificationType, NotificationListener.URL_OPENING_LISTENER)
+                    .notify(project);
+        }
+    }
+
+    private List<Build> sortByDateDescending(Map<String, Build> finishedBuilds) {
+        final List<Build> buildToSortByDateDescending = new ArrayList<Build>(finishedBuilds.values());
+
+        Collections.sort(buildToSortByDateDescending, new Comparator<Build>() {
+            @Override
+            public int compare(Build firstBuild, Build secondBuild) {
+                return firstBuild.getBuildDate().compareTo(secondBuild.getBuildDate());
+            }
+        });
+        return buildToSortByDateDescending;
+    }
+
+    private void displayTheFirstFailedBuildInABalloon(Map.Entry<String, Build> firstFailedBuild) {
+        if (firstFailedBuild != null) {
+            String jobName = firstFailedBuild.getKey();
+            Build build = firstFailedBuild.getValue();
+            BalloonBuilder balloonBuilder = JBPopupFactory.getInstance().createHtmlTextBalloonBuilder(jobName + "#" + build.getNumber() + ": FAILED", MessageType.ERROR, null);
+            final Balloon balloon = balloonBuilder.setFadeoutTime(TimeUnit.SECONDS.toMillis(1)).createBalloon();
+            GuiUtil.runInSwingThread(new Runnable() {
+                @Override
+                public void run() {
+                    balloon.show(new RelativePoint(JenkinsWidget.getInstance(project).getComponent(), new Point(0, 0)), Balloon.Position.above);
+                }
+            });
+        }
+    }
+
+    private Map.Entry<String, Build> getFirstFailedBuild(Map<String, Build> finishedBuilds) {
+        for (Map.Entry<String, Build> buildByJobName : finishedBuilds.entrySet()) {
+            Build build = buildByJobName.getValue();
+            if (build.getStatus() == BuildStatusEnum.FAILURE) {
+                return buildByJobName;
+            }
+        }
+        return null;
+    }
+
+    private String buildMessage(Build build) {
+        BuildStatusEnum buildStatus = build.getStatus();
+        String buildMessage = build.getMessage();
+
+        if (buildStatus != BuildStatusEnum.SUCCESS && buildStatus != BuildStatusEnum.STABLE) {
+            return String.format("<html><body>[Jenkins] <a href='%s'>%s</a><body></html>", build.getUrl(), buildMessage);
+        }
+        return String.format("[Jenkins] %s", buildMessage);
     }
 
     @Override
     public void dispose() {
         currentBuildMap = null;
     }
-
 
     private class LoadLatestBuildsJob extends Task.Backgroundable {
         private final boolean shouldDisplayResult;
@@ -160,54 +211,13 @@ public class RssLogic implements Disposable {
                 return;
             }
 
+            sendNotificationForEachBuild(sortByDateDescending(finishedBuilds));
 
-            final ArrayList<Build> buildToSortByDateDescending = new ArrayList<Build>(finishedBuilds.values());
-
-            Collections.sort(buildToSortByDateDescending, new Comparator<Build>() {
-                @Override
-                public int compare(Build firstBuild, Build secondBuild) {
-                    return firstBuild.getBuildDate().compareTo(secondBuild.getBuildDate());
-                }
-            });
-
-            for (Build build : buildToSortByDateDescending) {
-                BuildStatusEnum status = build.getStatus();
-                NotificationType notificationType;
-                if (BuildStatusEnum.SUCCESS.equals(status) || BuildStatusEnum.STABLE.equals(status)) {
-                    notificationType = NotificationType.INFORMATION;
-                } else if (BuildStatusEnum.FAILURE.equals(status) || (BuildStatusEnum.UNSTABLE.equals(status))) {
-                    notificationType = NotificationType.ERROR;
-                } else {
-                    notificationType = NotificationType.WARNING;
-                }
-                JENKINS_RSS_GROUP
-                        .createNotification("", buildMessage(build), notificationType, NotificationListener.URL_OPENING_LISTENER)
-                        .notify(project);
-            }
-
-            Map.Entry<String, Build> firstFailedBuild = getFirstFailedBuild(finishedBuilds);
-            if (firstFailedBuild != null) {
-                String jobName = firstFailedBuild.getKey();
-                Build build = firstFailedBuild.getValue();
-                BalloonBuilder balloonBuilder = JBPopupFactory.getInstance().createHtmlTextBalloonBuilder(jobName + "#" + build.getNumber() + ": FAILED", MessageType.ERROR, null);
-                final Balloon balloon = balloonBuilder.setFadeoutTime(TimeUnit.SECONDS.toMillis(1)).createBalloon();
-                GuiUtil.runInSwingThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        balloon.show(new RelativePoint(JenkinsWidget.getInstance(project).getComponent(), new Point(0, 0)), Balloon.Position.above);
-                    }
-                });
-            }
+            displayTheFirstFailedBuildInABalloon(getFirstFailedBuild(finishedBuilds));
         }
+
+
     }
 
-    public static String buildMessage(Build build) {
-        BuildStatusEnum buildStatus = build.getStatus();
-        String buildMessage = build.getMessage();
 
-        if (buildStatus != BuildStatusEnum.SUCCESS && buildStatus != BuildStatusEnum.STABLE) {
-            return String.format("<html><body>[Jenkins] <a href='%s'>%s</a><body></html>", build.getUrl(), buildMessage);
-        }
-        return String.format("[Jenkins] %s", buildMessage);
-    }
 }
