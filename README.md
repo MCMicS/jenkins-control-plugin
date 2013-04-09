@@ -1,9 +1,7 @@
 # Jenkins Plugin for IntelliJ IDEA
 
 ## Important Notes for the version 0.8.0
-
-This release is not compatible with IDEA 10.
-This release is not available on the Plugin repository. The snapshot version is weekly updated and can be downloaded [here](https://github.com/dboissier/jenkins-control-plugin/raw/master/snapshot/jenkins-control-plugin-0.8.0-SNAPSHOT-distribution.zip)
+This release is not compatible with IDEA 10 anymore.
 
 ## ChangeLog
 See CHANGELOG.txt

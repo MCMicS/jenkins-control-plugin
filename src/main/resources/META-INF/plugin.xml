@@ -25,6 +25,7 @@
     </extensions>
 
     <change-notes><![CDATA[
+<a href="https://github.com/dboissier/jenkins-control-plugin/blob/jenkins-control-plugin-0.8.0/README.txt">Read Me</a><br/>
 <a href="https://github.com/dboissier/jenkins-control-plugin/blob/jenkins-control-plugin-0.8.0/CHANGELOG.txt">Changelog</a>
 ]]> </change-notes>
 </idea-plugin>
