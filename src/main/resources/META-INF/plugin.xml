@@ -1,6 +1,6 @@
 <idea-plugin>
     <name>Jenkins Control Plugin</name>
-    <description>A Jenkins Plugin for Intellij for IDEA</description>
+    <description>A Jenkins Plugin for Intellij</description>
     <version>0.8.0</version>
     <vendor email="david.boissier [at] gmail [dot] com" url="http://codinjutsu.blogspot.com">David Boissier</vendor>
     <idea-version since-build="117.963"/>

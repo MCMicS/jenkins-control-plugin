@@ -23,18 +23,17 @@ import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.security.AuthenticationException;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.uispec4j.*;
 
 import static org.codinjutsu.tools.jenkins.JenkinsAppSettings.DEFAULT_BUILD_DELAY;
 import static org.codinjutsu.tools.jenkins.JenkinsAppSettings.DUMMY_JENKINS_SERVER_URL;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
 
-public class ConfigurationPanelTest /*extends UISpecTestCase*/ {
+public class ConfigurationPanelTest {
 
-//    private ConfigurationPanel jenkinsConfigurationPanel;
-//    private JenkinsAppSettings jenkinsAppSettings;
-//    private JenkinsSettings jenkinsSettings;
+    private ConfigurationPanel jenkinsConfigurationPanel;
+    private JenkinsAppSettings jenkinsAppSettings;
+    private JenkinsSettings jenkinsSettings;
 //    private Panel uiSpecPanel;
 //
 //    @Mock
