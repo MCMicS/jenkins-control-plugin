@@ -1,5 +1,14 @@
 # Jenkins Plugin for IntelliJ IDEA
 
+## Version 0.8.1-SNAPSHOT
+
+If you want to test the latest features, you can download the [latest snapshot](https://github.com/dboissier/jenkins-control-plugin/blob/master/snapshot/jenkins-control-plugin-0.8.1-SNAPSHOT-distribution.zip?raw=true).
+
+To install it, **Settings -> Plugins -> Install from disk** and restart your IDE.
+
+### Last features
+* Fix EDT thread violation
+
 ## Important Notes for the version 0.8.0
 This release is not compatible with IDEA 10 anymore.
 
