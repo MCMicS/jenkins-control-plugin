@@ -51,9 +51,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import javax.swing.tree.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.net.URL;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
@@ -61,8 +63,6 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
-
-    private static final URL pluginSettingsUrl = GuiUtil.isUnderDarcula() ? GuiUtil.getIconResource("settings_dark.png") : GuiUtil.getIconResource("settings.png");
 
     private static final String UNAVAILABLE = "No Jenkins server available";
 
@@ -121,12 +121,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         refreshViewJob = new Runnable() {
             @Override
             public void run() {
-                GuiUtil.runInSwingThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        new LoadSelectedViewJob(project).queue();
-                    }
-                });
+                new LoadSelectedViewJob(project).queue();
             }
         };
 
@@ -369,21 +364,11 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
     public void loadView(View view) {
         this.currentSelectedView = view;
-        GuiUtil.runInSwingThread(new Runnable() {
-            @Override
-            public void run() {
-                new LoadSelectedViewJob(project).queue();
-            }
-        });
+        new LoadSelectedViewJob(project).queue();
     }
 
     public void refreshCurrentView() {
-        GuiUtil.runInSwingThread(new Runnable() {
-            @Override
-            public void run() {
-                new LoadSelectedViewJob(project).queue();
-            }
-        });
+        new LoadSelectedViewJob(project).queue();
     }
 
     private void loadJobs(View viewToLoad) {
@@ -463,6 +448,16 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         }
     }
 
+    void setTreeBusy(final boolean isBusy) {
+        GuiUtil.runInSwingThread(new Runnable() {
+            @Override
+            public void run() {
+                jobTree.setPaintBusy(isBusy);
+            }
+        });
+
+    }
+
     private class LoadSelectedViewJob extends Task.Backgroundable {
         public LoadSelectedViewJob(@Nullable Project project) {
             super(project, "Loading Jenkins Jobs", true, JenkinsLoadingTaskOption.INSTANCE);
@@ -471,19 +466,27 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         @Override
         public void run(@NotNull ProgressIndicator indicator) {
 
-            jobTree.setPaintBusy(true);
+            try {
+                setTreeBusy(true);
+                View viewToLoad = getViewToLoad();
+                if (viewToLoad == null) {
+                    return;
+                }
+                currentSelectedView = viewToLoad;
+                loadJobs(viewToLoad);
 
-            View viewToLoad = getViewToLoad();
-            if (viewToLoad == null) {
-                return;
+                final BuildStatusAggregator buildStatusAggregator = new BuildStatusAggregator(jenkins.getJobs().size());
+
+                GuiUtil.runInSwingThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        fillJobTree(buildStatusAggregator);
+                        JenkinsWidget.getInstance(project).updateStatusIcon(buildStatusAggregator);
+                    }
+                });
+            } finally {
+                setTreeBusy(false);
             }
-            currentSelectedView = viewToLoad;
-            loadJobs(viewToLoad);
-
-            final BuildStatusAggregator buildStatusAggregator = new BuildStatusAggregator(jenkins.getJobs().size());
-            fillJobTree(buildStatusAggregator);
-            jobTree.setPaintBusy(false);
-            JenkinsWidget.getInstance(project).updateStatusIcon(buildStatusAggregator);
         }
     }
 }
