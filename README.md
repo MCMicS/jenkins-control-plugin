@@ -84,3 +84,11 @@ I would like to thank:
 * Mark James author of the famfamfam web site who provides beautiful icons.
 * Guys from Lex Group : Boris Gonnot, Regis Medina, Sébastien Crego, Olivier Catteau, Jean Baptiste Potonnier and others Agile ninjas.
 * My wife and my daughter who support me to have fun in software development and also remind me my husband/father duty ;).
+
+## Compilation with Maven
+
+mvn install:install-file -Dfile=idea.jar -DgroupId=com.intellij -DartifactId=idea -Dversion=12.1.3 -Dpackaging=jar -DgeneratePom=true
+mvn install:install-file -Dfile=openapi.jar -DgroupId=com.intellij -DartifactId=openapi -Dversion=12.1.3 -Dpackaging=jar -DgeneratePom=true
+mvn install:install-file -Dfile=forms_rt.jar -DgroupId=com.intellij -DartifactId=forms_rt -Dversion=12.1.3 -Dpackaging=jar -DgeneratePom=true
+
+mvn clean package -Dmaven.test.skip=true
