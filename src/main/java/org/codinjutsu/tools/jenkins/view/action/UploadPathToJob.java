@@ -2,7 +2,10 @@ package org.codinjutsu.tools.jenkins.view.action;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.fileChooser.FileChooser;
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.DumbAware;
+import com.intellij.openapi.vfs.VirtualFile;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 
@@ -22,6 +25,11 @@ public class UploadPathToJob extends AnAction implements DumbAware {
 
     @Override
     public void actionPerformed(AnActionEvent anActionEvent) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        VirtualFile virtualFile = FileChooser.chooseFile(
+                new FileChooserDescriptor(true, false, false, false, false, false),
+                browserPanel,
+                getEventProject(anActionEvent),
+                null
+        );
     }
 }
