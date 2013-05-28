@@ -26,6 +26,15 @@ This plugin was built with JDK 1.6 and IDEA 11 version. Jenkins CIs of jenkins-c
 ## Installation steps
 Download this plugin from your IDE or from the plugin website: http://plugins.intellij.net/?idea&id=6110.
 
+## Compilation with Maven
+
+* mvn install:install-file -Dfile=idea.jar -DgroupId=com.intellij -DartifactId=idea -Dversion=11.1.4 -Dpackaging=jar -DgeneratePom=true
+* mvn install:install-file -Dfile=openapi.jar -DgroupId=com.intellij -DartifactId=openapi -Dversion=11.1.4 -Dpackaging=jar -DgeneratePom=true
+* mvn install:install-file -Dfile=forms_rt.jar -DgroupId=com.intellij -DartifactId=forms_rt -Dversion=11.1.4 -Dpackaging=jar -DgeneratePom=true
+
+mvn clean package
+
+
 ## Configuration steps
 * Click on the **Jenkins Settings** button located on the upper toolbar (or you can also open IntelliJ Settings Screen and select the Jenkins Control Plugin option).
 * Enter your Jenkins Server URL (e.g: http://ci.jenkins-ci.org).
@@ -85,10 +94,3 @@ I would like to thank:
 * Guys from Lex Group : Boris Gonnot, Regis Medina, Sébastien Crego, Olivier Catteau, Jean Baptiste Potonnier and others Agile ninjas.
 * My wife and my daughter who support me to have fun in software development and also remind me my husband/father duty ;).
 
-## Compilation with Maven
-
-mvn install:install-file -Dfile=idea.jar -DgroupId=com.intellij -DartifactId=idea -Dversion=12.1.3 -Dpackaging=jar -DgeneratePom=true
-mvn install:install-file -Dfile=openapi.jar -DgroupId=com.intellij -DartifactId=openapi -Dversion=12.1.3 -Dpackaging=jar -DgeneratePom=true
-mvn install:install-file -Dfile=forms_rt.jar -DgroupId=com.intellij -DartifactId=forms_rt -Dversion=12.1.3 -Dpackaging=jar -DgeneratePom=true
-
-mvn clean package -Dmaven.test.skip=true

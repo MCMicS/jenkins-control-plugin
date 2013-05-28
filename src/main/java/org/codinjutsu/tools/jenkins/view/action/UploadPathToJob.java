@@ -19,17 +19,15 @@ public class UploadPathToJob extends AnAction implements DumbAware {
     private BrowserPanel browserPanel;
 
     public UploadPathToJob(BrowserPanel browserPanel) {
-        super("Upload patch", "Upload patch to the job", GuiUtil.loadIcon("star_add.png"));
+        super("Upload a patch", "Upload a patch to the job", GuiUtil.loadIcon("execute.png"));
         this.browserPanel = browserPanel;
     }
 
     @Override
     public void actionPerformed(AnActionEvent anActionEvent) {
         VirtualFile virtualFile = FileChooser.chooseFile(
-                new FileChooserDescriptor(true, false, false, false, false, false),
                 browserPanel,
-                getEventProject(anActionEvent),
-                null
+                new FileChooserDescriptor(true, false, false, false, false, false)
         );
     }
 }
