@@ -21,13 +21,11 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.multipart.FilePart;
-import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
-import org.apache.commons.httpclient.methods.multipart.Part;
-import org.apache.commons.httpclient.methods.multipart.StringPart;
+import org.apache.commons.httpclient.methods.multipart.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
+import org.codinjutsu.tools.jenkins.model.VirtualFilePartSource;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -84,14 +82,10 @@ class DefaultSecurityClient implements SecurityClient {
             ArrayList<Part> parts = new ArrayList<Part>();
             int i = 0;
             for(String key: files.keySet()) {
-                try {
-                    VirtualFile virtualFile = files.get(key);
-                    parts.add(new StringPart("name", key));
-                    parts.add(new StringPart("json", "{\"parameter\":{\"name\":\"" + key + "\",\"file\":\""+ String.format("file%d", i) +"\"}}"));
-                    parts.add(new FilePart(String.format("file%d", i), new File(virtualFile.getPath())));
-                } catch (FileNotFoundException e) {
-                    throw new ConfigurationException(String.format("File not found: %s", e.getMessage()), e);
-                }
+                VirtualFile virtualFile = files.get(key);
+                parts.add(new StringPart("name", key));
+                parts.add(new StringPart("json", "{\"parameter\":{\"name\":\"" + key + "\",\"file\":\""+ String.format("file%d", i) +"\"}}"));
+                parts.add(new FilePart(String.format("file%d", i), new VirtualFilePartSource(virtualFile)));
                 i++;
             }
             post.setRequestEntity(new MultipartRequestEntity(parts.toArray(new Part[parts.size()]), post.getParams()));

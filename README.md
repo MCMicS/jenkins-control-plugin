@@ -1,4 +1,4 @@
-# Jenkins Plugin for IntelliJ IDEA
+# Jenkins Plugin for IntelliJ IDEA with Patch Parameter Plugin Support (https://wiki.jenkins-ci.org/display/JENKINS/Patch+Parameter+Plugin)
 
 ## Version 0.8.1-SNAPSHOT
 
