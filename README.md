@@ -30,9 +30,6 @@ This plugin allows to view the content of your Jenkins Continous Integration Ser
 ## Plugin Compatibility
 This plugin was built with JDK 1.6 and IDEA 11 version. Jenkins CIs of jenkins-ci and apache.org are used for manual and stress testing.
 
-## Installation steps
-Download this plugin from your IDE or from the plugin website: http://plugins.intellij.net/?idea&id=6110.
-
 ## Build with Maven
 
 * mvn install:install-file -Dfile=idea.jar -DgroupId=com.intellij -DartifactId=idea -Dversion=11.1.4 -Dpackaging=jar -DgeneratePom=true
