@@ -71,14 +71,16 @@ public class UploadPathToJob extends AnAction implements DumbAware {
                                 new FileChooserDescriptor(true, false, false, false, false, false))
                         , settings);
 
-                    if (virtualFile.exists()) {
-                        Map<String, VirtualFile> files = new HashMap<String, VirtualFile>();
-                        files.put(PARAMETER_NAME, virtualFile);
-                        requestManager.runBuild(job, settings, files);
-                        notifyOnGoingMessage(job);
-                        browserPanel.loadSelectedJob();
-                    } else {
-                        message = String.format("File \"%s\" not exists", virtualFile.getPath());
+                    if ((null != virtualFile)) {
+                        if (virtualFile.exists()) {
+                            Map<String, VirtualFile> files = new HashMap<String, VirtualFile>();
+                            files.put(PARAMETER_NAME, virtualFile);
+                            requestManager.runBuild(job, settings, files);
+                            notifyOnGoingMessage(job);
+                            browserPanel.loadSelectedJob();
+                        } else {
+                            message = String.format("File \"%s\" not exists", virtualFile.getPath());
+                        }
                     }
                 } else {
                     message = String.format("Job \"%s\" should has parameter with name \"%s\"", job.getName(), PARAMETER_NAME);
