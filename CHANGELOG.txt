@@ -1,3 +1,6 @@
+Version 0.8.1-patch-parameter-plugin-support
+    * [Add] Support of Patch Parameter Plugin (https://wiki.jenkins-ci.org/display/JENKINS/Patch+Parameter+Plugin)
+
 Version 0.8.0
     * [Add] #43 Support multiple selection for favorites
     * [Add] #51 Check the hostname sent by the jenkins server
