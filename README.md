@@ -2,6 +2,8 @@
 ## with Patch Parameter Plugin Support (Pre-tested commit)
 (https://wiki.jenkins-ci.org/display/JENKINS/Patch+Parameter+Plugin)
 
+Information about pre-tested commit: https://wiki.jenkins-ci.org/display/JENKINS/Designing+pre-tested+commit
+
 ## Version 0.8.1-patch-parameter-plugin-support-SNAPSHOT
 
 If you want to test the latest features, you can download the [latest snapshot](https://github.com/nyver/jenkins-control-plugin/blob/master/snapshot/jenkins-control-plugin-0.8.1-SNAPSHOT-distribution.zip?raw=true).
