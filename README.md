@@ -1,4 +1,6 @@
-# Jenkins Plugin for IntelliJ IDEA with Patch Parameter Plugin Support (https://wiki.jenkins-ci.org/display/JENKINS/Patch+Parameter+Plugin)
+# Jenkins Plugin for IntelliJ IDEA
+## with Patch Parameter Plugin Support
+(https://wiki.jenkins-ci.org/display/JENKINS/Patch+Parameter+Plugin)
 
 ## Version 0.8.1-SNAPSHOT
 
@@ -7,9 +9,9 @@ If you want to test the latest features, you can download the [latest snapshot](
 To install it, **Settings -> Plugins -> Install from disk** and restart your IDE.
 
 ### Last features
-* Fix EDT thread violation
+* Added support of Patch Parameter Plugin for pre-tested commit
 
-## Important Notes for the version 0.8.0
+## Important Notes for the version >= 0.8.0
 This release is not compatible with IDEA 10 anymore.
 
 ## ChangeLog
@@ -26,13 +28,13 @@ This plugin was built with JDK 1.6 and IDEA 11 version. Jenkins CIs of jenkins-c
 ## Installation steps
 Download this plugin from your IDE or from the plugin website: http://plugins.intellij.net/?idea&id=6110.
 
-## Compilation with Maven
+## Build with Maven
 
 * mvn install:install-file -Dfile=idea.jar -DgroupId=com.intellij -DartifactId=idea -Dversion=11.1.4 -Dpackaging=jar -DgeneratePom=true
 * mvn install:install-file -Dfile=openapi.jar -DgroupId=com.intellij -DartifactId=openapi -Dversion=11.1.4 -Dpackaging=jar -DgeneratePom=true
 * mvn install:install-file -Dfile=forms_rt.jar -DgroupId=com.intellij -DartifactId=forms_rt -Dversion=11.1.4 -Dpackaging=jar -DgeneratePom=true
 
-mvn clean package
+mvn clean package -Dmaven.test.skip=true
 
 
 ## Configuration steps

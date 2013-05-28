@@ -1,8 +1,8 @@
 <idea-plugin>
     <name>Jenkins Control Plugin</name>
-    <description>A Jenkins Plugin for Intellij</description>
-    <version>0.8.0</version>
-    <vendor email="david.boissier [at] gmail [dot] com" url="http://codinjutsu.blogspot.com">David Boissier</vendor>
+    <description>A Jenkins Plugin for Intellij (with Patch Parameter Plugin Support)</description>
+    <version>0.8.1-patch-parameter-plugin-support</version>
+    <vendor email="david.boissier [at] gmail [dot] com" url="http://codinjutsu.blogspot.com">David Boissier (support of PPP was added by Yuri Novitsky)</vendor>
     <idea-version since-build="117.963"/>
 
     <depends>com.intellij.modules.lang</depends>
