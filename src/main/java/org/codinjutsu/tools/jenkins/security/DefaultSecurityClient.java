@@ -16,19 +16,30 @@
 
 package org.codinjutsu.tools.jenkins.security;
 
+import com.intellij.openapi.vfs.VirtualFile;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.multipart.FilePart;
+import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
+import org.apache.commons.httpclient.methods.multipart.Part;
+import org.apache.commons.httpclient.methods.multipart.StringPart;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 class DefaultSecurityClient implements SecurityClient {
 
@@ -38,6 +49,7 @@ class DefaultSecurityClient implements SecurityClient {
     String crumbData;
 
     protected final HttpClient httpClient;
+    protected Map<String, VirtualFile> files = new HashMap<String, VirtualFile>();
 
     DefaultSecurityClient(String crumbData) {
         this.httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
@@ -62,6 +74,32 @@ class DefaultSecurityClient implements SecurityClient {
         return responseCollector.data;
     }
 
+    @Override
+    public void setFiles(Map<String, VirtualFile> files) {
+        this.files = files;
+    }
+
+    private PostMethod addFiles(PostMethod post) {
+        if (files.size() > 0) {
+            ArrayList<Part> parts = new ArrayList<Part>();
+            int i = 0;
+            for(String key: files.keySet()) {
+                try {
+                    VirtualFile virtualFile = files.get(key);
+                    parts.add(new StringPart("name", key));
+                    parts.add(new StringPart("json", "{\"parameter\":{\"name\":\"" + key + "\",\"file\":\""+ String.format("file%d", i) +"\"}}"));
+                    parts.add(new FilePart(String.format("file%d", i), new File(virtualFile.getPath())));
+                } catch (FileNotFoundException e) {
+                    throw new ConfigurationException(String.format("File not found: %s", e.getMessage()), e);
+                }
+                i++;
+            }
+            post.setRequestEntity(new MultipartRequestEntity(parts.toArray(new Part[parts.size()]), post.getParams()));
+            files.clear();
+        }
+
+        return post;
+    }
 
     private void runMethod(String url, ResponseCollector responseCollector) {
         PostMethod post = new PostMethod(url);
@@ -70,12 +108,15 @@ class DefaultSecurityClient implements SecurityClient {
             post.addRequestHeader(CRUMB_NAME, crumbData);
         }
 
+        post = addFiles(post);
+
         InputStream inputStream = null;
         try {
             int statusCode = httpClient.executeMethod(post);
 
             inputStream = post.getResponseBodyAsStream();
             String responseBody = IOUtils.toString(inputStream, post.getResponseCharSet());
+
 
             checkResponse(statusCode, responseBody);
 

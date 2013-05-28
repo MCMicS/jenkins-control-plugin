@@ -16,6 +16,8 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
+import com.intellij.openapi.vfs.VirtualFile;
+
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,6 +41,8 @@ public class JobParameter {
 
     private String defaultValue;
 
+    private VirtualFile virtualFile;
+
     private final List<String> values = new LinkedList<String>();
 
     public JobParameter() {
@@ -56,6 +60,13 @@ public class JobParameter {
         return jobParameter;
     }
 
+    public static JobParameter create(String paramName, String paramType, VirtualFile virtualFile) {
+        JobParameter parameter = create(paramName, paramType, "", "");
+        parameter.setVirtualFile(virtualFile);
+        return parameter;
+    }
+
+
     public void setChoices(String... choices) {
         Collections.addAll(values, choices);
     }
@@ -69,6 +80,13 @@ public class JobParameter {
         this.defaultValue = defaultValue;
     }
 
+    public void setVirtualFile(VirtualFile virtualFile) {
+        this.virtualFile = virtualFile;
+    }
+
+    public VirtualFile getVirtualFile() {
+        return virtualFile;
+    }
 
     public void setType(String paramType) {
         jobParameterType = evaluate(paramType);

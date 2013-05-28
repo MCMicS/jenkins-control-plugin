@@ -169,8 +169,25 @@ public class Job {
         return parameters;
     }
 
-    public void addParameter(JobParameter jobParameter) {
-        parameters.add(jobParameter);
+    public boolean hasParameter(String name) {
+        if (hasParameters()) {
+            for(JobParameter parameter: parameters) {
+                if (parameter.getName().equals(name)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public void setParameter(JobParameter jobParameter) {
+        if (parameters.size() > 0) {
+            for(JobParameter parameter: parameters) {
+                if (parameter.getName().equals(jobParameter.getName())) {
+                    parameters.set(parameters.indexOf(parameter), jobParameter);
+                }
+            }
+        }
     }
 
     public void addParameters(List<JobParameter> jobParameters) {
