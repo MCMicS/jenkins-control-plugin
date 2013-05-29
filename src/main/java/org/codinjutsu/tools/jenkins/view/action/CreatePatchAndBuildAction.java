@@ -1,26 +1,15 @@
 package org.codinjutsu.tools.jenkins.view.action;
 
-import com.intellij.codeStyle.CodeStyleFacade;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.diff.impl.patch.FilePatch;
-import com.intellij.openapi.diff.impl.patch.IdeaTextPatchBuilder;
-import com.intellij.openapi.diff.impl.patch.UnifiedDiffWriter;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.changes.ChangeListManager;
-import com.intellij.openapi.vcs.changes.LocalChangeList;
-import org.codinjutsu.tools.jenkins.logic.RequestManager;
+import com.intellij.openapi.vcs.VcsDataKeys;
+import com.intellij.openapi.vcs.changes.ChangeList;
+import com.intellij.openapi.vcs.changes.ui.ChangesListView;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.codinjutsu.tools.jenkins.view.SelectJobDialog;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.List;
 
 /**
  * CreatePatchAndBuildAction class
@@ -30,13 +19,16 @@ import java.util.List;
 public class CreatePatchAndBuildAction extends AnAction {
 
     private Project project;
+    ChangeList[] selectedChangeLists;
 
     public void actionPerformed(AnActionEvent event) {
-
         project = ActionUtil.getProject(event);
+        DataContext dataContext = event.getDataContext();
 
-        showDialog();
-
+        selectedChangeLists = VcsDataKeys.CHANGE_LISTS.getData(dataContext);
+        if (selectedChangeLists != null) {
+            showDialog();
+        }
     }
 
     private void showDialog() {
@@ -45,7 +37,7 @@ public class CreatePatchAndBuildAction extends AnAction {
 
                 final BrowserPanel browserPanel = BrowserPanel.getInstance(project);
 
-                SelectJobDialog dialog = new SelectJobDialog(browserPanel.getJobs(), project);
+                SelectJobDialog dialog = new SelectJobDialog(selectedChangeLists, browserPanel.getJobs(), project);
                 dialog.setLocationRelativeTo(null);
                 dialog.setMaximumSize(new Dimension(300, 200));
                 dialog.pack();

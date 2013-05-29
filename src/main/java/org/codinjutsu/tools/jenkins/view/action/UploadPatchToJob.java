@@ -1,26 +1,16 @@
 package org.codinjutsu.tools.jenkins.view.action;
 
-import com.intellij.history.core.changes.ChangeSet;
-import com.intellij.notification.EventLog;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.vcs.changes.LocalChangeList;
-import com.intellij.openapi.vcs.changes.ui.ChangesBrowser;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.ui.popup.PopupComponent;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
-import org.codinjutsu.tools.jenkins.model.JobParameter;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.util.HtmlUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
@@ -28,7 +18,6 @@ import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import javax.swing.*;
 import java.io.*;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,9 +26,9 @@ import java.util.Map;
  *
  * @author Yuri Novitsky
  */
-public class UploadPathToJob extends AnAction implements DumbAware {
+public class UploadPatchToJob extends AnAction implements DumbAware {
 
-    private static final Logger LOG = Logger.getInstance(UploadPathToJob.class.getName());
+    private static final Logger LOG = Logger.getInstance(UploadPatchToJob.class.getName());
     public static final String PARAMETER_NAME = "patch.diff";
     private static final String SUFFIX_JOB_NAME_MACROS = "$JobName$";
 
@@ -48,8 +37,8 @@ public class UploadPathToJob extends AnAction implements DumbAware {
     private static final Icon EXECUTE_ICON = GuiUtil.isUnderDarcula() ? GuiUtil.loadIcon("execute_dark.png") : GuiUtil.loadIcon("execute.png");
 
 
-    public UploadPathToJob(BrowserPanel browserPanel) {
-        super("Upload a patch", "Upload a patch to the job", EXECUTE_ICON);
+    public UploadPatchToJob(BrowserPanel browserPanel) {
+        super("Upload Patch and build", "Upload Patch to the job and build", EXECUTE_ICON);
         this.browserPanel = browserPanel;
     }
 

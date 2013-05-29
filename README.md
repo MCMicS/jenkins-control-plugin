@@ -4,14 +4,14 @@
 
 Information about pre-tested commit: https://wiki.jenkins-ci.org/display/JENKINS/Designing+pre-tested+commit
 
-## Version 0.8.1.1-ppp-SNAPSHOT
+## Version 0.8.1.2-ppp-SNAPSHOT
 
 If you want to test the latest features, you can download the [latest snapshot](https://github.com/nyver/jenkins-control-plugin/blob/master/snapshot/jenkins-control-plugin-0.8.1-SNAPSHOT-distribution.zip?raw=true).
 
 To install it, **Settings -> Plugins -> Install from disk** and restart your IDE.
 
 ### Last features
-* Added support of Patch Parameter Plugin for pre-tested commit
+* Added action "Create Patch and build on Jenkins" in changelist's context menu
 
 ## Important Notes for the version >= 0.8.0
 This release is not compatible with IDEA 10 anymore.

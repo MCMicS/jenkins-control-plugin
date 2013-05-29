@@ -374,7 +374,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         popupGroup.add(new GotoJobPageAction(this));
         popupGroup.add(new GotoLastBuildPageAction(this));
         popupGroup.addSeparator();
-        popupGroup.add(new UploadPathToJob(this));
+        popupGroup.add(new UploadPatchToJob(this));
 
         PopupHandler.installPopupHandler(jobTree, popupGroup, "POPUP", ActionManager.getInstance());
     }

@@ -1,3 +1,6 @@
+Version 0.8.1.2-ppp (Patch Parameter Plugin support)
+    * [Add] Action "Create Patch and build on Jenkins" in Changelist's context menu
+
 Version 0.8.1.1-ppp (Patch Parameter Plugin support)
     * [Add] Macros $JobName$ for suffix setting
 
