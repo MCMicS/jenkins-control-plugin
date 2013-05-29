@@ -27,6 +27,8 @@ This plugin allows to view the content of your Jenkins Continous Integration Ser
 
 ![Browser](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/images/Browser.png?raw=true)
 
+![Upload](https://github.com/nyver/jenkins-control-plugin/blob/master/doc/howto/2_setup_ide/04.png?raw=true)
+
 ## Plugin Compatibility
 This plugin was built with JDK 1.6 and IDEA 11 version. Jenkins CIs of jenkins-ci and apache.org are used for manual and stress testing.
 
