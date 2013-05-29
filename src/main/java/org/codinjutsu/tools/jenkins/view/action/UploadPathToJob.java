@@ -1,5 +1,6 @@
 package org.codinjutsu.tools.jenkins.view.action;
 
+import com.intellij.history.core.changes.ChangeSet;
 import com.intellij.notification.EventLog;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -9,8 +10,11 @@ import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vcs.changes.LocalChangeList;
+import com.intellij.openapi.vcs.changes.ui.ChangesBrowser;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.popup.PopupComponent;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
@@ -36,7 +40,7 @@ import java.util.Map;
 public class UploadPathToJob extends AnAction implements DumbAware {
 
     private static final Logger LOG = Logger.getInstance(UploadPathToJob.class.getName());
-    private static final String PARAMETER_NAME = "patch.diff";
+    public static final String PARAMETER_NAME = "patch.diff";
     private static final String SUFFIX_JOB_NAME_MACROS = "$JobName$";
 
     private BrowserPanel browserPanel;
@@ -85,6 +89,7 @@ public class UploadPathToJob extends AnAction implements DumbAware {
                     }
                 } else {
                     message = String.format("Job \"%s\" should has parameter with name \"%s\"", job.getName(), PARAMETER_NAME);
+
                 }
             } else {
                 message = String.format("Job \"%s\" has no parameters", job.getName());
@@ -134,6 +139,12 @@ public class UploadPathToJob extends AnAction implements DumbAware {
         }
 
         return file;
+    }
+
+    @Override
+    public void update(AnActionEvent event) {
+        Job selectedJob = browserPanel.getSelectedJob();
+        event.getPresentation().setVisible(selectedJob != null && selectedJob.hasParameters() && selectedJob.hasParameter(PARAMETER_NAME));
     }
 
     private void notifyOnGoingMessage(Job job) {

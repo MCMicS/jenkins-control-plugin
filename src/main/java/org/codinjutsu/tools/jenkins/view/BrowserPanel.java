@@ -173,6 +173,21 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         return TreeUtil.collectSelectedObjectsOfType(jobTree, Job.class);
     }
 
+    public List<Job> getJobs() {
+        return jenkins.getJobs();
+    }
+
+    public Job getJob(String name) {
+        List<Job> jobs = jenkins.getJobs();
+        if (jobs.size() > 0) {
+            for(Job job: jobs) {
+                if (job.getName().equals(name)) {
+                    return job;
+                }
+            }
+        }
+        return null;
+    }
 
     public void setSortedByStatus(boolean selected) {
         sortedByBuildStatus = selected;
