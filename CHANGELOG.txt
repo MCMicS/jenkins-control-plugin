@@ -1,4 +1,7 @@
-Version 0.8.1-patch-parameter-plugin-support
+Version 0.8.1.1-ppp (Patch Parameter Plugin support)
+    * [Add] Macros $JobName$ for suffix setting
+
+Version 0.8.1-ppp (Patch Parameter Plugin support)
     * [Add] Support of Patch Parameter Plugin (https://wiki.jenkins-ci.org/display/JENKINS/Patch+Parameter+Plugin)
 
 Version 0.8.0

@@ -37,6 +37,7 @@ public class UploadPathToJob extends AnAction implements DumbAware {
 
     private static final Logger LOG = Logger.getInstance(UploadPathToJob.class.getName());
     private static final String PARAMETER_NAME = "patch.diff";
+    private static final String SUFFIX_JOB_NAME_MACROS = "$JobName$";
 
     private BrowserPanel browserPanel;
 
@@ -69,7 +70,7 @@ public class UploadPathToJob extends AnAction implements DumbAware {
                         prepareFile(FileChooser.chooseFile(
                                 browserPanel,
                                 new FileChooserDescriptor(true, false, false, false, false, false))
-                        , settings);
+                        , settings, job);
 
                     if ((null != virtualFile)) {
                         if (virtualFile.exists()) {
@@ -101,13 +102,14 @@ public class UploadPathToJob extends AnAction implements DumbAware {
 
     }
 
-    private VirtualFile prepareFile(VirtualFile file, JenkinsAppSettings settings) throws IOException {
+    private VirtualFile prepareFile(VirtualFile file, JenkinsAppSettings settings, Job job) throws IOException {
         if ((null != file) && file.exists()) {
             InputStream stream = file.getInputStream();
             InputStreamReader streamReader = new InputStreamReader(stream);
             BufferedReader bufferReader = new BufferedReader(streamReader);
             String line = null;
             String suffix = settings.getSuffix();
+            suffix = suffix.replace(SUFFIX_JOB_NAME_MACROS, job.getName());
             StringBuilder builder = new StringBuilder();
             while((line = bufferReader.readLine()) != null) {
                 if (line.startsWith("Index: ") && !line.startsWith("Index: " + suffix)) {
