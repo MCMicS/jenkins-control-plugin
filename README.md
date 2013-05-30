@@ -6,7 +6,7 @@ Information about pre-tested commit: https://wiki.jenkins-ci.org/display/JENKINS
 
 ## Version 0.8.1.2-ppp-SNAPSHOT
 
-If you want to test the latest features, you can download the [latest snapshot](https://github.com/nyver/jenkins-control-plugin/blob/master/snapshot/jenkins-control-plugin-0.8.1-SNAPSHOT-distribution.zip?raw=true).
+If you want to test the latest features, you can download the [latest snapshot](https://github.com/nyver/jenkins-control-plugin/blob/master/snapshot/jenkins-control-plugin-latest-distribution.zip?raw=true).
 
 To install it, **Settings -> Plugins -> Install from disk** and restart your IDE.
 
