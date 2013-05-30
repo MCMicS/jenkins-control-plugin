@@ -166,11 +166,11 @@ public class SelectJobDialog extends JDialog {
                             if (selectedJob.hasParameter(UploadPatchToJob.PARAMETER_NAME)) {
                                 JenkinsAppSettings settings = JenkinsAppSettings.getSafeInstance(project);
                                 Map<String, VirtualFile> files = new HashMap<String, VirtualFile>();
-                                VirtualFile virtualFile = LocalFileSystem.getInstance().findFileByIoFile(new File(FILENAME));
+                                VirtualFile virtualFile = UploadPatchToJob.prepareFile(browserPanel, LocalFileSystem.getInstance().findFileByIoFile(new File(FILENAME)), settings, selectedJob);
                                 if (virtualFile != null && virtualFile.exists()) {
                                     files.put(UploadPatchToJob.PARAMETER_NAME, virtualFile);
                                     requestManager.runBuild(selectedJob, settings, files);
-                                    browserPanel.loadSelectedJob();
+                                    //browserPanel.loadSelectedJob();
                                     browserPanel.notifyInfoJenkinsToolWindow(HtmlUtil.createHtmlLinkMessage(
                                         selectedJob.getName() + " build is on going",
                                         selectedJob.getUrl())

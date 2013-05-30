@@ -28,10 +28,10 @@ import java.util.Map;
  */
 public class UploadPatchToJob extends AnAction implements DumbAware {
 
-    private static final Logger LOG = Logger.getInstance(UploadPatchToJob.class.getName());
     public static final String PARAMETER_NAME = "patch.diff";
-    private static final String SUFFIX_JOB_NAME_MACROS = "$JobName$";
+    public static final String SUFFIX_JOB_NAME_MACROS = "$JobName$";
 
+    private static final Logger LOG = Logger.getInstance(UploadPatchToJob.class.getName());
     private BrowserPanel browserPanel;
 
     private static final Icon EXECUTE_ICON = GuiUtil.isUnderDarcula() ? GuiUtil.loadIcon("execute_dark.png") : GuiUtil.loadIcon("execute.png");
@@ -60,7 +60,7 @@ public class UploadPatchToJob extends AnAction implements DumbAware {
                     JenkinsAppSettings settings = JenkinsAppSettings.getSafeInstance(project);
 
                     final VirtualFile virtualFile =
-                        prepareFile(FileChooser.chooseFile(
+                        prepareFile(browserPanel, FileChooser.chooseFile(
                                 browserPanel,
                                 new FileChooserDescriptor(true, false, false, false, false, false))
                         , settings, job);
@@ -96,7 +96,7 @@ public class UploadPatchToJob extends AnAction implements DumbAware {
 
     }
 
-    private VirtualFile prepareFile(VirtualFile file, JenkinsAppSettings settings, Job job) throws IOException {
+    public static VirtualFile prepareFile(BrowserPanel browserPanel, VirtualFile file, JenkinsAppSettings settings, Job job) throws IOException {
         if ((null != file) && file.exists()) {
             InputStream stream = file.getInputStream();
             InputStreamReader streamReader = new InputStreamReader(stream);
