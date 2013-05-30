@@ -19,7 +19,7 @@ import java.awt.*;
 public class CreatePatchAndBuildAction extends AnAction {
 
     private Project project;
-    ChangeList[] selectedChangeLists;
+    private ChangeList[] selectedChangeLists;
 
     public void actionPerformed(AnActionEvent event) {
         project = ActionUtil.getProject(event);

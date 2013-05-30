@@ -262,6 +262,12 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         job.updateContentWith(updatedJob);
     }
 
+    public Job loadJob(Job job) {
+        Job updatedJob = requestManager.loadJob(job.getUrl());
+        job.updateContentWith(updatedJob);
+        return updatedJob;
+    }
+
     public boolean hasFavoriteJobs() {
         return !jenkinsSettings.getFavoriteJobs().isEmpty();
     }

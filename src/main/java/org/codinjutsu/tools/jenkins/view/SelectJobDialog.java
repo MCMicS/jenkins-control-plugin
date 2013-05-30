@@ -1,6 +1,7 @@
 package org.codinjutsu.tools.jenkins.view;
 
 import com.intellij.codeStyle.CodeStyleFacade;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.diff.impl.patch.FilePatch;
 import com.intellij.openapi.diff.impl.patch.IdeaTextPatchBuilder;
@@ -14,6 +15,7 @@ import com.intellij.openapi.vcs.changes.LocalChangeList;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.IdeBorderFactory;
+import com.intellij.util.concurrency.readwrite.WriteActionWorker;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
@@ -166,7 +168,7 @@ public class SelectJobDialog extends JDialog {
                             if (selectedJob.hasParameter(UploadPatchToJob.PARAMETER_NAME)) {
                                 JenkinsAppSettings settings = JenkinsAppSettings.getSafeInstance(project);
                                 Map<String, VirtualFile> files = new HashMap<String, VirtualFile>();
-                                VirtualFile virtualFile = UploadPatchToJob.prepareFile(browserPanel, LocalFileSystem.getInstance().findFileByIoFile(new File(FILENAME)), settings, selectedJob);
+                                VirtualFile virtualFile = UploadPatchToJob.prepareFile(browserPanel, LocalFileSystem.getInstance().refreshAndFindFileByIoFile(new File(FILENAME)), settings, selectedJob);
                                 if (virtualFile != null && virtualFile.exists()) {
                                     files.put(UploadPatchToJob.PARAMETER_NAME, virtualFile);
                                     requestManager.runBuild(selectedJob, settings, files);
@@ -175,6 +177,8 @@ public class SelectJobDialog extends JDialog {
                                         selectedJob.getName() + " build is on going",
                                         selectedJob.getUrl())
                                     );
+                                } else {
+                                    throw new ConfigurationException(String.format("File \"%s\" not found", virtualFile.getPath()));
                                 }
                             } else {
                                 throw new ConfigurationException(String.format("Job \"%s\" should has parameter with name \"%s\"", selectedJob.getName(), UploadPatchToJob.PARAMETER_NAME));
@@ -191,8 +195,16 @@ public class SelectJobDialog extends JDialog {
             LOG.info(message);
             browserPanel.notifyErrorJenkinsToolWindow(message);
         }
+
+        deletePatchFile();
+
         dispose();
 
+    }
+
+    private void deletePatchFile() {
+        File file = new File(FILENAME);
+        file.delete();
     }
 
     private void onCancel() {
