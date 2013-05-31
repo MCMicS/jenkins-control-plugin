@@ -4,6 +4,9 @@ import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsDataKeys;
 import com.intellij.openapi.vcs.changes.ChangeList;
+import com.intellij.openapi.vcs.changes.ChangeListManager;
+import com.intellij.openapi.vcs.changes.LocalChangeList;
+import com.intellij.openapi.vcs.changes.VcsChangeDetailsManager;
 import com.intellij.openapi.vcs.changes.ui.ChangesListView;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.codinjutsu.tools.jenkins.view.SelectJobDialog;
@@ -46,4 +49,22 @@ public class CreatePatchAndBuildAction extends AnAction {
         });
     }
 
+    @Override
+    public void update(AnActionEvent event) {
+        boolean enabled = false;
+        project = ActionUtil.getProject(event);
+        DataContext dataContext = event.getDataContext();
+
+        selectedChangeLists = VcsDataKeys.CHANGE_LISTS.getData(dataContext);
+        if (selectedChangeLists != null && (selectedChangeLists.length > 0)) {
+            for(ChangeList list: selectedChangeLists) {
+                if (list.getChanges().size() > 0) {
+                    enabled = true;
+                    break;
+                }
+            }
+        }
+        event.getPresentation().setEnabled(enabled);
+
+    }
 }

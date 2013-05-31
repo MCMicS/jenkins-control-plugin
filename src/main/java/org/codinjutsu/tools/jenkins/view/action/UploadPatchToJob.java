@@ -133,7 +133,7 @@ public class UploadPatchToJob extends AnAction implements DumbAware {
     @Override
     public void update(AnActionEvent event) {
         Job selectedJob = browserPanel.getSelectedJob();
-        event.getPresentation().setVisible(selectedJob != null && selectedJob.hasParameters() && selectedJob.hasParameter(PARAMETER_NAME));
+        event.getPresentation().setEnabled(selectedJob != null && selectedJob.hasParameters() && selectedJob.hasParameter(PARAMETER_NAME));
     }
 
     private void notifyOnGoingMessage(Job job) {
