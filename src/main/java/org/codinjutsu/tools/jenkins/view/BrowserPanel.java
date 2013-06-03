@@ -523,7 +523,6 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
     public void addToWatch(String changeListName, Job job)
     {
         JenkinsAppSettings settings = JenkinsAppSettings.getSafeInstance(project);
-
         Build build = job.getLastBuild();
         build.setNumber(build.getNumber() + 1);
         build.setUrl(settings.getServerUrl() + String.format("/job/%s/%d/", job.getName(), build.getNumber()));
