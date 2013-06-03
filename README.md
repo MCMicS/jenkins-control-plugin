@@ -28,6 +28,8 @@ This plugin allows to view the content of your Jenkins Continous Integration Ser
 
 ![Browser](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/images/Browser.png?raw=true)
 
+![Create](https://github.com/nyver/jenkins-control-plugin/blob/master/doc/howto/2_setup_ide/05.png?raw=true)
+
 ![Upload](https://github.com/nyver/jenkins-control-plugin/blob/master/doc/howto/2_setup_ide/04.png?raw=true)
 
 ## Plugin Compatibility
