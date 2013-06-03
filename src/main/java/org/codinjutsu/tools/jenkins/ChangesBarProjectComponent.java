@@ -58,7 +58,7 @@ public class ChangesBarProjectComponent implements ProjectComponent, ChangeListD
             if (build.isBuilding()) {
                 status = "Running";
             }
-            coloredTreeCellRenderer.append(String.format(" - build #%d: %s", build.getNumber(), status), SimpleTextAttributes.GRAYED_ATTRIBUTES);
+            coloredTreeCellRenderer.append(String.format(" - last build #%d: %s", build.getNumber(), status), SimpleTextAttributes.GRAYED_ATTRIBUTES);
             coloredTreeCellRenderer.repaint();
         }
     }
