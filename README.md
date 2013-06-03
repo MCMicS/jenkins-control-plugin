@@ -1,4 +1,4 @@
-# Jenkins Plugin for IntelliJ IDEA
+# Jenkins Plugin for IntelliJ IDEA (PhpStorm and other)
 ## with Patch Parameter Plugin Support (Pre-tested commit)
 (https://wiki.jenkins-ci.org/display/JENKINS/Patch+Parameter+Plugin)
 
