@@ -1,7 +1,6 @@
 package org.codinjutsu.tools.jenkins.view;
 
 import com.intellij.codeStyle.CodeStyleFacade;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.diff.impl.patch.FilePatch;
 import com.intellij.openapi.diff.impl.patch.IdeaTextPatchBuilder;
@@ -10,12 +9,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.changes.Change;
 import com.intellij.openapi.vcs.changes.ChangeList;
-import com.intellij.openapi.vcs.changes.ChangeListManager;
-import com.intellij.openapi.vcs.changes.LocalChangeList;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.IdeBorderFactory;
-import com.intellij.util.concurrency.readwrite.WriteActionWorker;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
@@ -155,6 +151,15 @@ public class SelectJobDialog extends JDialog {
         return true;
     }
 
+    private void watchJob(BrowserPanel browserPanel, Job job)
+    {
+        if (changeLists.length > 0) {
+            for(ChangeList list: changeLists) {
+                browserPanel.addToWatch(list.getName(), job);
+            }
+        }
+    }
+
     private void onOK() {
         BrowserPanel browserPanel = BrowserPanel.getInstance(project);
         try {
@@ -177,6 +182,9 @@ public class SelectJobDialog extends JDialog {
                                         selectedJob.getName() + " build is on going",
                                         selectedJob.getUrl())
                                     );
+
+                                    watchJob(browserPanel, selectedJob);
+
                                 } else {
                                     throw new ConfigurationException(String.format("File \"%s\" not found", virtualFile.getPath()));
                                 }

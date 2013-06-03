@@ -1,7 +1,7 @@
 <idea-plugin>
     <name>Jenkins Control Plugin</name>
     <description>A Jenkins Plugin for Intellij (with Patch Parameter Plugin support)</description>
-    <version>0.8.1.2-ppp</version>
+    <version>0.8.1.3-ppp</version>
     <vendor email="david.boissier [at] gmail [dot] com" url="http://codinjutsu.blogspot.com">David Boissier (support of PPP was added by Yuri Novitsky)</vendor>
     <idea-version since-build="117.963"/>
 
@@ -10,6 +10,9 @@
     <project-components>
         <component>
             <implementation-class>org.codinjutsu.tools.jenkins.JenkinsComponent</implementation-class>
+        </component>
+        <component>
+            <implementation-class>org.codinjutsu.tools.jenkins.ChangesBarProjectComponent</implementation-class>
         </component>
     </project-components>
 

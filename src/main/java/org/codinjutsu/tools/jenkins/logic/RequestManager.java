@@ -121,6 +121,12 @@ public class RequestManager {
         return jsonParser.createJob(jenkinsJobData);
     }
 
+    public Build loadBuild(String jenkinsBuildUrl) {
+        URL url = urlBuilder.createBuildUrl(jenkinsBuildUrl);
+        String jenkinsJobData = securityClient.execute(url);
+        return jsonParser.createBuild(jenkinsJobData);
+    }
+
     public void runBuild(Job job, JenkinsAppSettings configuration, Map<String, VirtualFile> files) {
         if (job.hasParameters()) {
             if (files.size() > 0) {

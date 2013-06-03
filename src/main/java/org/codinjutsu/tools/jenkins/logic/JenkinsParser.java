@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
+import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.model.Job;
 
@@ -52,6 +53,8 @@ public interface JenkinsParser {
     Jenkins createWorkspace(String jsonData, String serverUrl);
 
     Job createJob(String jsonData);
+
+    Build createBuild(String jsonData);
 
     List<Job> createViewJobs(String jsonData);
 

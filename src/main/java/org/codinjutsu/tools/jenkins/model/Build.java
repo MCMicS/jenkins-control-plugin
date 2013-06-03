@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
+import org.apache.commons.httpclient.util.URIUtil;
 import org.codinjutsu.tools.jenkins.util.DateUtil;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 

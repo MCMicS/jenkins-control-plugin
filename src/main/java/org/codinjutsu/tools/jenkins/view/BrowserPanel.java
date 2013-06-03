@@ -34,6 +34,7 @@ import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.containers.Convertor;
 import com.intellij.util.ui.tree.TreeUtil;
+import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
@@ -57,7 +58,9 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -88,6 +91,8 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
     private final Jenkins jenkins;
     private FavoriteView favoriteView;
     private View currentSelectedView;
+
+    private Map<String, Job> watchedJobs = new HashMap<String, Job>();
 
     private static final Comparator<DefaultMutableTreeNode> sortByStatusComparator = new Comparator<DefaultMutableTreeNode>() {
         @Override
@@ -437,6 +442,8 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
             visit(job, buildStatusVisitor);
         }
 
+        watch();
+
         setSortedByStatus(sortedByBuildStatus);
 
         jobTree.setRootVisible(true);
@@ -512,4 +519,35 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
             }
         }
     }
+
+    public void addToWatch(String changeListName, Job job)
+    {
+        JenkinsAppSettings settings = JenkinsAppSettings.getSafeInstance(project);
+
+        Build build = job.getLastBuild();
+        build.setNumber(build.getNumber() + 1);
+        build.setUrl(settings.getServerUrl() + String.format("/job/%s/%d/", job.getName(), build.getNumber()));
+        watchedJobs.put(changeListName, job);
+    }
+
+    public void watch()
+    {
+        if (watchedJobs.size() > 0) {
+            for(String key: watchedJobs.keySet()) {
+                Job job = watchedJobs.get(key);
+                Build lastBuild = job.getLastBuild();
+                Build build = requestManager.loadBuild(lastBuild.getUrl());
+                if (lastBuild.isBuilding() && !build.isBuilding()) {
+                    notifyInfoJenkinsToolWindow(String.format("Status of build for Changelist \"%s\" is %s", key, build.getStatus().getStatus()));
+                }
+                job.setLastBuild(build);
+            }
+        }
+    }
+
+    public Map<String, Job> getWatched()
+    {
+        return watchedJobs;
+    }
+
 }
