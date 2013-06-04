@@ -16,11 +16,16 @@
 
 package org.codinjutsu.tools.jenkins.security;
 
+import com.intellij.openapi.vfs.VirtualFile;
+
 import java.net.URL;
+import java.util.Map;
 
 public interface SecurityClient {
 
     void connect(URL jenkinsUrl);
 
     String execute(URL url);
+
+    void setFiles(Map<String, VirtualFile> files);
 }

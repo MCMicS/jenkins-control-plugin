@@ -1,3 +1,15 @@
+Version 0.8.1.3-ppp (Patch Parameter Plugin support)
+    * [Add] Notification about build progress
+
+Version 0.8.1.2-ppp (Patch Parameter Plugin support)
+    * [Add] Action "Create Patch and build on Jenkins" in Changelist's context menu
+
+Version 0.8.1.1-ppp (Patch Parameter Plugin support)
+    * [Add] Macros $JobName$ for suffix setting
+
+Version 0.8.1-ppp (Patch Parameter Plugin support)
+    * [Add] Support of Patch Parameter Plugin (https://wiki.jenkins-ci.org/display/JENKINS/Patch+Parameter+Plugin)
+
 Version 0.8.0
     * [Add] #43 Support multiple selection for favorites
     * [Add] #51 Check the hostname sent by the jenkins server

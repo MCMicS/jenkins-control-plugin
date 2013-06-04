@@ -38,6 +38,7 @@ public class UrlBuilder {
     private static final String BASIC_VIEW_INFO = "name,url,jobs[" + BASIC_JOB_INFO + "]";
     private static final String CLOUDBEES_VIEW_INFO = "name,url,views[jobs[" + BASIC_JOB_INFO + "]]";
     private static final String TEST_CONNECTION_REQUEST = "?tree=nodeName";
+    private static final String BASIC_BUILD_INFO = "id,url,building,result,number";
 
     public static UrlBuilder getInstance(Project project) {
         return ServiceManager.getService(project, UrlBuilder.class);
@@ -93,6 +94,15 @@ public class UrlBuilder {
     public URL createJobUrl(String jobUrl) {
         try {
             return new URL(jobUrl + URIUtil.encodePathQuery(API_JSON + TREE_PARAM + BASIC_JOB_INFO));
+        } catch (Exception ex) {
+            handleException(ex);
+        }
+        return null;
+    }
+
+    public URL createBuildUrl(String buildUrl) {
+        try {
+            return new URL(buildUrl + URIUtil.encodePathQuery(API_JSON + TREE_PARAM + BASIC_BUILD_INFO));
         } catch (Exception ex) {
             handleException(ex);
         }

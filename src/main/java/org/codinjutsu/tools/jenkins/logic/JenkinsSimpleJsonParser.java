@@ -119,6 +119,43 @@ public class JenkinsSimpleJsonParser implements JenkinsParser {
 
     }
 
+    public Build createBuild(String jsonData) {
+        checkJsonDataAndThrowExceptionIfNecessary(jsonData);
+
+        JSONParser parser = new JSONParser();
+        try {
+            JSONObject jsonObject = (JSONObject) parser.parse(jsonData);
+
+            return getBuild(jsonObject);
+
+        } catch (ParseException e) {
+            String message = String.format("Error during parsing JSON data : %s", jsonData);
+            LOG.error(message, e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Build getBuild(JSONObject lastBuildObject) {
+        if (lastBuildObject == null) {
+            return null;
+        }
+
+        Build build = new Build();
+        String buildDate = (String) lastBuildObject.get(BUILD_ID);
+        build.setBuildDate(buildDate);
+        Boolean building = (Boolean) lastBuildObject.get(BUILD_IS_BUILDING);
+        build.setBuilding(building);
+        Long number = (Long) lastBuildObject.get(BUILD_NUMBER);
+        build.setNumber(number.intValue());
+        String status = (String) lastBuildObject.get(BUILD_RESULT);
+        build.setStatus(status);
+        String url = (String) lastBuildObject.get(BUILD_URL);
+        build.setUrl(url);
+
+        return build;
+    }
+
+
     private Job getJob(JSONObject jsonObject) {
         Job job = new Job();
         String name = (String) jsonObject.get(JOB_NAME);

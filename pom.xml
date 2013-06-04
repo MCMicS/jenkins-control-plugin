@@ -4,9 +4,10 @@
 
     <groupId>org.codinjutsu.tools.jenkins</groupId>
     <artifactId>jenkins-control-plugin</artifactId>
-    <version>0.8.1-SNAPSHOT</version>
+    <version>0.8.1.3-ppp-SNAPSHOT</version>
 
     <properties>
+        <ij.plugin>true</ij.plugin>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <maven.compiler.source>1.6</maven.compiler.source>
@@ -15,7 +16,7 @@
         <intellij.sdk.name>117.963</intellij.sdk.name>
         <intellij.sdk.version>11.1.4</intellij.sdk.version>
 
-        <intellij.lib.path>/home/dboissier/applications/idea-IU-117.117/lib</intellij.lib.path>
+        <intellij.lib.path>C:\Program Files (x86)\JetBrains\ideaIU-11.1.4\lib\</intellij.lib.path>
 
         <release.dir>file:////home/dboissier/incubator/distribution/maven/m2/inhouse</release.dir>
         <snapshot.dir>file:///home/dboissier/incubator/distribution/maven/m2/inhouse-snapshot</snapshot.dir>
@@ -57,12 +58,12 @@
         </dependency>
         <dependency>
             <groupId>com.intellij</groupId>
-            <artifactId>idea-openapi</artifactId>
+            <artifactId>openapi</artifactId>
             <version>${intellij.sdk.version}</version>
         </dependency>
         <dependency>
             <groupId>com.intellij</groupId>
-            <artifactId>idea-idea</artifactId>
+            <artifactId>idea</artifactId>
             <version>${intellij.sdk.version}</version>
         </dependency>
         <dependency>

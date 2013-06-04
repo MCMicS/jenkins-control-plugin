@@ -97,6 +97,14 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
         myState.rssRefreshPeriod = rssRefreshPeriod;
     }
 
+    public String getSuffix() {
+        return myState.suffix;
+    }
+
+    public void setSuffix(String suffix) {
+        myState.suffix = suffix;
+    }
+
     public boolean shouldDisplaySuccessOrStable() {
         return myState.rssSettings.displaySuccessOrStable;
     }
@@ -142,6 +150,7 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
         public int delay = DEFAULT_BUILD_DELAY;
         public int jobRefreshPeriod = RESET_PERIOD_VALUE;
         public int rssRefreshPeriod = RESET_PERIOD_VALUE;
+        public String suffix = "";
 
         public RssSettings rssSettings = new RssSettings();
     }

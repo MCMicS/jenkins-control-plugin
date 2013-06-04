@@ -74,6 +74,8 @@ public class ConfigurationPanel {
     private JCheckBox successOrStableCheckBox;
     private JCheckBox unstableOrFailCheckBox;
     private JCheckBox abortedCheckBox;
+    private JPanel UploadPatchSettingsPanel;
+    private JTextField ReplaceWithSuffix;
 
     private final FormValidator formValidator;
 
@@ -107,6 +109,7 @@ public class ConfigurationPanel {
         jobRefreshPeriod.setDocument(new NumberDocument());
         rssRefreshPeriod.setDocument(new NumberDocument());
 
+        UploadPatchSettingsPanel.setBorder(IdeBorderFactory.createTitledBorder("Upload a Patch Settings", true));
 
         passwordField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
@@ -184,7 +187,7 @@ public class ConfigurationPanel {
                 || !(jenkinsAppSettings.getRssRefreshPeriod() == getRssRefreshPeriod())
                 || !(jenkinsSettings.getCrumbData().equals(crumbDataField.getText()))
                 || credentialModified
-                || statusToIgnoreModified;
+                || statusToIgnoreModified || (!jenkinsAppSettings.getSuffix().equals(ReplaceWithSuffix.getText()));
     }
 
     //TODO use annotation to create a guiwrapper so isModified could be simplified
@@ -205,6 +208,7 @@ public class ConfigurationPanel {
         jenkinsAppSettings.setIgnoreSuccessOrStable(successOrStableCheckBox.isSelected());
         jenkinsAppSettings.setDisplayUnstableOrFail(unstableOrFailCheckBox.isSelected());
         jenkinsAppSettings.setDisplayAborted(abortedCheckBox.isSelected());
+        jenkinsAppSettings.setSuffix(ReplaceWithSuffix.getText());
 
 
         if (StringUtils.isNotBlank(username.getText())) {
@@ -238,6 +242,8 @@ public class ConfigurationPanel {
         successOrStableCheckBox.setSelected(jenkinsAppSettings.shouldDisplaySuccessOrStable());
         unstableOrFailCheckBox.setSelected(jenkinsAppSettings.shouldDisplayFailOrUnstable());
         abortedCheckBox.setSelected(jenkinsAppSettings.shouldDisplayAborted());
+
+        ReplaceWithSuffix.setText(String.valueOf(jenkinsAppSettings.getSuffix()));
     }
 
     private boolean isPasswordModified() {
@@ -289,6 +295,10 @@ public class ConfigurationPanel {
             return Integer.parseInt(delay);
         }
         return 0;
+    }
+
+    private String getSuffix() {
+        return ReplaceWithSuffix.getText();
     }
 
     public JPanel getRootPanel() {
