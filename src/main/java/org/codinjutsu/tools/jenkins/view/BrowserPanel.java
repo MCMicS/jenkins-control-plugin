@@ -513,6 +513,8 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
                         JenkinsWidget.getInstance(project).updateStatusIcon(buildStatusAggregator);
                     }
                 });
+            } catch (ConfigurationException ex) {
+                notifyErrorJenkinsToolWindow(ex.getMessage());
             } finally {
                 setTreeBusy(false);
             }

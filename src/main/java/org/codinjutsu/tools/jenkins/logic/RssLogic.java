@@ -30,6 +30,7 @@ import com.intellij.openapi.ui.popup.BalloonBuilder;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.ui.awt.RelativePoint;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
+import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
@@ -160,15 +161,20 @@ public class RssLogic implements Disposable {
         if (firstFailedBuild != null) {
             String jobName = firstFailedBuild.getKey();
             Build build = firstFailedBuild.getValue();
-            BalloonBuilder balloonBuilder = JBPopupFactory.getInstance().createHtmlTextBalloonBuilder(jobName + "#" + build.getNumber() + ": FAILED", MessageType.ERROR, null);
-            final Balloon balloon = balloonBuilder.setFadeoutTime(TimeUnit.SECONDS.toMillis(1)).createBalloon();
-            GuiUtil.runInSwingThread(new Runnable() {
-                @Override
-                public void run() {
-                    balloon.show(new RelativePoint(JenkinsWidget.getInstance(project).getComponent(), new Point(0, 0)), Balloon.Position.above);
-                }
-            });
+            String message = jobName + "#" + build.getNumber() + ": FAILED";
+            displayErrorMessageInABalloon(message);
         }
+    }
+
+    private void displayErrorMessageInABalloon(String message) {
+        BalloonBuilder balloonBuilder = JBPopupFactory.getInstance().createHtmlTextBalloonBuilder(message, MessageType.ERROR, null);
+        final Balloon balloon = balloonBuilder.setFadeoutTime(TimeUnit.SECONDS.toMillis(1)).createBalloon();
+        GuiUtil.runInSwingThread(new Runnable() {
+            @Override
+            public void run() {
+                balloon.show(new RelativePoint(JenkinsWidget.getInstance(project).getComponent(), new Point(0, 0)), Balloon.Position.above);
+            }
+        });
     }
 
     private Map.Entry<String, Build> getFirstFailedBuild(Map<String, Build> finishedBuilds) {
@@ -206,7 +212,13 @@ public class RssLogic implements Disposable {
 
         @Override
         public void run(@NotNull ProgressIndicator indicator) {
-            final Map<String, Build> finishedBuilds = loadAndReturnNewLatestBuilds();
+            final Map<String, Build> finishedBuilds;
+            try {
+                finishedBuilds = loadAndReturnNewLatestBuilds();
+            } catch (ConfigurationException ex) {
+                displayErrorMessageInABalloon(ex.getMessage());
+                return;
+            }
             if (!shouldDisplayResult || finishedBuilds.isEmpty()) {
                 return;
             }
