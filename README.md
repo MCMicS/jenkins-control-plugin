@@ -26,9 +26,9 @@ See CHANGELOG.txt
 
 ### Setup from the IDE
 
-![Create](https://github.com/nyver/jenkins-control-plugin/blob/master/doc/howto/2_setup_ide/05.png?raw=true)
+![Create](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/2_setup_ide/05.png?raw=true)
 
-![Upload](https://github.com/nyver/jenkins-control-plugin/blob/master/doc/howto/2_setup_ide/04.png?raw=true)
+![Upload](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/2_setup_ide/04.png?raw=true)
 
 
 ## Description
