@@ -20,18 +20,19 @@ This release is not compatible with IDEA 10 anymore.
 See CHANGELOG.txt
 
 
-### Patch Parameter Plugin Support (Pre-tested commit)
+## Patch Parameter Plugin Support (Pre-tested commit)
 * (https://wiki.jenkins-ci.org/display/JENKINS/Patch+Parameter+Plugin)
 * Information about pre-tested commit: https://wiki.jenkins-ci.org/display/JENKINS/Designing+pre-tested+commit
-## Description
-This plugin allows to view the content of your Jenkins Continous Integration Server.
 
-![Browser](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/images/Browser.png?raw=true)
+### Setup from the IDE
 
 ![Create](https://github.com/nyver/jenkins-control-plugin/blob/master/doc/howto/2_setup_ide/05.png?raw=true)
 
 ![Upload](https://github.com/nyver/jenkins-control-plugin/blob/master/doc/howto/2_setup_ide/04.png?raw=true)
 
+
+## Description
+This plugin allows to view the content of your Jenkins Continous Integration Server.
 
 
 ## Important Notes for the version 0.8.0
