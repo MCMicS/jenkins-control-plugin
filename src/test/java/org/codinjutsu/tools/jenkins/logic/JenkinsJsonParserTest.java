@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.mockito.MockitoAnnotations;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -188,6 +187,6 @@ public class JenkinsJsonParserTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        jsonParser = new JenkinsSimpleJsonParser();
+        jsonParser = new JenkinsJsonParser();
     }
 }

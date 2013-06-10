@@ -34,7 +34,6 @@ import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.containers.Convertor;
 import com.intellij.util.ui.tree.TreeUtil;
-import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
@@ -185,7 +184,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
     public Job getJob(String name) {
         List<Job> jobs = jenkins.getJobs();
         if (jobs.size() > 0) {
-            for(Job job: jobs) {
+            for (Job job : jobs) {
                 if (job.getName().equals(name)) {
                     return job;
                 }
@@ -213,7 +212,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
     @Override
     public void dispose() {
-
+        ToolWindowManager.getInstance(project).unregisterToolWindow(JenkinsWindowManager.JENKINS_BROWSER);
     }
 
     private static void visit(Job job, BuildStatusVisitor buildStatusVisitor) {
@@ -520,8 +519,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         }
     }
 
-    public void addToWatch(String changeListName, Job job)
-    {
+    public void addToWatch(String changeListName, Job job) {
         JenkinsAppSettings settings = JenkinsAppSettings.getSafeInstance(project);
         Build build = job.getLastBuild();
         build.setNumber(build.getNumber() + 1);
@@ -529,10 +527,9 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         watchedJobs.put(changeListName, job);
     }
 
-    public void watch()
-    {
+    public void watch() {
         if (watchedJobs.size() > 0) {
-            for(String key: watchedJobs.keySet()) {
+            for (String key : watchedJobs.keySet()) {
                 Job job = watchedJobs.get(key);
                 Build lastBuild = job.getLastBuild();
                 Build build = requestManager.loadBuild(lastBuild.getUrl());
@@ -544,8 +541,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         }
     }
 
-    public Map<String, Job> getWatched()
-    {
+    public Map<String, Job> getWatched() {
         return watchedJobs;
     }
 

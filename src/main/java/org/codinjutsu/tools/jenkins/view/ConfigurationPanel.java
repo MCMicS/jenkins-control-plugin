@@ -16,7 +16,6 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.NumberDocument;
@@ -74,8 +73,9 @@ public class ConfigurationPanel {
     private JCheckBox successOrStableCheckBox;
     private JCheckBox unstableOrFailCheckBox;
     private JCheckBox abortedCheckBox;
-    private JPanel UploadPatchSettingsPanel;
-    private JTextField ReplaceWithSuffix;
+
+    private JPanel uploadPatchSettingsPanel;
+    private JTextField replaceWithSuffix;
 
     private final FormValidator formValidator;
 
@@ -109,7 +109,7 @@ public class ConfigurationPanel {
         jobRefreshPeriod.setDocument(new NumberDocument());
         rssRefreshPeriod.setDocument(new NumberDocument());
 
-        UploadPatchSettingsPanel.setBorder(IdeBorderFactory.createTitledBorder("Upload a Patch Settings", true));
+        uploadPatchSettingsPanel.setBorder(IdeBorderFactory.createTitledBorder("Upload a Patch Settings", true));
 
         passwordField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
@@ -187,7 +187,7 @@ public class ConfigurationPanel {
                 || !(jenkinsAppSettings.getRssRefreshPeriod() == getRssRefreshPeriod())
                 || !(jenkinsSettings.getCrumbData().equals(crumbDataField.getText()))
                 || credentialModified
-                || statusToIgnoreModified || (!jenkinsAppSettings.getSuffix().equals(ReplaceWithSuffix.getText()));
+                || statusToIgnoreModified || (!jenkinsAppSettings.getSuffix().equals(replaceWithSuffix.getText()));
     }
 
     //TODO use annotation to create a guiwrapper so isModified could be simplified
@@ -208,7 +208,7 @@ public class ConfigurationPanel {
         jenkinsAppSettings.setIgnoreSuccessOrStable(successOrStableCheckBox.isSelected());
         jenkinsAppSettings.setDisplayUnstableOrFail(unstableOrFailCheckBox.isSelected());
         jenkinsAppSettings.setDisplayAborted(abortedCheckBox.isSelected());
-        jenkinsAppSettings.setSuffix(ReplaceWithSuffix.getText());
+        jenkinsAppSettings.setSuffix(replaceWithSuffix.getText());
 
 
         if (StringUtils.isNotBlank(username.getText())) {
@@ -243,7 +243,7 @@ public class ConfigurationPanel {
         unstableOrFailCheckBox.setSelected(jenkinsAppSettings.shouldDisplayFailOrUnstable());
         abortedCheckBox.setSelected(jenkinsAppSettings.shouldDisplayAborted());
 
-        ReplaceWithSuffix.setText(String.valueOf(jenkinsAppSettings.getSuffix()));
+        replaceWithSuffix.setText(String.valueOf(jenkinsAppSettings.getSuffix()));
     }
 
     private boolean isPasswordModified() {
@@ -298,7 +298,7 @@ public class ConfigurationPanel {
     }
 
     private String getSuffix() {
-        return ReplaceWithSuffix.getText();
+        return replaceWithSuffix.getText();
     }
 
     public JPanel getRootPanel() {

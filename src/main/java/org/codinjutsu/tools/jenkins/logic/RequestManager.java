@@ -19,8 +19,6 @@ package org.codinjutsu.tools.jenkins.logic;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
@@ -28,12 +26,10 @@ import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.model.Job;
-import org.codinjutsu.tools.jenkins.model.JobParameter;
 import org.codinjutsu.tools.jenkins.security.SecurityClient;
 import org.codinjutsu.tools.jenkins.security.SecurityClientFactory;
 
 import java.net.URL;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +46,7 @@ public class RequestManager {
 
     private RssParser rssParser = new RssParser();
 
-    private JenkinsParser jsonParser = new JenkinsSimpleJsonParser();
+    private JenkinsParser jsonParser = new JenkinsJsonParser();
 
     public static RequestManager getInstance(Project project) {
         return ServiceManager.getService(project, RequestManager.class);

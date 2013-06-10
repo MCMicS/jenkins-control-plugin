@@ -28,7 +28,6 @@ import org.codinjutsu.tools.jenkins.logic.RssLogic;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.codinjutsu.tools.jenkins.view.JenkinsWidget;
-import org.codinjutsu.tools.jenkins.view.action.RefreshRssAction;
 
 import javax.swing.*;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -79,8 +78,10 @@ public class JenkinsWindowManager {
     }
 
     public void unregisterMyself() {
-        ToolWindowManager.getInstance(project).unregisterToolWindow(JenkinsWindowManager.JENKINS_BROWSER);
+
         BrowserPanel.getInstance(project).dispose();
+        JenkinsWidget.getInstance(project).dispose();
+
         scheduledThreadPoolExecutor.shutdown();
     }
 

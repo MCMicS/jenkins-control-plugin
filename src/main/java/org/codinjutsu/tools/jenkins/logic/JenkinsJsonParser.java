@@ -27,9 +27,9 @@ import org.json.simple.parser.ParseException;
 import java.util.LinkedList;
 import java.util.List;
 
-public class JenkinsSimpleJsonParser implements JenkinsParser {
+public class JenkinsJsonParser implements JenkinsParser {
 
-    private static final Logger LOG = Logger.getLogger(JenkinsSimpleJsonParser.class);
+    private static final Logger LOG = Logger.getLogger(JenkinsJsonParser.class);
 
     @Override
     public Jenkins createWorkspace(String jsonData, String serverUrl) {
