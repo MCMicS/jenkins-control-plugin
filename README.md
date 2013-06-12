@@ -1,4 +1,4 @@
-# Jenkins Plugin for IntelliJ IDEA (PhpStorm and other)
+# Jenkins Plugin for Jetbrains products
 
 
 ## Version 0.9.0-SNAPSHOT
@@ -8,13 +8,11 @@ If you want to test the latest features, you can download the [latest snapshot](
 To install it, **Settings -> Plugins -> Install from disk** and restart your IDE.
 
 ### Last features
-* Added action "Create Patch and build on Jenkins" in changelist's context menu
-* Added notifications about build progress
+* \[Patch parameter support\] Added action "Create Patch and build on Jenkins" in changelist's context menu
+* \[Patch parameter support\] Added notifications about build progress
 * Fix EDT thread violation
 * Fix Duplicate widget on multiple instance of the IDE (#52)
 
-## Important Notes for the version >= 0.8.0
-This release is not compatible with IDEA 10 anymore.
 
 ## ChangeLog
 See CHANGELOG.txt
@@ -30,16 +28,6 @@ See CHANGELOG.txt
 
 ![Upload](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/2_setup_ide/04.png?raw=true)
 
-
-## Description
-This plugin allows to view the content of your Jenkins Continous Integration Server.
-
-
-## Important Notes for the version 0.8.0
-This release is not compatible with IDEA 10 anymore.
-
-## ChangeLog
-See CHANGELOG.txt
 
 ## Description
 This plugin allows to view the content of your Jenkins Continous Integration Server.
@@ -104,6 +92,7 @@ The RSS reader has moved to the Event Log. If you need to refresh manually, clic
 
 ## Thanks
 I would like to thank:
+* Yuri Novitsky for his contribution to this plugin (pre-commit feature)
 * Kohsuke Kawaguchi for providing us such a great CI server
 * Jetbrains Team for providing us such an incredible IDE (certainly the best that Java developers could have).
 * All users who sent me valuable suggestions
