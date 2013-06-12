@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.model.*;
@@ -200,7 +201,9 @@ public class JenkinsJsonParser implements JenkinsParser {
                 JSONObject defaultParamObj = (JSONObject) parameterObj.get(PARAMETER_DEFAULT_PARAM);
                 if (defaultParamObj != null && !defaultParamObj.isEmpty()) {
                     Object defaultValue = defaultParamObj.get(PARAMETER_DEFAULT_PARAM_VALUE);
-                    jobParameter.setDefaultValue(defaultValue.toString());
+                    if (defaultValue != null) {
+                        jobParameter.setDefaultValue(defaultValue.toString());
+                    }
                 }
 
                 String name = (String) parameterObj.get(PARAMETER_NAME);

@@ -174,7 +174,7 @@ public class JenkinsJsonParserTest {
                         .parameter("tag", "StringParameterDefinition", "")
                         .parameter("pass", "PasswordParameterDefinition", null)
                         .parameter("file", "FileParameterDefinition", null)
-                        .parameter("desc", "TextParameterDefinition", "")
+                        .parameter("parameterWithNullAsDefaultValue", "TextParameterDefinition", null)
                         .parameter("runner", "RunParameterDefinition", null)
                         .parameter("tag", "ListSubversionTagsParameterDefinition", null)
                         .get()

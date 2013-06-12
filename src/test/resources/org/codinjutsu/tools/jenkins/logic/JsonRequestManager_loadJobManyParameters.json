@@ -55,9 +55,9 @@
                     },
                     {
                         "defaultParameterValue": {
-                            "value": ""
+                            "value": null
                         },
-                        "name": "desc",
+                        "name": "parameterWithNullAsDefaultValue",
                         "type": "TextParameterDefinition"
                     },
                     {
