@@ -125,7 +125,12 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         refreshViewJob = new Runnable() {
             @Override
             public void run() {
-                new LoadSelectedViewJob(project).queue();
+                GuiUtil.runInSwingThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        new LoadSelectedViewJob(project).queue();
+                    }
+                });
             }
         };
 
@@ -264,12 +269,6 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         Job job = getSelectedJob();
         Job updatedJob = requestManager.loadJob(job.getUrl());
         job.updateContentWith(updatedJob);
-    }
-
-    public Job loadJob(Job job) {
-        Job updatedJob = requestManager.loadJob(job.getUrl());
-        job.updateContentWith(updatedJob);
-        return updatedJob;
     }
 
     public boolean hasFavoriteJobs() {
@@ -504,20 +503,25 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
                 currentSelectedView = viewToLoad;
                 loadJobs(viewToLoad);
 
-                final BuildStatusAggregator buildStatusAggregator = new BuildStatusAggregator(jenkins.getJobs().size());
-
-                GuiUtil.runInSwingThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        fillJobTree(buildStatusAggregator);
-                        JenkinsWidget.getInstance(project).updateStatusIcon(buildStatusAggregator);
-                    }
-                });
             } catch (ConfigurationException ex) {
                 notifyErrorJenkinsToolWindow(ex.getMessage());
             } finally {
                 setTreeBusy(false);
             }
+        }
+
+        @Override
+        public void onSuccess() {
+            final BuildStatusAggregator buildStatusAggregator = new BuildStatusAggregator(jenkins.getJobs().size());
+
+            GuiUtil.runInSwingThread(new Runnable() {
+                @Override
+                public void run() {
+                    fillJobTree(buildStatusAggregator);
+                    JenkinsWidget.getInstance(project).updateStatusIcon(buildStatusAggregator);
+                }
+            });
+
         }
     }
 

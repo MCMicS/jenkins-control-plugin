@@ -1,7 +1,7 @@
 Version 0.9.0
-    * [Add] [Patch Parameter Plugin] Notification about build progress
-    * [Add] [Patch Parameter Plugin] Action "Create Patch and build on Jenkins" in Changelist's context menu
-    * [Add] [Patch Parameter Plugin] Macros $JobName$ for suffix setting
+    * [Add] [Patch Parameter Plugin] Notification about build progress (thx Yuri for your nice work)
+    * [Add] [Patch Parameter Plugin] Action "Create Patch and build on Jenkins" in Changelist's context menu (same than above)
+    * [Add] [Patch Parameter Plugin] Macros $JobName$ for suffix setting (same than above)
     * [Add] [Patch Parameter Plugin] Support of Patch Parameter Plugin (https://wiki.jenkins-ci.org/display/JENKINS/Patch+Parameter+Plugin)
     * [fix] EDT thread violation
 
