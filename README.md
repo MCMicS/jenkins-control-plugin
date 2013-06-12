@@ -18,7 +18,7 @@ To install it, **Settings -> Plugins -> Install from disk** and restart your IDE
 See CHANGELOG.txt
 
 
-## Patch Parameter Plugin Support (Pre-tested commit)
+## Patch Parameter Plugin Support (Pre-tested commit) by [Yuri Novotsky](https://github.com/nyver)
 * (https://wiki.jenkins-ci.org/display/JENKINS/Patch+Parameter+Plugin)
 * Information about pre-tested commit: https://wiki.jenkins-ci.org/display/JENKINS/Designing+pre-tested+commit
 
@@ -66,7 +66,7 @@ Download this plugin from your IDE or from the plugin website: http://plugins.in
 
 ![Build sorting](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/images/Browser-sortingByStatus.png?raw=true)
 
-* **NEW** To search specific Job, just start typing in the Browser and use UP and DOWN keys to navigate.
+* To search specific Job, just start typing in the Browser and use UP and DOWN keys to navigate.
 
 * You can set some jobs as favorite.
 
@@ -92,7 +92,7 @@ The RSS reader has moved to the Event Log. If you need to refresh manually, clic
 
 ## Thanks
 I would like to thank:
-* Yuri Novitsky for his contribution to this plugin (pre-commit feature)
+* [Yuri Novitsky](https://github.com/nyver) for his contribution to this plugin (pre-commit feature)
 * Kohsuke Kawaguchi for providing us such a great CI server
 * Jetbrains Team for providing us such an incredible IDE (certainly the best that Java developers could have).
 * All users who sent me valuable suggestions
