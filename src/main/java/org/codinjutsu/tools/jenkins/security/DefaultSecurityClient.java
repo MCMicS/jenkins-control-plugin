@@ -43,6 +43,8 @@ class DefaultSecurityClient implements SecurityClient {
 
     private static final String BAD_CRUMB_DATA = "No valid crumb was included in the request";
     static final String CRUMB_NAME = ".crumb";
+    private static final int DEFAULT_SOCKET_TIMEOUT = 10000;
+    private static final int DEFAULT_CONNECTION_TIMEOUT = 10000;
 
     String crumbData;
 
@@ -106,6 +108,15 @@ class DefaultSecurityClient implements SecurityClient {
 
         InputStream inputStream = null;
         try {
+            if (files.isEmpty()) {
+                httpClient.getParams().setParameter("http.socket.timeout", DEFAULT_SOCKET_TIMEOUT);
+                httpClient.getParams().setParameter("http.connection.timeout", DEFAULT_CONNECTION_TIMEOUT);
+            } else {
+                httpClient.getParams().setParameter("http.socket.timeout", 0);
+                httpClient.getParams().setParameter("http.connection.timeout", 0);
+            }
+
+
             int statusCode = httpClient.executeMethod(post);
 
             inputStream = post.getResponseBodyAsStream();
