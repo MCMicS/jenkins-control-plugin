@@ -27,13 +27,13 @@ See CHANGELOG.txt
 
 Install Patch Parameter Plugin in Jenkins
 
-![setup1](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/1_setup_jenkins/01.png)
+![setup1](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/1_setup_jenkins/01.png?raw=true)
 
 Setup Jenkin's job for patch support. Before each new build we need to rollback the patch changes with "revert" operation.
 
-![setup2](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/1_setup_jenkins/02.png)
+![setup2](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/1_setup_jenkins/02.png?raw=true)
 
-![setup3](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/1_setup_jenkins/03.png)
+![setup3](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/1_setup_jenkins/03.png?raw=true)
 
 
 ### Setup from the IDE
@@ -48,7 +48,7 @@ Setup Jenkin's job for patch support. Before each new build we need to rollback 
 ![Create](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/2_setup_ide/05.png?raw=true)
 
 3. Build status is displayed near the name of the changelist.
-   ![status](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/2_setup_ide/06.png) 
+   ![status](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/2_setup_ide/06.png?raw=true)
 
 
 ## Description
