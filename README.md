@@ -1,6 +1,5 @@
 # Jenkins Plugin for Jetbrains products
 
-
 ## Version 0.9.0-SNAPSHOT
 
 If you want to test the latest features, you can download the [latest snapshot](https://github.com/dboissier/jenkins-control-plugin/blob/master/snapshot/jenkins-control-plugin-0.9.0-SNAPSHOT-distribution.zip?raw=true).
@@ -13,43 +12,8 @@ To install it, **Settings -> Plugins -> Install from disk** and restart your IDE
 * Fix EDT thread violation
 * Fix Duplicate widget on multiple instance of the IDE (#52)
 
-
 ## ChangeLog
 See CHANGELOG.txt
-
-
-## Patch Parameter Plugin Support (Pre-tested commit) by [Yuri Novitsky](https://github.com/nyver)
-* (https://wiki.jenkins-ci.org/display/JENKINS/Patch+Parameter+Plugin)
-* Information about pre-tested commit: https://wiki.jenkins-ci.org/display/JENKINS/Designing+pre-tested+commit
-
-
-### Setup the plugin from Jenkins server
-
-Install Patch Parameter Plugin in Jenkins
-
-![setup1](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/1_setup_jenkins/01.png?raw=true)
-
-Setup Jenkin's job for patch support. Before each new build we need to rollback the patch changes with "revert" operation.
-
-![setup2](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/1_setup_jenkins/02.png?raw=true)
-
-![setup3](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/1_setup_jenkins/03.png?raw=true)
-
-
-### Setup from the IDE
-
-1. Updating the list of jobs i recommend to install in 1 minute for quick notifications of the results of the build. 
-   ![notification](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/2_setup_ide/03.png)
-
-2. That's all. Now you can run builds with local changes directly from the IDE.
-
-![Upload](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/2_setup_ide/04.png?raw=true)
-
-![Create](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/2_setup_ide/05.png?raw=true)
-
-3. Build status is displayed near the name of the changelist.
-   ![status](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/2_setup_ide/06.png?raw=true)
-
 
 ## Description
 This plugin allows to view the content of your Jenkins Continous Integration Server.
@@ -107,6 +71,23 @@ The RSS reader has moved to the Event Log. If you need to refresh manually, clic
 * A small widget is available on the status bar. It indicates the overall status of the selected view. When there is no broken build then the icon color is blue (else, a red icon is displayed with the remaining broken builds. If the job auto-refresh is enabled then the widget updates itself.
 
 ![Widget](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/images/Widget.png?raw=true)
+
+
+### Patch Parameter Plugin Support (Pre-tested commit) by [Yuri Novitsky](https://github.com/nyver)
+* (https://wiki.jenkins-ci.org/display/JENKINS/Patch+Parameter+Plugin)
+* Information about pre-tested commit: https://wiki.jenkins-ci.org/display/JENKINS/Designing+pre-tested+commit
+
+* **Setup the plugin from Jenkins server**
+
+1. Install Patch Parameter Plugin in Jenkins ![setup1](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/1_setup_jenkins/01.png?raw=true)
+2. Setup Jenkin's job for patch support ![setup2](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/1_setup_jenkins/02.png?raw=true)
+3. Before each new build we need to rollback the patch changes with "revert" operation ![setup3](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/1_setup_jenkins/03.png?raw=true)
+
+* **Setup from the IDE**
+
+1. Updating the list of jobs i recommend to install in 1 minute for quick notifications of the results of the build ![notification](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/2_setup_ide/03.png)
+2. That's all. Now you can run builds with local changes directly from the IDE ![Create](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/2_setup_ide/05.png?raw=true) ![Upload](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/2_setup_ide/04.png?raw=true)
+3. Build status is displayed near the name of the changelist ![status](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/2_setup_ide/06.png?raw=true)
 
 ## Limitations
 * This software is written under Apache License 2.0.
