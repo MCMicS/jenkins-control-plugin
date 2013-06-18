@@ -18,15 +18,37 @@ To install it, **Settings -> Plugins -> Install from disk** and restart your IDE
 See CHANGELOG.txt
 
 
-## Patch Parameter Plugin Support (Pre-tested commit) by [Yuri Novotsky](https://github.com/nyver)
+## Patch Parameter Plugin Support (Pre-tested commit) by [Yuri Novitsky](https://github.com/nyver)
 * (https://wiki.jenkins-ci.org/display/JENKINS/Patch+Parameter+Plugin)
 * Information about pre-tested commit: https://wiki.jenkins-ci.org/display/JENKINS/Designing+pre-tested+commit
 
+
+### Setup the plugin from Jenkins server
+
+Install Patch Parameter Plugin in Jenkins
+
+![setup1](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/1_setup_jenkins/01.png)
+
+Setup Jenkin's job for patch support. Before each new build we need to rollback the patch changes with "revert" operation.
+
+![setup2](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/1_setup_jenkins/02.png)
+
+![setup3](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/1_setup_jenkins/03.png)
+
+
 ### Setup from the IDE
+
+1. Updating the list of jobs i recommend to install in 1 minute for quick notifications of the results of the build. 
+   ![notification](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/2_setup_ide/03.png)
+
+2. That's all. Now you can run builds with local changes directly from the IDE.
+
+![Upload](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/2_setup_ide/04.png?raw=true)
 
 ![Create](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/2_setup_ide/05.png?raw=true)
 
-![Upload](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/2_setup_ide/04.png?raw=true)
+3. Build status is displayed near the name of the changelist.
+   ![status](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/2_setup_ide/06.png) 
 
 
 ## Description
