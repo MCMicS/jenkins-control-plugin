@@ -3,7 +3,9 @@ Version 0.9.0
     * [Add] [Patch Parameter Plugin] Action "Create Patch and build on Jenkins" in Changelist's context menu (same than above)
     * [Add] [Patch Parameter Plugin] Macros $JobName$ for suffix setting (same than above)
     * [Add] [Patch Parameter Plugin] Support of Patch Parameter Plugin (https://wiki.jenkins-ci.org/display/JENKINS/Patch+Parameter+Plugin)
-    * [fix] EDT thread violation
+    * [Upd] [HttpClient][workaround] Set socket and connection timeout to 10 sec.
+    * [Fix] EDT thread violation
+    * [Fix] #54 last selected view is not saved after closing the IDE
 
 Version 0.8.0
     * [Add] #43 Support multiple selection for favorites

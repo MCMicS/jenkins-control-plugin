@@ -343,10 +343,12 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
         String lastSelectedViewName = jenkinsSettings.getLastSelectedView();
         View viewToLoad;
-        if (StringUtils.isNotEmpty(lastSelectedViewName)) {
-            viewToLoad = jenkins.getViewByName(lastSelectedViewName);
-        } else {
+        if (StringUtils.isEmpty(lastSelectedViewName)) {
             viewToLoad = jenkins.getPrimaryView();
+        } else if (favoriteView != null && lastSelectedViewName.equals(favoriteView.getName())){
+            viewToLoad = favoriteView;
+        } else {
+            viewToLoad = jenkins.getViewByName(lastSelectedViewName);
         }
         loadView(viewToLoad);
     }
@@ -397,15 +399,15 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         new LoadSelectedViewJob(project).queue();
     }
 
-    private void loadJobs(View viewToLoad) {
+    private void loadJobs() {
         final List<Job> jobList;
         if (currentSelectedView instanceof FavoriteView) {
             jobList = requestManager.loadFavoriteJobs(jenkinsSettings.getFavoriteJobs());
         } else {
-            jobList = requestManager.loadJenkinsView(viewToLoad.getUrl());
+            jobList = requestManager.loadJenkinsView(currentSelectedView.getUrl());
         }
 
-        jenkinsSettings.setLastSelectedView(viewToLoad.getName());
+        jenkinsSettings.setLastSelectedView(currentSelectedView.getName());
 
         jenkins.setJobs(jobList);
     }
@@ -501,7 +503,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
                     return;
                 }
                 currentSelectedView = viewToLoad;
-                loadJobs(viewToLoad);
+                loadJobs();
 
             } catch (ConfigurationException ex) {
                 notifyErrorJenkinsToolWindow(ex.getMessage());
