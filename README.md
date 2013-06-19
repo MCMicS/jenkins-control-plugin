@@ -7,13 +7,8 @@ If you want to test the latest features, you can download the [latest snapshot](
 To install it, **Settings -> Plugins -> Install from disk** and restart your IDE.
 
 ### Last features
-* \[Patch parameter support\] Added action "Create Patch and build on Jenkins" in changelist's context menu
-* \[Patch parameter support\] Added notifications about build progress
-* Fix EDT thread violation
-* Fix Duplicate widget on multiple instance of the IDE (#52)
+See the [changelog](https://github.com/dboissier/jenkins-control-plugin/blob/master/CHANGELOG.txt)
 
-## ChangeLog
-See CHANGELOG.txt
 
 ## Description
 This plugin allows to view the content of your Jenkins Continous Integration Server.
