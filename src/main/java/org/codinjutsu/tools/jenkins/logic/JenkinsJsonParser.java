@@ -16,7 +16,6 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.model.*;
@@ -340,7 +339,7 @@ public class JenkinsJsonParser implements JenkinsParser {
 
 
     private void checkJsonDataAndThrowExceptionIfNecessary(String jsonData) {
-        if (StringUtils.isEmpty(jsonData)) {
+        if (StringUtils.isEmpty(jsonData) || "{}".equals(jsonData)) {
             String message = String.format("Empty JSON data!");
             LOG.error(message);
             throw new IllegalStateException(message);
