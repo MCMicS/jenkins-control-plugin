@@ -1,6 +1,7 @@
 {"jobs": [
     {
         "name": "DummyProject",
+        "displayName": "Dummy Project",
         "url": "http://localhost:8484/jenkins/job/DummyProject/",
         "buildable": true,
         "color": "red",

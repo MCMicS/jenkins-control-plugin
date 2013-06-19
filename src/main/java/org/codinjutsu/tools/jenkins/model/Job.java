@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
+import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
 import javax.swing.*;
@@ -27,8 +28,9 @@ import java.util.Map;
 public class Job {
 
     private static final Map<String, Icon> ICON_BY_JOB_HEALTH_MAP = new HashMap<String, Icon>();
-
     private String name;
+
+    private String displayName;
     private String url;
 
     private String color;
@@ -54,8 +56,9 @@ public class Job {
     public Job() {
     }
 
-    private Job(String name, String color, String url, Boolean inQueue, Boolean buildable) {
+    private Job(String name, String displayName, String color, String url, Boolean inQueue, Boolean buildable) {
         this.name = name;
+        this.displayName = displayName;
         this.color = color;
         this.url = url;
         this.inQueue = inQueue;
@@ -63,14 +66,10 @@ public class Job {
     }
 
 
-    public static Job createJob(String jobName, String jobColor, String jobUrl, String inQueue, String buildable) {
-        return new Job(jobName, jobColor, jobUrl, Boolean.valueOf(inQueue), Boolean.valueOf(buildable));
+    public static Job createJob(String jobName, String displayName,  String jobColor, String jobUrl, String inQueue, String buildable) {
+        return new Job(jobName, displayName, jobColor, jobUrl, Boolean.valueOf(inQueue), Boolean.valueOf(buildable));
     }
 
-
-    public static Job createJob(String jobName, String jobColor, String jobUrl, Boolean inQueue, Boolean buildable) {
-        return new Job(jobName, jobColor, jobUrl, inQueue, buildable);
-    }
 
     public Icon getStateIcon() {
         return Build.getStateIcon(color);
@@ -103,12 +102,19 @@ public class Job {
         parameters.add(JobParameter.create(paramName, paramType, defaultValue, choices));
     }
 
-    public String getName() {
-        return name;
-    }
-
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getName() {
+        if (StringUtils.isEmpty(displayName)) {
+            return name;
+        }
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     public String getColor() {

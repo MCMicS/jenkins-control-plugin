@@ -275,7 +275,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         return !jenkinsSettings.getFavoriteJobs().isEmpty();
     }
 
-    public void notifyInfoJenkinsToolWindow(String htmlLinkMessage) {
+    public void notifyInfoJenkinsToolWindow(final String htmlLinkMessage) {
         ToolWindowManager.getInstance(project).notifyByBalloon(
                 JenkinsWindowManager.JENKINS_BROWSER,
                 MessageType.INFO,
@@ -284,11 +284,16 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
                 new BrowserHyperlinkListener());
     }
 
-    public void notifyErrorJenkinsToolWindow(String message) {
-        ToolWindowManager.getInstance(project).notifyByBalloon(JenkinsWindowManager.JENKINS_BROWSER, MessageType.ERROR, message);
+    public void notifyErrorJenkinsToolWindow(final String message) {
+        GuiUtil.runInSwingThread(new Runnable() {
+            @Override
+            public void run() {
+                ToolWindowManager.getInstance(project).notifyByBalloon(JenkinsWindowManager.JENKINS_BROWSER, MessageType.ERROR, message);
+            }
+        });
     }
 
-    private Tree createTree(List<JenkinsSettings.FavoriteJob> favoriteJobs) {
+    private Tree createTree(final List<JenkinsSettings.FavoriteJob> favoriteJobs) {
 
         SimpleTree tree = new SimpleTree();
         tree.getEmptyText().setText(LOADING);
@@ -390,7 +395,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         PopupHandler.installPopupHandler(jobTree, popupGroup, "POPUP", ActionManager.getInstance());
     }
 
-    public void loadView(View view) {
+    public void loadView(final View view) {
         this.currentSelectedView = view;
         new LoadSelectedViewJob(project).queue();
     }
@@ -426,7 +431,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
     }
 
 
-    public void fillJobTree(BuildStatusVisitor buildStatusVisitor) {
+    public void fillJobTree(final BuildStatusVisitor buildStatusVisitor) {
         List<Job> jobList = jenkins.getJobs();
         if (jobList.isEmpty()) {
             return;
@@ -449,13 +454,13 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         jobTree.setRootVisible(true);
     }
 
-    public void setAsFavorite(List<Job> jobs) {
+    public void setAsFavorite(final List<Job> jobs) {
         jenkinsSettings.addFavorite(jobs);
         createFavoriteViewIfNecessary();
         update();
     }
 
-    public void removeFavorite(List<Job> selectedJobs) {
+    public void removeFavorite(final List<Job> selectedJobs) {
         jenkinsSettings.removeFavorite(selectedJobs);
         update();
         if (jenkinsSettings.isFavoriteViewEmpty() && currentSelectedView instanceof FavoriteView) {
@@ -468,7 +473,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         }
     }
 
-    public boolean isAFavoriteJob(String jobName) {
+    public boolean isAFavoriteJob(final String jobName) {
         return jenkinsSettings.isAFavoriteJob(jobName);
     }
 

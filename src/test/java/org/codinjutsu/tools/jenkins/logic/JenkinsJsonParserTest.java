@@ -166,7 +166,7 @@ public class JenkinsJsonParserTest {
 
         List<Job> expectedJobs = Arrays.asList(
                 new JobBuilder()
-                        .job("DummyProject", "red", "http://localhost:8484/jenkins/job/DummyProject/", "false", "true")
+                        .job("DummyProject", "Dummy Project", "red", "http://localhost:8484/jenkins/job/DummyProject/", "false", "true")
                         .lastBuild("http://localhost:8484/jenkins/job/DummyProject/26/", "26", "FAILURE", "false", "2011-12-01_16-53-48")
                         .health("health-00to19", "Stabilité du build: Tous les builds récents ont échoué.")
                         .parameter("runIntegrationTest", "BooleanParameterDefinition", "true")

@@ -4,6 +4,7 @@
     "jobs":[
         {
             "name":"sql-tools",
+            "displayName":"sql-tools",
             "url":"http://myjenkins/job/sql-tools/",
             "color":"blue",
             "inQueue":true,
@@ -24,6 +25,7 @@
         },
         {
             "name":"db-utils",
+            "displayName":"db-utils",
             "url":"http://myjenkins/job/db-utils/",
             "color":"grey",
             "buildable":true,
@@ -31,6 +33,7 @@
         },
         {
             "name":"myapp",
+            "displayName":"myapp",
             "url":"http://myjenkins/job/myapp/",
             "color":"red",
             "buildable":true,
@@ -71,6 +74,7 @@
         },
         {
             "name":"swing-utils",
+            "displayName":"swing-utils",
             "url":"http://myjenkins/job/swing-utils/",
             "color":"disabled",
             "buildable":false,

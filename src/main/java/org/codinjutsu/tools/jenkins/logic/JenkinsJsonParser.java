@@ -162,6 +162,9 @@ public class JenkinsJsonParser implements JenkinsParser {
         String name = (String) jsonObject.get(JOB_NAME);
         job.setName(name);
 
+        String displayName = (String) jsonObject.get(JOB_DISPLAY_NAME);
+        job.setDisplayName(displayName);
+
         String url = (String) jsonObject.get(JOB_URL);
         job.setUrl(url);
 
