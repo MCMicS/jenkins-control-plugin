@@ -1,10 +1,8 @@
-# Jenkins Plugin for Jetbrains products
+# Jenkins Plugin 0.9.0 for Jetbrains products
 
-## Version 0.9.0-SNAPSHOT
+## Version 0.9.1-SNAPSHOT
 
-If you want to test the latest features, you can download the [latest snapshot](https://github.com/dboissier/jenkins-control-plugin/blob/master/snapshot/jenkins-control-plugin-0.9.0-SNAPSHOT-distribution.zip?raw=true).
-
-To install it, **Settings -> Plugins -> Install from disk** and restart your IDE.
+Not available yet
 
 ### Last features
 See the [changelog](https://github.com/dboissier/jenkins-control-plugin/blob/master/CHANGELOG.txt)
