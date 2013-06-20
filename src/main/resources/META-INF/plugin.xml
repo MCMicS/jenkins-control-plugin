@@ -27,13 +27,14 @@
         <projectService serviceInterface="org.codinjutsu.tools.jenkins.logic.RssLogic" serviceImplementation="org.codinjutsu.tools.jenkins.logic.RssLogic"/>
     </extensions>
 
-    <change-notes><![CDATA[
-<a href="https://github.com/dboissier/jenkins-control-plugin/blob/jenkins-control-plugin-0.9.0/README.txt">Read Me</a><br/>
-<a href="https://github.com/dboissier/jenkins-control-plugin/blob/jenkins-control-plugin-0.9.0/CHANGELOG.txt">Changelog</a>
-]]> </change-notes>
     <actions>
         <action id="Jenkins.CreatePatchAndBuildOnJenkins" class="org.codinjutsu.tools.jenkins.view.action.CreatePatchAndBuildAction" text="Create Patch and build on Jenkins">
             <add-to-group group-id="ChangesViewPopupMenu" anchor="last"/>
         </action>
     </actions>
+
+    <change-notes><![CDATA[
+<a href="https://github.com/dboissier/jenkins-control-plugin/blob/jenkins-control-plugin-0.9.0/README.md">Read Me</a><br/>
+<a href="https://github.com/dboissier/jenkins-control-plugin/blob/jenkins-control-plugin-0.9.0/CHANGELOG.txt">Changelog</a>
+]]> </change-notes>
 </idea-plugin>
