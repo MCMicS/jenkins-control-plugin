@@ -17,6 +17,7 @@
 package org.codinjutsu.tools.jenkins.view;
 
 import com.intellij.ui.ColoredListCellRenderer;
+import com.intellij.ui.SimpleTextAttributes;
 import org.codinjutsu.tools.jenkins.model.FavoriteView;
 import org.codinjutsu.tools.jenkins.model.View;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
@@ -32,7 +33,7 @@ public class JenkinsViewComboRenderer extends ColoredListCellRenderer {
 
         if (value instanceof View) {
             View view = (View) value;
-            append(view.getName());
+            append(view.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
 
             if (value instanceof FavoriteView) {
                 setIcon(FAVORITE_ICON);

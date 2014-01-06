@@ -42,9 +42,9 @@ public class JenkinsNestedViewComboRenderer extends ColoredListCellRenderer {
             } else {
                 String viewName = view.getName();
                 if (view.isNested()) {
-                    append("   " + viewName);
+                    append("   " + viewName, SimpleTextAttributes.REGULAR_ATTRIBUTES);
                 } else {
-                    append(viewName);
+                    append(viewName, SimpleTextAttributes.REGULAR_ATTRIBUTES);
                 }
             }
 
