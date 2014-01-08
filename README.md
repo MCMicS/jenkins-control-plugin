@@ -1,8 +1,10 @@
 # Jenkins Plugin 0.9.0 for Jetbrains products
 
-## Version 0.9.1-SNAPSHOT
+## Version 0.9.2
+* [fix] API changes in idea 13
 
-Not available yet
+## Version 0.9.1
+* [fix] limit version for idea 12 and below due to some API changes in idea 13
 
 ### Last features
 See the [changelog](https://github.com/dboissier/jenkins-control-plugin/blob/master/CHANGELOG.txt)
