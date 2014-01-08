@@ -1,3 +1,6 @@
+Version 0.9.1
+    * [fix] API issues in idea 13
+
 Version 0.9.0
     * [Add] [Patch Parameter Plugin] Notification about build progress (thx Yuri for your nice work)
     * [Add] [Patch Parameter Plugin] Action "Create Patch and build on Jenkins" in Changelist's context menu (same than above)
