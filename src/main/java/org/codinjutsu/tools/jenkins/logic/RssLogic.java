@@ -200,6 +200,7 @@ public class RssLogic implements Disposable {
     @Override
     public void dispose() {
         currentBuildMap = null;
+        requestManager.close();
     }
 
     private class LoadLatestBuildsJob extends Task.Backgroundable {
@@ -227,9 +228,5 @@ public class RssLogic implements Disposable {
 
             displayTheFirstFailedBuildInABalloon(getFirstFailedBuild(finishedBuilds));
         }
-
-
     }
-
-
 }

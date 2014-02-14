@@ -28,4 +28,6 @@ public interface SecurityClient {
     String execute(URL url);
 
     void setFiles(Map<String, VirtualFile> files);
+
+    void close();
 }

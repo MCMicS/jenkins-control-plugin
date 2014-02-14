@@ -79,6 +79,10 @@ class DefaultSecurityClient implements SecurityClient {
         this.files = files;
     }
 
+    @Override
+    public void close() {
+    }
+
     private PostMethod addFiles(PostMethod post) {
         if (files.size() > 0) {
             ArrayList<Part> parts = new ArrayList<Part>();

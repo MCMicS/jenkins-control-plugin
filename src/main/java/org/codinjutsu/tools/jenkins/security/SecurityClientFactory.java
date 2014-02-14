@@ -23,7 +23,7 @@ public class SecurityClientFactory {
     }
 
     public static SecurityClient none(String crumbData) {
-        return new DefaultSecurityClient(crumbData);
+        return new Http4DefaultSecurityClient();
     }
 
 }

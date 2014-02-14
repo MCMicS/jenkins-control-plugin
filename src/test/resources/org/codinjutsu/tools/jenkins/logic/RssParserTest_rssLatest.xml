@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>ProjectName - CI last builds only</title>
+    <link type="text/html" href="http://jenkins/view/ProjectName%20-%20CI/" rel="alternate"/>
+    <updated>2013-12-09T22:27:02Z</updated>
+    <author>
+        <name>Jenkins Server</name>
+    </author>
+    <id>urn:uuid:903deee0-7bfa-11db-9fe1-0800200c9a66</id>
+    <entry>
+        <title>CI_org.company.product.common #22 (aborted)</title>
+        <link type="text/html" href="http://jenkins/job/CI_org.company.product.common/22/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://jenkins/job/CI_org.company.product.common/</id>
+        <published>2013-12-09T22:27:02Z</published>
+        <updated>2013-12-09T22:27:02Z</updated>
+    </entry>
+    <entry>
+        <title>CI_org.company.product.chocolate.starfish #1361 (?)</title>
+        <link type="text/html" href="http://jenkins/job/CI_org.company.product.chocolate.starfish/1361/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://jenkins/job/CI_org.company.product.chocolate.starfish/</id>
+        <published>2014-01-08T10:37:27Z</published>
+        <updated>2014-01-08T10:37:27Z</updated>
+    </entry>
+    <entry>
+        <title>CI_org.company.product.chocolate.starfish.mix #384 (stable)</title>
+        <link type="text/html" href="http://jenkins/job/CI_org.company.product.chocolate.starfish.mix/384/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://jenkins/job/CI_org.company.product.chocolate.starfish.mix/</id>
+        <published>2014-01-07T15:09:14Z</published>
+        <updated>2014-01-07T15:09:14Z</updated>
+    </entry>
+    <entry>
+        <title>CI_org.company.product.chocolate.starfish.gui #1059 (stable)</title>
+        <link type="text/html" href="http://jenkins/job/CI_org.company.product.chocolate.starfish.gui/1059/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://jenkins/job/CI_org.company.product.chocolate.starfish.gui/</id>
+        <published>2014-01-08T10:34:13Z</published>
+        <updated>2014-01-08T10:34:13Z</updated>
+    </entry>
+    <entry>
+        <title>CI_org.company.product.chocolate.starfish.cookies #1 (stable)</title>
+        <link type="text/html" href="http://jenkins/job/CI_org.company.product.chocolate.starfish.cookies/1/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://jenkins/job/CI_org.company.product.chocolate.starfish.cookies/</id>
+        <published>2013-12-12T14:32:31Z</published>
+        <updated>2013-12-12T14:32:31Z</updated>
+    </entry>
+    <entry>
+        <title>CI_org.company.product.chocolate.coffee #53 (stable)</title>
+        <link type="text/html" href="http://jenkins/job/CI_org.company.product.chocolate.coffee/53/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://jenkins/job/CI_org.company.product.chocolate.coffee/</id>
+        <published>2013-12-09T13:49:00Z</published>
+        <updated>2013-12-09T13:49:00Z</updated>
+    </entry>
+    <entry>
+        <title>CI_org.company.product.chocolate.coffee.core #108 (stable)</title>
+        <link type="text/html" href="http://jenkins/job/CI_org.company.product.chocolate.coffee.core/108/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://jenkins/job/CI_org.company.product.chocolate.coffee.core/</id>
+        <published>2013-12-09T13:49:33Z</published>
+        <updated>2013-12-09T13:49:33Z</updated>
+    </entry>
+    <entry>
+        <title>CI_org.company.product.chocolate.coffee.milk #89 (stable)</title>
+        <link type="text/html" href="http://jenkins/job/CI_org.company.product.chocolate.coffee.milk/89/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://jenkins/job/CI_org.company.product.chocolate.coffee.milk/</id>
+        <published>2013-12-09T13:56:36Z</published>
+        <updated>2013-12-09T13:56:36Z</updated>
+    </entry>
+    <entry>
+        <title>CI_org.company.product.chocolate.coffee.water #262 (stable)</title>
+        <link type="text/html" href="http://jenkins/job/CI_org.company.product.chocolate.coffee.water/262/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://jenkins/job/CI_org.company.product.chocolate.coffee.water/</id>
+        <published>2014-01-07T15:08:02Z</published>
+        <updated>2014-01-07T15:08:02Z</updated>
+    </entry>
+    <entry>
+        <title>CI_org.company.product.chocolate.icecream #103 (stable)</title>
+        <link type="text/html" href="http://jenkins/job/CI_org.company.product.chocolate.icecream/103/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://jenkins/job/CI_org.company.product.chocolate.icecream/</id>
+        <published>2013-12-09T13:58:13Z</published>
+        <updated>2013-12-09T13:58:13Z</updated>
+    </entry>
+    <entry>
+        <title>CI_org.company.product.chocolate.gui #369 (stable)</title>
+        <link type="text/html" href="http://jenkins/job/CI_org.company.product.chocolate.gui/369/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://jenkins/job/CI_org.company.product.chocolate.gui/</id>
+        <published>2014-01-06T09:41:21Z</published>
+        <updated>2014-01-06T09:41:21Z</updated>
+    </entry>
+    <entry>
+        <title>CI_org.company.product.chocolate.flavor #751 (stable)</title>
+        <link type="text/html" href="http://jenkins/job/CI_org.company.product.chocolate.flavor/751/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://jenkins/job/CI_org.company.product.chocolate.flavor/</id>
+        <published>2014-01-08T10:34:13Z</published>
+        <updated>2014-01-08T10:34:13Z</updated>
+    </entry>
+    <entry>
+        <title>CI_org.company.product.chocolate.vanilla #2 (back to normal)</title>
+        <link type="text/html" href="http://jenkins/job/CI_org.company.product.chocolate.vanilla/2/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://jenkins/job/CI_org.company.product.chocolate.vanilla/</id>
+        <published>2013-09-16T14:50:10Z</published>
+        <updated>2013-09-16T14:50:10Z</updated>
+    </entry>
+    <entry>
+        <title>CI_org.company.product.chocolate.plate #59 (stable)</title>
+        <link type="text/html" href="http://jenkins/job/CI_org.company.product.chocolate.plate/59/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://jenkins/job/CI_org.company.product.chocolate.plate/</id>
+        <published>2014-01-07T14:16:48Z</published>
+        <updated>2014-01-07T14:16:48Z</updated>
+    </entry>
+    <entry>
+        <title>CI_org.company.product.chocolate.block #173 (back to normal)</title>
+        <link type="text/html" href="http://jenkins/job/CI_org.company.product.chocolate.block/173/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://jenkins/job/CI_org.company.product.chocolate.block/</id>
+        <published>2014-01-08T09:57:07Z</published>
+        <updated>2014-01-08T09:57:07Z</updated>
+    </entry>
+    <entry>
+        <title>CI_org.company.product.chocolate.block.size #16 (stable)</title>
+        <link type="text/html" href="http://jenkins/job/CI_org.company.product.chocolate.block.size/16/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://jenkins/job/CI_org.company.product.chocolate.block.size/</id>
+        <published>2013-12-18T10:38:16Z</published>
+        <updated>2013-12-18T10:38:16Z</updated>
+    </entry>
+    <entry>
+        <title>CI_org.company.product.chocolate.vendor #222 (stable)</title>
+        <link type="text/html" href="http://jenkins/job/CI_org.company.product.chocolate.vendor/222/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://jenkins/job/CI_org.company.product.chocolate.vendor/</id>
+        <published>2014-01-07T15:09:14Z</published>
+        <updated>2014-01-07T15:09:14Z</updated>
+    </entry>
+    <entry>
+        <title>CI_org.company.product.chocolate.storage #82 (stable)</title>
+        <link type="text/html" href="http://jenkins/job/CI_org.company.product.chocolate.storage/82/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://jenkins/job/CI_org.company.product.chocolate.storage/</id>
+        <published>2013-12-09T13:56:57Z</published>
+        <updated>2013-12-09T13:56:57Z</updated>
+    </entry>
+    <entry>
+        <title>CI_org.company.product.chocolate.orange.juice #124 (stable)</title>
+        <link type="text/html" href="http://jenkins/job/CI_org.company.product.chocolate.orange.juice/124/"
+              rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://jenkins/job/CI_org.company.product.chocolate.orange.juice/</id>
+        <published>2014-01-07T15:09:14Z</published>
+        <updated>2014-01-07T15:09:14Z</updated>
+    </entry>
+    <entry>
+        <title>CI_org.company.product.chocolate.orange.encryption-tool #54 (stable)</title>
+        <link type="text/html" href="http://jenkins/job/CI_org.company.product.chocolate.orange.color/54/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://jenkins/job/CI_org.company.product.chocolate.orange.color/</id>
+        <published>2013-12-09T13:54:29Z</published>
+        <updated>2013-12-09T13:54:29Z</updated>
+    </entry>
+    <entry>
+        <title>CI_org.company.product.chocolate.orange.paper #991 (stable)</title>
+        <link type="text/html" href="http://jenkins/job/CI_org.company.product.chocolate.orange.paper/991/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://jenkins/job/CI_org.company.product.chocolate.orange.paper/</id>
+        <published>2014-01-07T16:19:32Z</published>
+        <updated>2014-01-07T16:19:32Z</updated>
+    </entry>
+    <entry>
+        <title>CI_org.company.product.chocolate.orange.wax #724 (stable)</title>
+        <link type="text/html" href="http://jenkins/job/CI_org.company.product.chocolate.orange.wax/724/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://jenkins/job/CI_org.company.product.chocolate.orange.wax/</id>
+        <published>2014-01-08T10:34:13Z</published>
+        <updated>2014-01-08T10:34:13Z</updated>
+    </entry>
+    <entry>
+        <title>CI_org.company.product.chocolate.pepper #23 (stable)</title>
+        <link type="text/html" href="http://jenkins/job/CI_org.company.product.chocolate.pepper/23/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://jenkins/job/CI_org.company.product.chocolate.pepper/</id>
+        <published>2013-12-09T13:54:56Z</published>
+        <updated>2013-12-09T13:54:56Z</updated>
+    </entry>
+    <entry>
+        <title>CI_org.company.product.butter #98 (stable)</title>
+        <link type="text/html" href="http://jenkins/job/CI_org.company.product.butter/98/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://jenkins/job/CI_org.company.product.butter/</id>
+        <published>2013-12-16T16:50:09Z</published>
+        <updated>2013-12-16T16:50:09Z</updated>
+    </entry>
+    <entry>
+        <title>CI_org.company.product.rainy #433 (stable)</title>
+        <link type="text/html" href="http://jenkins/job/CI_org.company.product.rainy/433/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://jenkins/job/CI_org.company.product.rainy/</id>
+        <published>2014-01-07T15:10:04Z</published>
+        <updated>2014-01-07T15:10:04Z</updated>
+    </entry>
+    <entry>
+        <title>CI_org.company.product.sunny #343 (stable)</title>
+        <link type="text/html" href="http://jenkins/job/CI_org.company.product.sunny/343/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://jenkins/job/CI_org.company.product.sunny/</id>
+        <published>2013-12-04T18:14:10Z</published>
+        <updated>2013-12-04T18:14:10Z</updated>
+    </entry>
+    <entry>
+        <title>CI_org.company.product.lemon #18 (stable)</title>
+        <link type="text/html" href="http://jenkins/job/CI_org.company.product.lemon/18/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://jenkins/job/CI_org.company.product.lemon/</id>
+        <published>2013-09-30T06:54:41Z</published>
+        <updated>2013-09-30T06:54:41Z</updated>
+    </entry>
+    <entry>
+        <title>CI_product-fancy #50 (stable)</title>
+        <link type="text/html" href="http://jenkins/job/CI_product-fancy/50/" rel="alternate"/>
+        <id>tag:hudson.dev.java.net,2008:http://jenkins/job/CI_product-fancy/</id>
+        <published>2013-12-13T10:32:16Z</published>
+        <updated>2013-12-13T10:32:16Z</updated>
+    </entry>
+</feed>

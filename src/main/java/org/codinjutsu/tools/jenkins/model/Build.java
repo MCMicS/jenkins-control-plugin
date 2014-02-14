@@ -126,6 +126,11 @@ public class Build {
     }
 
 
+    public void setBuildDate(String buildDate, SimpleDateFormat dateFormat) {
+        this.buildDate = DateUtil.parseDate(buildDate, dateFormat);
+    }
+
+
     public boolean isBuilding() {
         return building;
     }
@@ -136,6 +141,10 @@ public class Build {
 
     public boolean isAfter(Build aBuild) {
         return this.getNumber() > aBuild.getNumber();
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public String getMessage() {

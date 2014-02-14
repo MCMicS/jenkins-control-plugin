@@ -172,4 +172,13 @@ public class RequestManager {
         }
         return jobs;
     }
+
+    public void close() {
+        if (securityClient == null) {
+            return;
+        }
+
+        this.securityClient.close();
+        this.securityClient = null;
+    }
 }
