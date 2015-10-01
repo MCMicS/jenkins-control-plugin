@@ -74,12 +74,11 @@ public class UploadPatchToJob extends AnAction implements DumbAware {
                 if (job.hasParameter(PARAMETER_NAME)) {
 
                     JenkinsAppSettings settings = JenkinsAppSettings.getSafeInstance(project);
-
+                    FileChooserDescriptor fileChooserDescriptor = new FileChooserDescriptor(true, false, false, false, false, false);
+                    VirtualFile chooseFile = FileChooser.chooseFile(fileChooserDescriptor, project, null);
                     final VirtualFile virtualFile =
-                        prepareFile(browserPanel, FileChooser.chooseFile(
-                                browserPanel,
-                                new FileChooserDescriptor(true, false, false, false, false, false))
-                        , settings, job);
+                            prepareFile(browserPanel, chooseFile
+                                    , settings, job);
 
                     if ((null != virtualFile)) {
                         if (virtualFile.exists()) {

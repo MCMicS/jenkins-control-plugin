@@ -1,9 +1,9 @@
 <idea-plugin>
     <name>Jenkins Control Plugin</name>
     <description>A Jenkins Plugin for Intellij</description>
-    <version>0.9.1</version>
+    <version>0.9.2</version>
     <vendor email="david.boissier [at] gmail [dot] com" url="http://codinjutsu.blogspot.com">David Boissier and Yuri Novitsky (support of PPP)</vendor>
-    <idea-version since-build="117.963" until-build="129.99999"/>
+    <idea-version since-build="117.963" until-build="141.99999"/>
 
     <depends>com.intellij.modules.lang</depends>
 
