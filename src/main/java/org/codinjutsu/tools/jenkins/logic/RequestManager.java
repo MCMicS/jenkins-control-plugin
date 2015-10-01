@@ -34,6 +34,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+//FIXME not to be used in ui thread
 public class RequestManager {
 
     private static final String BUILDHIVE_CLOUDBEES = "buildhive";

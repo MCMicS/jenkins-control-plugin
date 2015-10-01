@@ -43,6 +43,7 @@ public class GuiUtil {
     }
 
 
+    @Deprecated
     public static void runInSwingThread(Runnable runnable) {
         if (SwingUtilities.isEventDispatchThread()) {
             runnable.run();

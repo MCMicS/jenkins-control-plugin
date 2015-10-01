@@ -317,8 +317,9 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         return tree;
     }
 
+    //FIXME CBU probably uses io within ui thread
     public void reloadConfiguration() {
-        if (!jenkinsAppSettings.isServerUrlSet()) {
+        if (!jenkinsAppSettings.isServerUrlSet()) { //run when there is not configuration
             JenkinsWidget.getInstance(project).updateStatusIcon(BuildStatusAggregator.EMPTY);
             DefaultTreeModel model = (DefaultTreeModel) jobTree.getModel();
             DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
