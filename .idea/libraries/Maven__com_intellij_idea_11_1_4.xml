@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.intellij:idea:11.1.4">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/intellij/idea/11.1.4/idea-11.1.4.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/com/intellij/idea/11.1.4/idea-11.1.4-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/intellij/idea/11.1.4/idea-11.1.4-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

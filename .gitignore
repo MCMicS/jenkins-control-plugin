@@ -1,4 +1,3 @@
-*.iml
 *.ipr
 *.iws
 .classpath
@@ -6,4 +5,3 @@
 .settings/
 target/
 META-INF/
-.idea/
