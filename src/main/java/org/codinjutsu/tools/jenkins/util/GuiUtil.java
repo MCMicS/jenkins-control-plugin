@@ -18,6 +18,8 @@ package org.codinjutsu.tools.jenkins.util;
 
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.util.IconLoader;
 
@@ -42,13 +44,12 @@ public class GuiUtil {
         return IconLoader.findIcon(parentPath + iconFilename);
     }
 
-
-    @Deprecated
     public static void runInSwingThread(Runnable runnable) {
-        if (SwingUtilities.isEventDispatchThread()) {
+        Application application = ApplicationManager.getApplication();
+        if (application.isDispatchThread()) {
             runnable.run();
         } else {
-            SwingUtilities.invokeLater(runnable);
+            application.invokeLater(runnable);
         }
     }
 

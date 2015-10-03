@@ -50,6 +50,7 @@ public class RefreshNodeAction extends AnAction implements DumbAware {
 
     @Override
     public void update(AnActionEvent event) {
-        event.getPresentation().setEnabled(!browserPanel.getJenkins().getJobs().isEmpty());
+        //FIXME reset when data is updated
+//        event.getPresentation().setEnabled(!browserPanel.getJenkins().getJobs().isEmpty());
     }
 }
