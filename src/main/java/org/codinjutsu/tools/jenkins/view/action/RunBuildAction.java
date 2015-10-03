@@ -66,6 +66,8 @@ public class RunBuildAction extends AnAction implements DumbAware {
                         browserPanel.notifyErrorJenkinsToolWindow("Build '" + job.getName() + "' cannot be run: " + ex.getMessage());
                         browserPanel.loadJob(job);
                     }
+
+
                 });
 
             } else {
