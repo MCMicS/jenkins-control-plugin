@@ -268,6 +268,14 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
             logger.warn("BrowserPanel.loadSelectedJob called from EDT");
         }
         final Job job = getSelectedJob();
+        loadJob(job);
+
+    }
+
+    public void loadJob(final Job job) {
+        if(SwingUtilities.isEventDispatchThread()){
+            logger.warn("BrowserPanel.loadJob called from EDT");
+        }//FIXME loaded jobs doesn't look to well (to short)
         new Task.Backgroundable(project, "Loading job", true, JenkinsLoadingTaskOption.INSTANCE){
 
             private Job returnJob ;
@@ -283,7 +291,6 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
             }
 
         }.queue();
-
     }
 
     public boolean hasFavoriteJobs() {
@@ -415,7 +422,12 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
     private void installActionsInPopupMenu() {
         DefaultActionGroup popupGroup = new DefaultActionGroup("JenkinsPopupAction", true);
+        popupGroup.add(new RunBuildAction(this));
+        //TODO add stop build
+        //TODO add show log
+        popupGroup.addSeparator();
         popupGroup.add(new SetJobAsFavoriteAction(this));
+
         popupGroup.add(new UnsetJobAsFavoriteAction(this));
         popupGroup.addSeparator();
         popupGroup.add(new GotoJobPageAction(this));

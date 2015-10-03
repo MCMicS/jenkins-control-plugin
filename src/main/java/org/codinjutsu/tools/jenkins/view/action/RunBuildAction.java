@@ -51,7 +51,7 @@ public class RunBuildAction extends AnAction implements DumbAware {
 
         final BrowserPanel browserPanel = BrowserPanel.getInstance(project);
         try {
-            Job job = browserPanel.getSelectedJob();
+            final Job job = browserPanel.getSelectedJob();
 
             RequestManager requestManager = browserPanel.getJenkinsManager();
             if (job.hasParameters()) {
@@ -59,12 +59,15 @@ public class RunBuildAction extends AnAction implements DumbAware {
 
                     public void notifyOnOk(Job job) {
                         notifyOnGoingMessage(job);
+                        browserPanel.loadJob(job);
                     }
 
                     public void notifyOnError(Job job, Exception ex) {
                         browserPanel.notifyErrorJenkinsToolWindow("Build '" + job.getName() + "' cannot be run: " + ex.getMessage());
+                        browserPanel.loadJob(job);
                     }
                 });
+
             } else {
                 requestManager.runBuild(job, JenkinsAppSettings.getSafeInstance(project));
                 notifyOnGoingMessage(job);

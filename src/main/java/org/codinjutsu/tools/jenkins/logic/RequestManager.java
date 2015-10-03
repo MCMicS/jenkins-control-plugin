@@ -157,6 +157,14 @@ public class RequestManager {
         return jsonParser.createJob(jenkinsJobData);
     }
 
+    public boolean stopBuild(String jenkinsBuildUrl){
+        if (handleNotYetLoggedInState()) return false;
+        URL url = urlBuilder.createStopBuildUrl(jenkinsBuildUrl);
+        String jenkinsJobData = securityClient.execute(url);
+        return true;
+//FIXME parse real result        return jsonParser.createJob(jenkinsJobData);
+    }
+
     public Build loadBuild(String jenkinsBuildUrl) {
         if (handleNotYetLoggedInState()) return null;
         URL url = urlBuilder.createBuildUrl(jenkinsBuildUrl);
