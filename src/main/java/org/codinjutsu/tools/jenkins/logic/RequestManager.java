@@ -133,12 +133,6 @@ public class RequestManager {
         if(SwingUtilities.isEventDispatchThread()){
             logger.warn("RequestManager.handleNotYetLoggedInState called from EDT");
             threadStack = true;
-        }else{
-            try {
-                TimeUnit.SECONDS.sleep(2);
-            } catch (InterruptedException e) {
-                logger.log(Level.WARN, "Interuppted while ...", e);
-            }
         }
         if(securityClient == null){
             logger.warn("Not yet logged in, all calls until login will fail");
