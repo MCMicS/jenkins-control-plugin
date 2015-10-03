@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-//FIXME not to be used in ui thread
 public class RequestManager {
 
     private static final Logger logger = Logger.getLogger(RequestManager.class);

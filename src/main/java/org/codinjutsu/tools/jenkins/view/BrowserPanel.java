@@ -275,7 +275,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
     public void loadJob(final Job job) {
         if(SwingUtilities.isEventDispatchThread()){
             logger.warn("BrowserPanel.loadJob called from EDT");
-        }//FIXME loaded jobs doesn't look to well (to short)
+        }
         new Task.Backgroundable(project, "Loading job", true, JenkinsLoadingTaskOption.INSTANCE){
 
             private Job returnJob ;
@@ -288,9 +288,26 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
             @Override
             public void onSuccess() {
                 job.updateContentWith(returnJob);
+                updateJobNode(job);
             }
 
         }.queue();
+    }
+
+    private void updateJobNode(Job job) {
+        final DefaultTreeModel model = (DefaultTreeModel) jobTree.getModel();
+        final Object modelRoot = model.getRoot();
+        final int childCount = model.getChildCount(modelRoot);
+        for(int i=0; i<childCount; ++i ){
+            Object child = model.getChild(modelRoot,i);
+            if(child instanceof DefaultMutableTreeNode){
+                DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) child;
+                if(childNode.getUserObject()==job){
+                    model.nodeChanged(childNode);
+                    break;
+                }
+            }
+        }
     }
 
     public boolean hasFavoriteJobs() {
@@ -478,7 +495,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
 
     public void fillJobTree(final BuildStatusVisitor buildStatusVisitor) {
-        List<Job> jobList = jenkins.getJobs();
+        final List<Job> jobList = jenkins.getJobs();
         if (jobList.isEmpty()) {
             return;
         }
