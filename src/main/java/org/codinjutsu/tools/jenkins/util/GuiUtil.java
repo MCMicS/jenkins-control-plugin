@@ -20,11 +20,11 @@ import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.util.IconLoader;
 
 import javax.swing.*;
-import java.awt.*;
 import java.net.URL;
 
 public class GuiUtil {
@@ -53,6 +53,15 @@ public class GuiUtil {
         }
     }
 
+    public static void runInSwingThread(final Task.Backgroundable task){
+        Application application = ApplicationManager.getApplication();
+        if (application.isDispatchThread()) {
+            task.queue();
+        } else {
+            application.invokeLater(new TaskRunner(task));
+        }
+    }
+
     public static void installActionGroupInToolBar(ActionGroup actionGroup,
                                                    SimpleToolWindowPanel toolWindowPanel,
                                                    ActionManager actionManager, String toolBarName) {
@@ -71,5 +80,18 @@ public class GuiUtil {
 
     public static URL getIconResource(String iconFilename) {
         return GuiUtil.class.getResource(ICON_FOLDER + iconFilename);
+    }
+
+    private static class TaskRunner implements Runnable{
+        private final Task.Backgroundable task;
+
+        public TaskRunner(Task.Backgroundable task) {
+            this.task = task;
+        }
+
+        @Override
+        public void run() {
+            task.queue();
+        }
     }
 }

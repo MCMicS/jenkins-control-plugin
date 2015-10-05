@@ -20,7 +20,6 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.progress.PerformInBackgroundOption;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -129,7 +128,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
         refreshViewJob = new Runnable() {
             @Override public void run() {
-                new LoadSelectedViewJob(project).queue();
+                GuiUtil.runInSwingThread(new LoadSelectedViewJob(project));
             }
         };
 
@@ -274,12 +273,12 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
     }
 
     public void loadJob(final Job job) {
-        if(SwingUtilities.isEventDispatchThread()){
-            logger.warn("BrowserPanel.loadJob called from EDT");
+        if(!SwingUtilities.isEventDispatchThread()){
+            logger.warn("BrowserPanel.loadJob called from outside of EDT");
         }
-        new Task.Backgroundable(project, "Loading job", true, JenkinsLoadingTaskOption.INSTANCE){
+        GuiUtil.runInSwingThread(new Task.Backgroundable(project, "Loading job", true, JenkinsLoadingTaskOption.INSTANCE) {
 
-            private Job returnJob ;
+            private Job returnJob;
 
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
@@ -292,7 +291,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
                 updateJobNode(job);
             }
 
-        }.queue();
+        });
     }
 
     private void updateJobNode(Job job) {
@@ -460,10 +459,16 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
     public void loadView(final View view) {
         this.currentSelectedView = view;
+        if(!SwingUtilities.isEventDispatchThread()){
+            logger.warn("BrowserPanel.loadView called from outside EDT");
+        }
         new LoadSelectedViewJob(project).queue();
     }
 
     public void refreshCurrentView() {
+        if(!SwingUtilities.isEventDispatchThread()){
+            logger.warn("BrowserPanel.refreshCurrentView called outside EDT");
+        }
         new LoadSelectedViewJob(project).queue();
     }
 

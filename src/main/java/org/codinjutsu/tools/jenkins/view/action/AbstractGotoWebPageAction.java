@@ -20,7 +20,6 @@ import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
-import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 
 abstract class AbstractGotoWebPageAction extends AnAction implements DumbAware {
@@ -40,6 +39,6 @@ abstract class AbstractGotoWebPageAction extends AnAction implements DumbAware {
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        BrowserUtil.launchBrowser(getUrl());
+        BrowserUtil.browse(getUrl());
     }
 }
