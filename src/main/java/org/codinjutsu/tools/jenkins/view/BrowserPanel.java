@@ -20,6 +20,7 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.progress.PerformInBackgroundOption;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -382,6 +383,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
             @Override
             public void onSuccess() {
                 jenkins.update(jenkinsWorkspace);
+                BrowserPanel.this.refreshCurrentView();
             }
 
             @Override
@@ -396,6 +398,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
                 jenkinsWorkspace = requestManager.loadJenkinsWorkspace(jenkinsAppSettings);
             }
         }.queue();
+
 
         if (!jenkinsSettings.getFavoriteJobs().isEmpty()) {
             createFavoriteViewIfNecessary();
