@@ -36,7 +36,7 @@ import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.JenkinsWidget;
 import org.jetbrains.annotations.NotNull;
-
+import com.intellij.util.messages.MessageBus;
 import java.awt.*;
 import java.util.*;
 import java.util.List;

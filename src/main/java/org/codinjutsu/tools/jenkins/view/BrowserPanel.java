@@ -40,10 +40,7 @@ import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.JenkinsWindowManager;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
-import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
-import org.codinjutsu.tools.jenkins.logic.BuildStatusVisitor;
-import org.codinjutsu.tools.jenkins.logic.JenkinsLoadingTaskOption;
-import org.codinjutsu.tools.jenkins.logic.RequestManager;
+import org.codinjutsu.tools.jenkins.logic.*;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.action.*;
@@ -382,7 +379,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
             @Override
             public void onSuccess() {
                 jenkins.update(jenkinsWorkspace);
-                BrowserPanel.this.refreshCurrentView();
+                new UserLoggedIn(project);
             }
 
             @Override
@@ -422,7 +419,6 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
     private void initGui() {
         installActionsInToolbar();
-
         installActionsInPopupMenu();
     }
 

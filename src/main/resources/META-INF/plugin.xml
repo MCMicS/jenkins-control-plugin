@@ -25,6 +25,8 @@
         <projectService serviceInterface="org.codinjutsu.tools.jenkins.logic.UrlBuilder" serviceImplementation="org.codinjutsu.tools.jenkins.logic.UrlBuilder"/>
         <projectService serviceInterface="org.codinjutsu.tools.jenkins.view.BrowserPanel" serviceImplementation="org.codinjutsu.tools.jenkins.view.BrowserPanel"/>
         <projectService serviceInterface="org.codinjutsu.tools.jenkins.logic.RssLogic" serviceImplementation="org.codinjutsu.tools.jenkins.logic.RssLogic"/>
+        <projectService serviceInterface="org.codinjutsu.tools.jenkins.logic.RefreshNodeActionHandler" serviceImplementation="org.codinjutsu.tools.jenkins.logic.RefreshNodeActionHandler"/>
+        <projectService serviceInterface="org.codinjutsu.tools.jenkins.logic.RSSLoaderActionHandler" serviceImplementation="org.codinjutsu.tools.jenkins.logic.RSSLoaderActionHandler"/>
     </extensions>
 
     <actions>
