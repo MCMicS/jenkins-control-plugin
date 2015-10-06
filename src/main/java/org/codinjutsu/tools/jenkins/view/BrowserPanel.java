@@ -70,30 +70,6 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
     private static final String UNAVAILABLE = "No Jenkins server available";
 
     private static final String LOADING = "Loading...";
-
-    private JPanel rootPanel;
-
-    private JPanel jobPanel;
-    private Tree jobTree;
-
-    private boolean sortedByBuildStatus;
-
-    private final Runnable refreshViewJob;
-    private ScheduledFuture<?> refreshViewFutureTask;
-
-    private final Project project;
-
-    private final JenkinsAppSettings jenkinsAppSettings;
-    private final JenkinsSettings jenkinsSettings;
-
-    private final RequestManager requestManager;
-
-    private final Jenkins jenkins;
-    private FavoriteView favoriteView;
-    private View currentSelectedView;
-
-    private Map<String, Job> watchedJobs = new ConcurrentHashMap<String, Job>();
-
     private static final Comparator<DefaultMutableTreeNode> sortByStatusComparator = new Comparator<DefaultMutableTreeNode>() {
         @Override
         public int compare(DefaultMutableTreeNode treeNode1, DefaultMutableTreeNode treeNode2) {
@@ -112,11 +88,21 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
             return job1.getName().compareTo(job2.getName());
         }
     };
+    private final Runnable refreshViewJob;
+    private final Project project;
+    private final JenkinsAppSettings jenkinsAppSettings;
+    private final JenkinsSettings jenkinsSettings;
+    private final RequestManager requestManager;
+    private final Jenkins jenkins;
+    private JPanel rootPanel;
+    private JPanel jobPanel;
+    private Tree jobTree;
+    private boolean sortedByBuildStatus;
+    private ScheduledFuture<?> refreshViewFutureTask;
+    private FavoriteView favoriteView;
+    private View currentSelectedView;
+    private Map<String, Job> watchedJobs = new ConcurrentHashMap<String, Job>();
 
-
-    public static BrowserPanel getInstance(Project project) {
-        return ServiceManager.getService(project, BrowserPanel.class);
-    }
 
     public BrowserPanel(final Project project) {
 
@@ -124,7 +110,8 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         this.project = project;
 
         refreshViewJob = new Runnable() {
-            @Override public void run() {
+            @Override
+            public void run() {
                 GuiUtil.runInSwingThread(new LoadSelectedViewJob(project));
             }
         };
@@ -142,6 +129,39 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         jobPanel.add(ScrollPaneFactory.createScrollPane(jobTree), BorderLayout.CENTER);
 
         setContent(rootPanel);
+    }
+
+    public static BrowserPanel getInstance(Project project) {
+        return ServiceManager.getService(project, BrowserPanel.class);
+    }
+
+    private static void visit(Job job, BuildStatusVisitor buildStatusVisitor) {
+        Build lastBuild = job.getLastBuild();
+        if (job.isBuildable() && lastBuild != null) {
+            BuildStatusEnum status = lastBuild.getStatus();
+            if (BuildStatusEnum.FAILURE == status) {
+                buildStatusVisitor.visitFailed();
+                return;
+            }
+            if (BuildStatusEnum.SUCCESS == status) {
+                buildStatusVisitor.visitSuccess();
+                return;
+            }
+            if (BuildStatusEnum.UNSTABLE == status) {
+                buildStatusVisitor.visitUnstable();
+                return;
+            }
+            if (BuildStatusEnum.ABORTED == status) {
+                buildStatusVisitor.visitAborted();
+                return;
+            }
+            if (BuildStatusEnum.NULL == status) {
+                buildStatusVisitor.visitUnknown();
+                return;
+            }
+        }
+
+        buildStatusVisitor.visitUnknown();
     }
 
     public void initScheduledJobs(ScheduledThreadPoolExecutor scheduledThreadPoolExecutor) {
@@ -215,35 +235,6 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         ToolWindowManager.getInstance(project).unregisterToolWindow(JenkinsWindowManager.JENKINS_BROWSER);
     }
 
-    private static void visit(Job job, BuildStatusVisitor buildStatusVisitor) {
-        Build lastBuild = job.getLastBuild();
-        if (job.isBuildable() && lastBuild != null) {
-            BuildStatusEnum status = lastBuild.getStatus();
-            if (BuildStatusEnum.FAILURE == status) {
-                buildStatusVisitor.visitFailed();
-                return;
-            }
-            if (BuildStatusEnum.SUCCESS == status) {
-                buildStatusVisitor.visitSuccess();
-                return;
-            }
-            if (BuildStatusEnum.UNSTABLE == status) {
-                buildStatusVisitor.visitUnstable();
-                return;
-            }
-            if (BuildStatusEnum.ABORTED == status) {
-                buildStatusVisitor.visitAborted();
-                return;
-            }
-            if (BuildStatusEnum.NULL == status) {
-                buildStatusVisitor.visitUnknown();
-                return;
-            }
-        }
-
-        buildStatusVisitor.visitUnknown();
-    }
-
     public void update() {
         ((DefaultTreeModel) jobTree.getModel()).nodeChanged((TreeNode) jobTree.getSelectionPath().getLastPathComponent());
     }
@@ -261,7 +252,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
     }
 
     public void loadSelectedJob() {
-        if(SwingUtilities.isEventDispatchThread()){
+        if (SwingUtilities.isEventDispatchThread()) {
             logger.warn("BrowserPanel.loadSelectedJob called from EDT");
         }
         final Job job = getSelectedJob();
@@ -270,7 +261,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
     }
 
     public void loadJob(final Job job) {
-        if(!SwingUtilities.isEventDispatchThread()){
+        if (!SwingUtilities.isEventDispatchThread()) {
             logger.warn("BrowserPanel.loadJob called from outside of EDT");
         }
         GuiUtil.runInSwingThread(new Task.Backgroundable(project, "Loading job", true, JenkinsLoadingTaskOption.INSTANCE) {
@@ -295,11 +286,11 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         final DefaultTreeModel model = (DefaultTreeModel) jobTree.getModel();
         final Object modelRoot = model.getRoot();
         final int childCount = model.getChildCount(modelRoot);
-        for(int i=0; i<childCount; ++i ){
-            Object child = model.getChild(modelRoot,i);
-            if(child instanceof DefaultMutableTreeNode){
+        for (int i = 0; i < childCount; ++i) {
+            Object child = model.getChild(modelRoot, i);
+            if (child instanceof DefaultMutableTreeNode) {
                 DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) child;
-                if(childNode.getUserObject()==job){
+                if (childNode.getUserObject() == job) {
                     model.nodeChanged(childNode);
                     break;
                 }
@@ -354,7 +345,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
     }
 
     public void reloadConfiguration() {
-        if(!SwingUtilities.isEventDispatchThread()){
+        if (!SwingUtilities.isEventDispatchThread()) {
             logger.warn("BrowserPanel.reloadConfiguration called from outside of EDT");
         }
         if (!jenkinsAppSettings.isServerUrlSet()) { //run when there is not configuration
@@ -372,7 +363,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
             return;
         }
 
-        new Task.Backgroundable(project, "Authenticating jenkins", false, JenkinsLoadingTaskOption.INSTANCE){
+        new Task.Backgroundable(project, "Authenticating jenkins", false, JenkinsLoadingTaskOption.INSTANCE) {
 
             private Jenkins jenkinsWorkspace;
 
@@ -404,7 +395,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         View viewToLoad;
         if (StringUtils.isEmpty(lastSelectedViewName)) {
             viewToLoad = jenkins.getPrimaryView();
-        } else if (favoriteView != null && lastSelectedViewName.equals(favoriteView.getName())){
+        } else if (favoriteView != null && lastSelectedViewName.equals(favoriteView.getName())) {
             viewToLoad = favoriteView;
         } else {
             viewToLoad = jenkins.getViewByName(lastSelectedViewName);
@@ -427,17 +418,21 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         actionGroup.add(new SelectViewAction(this));
         actionGroup.add(new RefreshNodeAction(this));
         actionGroup.add(new RunBuildAction(this));
+        actionGroup.add(new StopBuildAction(this));
         actionGroup.add(new SortByStatusAction(this));
         actionGroup.add(new RefreshRssAction());
         actionGroup.addSeparator();
         actionGroup.add(new OpenPluginSettingsAction());
+
 
         GuiUtil.installActionGroupInToolBar(actionGroup, this, ActionManager.getInstance(), "jenkinsBrowserActions");
     }
 
     private void installActionsInPopupMenu() {
         DefaultActionGroup popupGroup = new DefaultActionGroup("JenkinsPopupAction", true);
+
         popupGroup.add(new RunBuildAction(this));
+        popupGroup.add(new StopBuildAction(this));
         //TODO add stop build
         //TODO add show log
         popupGroup.addSeparator();
@@ -455,27 +450,27 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
     public void loadView(final View view) {
         this.currentSelectedView = view;
-        if(!SwingUtilities.isEventDispatchThread()){
+        if (!SwingUtilities.isEventDispatchThread()) {
             logger.warn("BrowserPanel.loadView called from outside EDT");
         }
         new LoadSelectedViewJob(project).queue();
     }
 
     public void refreshCurrentView() {
-        if(!SwingUtilities.isEventDispatchThread()){
+        if (!SwingUtilities.isEventDispatchThread()) {
             logger.warn("BrowserPanel.refreshCurrentView called outside EDT");
         }
         new LoadSelectedViewJob(project).queue();
     }
 
     private void loadJobs() {
-        if(SwingUtilities.isEventDispatchThread()){
+        if (SwingUtilities.isEventDispatchThread()) {
             logger.warn("BrowserPanel.loadJobs called from EDT");
         }
         final List<Job> jobList;
         if (currentSelectedView instanceof FavoriteView) {
             jobList = requestManager.loadFavoriteJobs(jenkinsSettings.getFavoriteJobs());
-        }else{
+        } else {
             jobList = requestManager.loadJenkinsView(currentSelectedView.getUrl());
         }
 
@@ -560,6 +555,48 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
     }
 
+    public void addToWatch(String changeListName, Job job) {
+        JenkinsAppSettings settings = JenkinsAppSettings.getSafeInstance(project);
+        Build build = job.getLastBuild();
+        build.setNumber(build.getNumber() + 1);
+        build.setUrl(settings.getServerUrl() + String.format("/job/%s/%d/", job.getName(), build.getNumber()));
+        watchedJobs.put(changeListName, job);
+    }
+
+    public void watch() {
+        if (!SwingUtilities.isEventDispatchThread()) {
+            logger.warn("BrowserPanel.watch called from outside EDT");
+        }
+        if (!watchedJobs.isEmpty()) {
+            for (final Map.Entry<String, Job> entry : watchedJobs.entrySet()) {
+                final Job job = entry.getValue();
+                final Build lastBuild = job.getLastBuild();
+                new Task.Backgroundable(project, "Jenkins build watch", true, JenkinsLoadingTaskOption.INSTANCE) {
+
+                    private Build build;
+
+                    @Override
+                    public void onSuccess() {
+                        if (lastBuild.isBuilding() && !build.isBuilding()) {
+                            notifyInfoJenkinsToolWindow(String.format("Status of build for Changelist \"%s\" is %s", entry, build.getStatus().getStatus()));
+                        }
+                        job.setLastBuild(build);
+                    }
+
+                    @Override
+                    public void run(@NotNull ProgressIndicator indicator) {
+                        indicator.setIndeterminate(true);
+                        build = requestManager.loadBuild(lastBuild.getUrl());
+                    }
+                }.queue();
+            }
+        }
+    }
+
+    public Map<String, Job> getWatched() {
+        return watchedJobs;
+    }
+
     private class LoadSelectedViewJob extends Task.Backgroundable {
         public LoadSelectedViewJob(@Nullable Project project) {
             super(project, "Loading Jenkins Jobs", true, JenkinsLoadingTaskOption.INSTANCE);
@@ -597,48 +634,6 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
             });
 
         }
-    }
-
-    public void addToWatch(String changeListName, Job job) {
-        JenkinsAppSettings settings = JenkinsAppSettings.getSafeInstance(project);
-        Build build = job.getLastBuild();
-        build.setNumber(build.getNumber() + 1);
-        build.setUrl(settings.getServerUrl() + String.format("/job/%s/%d/", job.getName(), build.getNumber()));
-        watchedJobs.put(changeListName, job);
-    }
-
-    public void watch() {
-        if(!SwingUtilities.isEventDispatchThread()) {
-            logger.warn("BrowserPanel.watch called from outside EDT");
-        }
-        if (!watchedJobs.isEmpty() ) {
-            for (final Map.Entry<String, Job> entry : watchedJobs.entrySet()) {
-                final Job job = entry.getValue();
-                final Build lastBuild = job.getLastBuild();
-                new Task.Backgroundable(project,"Jenkins build watch", true, JenkinsLoadingTaskOption.INSTANCE){
-
-                    private Build build;
-
-                    @Override
-                    public void onSuccess() {
-                        if (lastBuild.isBuilding() && !build.isBuilding()) {
-                            notifyInfoJenkinsToolWindow(String.format("Status of build for Changelist \"%s\" is %s", entry, build.getStatus().getStatus()));
-                        }
-                        job.setLastBuild(build);
-                    }
-
-                    @Override
-                    public void run(@NotNull ProgressIndicator indicator)  {
-                        indicator.setIndeterminate(true);
-                        build = requestManager.loadBuild(lastBuild.getUrl());
-                    }
-                }.queue();
-            }
-        }
-    }
-
-    public Map<String, Job> getWatched() {
-        return watchedJobs;
     }
 
 }

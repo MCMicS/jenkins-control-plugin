@@ -78,7 +78,7 @@ public class RunBuildAction extends AnAction implements DumbAware {
 
         } catch (Exception ex) {
             LOG.error(ex.getMessage(), ex);
-            browserPanel.notifyErrorJenkinsToolWindow("Build cannot be run: " + ex.getMessage());
+            browserPanel.notifyErrorJenkinsToolWindow("Build cannot be stopped: " + ex.getMessage());
         }
     }
 
@@ -91,7 +91,7 @@ public class RunBuildAction extends AnAction implements DumbAware {
 
     private void notifyOnGoingMessage(Job job) {
         browserPanel.notifyInfoJenkinsToolWindow(HtmlUtil.createHtmlLinkMessage(
-                job.getName() + " build is on going",
+                job.getName() + " stop is on going",
                 job.getUrl()));
     }
 }
