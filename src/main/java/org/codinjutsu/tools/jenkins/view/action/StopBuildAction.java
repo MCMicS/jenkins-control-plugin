@@ -1,5 +1,6 @@
 package org.codinjutsu.tools.jenkins.view.action;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
@@ -7,7 +8,6 @@ import com.intellij.openapi.project.Project;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
-import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.util.HtmlUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 
@@ -19,14 +19,14 @@ import javax.swing.*;
 
 public class StopBuildAction extends AnAction implements DumbAware {
 
-    private static final Icon EXECUTE_ICON = GuiUtil.isUnderDarcula() ? GuiUtil.loadIcon("execute.png") : GuiUtil.loadIcon("execute_dark.png");
+    private static final Icon STOP_ICON = AllIcons.Actions.Suspend;
     private static final Logger LOG = Logger.getLogger(RunBuildAction.class.getName());
 
     private final BrowserPanel browserPanel;
 
 
     public StopBuildAction(BrowserPanel browserPanel) {
-        super("Stop on Jenkins", "Stop a build on Jenkins Server", EXECUTE_ICON);
+        super("Stop on Jenkins", "Stop a build on Jenkins Server", STOP_ICON);
         this.browserPanel = browserPanel;
     }
 

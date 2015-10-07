@@ -433,7 +433,6 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
         popupGroup.add(new RunBuildAction(this));
         popupGroup.add(new StopBuildAction(this));
-        //TODO add stop build
         //TODO add show log
         popupGroup.addSeparator();
         popupGroup.add(new SetJobAsFavoriteAction(this));

@@ -36,7 +36,7 @@ import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.JenkinsWidget;
 import org.jetbrains.annotations.NotNull;
-import com.intellij.util.messages.MessageBus;
+
 import java.awt.*;
 import java.util.*;
 import java.util.List;
@@ -50,16 +50,10 @@ public class RssLogic implements Disposable {
 
     private final Project project;
     private final JenkinsAppSettings jenkinsAppSettings;
-    private RequestManager requestManager;
-
-    private Map<String, Build> currentBuildMap = new HashMap<String, Build>();
-
     private final Runnable refreshRssBuildsJob;
+    private RequestManager requestManager;
+    private Map<String, Build> currentBuildMap = new HashMap<String, Build>();
     private ScheduledFuture<?> refreshRssBuildFutureTask;
-
-    public static RssLogic getInstance(Project project) {
-        return ServiceManager.getService(project, RssLogic.class);
-    }
 
     public RssLogic(final Project project) {
         this.project = project;
@@ -73,8 +67,11 @@ public class RssLogic implements Disposable {
         };
     }
 
+    public static RssLogic getInstance(Project project) {
+        return ServiceManager.getService(project, RssLogic.class);
+    }
+
     public void init() {
-        loadLatestBuilds(false);
     }
 
     public void loadLatestBuilds(boolean shouldDisplayResult) {

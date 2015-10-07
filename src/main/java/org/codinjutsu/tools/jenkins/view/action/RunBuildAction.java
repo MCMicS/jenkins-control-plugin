@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.view.action;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
@@ -24,7 +25,6 @@ import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
-import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.util.HtmlUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.codinjutsu.tools.jenkins.view.BuildParamDialog;
@@ -33,7 +33,7 @@ import javax.swing.*;
 
 public class RunBuildAction extends AnAction implements DumbAware {
 
-    private static final Icon EXECUTE_ICON = GuiUtil.isUnderDarcula() ? GuiUtil.loadIcon("execute_dark.png") : GuiUtil.loadIcon("execute.png");
+    private static final Icon EXECUTE_ICON = AllIcons.Actions.Execute;
     private static final Logger LOG = Logger.getLogger(RunBuildAction.class.getName());
 
     private final BrowserPanel browserPanel;
