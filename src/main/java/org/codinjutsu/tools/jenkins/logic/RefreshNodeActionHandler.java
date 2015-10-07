@@ -12,7 +12,7 @@ import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 public class RefreshNodeActionHandler {
     public RefreshNodeActionHandler() {
         MessageBus myBus = ApplicationManager.getApplication().getMessageBus();
-        myBus.connect().subscribe(LoginActionNotifier.USER_LOGGED_IN, new LoginActionNotifier() {
+        myBus.connect().subscribe(RefreshActionNotifier.USER_LOGGED_IN, new RefreshActionNotifier() {
 
             @Override
             public void afterLogin(Project project) {

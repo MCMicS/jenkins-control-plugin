@@ -11,7 +11,7 @@ import com.intellij.util.messages.MessageBus;
 public class RSSLoaderActionHandler {
     public RSSLoaderActionHandler() {
         MessageBus myBus = ApplicationManager.getApplication().getMessageBus();
-        myBus.connect().subscribe(LoginActionNotifier.USER_LOGGED_IN, new LoginActionNotifier() {
+        myBus.connect().subscribe(RefreshActionNotifier.USER_LOGGED_IN, new RefreshActionNotifier() {
 
             @Override
             public void afterLogin(Project project) {

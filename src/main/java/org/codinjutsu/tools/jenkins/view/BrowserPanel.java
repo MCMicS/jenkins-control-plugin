@@ -370,7 +370,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
             @Override
             public void onSuccess() {
                 jenkins.update(jenkinsWorkspace);
-                new UserLoggedIn(project);
+                new RefreshBuilds(project);
             }
 
             @Override

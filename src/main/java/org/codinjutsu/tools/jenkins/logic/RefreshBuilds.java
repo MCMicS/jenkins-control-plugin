@@ -8,10 +8,10 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBus;
 
-public class UserLoggedIn {
-    public UserLoggedIn(Project project) {
+public class RefreshBuilds {
+    public RefreshBuilds(Project project) {
         MessageBus myBus = ApplicationManager.getApplication().getMessageBus();
-        LoginActionNotifier publisher = myBus.syncPublisher(LoginActionNotifier.USER_LOGGED_IN);
+        RefreshActionNotifier publisher = myBus.syncPublisher(RefreshActionNotifier.USER_LOGGED_IN);
         publisher.afterLogin(project);
     }
 
