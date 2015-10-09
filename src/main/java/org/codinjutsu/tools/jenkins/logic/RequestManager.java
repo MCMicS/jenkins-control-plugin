@@ -234,10 +234,12 @@ public class RequestManager implements RequestManagerInterface {
     public Job loadJob(Job job){
         return loadJob(job.getUrl());
     }
+
     @Override
     public List<Job>loadJenkinsView(View view){
         return loadJenkinsView(view.getUrl());
     }
+
     @Override
     public Build loadBuild(Build build){
         return loadBuild(build.getUrl());
