@@ -16,15 +16,18 @@
 
 package org.codinjutsu.tools.jenkins.view.action;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
+import org.codinjutsu.tools.jenkins.logic.RefreshBuilds;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
-import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.util.HtmlUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.codinjutsu.tools.jenkins.view.BuildParamDialog;
@@ -33,7 +36,7 @@ import javax.swing.*;
 
 public class RunBuildAction extends AnAction implements DumbAware {
 
-    private static final Icon EXECUTE_ICON = GuiUtil.isUnderDarcula() ? GuiUtil.loadIcon("execute_dark.png") : GuiUtil.loadIcon("execute.png");
+    private static final Icon EXECUTE_ICON = AllIcons.Actions.Execute;
     private static final Logger LOG = Logger.getLogger(RunBuildAction.class.getName());
 
     private final BrowserPanel browserPanel;
@@ -47,38 +50,47 @@ public class RunBuildAction extends AnAction implements DumbAware {
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        Project project = ActionUtil.getProject(event);
+        final Project project = ActionUtil.getProject(event);
 
         final BrowserPanel browserPanel = BrowserPanel.getInstance(project);
         try {
             final Job job = browserPanel.getSelectedJob();
+            new Task.Backgroundable(project, "Stopping build", false) {
 
-            RequestManager requestManager = browserPanel.getJenkinsManager();
-            if (job.hasParameters()) {
-                BuildParamDialog.showDialog(job, JenkinsAppSettings.getSafeInstance(project), requestManager, new BuildParamDialog.RunBuildCallback() {
+                @Override
+                public void onSuccess() {
+                    notifyOnGoingMessage(job);
+                    new RefreshBuilds(project);
+                }
 
-                    public void notifyOnOk(Job job) {
-                        notifyOnGoingMessage(job);
-                        browserPanel.loadJob(job);
+                @Override
+                public void run(ProgressIndicator progressIndicator) {
+                    RequestManager requestManager = browserPanel.getJenkinsManager();
+                    if (job.hasParameters()) {
+                        BuildParamDialog.showDialog(job, JenkinsAppSettings.getSafeInstance(project), requestManager, new BuildParamDialog.RunBuildCallback() {
+
+                            public void notifyOnOk(Job job) {
+                                notifyOnGoingMessage(job);
+                                browserPanel.loadJob(job);
+                            }
+
+                            public void notifyOnError(Job job, Exception ex) {
+                                browserPanel.notifyErrorJenkinsToolWindow("Build '" + job.getName() + "' cannot be run: " + ex.getMessage());
+                                browserPanel.loadJob(job);
+                            }
+
+
+                        });
+
+                    } else {
+                        requestManager.runBuild(job, JenkinsAppSettings.getSafeInstance(project));
                     }
-
-                    public void notifyOnError(Job job, Exception ex) {
-                        browserPanel.notifyErrorJenkinsToolWindow("Build '" + job.getName() + "' cannot be run: " + ex.getMessage());
-                        browserPanel.loadJob(job);
-                    }
-
-
-                });
-
-            } else {
-                requestManager.runBuild(job, JenkinsAppSettings.getSafeInstance(project));
-                notifyOnGoingMessage(job);
-                browserPanel.loadSelectedJob();
-            }
+                }
+            }.queue();
 
         } catch (Exception ex) {
             LOG.error(ex.getMessage(), ex);
-            browserPanel.notifyErrorJenkinsToolWindow("Build cannot be run: " + ex.getMessage());
+            browserPanel.notifyErrorJenkinsToolWindow("Build cannot be stopped: " + ex.getMessage());
         }
     }
 

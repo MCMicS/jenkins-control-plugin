@@ -21,6 +21,8 @@ import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.changes.ui.ChangesListView;
+import org.codinjutsu.tools.jenkins.logic.RSSLoaderActionHandler;
+import org.codinjutsu.tools.jenkins.logic.RefreshNodeActionHandler;
 import org.codinjutsu.tools.jenkins.view.ConfigurationPanel;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -49,6 +51,8 @@ public class JenkinsComponent implements ProjectComponent, Configurable {
 
 
     public void projectOpened() {
+        RSSLoaderActionHandler.getInstance(project);
+        RefreshNodeActionHandler.getInstance(project);
         JenkinsWindowManager.getInstance(project);
     }
 
