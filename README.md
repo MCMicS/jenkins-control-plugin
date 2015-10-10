@@ -1,5 +1,8 @@
 # Jenkins Plugin 0.9.0 for Jetbrains products
 
+## Version 0.9.3
+* [fix] Fixed threading issues
+
 ## Version 0.9.2
 * [fix] API changes in idea 13
 
