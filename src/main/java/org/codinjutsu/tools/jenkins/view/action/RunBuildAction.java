@@ -28,6 +28,7 @@ import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.logic.RefreshBuilds;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
+import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.util.HtmlUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.codinjutsu.tools.jenkins.view.BuildParamDialog;
@@ -36,7 +37,7 @@ import javax.swing.*;
 
 public class RunBuildAction extends AnAction implements DumbAware {
 
-    private static final Icon EXECUTE_ICON = AllIcons.Actions.Execute;
+    private static final Icon EXECUTE_ICON = GuiUtil.isUnderDarcula() ? GuiUtil.loadIcon("execute_dark.png") : GuiUtil.loadIcon("execute.png");
     private static final Logger LOG = Logger.getLogger(RunBuildAction.class.getName());
 
     private final BrowserPanel browserPanel;
@@ -65,6 +66,7 @@ public class RunBuildAction extends AnAction implements DumbAware {
 
                 @Override
                 public void run(ProgressIndicator progressIndicator) {
+                    progressIndicator.setIndeterminate(true);
                     RequestManager requestManager = browserPanel.getJenkinsManager();
                     if (job.hasParameters()) {
                         BuildParamDialog.showDialog(job, JenkinsAppSettings.getSafeInstance(project), requestManager, new BuildParamDialog.RunBuildCallback() {
@@ -79,7 +81,6 @@ public class RunBuildAction extends AnAction implements DumbAware {
                                 browserPanel.loadJob(job);
                             }
 
-
                         });
 
                     } else {
@@ -90,7 +91,7 @@ public class RunBuildAction extends AnAction implements DumbAware {
 
         } catch (Exception ex) {
             LOG.error(ex.getMessage(), ex);
-            browserPanel.notifyErrorJenkinsToolWindow("Build cannot be stopped: " + ex.getMessage());
+            browserPanel.notifyErrorJenkinsToolWindow("Build cannot be run: " + ex.getMessage());
         }
     }
 

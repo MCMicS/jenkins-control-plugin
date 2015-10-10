@@ -188,7 +188,7 @@ public class BuildParamDialog extends JDialog {
     private void onOK() {
         final Map<String, String> paramValueMap = getParamValueMap();
 
-            new SwingWorker<Void, Void>(){
+            new SwingWorker<Void, Void>(){ //FIXME don't use swing worker
                 @Override
                 protected Void doInBackground() throws Exception {
                     requestManager.runParameterizedBuild(job, configuration, paramValueMap);

@@ -50,10 +50,15 @@ public class RssLogic implements Disposable {
 
     private final Project project;
     private final JenkinsAppSettings jenkinsAppSettings;
-    private final Runnable refreshRssBuildsJob;
     private RequestManager requestManager;
     private Map<String, Build> currentBuildMap = new HashMap<String, Build>();
+
+    private final Runnable refreshRssBuildsJob;
     private ScheduledFuture<?> refreshRssBuildFutureTask;
+
+    public static RssLogic getInstance(Project project) {
+        return ServiceManager.getService(project, RssLogic.class);
+    }
 
     public RssLogic(final Project project) {
         this.project = project;
@@ -65,10 +70,6 @@ public class RssLogic implements Disposable {
                 GuiUtil.runInSwingThread(new LoadLatestBuildsJob(project, true));
             }
         };
-    }
-
-    public static RssLogic getInstance(Project project) {
-        return ServiceManager.getService(project, RssLogic.class);
     }
 
     public void init() {

@@ -16,17 +16,17 @@
 
 package org.codinjutsu.tools.jenkins.view.action;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
+import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 
 import javax.swing.*;
 
 public class RefreshNodeAction extends AnAction implements DumbAware {
 
-    private static final Icon REFRESH_ICON = AllIcons.Actions.Refresh;
+    private static final Icon REFRESH_ICON = GuiUtil.isUnderDarcula() ? GuiUtil.loadIcon("refresh_dark.png") : GuiUtil.loadIcon("refresh.png");
     private final BrowserPanel browserPanel;
 
 
@@ -48,7 +48,7 @@ public class RefreshNodeAction extends AnAction implements DumbAware {
 
     @Override
     public void update(AnActionEvent event) {
-        //FIXME reset when data is updated
+        //FIXME should be enabled when build is configured
 //        event.getPresentation().setEnabled(!browserPanel.getJenkins().getJobs().isEmpty());
     }
 }

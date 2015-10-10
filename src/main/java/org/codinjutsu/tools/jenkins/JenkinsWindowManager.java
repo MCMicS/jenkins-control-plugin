@@ -46,7 +46,6 @@ public class JenkinsWindowManager {
         return ServiceManager.getService(project, JenkinsWindowManager.class);
     }
 
-    //run in edt
     public JenkinsWindowManager(Project project) {
         this.project = project;
 
