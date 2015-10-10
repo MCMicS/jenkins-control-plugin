@@ -55,6 +55,15 @@ public class UrlBuilder {
         return null;
     }
 
+    public URL createStopBuildUrl(String buildUrl){
+        try {//http://jenkins.internal/job/it4em-it4em-DPD-GEOR-UAT-RO/27/stop
+            return new URL(buildUrl + URIUtil.encodePath("stop"));
+        } catch (Exception ex) {
+            handleException(ex);
+        }
+        return null;
+    }
+
     public URL createRunParameterizedJobUrl(String jobUrl, JenkinsAppSettings configuration, Map<String, String> paramValueMap) {
         StringBuilder strBuilder = new StringBuilder(String.format("%s?delay=%dsec", PARAMETERIZED_BUILD, configuration.getBuildDelay()));
         for (Map.Entry<String, String> valueByName : paramValueMap.entrySet()) {

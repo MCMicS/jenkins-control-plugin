@@ -35,7 +35,6 @@ import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.containers.Convertor;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
@@ -53,17 +52,19 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import javax.swing.SwingWorker;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.util.*;
+import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
-//FIXME use intellij task instead of swing worker
 //FIXME use intellij mechanism for handling exceptions
 public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
@@ -126,14 +127,8 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         this.project = project;
 
         refreshViewJob = new Runnable() {
-            @Override
-            public void run() {
-                GuiUtil.runInSwingThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        new LoadSelectedViewJob(project).queue();
-                    }
-                });
+            @Override public void run() {
+                GuiUtil.runInSwingThread(new LoadSelectedViewJob(project));
             }
         };
 
@@ -269,31 +264,50 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
     }
 
     public void loadSelectedJob() {
+        if(SwingUtilities.isEventDispatchThread()){
+            logger.warn("BrowserPanel.loadSelectedJob called from EDT");
+        }
         final Job job = getSelectedJob();
+        loadJob(job);
 
+    }
 
-        new SwingWorker<Job, Job>(){
+    public void loadJob(final Job job) {
+        if(!SwingUtilities.isEventDispatchThread()){
+            logger.warn("BrowserPanel.loadJob called from outside of EDT");
+        }
+        GuiUtil.runInSwingThread(new Task.Backgroundable(project, "Loading job", true, JenkinsLoadingTaskOption.INSTANCE) {
+
+            private Job returnJob;
 
             @Override
-            protected Job doInBackground() throws Exception {
-
-                return requestManager.loadJob(job.getUrl());
+            public void run(@NotNull ProgressIndicator indicator) {
+                returnJob = requestManager.loadJob(job.getUrl());
             }
 
             @Override
-            protected void done() {
-                super.done();
-                try {
-                    job.updateContentWith(get());
-                } catch (InterruptedException e) {
-                    logger.log(Level.WARN, "Requesting job was interrupted", e);
-                } catch (ExecutionException e) {
-                    logger.log(Level.ERROR, "Exception occured while trying to fetch job", e);
+            public void onSuccess() {
+                job.updateContentWith(returnJob);
+                updateJobNode(job);
+            }
+
+        });
+    }
+
+    private void updateJobNode(Job job) {
+        final DefaultTreeModel model = (DefaultTreeModel) jobTree.getModel();
+        final Object modelRoot = model.getRoot();
+        final int childCount = model.getChildCount(modelRoot);
+        for(int i=0; i<childCount; ++i ){
+            Object child = model.getChild(modelRoot,i);
+            if(child instanceof DefaultMutableTreeNode){
+                DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) child;
+                if(childNode.getUserObject()==job){
+                    model.nodeChanged(childNode);
+                    break;
                 }
-
             }
-        }.execute();
-
+        }
     }
 
     public boolean hasFavoriteJobs() {
@@ -342,8 +356,10 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         return tree;
     }
 
-    //FIXME CBU probably uses io within ui thread
     public void reloadConfiguration() {
+        if(!SwingUtilities.isEventDispatchThread()){
+            logger.warn("BrowserPanel.reloadConfiguration called from outside of EDT");
+        }
         if (!jenkinsAppSettings.isServerUrlSet()) { //run when there is not configuration
             JenkinsWidget.getInstance(project).updateStatusIcon(BuildStatusAggregator.EMPTY);
             DefaultTreeModel model = (DefaultTreeModel) jobTree.getModel();
@@ -359,28 +375,29 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
             return;
         }
 
+        new Task.Backgroundable(project, "Authenticating jenkins", false, JenkinsLoadingTaskOption.INSTANCE){
 
-        new SwingWorker<Jenkins, Object>(){
+            private Jenkins jenkinsWorkspace;
+
             @Override
-            protected void done() {
-                super.done();
-                try {
-                    jenkins.update(get()); //FIXME jenkins is not ui element, maybe it shouldn't be updated in ui thread
-                } catch (InterruptedException e) {
-                    logger.log(Level.WARN, "Interrupted while waiting for authentication", e);
-                } catch (ExecutionException e) {
-                    jobTree.getEmptyText().setText(UNAVAILABLE);
-                    logger.log(Level.WARN, "Exception occured while...", e);
-                }
+            public void onSuccess() {
+                jenkins.update(jenkinsWorkspace);
+                BrowserPanel.this.refreshCurrentView();
             }
 
             @Override
-            protected Jenkins doInBackground() throws Exception {
+            public void onCancel() {
+                jobTree.getEmptyText().setText(UNAVAILABLE);
+            }
+
+            @Override
+            public void run(@NotNull ProgressIndicator indicator) {
+                indicator.setIndeterminate(true);
                 requestManager.authenticate(jenkinsAppSettings, jenkinsSettings);
-                return requestManager.loadJenkinsWorkspace(jenkinsAppSettings);
+                jenkinsWorkspace = requestManager.loadJenkinsWorkspace(jenkinsAppSettings);
             }
+        }.queue();
 
-        }.execute();
 
         if (!jenkinsSettings.getFavoriteJobs().isEmpty()) {
             createFavoriteViewIfNecessary();
@@ -424,7 +441,12 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
     private void installActionsInPopupMenu() {
         DefaultActionGroup popupGroup = new DefaultActionGroup("JenkinsPopupAction", true);
+        popupGroup.add(new RunBuildAction(this));
+        //TODO add stop build
+        //TODO add show log
+        popupGroup.addSeparator();
         popupGroup.add(new SetJobAsFavoriteAction(this));
+
         popupGroup.add(new UnsetJobAsFavoriteAction(this));
         popupGroup.addSeparator();
         popupGroup.add(new GotoJobPageAction(this));
@@ -437,40 +459,33 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
     public void loadView(final View view) {
         this.currentSelectedView = view;
+        if(!SwingUtilities.isEventDispatchThread()){
+            logger.warn("BrowserPanel.loadView called from outside EDT");
+        }
         new LoadSelectedViewJob(project).queue();
     }
 
     public void refreshCurrentView() {
+        if(!SwingUtilities.isEventDispatchThread()){
+            logger.warn("BrowserPanel.refreshCurrentView called outside EDT");
+        }
         new LoadSelectedViewJob(project).queue();
     }
 
     private void loadJobs() {
-        final boolean isFavoriteView = currentSelectedView instanceof FavoriteView;
-        final List<JenkinsSettings.FavoriteJob> favoriteJobs = (isFavoriteView)?jenkinsSettings.getFavoriteJobs(): Collections.EMPTY_LIST;
-        final String url = (!isFavoriteView)?currentSelectedView.getUrl():"";
-        new SwingWorker<List<Job>, Void>(){
-            @Override
-            protected List<Job> doInBackground() throws Exception {
-                if(isFavoriteView){
-                    return requestManager.loadFavoriteJobs(favoriteJobs);
-                }else{
-                    return requestManager.loadJenkinsView(url);
-                }
-            }
+        if(SwingUtilities.isEventDispatchThread()){
+            logger.warn("BrowserPanel.loadJobs called from EDT");
+        }
+        final List<Job> jobList;
+        if (currentSelectedView instanceof FavoriteView) {
+            jobList = requestManager.loadFavoriteJobs(jenkinsSettings.getFavoriteJobs());
+        }else{
+            jobList = requestManager.loadJenkinsView(currentSelectedView.getUrl());
+        }
 
-            @Override
-            protected void done() {
-                jenkinsSettings.setLastSelectedView(currentSelectedView.getName());
-                try {
-                    jenkins.setJobs(get());
-                } catch (InterruptedException e) {
-                    logger.log(Level.WARN, "Interrupted while trying to load jobs", e);
-                } catch (ExecutionException e) {
-                    logger.log(Level.WARN, "Exception occured while trying to load jobs", e);
-                }
-            }
-        }.execute();
+        jenkinsSettings.setLastSelectedView(currentSelectedView.getName());
 
+        jenkins.setJobs(jobList);
     }
 
     private View getViewToLoad() {
@@ -488,7 +503,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
 
     public void fillJobTree(final BuildStatusVisitor buildStatusVisitor) {
-        List<Job> jobList = jenkins.getJobs();
+        final List<Job> jobList = jenkins.getJobs();
         if (jobList.isEmpty()) {
             return;
         }
@@ -556,7 +571,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
         @Override
         public void run(@NotNull ProgressIndicator indicator) {
-
+            indicator.setIndeterminate(true);
             try {
                 setTreeBusy(true);
                 View viewToLoad = getViewToLoad();
@@ -597,31 +612,31 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
     }
 
     public void watch() {
+        if(!SwingUtilities.isEventDispatchThread()) {
+            logger.warn("BrowserPanel.watch called from outside EDT");
+        }
         if (!watchedJobs.isEmpty() ) {
             for (final Map.Entry<String, Job> entry : watchedJobs.entrySet()) {
                 final Job job = entry.getValue();
                 final Build lastBuild = job.getLastBuild();
-                new SwingWorker<Build, Void>(){
+                new Task.Backgroundable(project,"Jenkins build watch", true, JenkinsLoadingTaskOption.INSTANCE){
+
+                    private Build build;
+
                     @Override
-                    protected void done() {
-                        try {
-                            Build build = get();
-                            if (lastBuild.isBuilding() && !build.isBuilding()) {
-                                notifyInfoJenkinsToolWindow(String.format("Status of build for Changelist \"%s\" is %s", entry, build.getStatus().getStatus()));
-                            }
-                            job.setLastBuild(build);
-                        } catch (InterruptedException e) {
-                            logger.log(Level.WARN, "Interrupted while trying to update job status", e);
-                        } catch (ExecutionException e) {
-                            logger.log(Level.WARN, "Exception occured while trying to update job status", e);
+                    public void onSuccess() {
+                        if (lastBuild.isBuilding() && !build.isBuilding()) {
+                            notifyInfoJenkinsToolWindow(String.format("Status of build for Changelist \"%s\" is %s", entry, build.getStatus().getStatus()));
                         }
+                        job.setLastBuild(build);
                     }
 
                     @Override
-                    protected Build doInBackground() throws Exception {
-                        return requestManager.loadBuild(lastBuild.getUrl());
+                    public void run(@NotNull ProgressIndicator indicator)  {
+                        indicator.setIndeterminate(true);
+                        build = requestManager.loadBuild(lastBuild.getUrl());
                     }
-                }.execute();
+                }.queue();
             }
         }
     }

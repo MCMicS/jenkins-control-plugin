@@ -68,12 +68,7 @@ public class RssLogic implements Disposable {
         refreshRssBuildsJob = new Runnable() {
             @Override
             public void run() {
-                GuiUtil.runInSwingThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        new LoadLatestBuildsJob(project, true).queue();
-                    }
-                });
+                GuiUtil.runInSwingThread(new LoadLatestBuildsJob(project, true));
             }
         };
     }
@@ -212,6 +207,7 @@ public class RssLogic implements Disposable {
 
         @Override
         public void run(@NotNull ProgressIndicator indicator) {
+            indicator.setIndeterminate(true);
             final Map<String, Build> finishedBuilds;
             try {
                 finishedBuilds = loadAndReturnNewLatestBuilds();

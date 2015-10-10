@@ -32,6 +32,9 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+/**
+ * Jenkins status bar widget
+ */
 public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidget {
 
     private final Project project;
