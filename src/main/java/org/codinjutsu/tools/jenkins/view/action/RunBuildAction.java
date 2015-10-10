@@ -55,7 +55,7 @@ public class RunBuildAction extends AnAction implements DumbAware {
         final BrowserPanel browserPanel = BrowserPanel.getInstance(project);
         try {
             final Job job = browserPanel.getSelectedJob();
-            new Task.Backgroundable(project, "Stopping build", false) {
+            new Task.Backgroundable(project, "Running build", false) {
 
                 @Override
                 public void onSuccess() {

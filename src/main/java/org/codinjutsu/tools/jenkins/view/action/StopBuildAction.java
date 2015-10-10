@@ -49,8 +49,8 @@ public class StopBuildAction extends AnAction implements DumbAware {
 
                 @Override
                 public void run(ProgressIndicator progressIndicator) {
-                    RequestManager requestManager = browserPanel.getJenkinsManager();
-                    requestManager.stopBuild(job.getLastBuild().getUrl());
+                    RequestManager requestManager = RequestManager.getInstance(project);
+                    requestManager.stopBuild(job.getLastBuild());
                 }
             }.queue();
 

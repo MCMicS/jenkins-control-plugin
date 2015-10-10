@@ -270,7 +270,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                returnJob = requestManager.loadJob(job.getUrl());
+                returnJob = requestManager.loadJob(job);
             }
 
             @Override
@@ -470,7 +470,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         if (currentSelectedView instanceof FavoriteView) {
             jobList = requestManager.loadFavoriteJobs(jenkinsSettings.getFavoriteJobs());
         } else {
-            jobList = requestManager.loadJenkinsView(currentSelectedView.getUrl());
+            jobList = requestManager.loadJenkinsView(currentSelectedView);
         }
 
         jenkinsSettings.setLastSelectedView(currentSelectedView.getName());
@@ -585,7 +585,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
                     @Override
                     public void run(@NotNull ProgressIndicator indicator) {
                         indicator.setIndeterminate(true);
-                        build = requestManager.loadBuild(lastBuild.getUrl());
+                        build = requestManager.loadBuild(lastBuild);
                     }
                 }.queue();
             }
