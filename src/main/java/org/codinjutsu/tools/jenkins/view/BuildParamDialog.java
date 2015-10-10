@@ -16,7 +16,10 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
+import com.intellij.openapi.ui.ComboBox;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
@@ -30,8 +33,10 @@ import java.awt.event.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 public class BuildParamDialog extends JDialog {
+    private static final Logger logger = Logger.getLogger(BuildParamDialog.class);
     private static final String MISSING_NAME_LABEL = "<Missing Name>";
     private static final Icon ERROR_ICON = GuiUtil.loadIcon("error.png");
     private JPanel contentPane;
@@ -181,14 +186,30 @@ public class BuildParamDialog extends JDialog {
     }
 
     private void onOK() {
-        try {
-            requestManager.runParameterizedBuild(job, configuration, getParamValueMap());
-            dispose();
-            runBuildCallback.notifyOnOk(job);
-        } catch (Exception ex) {
-            runBuildCallback.notifyOnError(job, ex);
-        }
+        final Map<String, String> paramValueMap = getParamValueMap();
 
+            new SwingWorker<Void, Void>(){
+                @Override
+                protected Void doInBackground() throws Exception {
+                    requestManager.runParameterizedBuild(job, configuration, paramValueMap);
+                    return null;
+                }
+
+                @Override
+                protected void done() {
+                    dispose();
+                    try {
+                        get();
+                        runBuildCallback.notifyOnOk(job);
+                    } catch (InterruptedException e) {
+                        logger.log(Level.WARN, "Exception occured while...", e);
+                    } catch (ExecutionException e) {
+                        runBuildCallback.notifyOnError(job, e);
+                        logger.log(Level.WARN, "Exception occured while trying to invoke build", e);
+                    }
+
+                }
+            }.execute();
     }
 
     private void onCancel() {
@@ -220,7 +241,7 @@ public class BuildParamDialog extends JDialog {
     }
 
     private JComboBox createComboBox(JobParameter jobParameter, String defaultValue) {
-        JComboBox comboBox = new JComboBox(jobParameter.getValues().toArray());
+        ComboBox comboBox = new ComboBox(jobParameter.getValues().toArray());
         if (StringUtils.isNotEmpty(defaultValue)) {
             comboBox.setSelectedItem(defaultValue);
         }
