@@ -64,7 +64,7 @@ public class CreatePatchAndBuildAction extends AnAction {
 
     @Override
     public void update(AnActionEvent event) {
-        boolean enabled = true; //FIXME recalculate after login
+        boolean enabled = false;
         project = ActionUtil.getProject(event);
         DataContext dataContext = event.getDataContext();
 

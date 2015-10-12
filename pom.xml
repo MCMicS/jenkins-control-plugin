@@ -17,7 +17,7 @@
         <intellij.sdk.name>133.193</intellij.sdk.name>
         <intellij.sdk.version>13.0</intellij.sdk.version>
 
-        <intellij.lib.path>/home/dboissier/applications/idea-IC-133.193/lib</intellij.lib.path>
+        <intellij.lib.path>C:\Program Files (x86)\JetBrains\IntelliJ IDEA 14.1.3\lib</intellij.lib.path>
 
         <release.dir>file:////home/dboissier/incubator/distribution/maven/m2/inhouse</release.dir>
         <snapshot.dir>file:///home/dboissier/incubator/distribution/maven/m2/inhouse-snapshot</snapshot.dir>
@@ -48,17 +48,18 @@
     </developers>
 
     <dependencies>
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>2.4</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>commons-lang</groupId>-->
+            <!--<artifactId>commons-lang</artifactId>-->
+            <!--<version>2.4</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>1.2.14</version>
+            <scope>provided</scope>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>com.intellij</groupId>
             <artifactId>forms_rt</artifactId>
             <version>${intellij.sdk.version}</version>
@@ -72,7 +73,7 @@
             <groupId>com.intellij</groupId>
             <artifactId>idea</artifactId>
             <version>${intellij.sdk.version}</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
@@ -83,6 +84,7 @@
                     <artifactId>commons-logging</artifactId>
                 </exclusion>
             </exclusions>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>

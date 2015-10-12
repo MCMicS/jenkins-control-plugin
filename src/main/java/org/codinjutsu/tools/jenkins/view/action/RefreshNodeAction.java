@@ -48,7 +48,6 @@ public class RefreshNodeAction extends AnAction implements DumbAware {
 
     @Override
     public void update(AnActionEvent event) {
-        //FIXME should be enabled when build is configured
-//        event.getPresentation().setEnabled(!browserPanel.getJenkins().getJobs().isEmpty());
+        event.getPresentation().setEnabled(browserPanel.isConfigured());
     }
 }

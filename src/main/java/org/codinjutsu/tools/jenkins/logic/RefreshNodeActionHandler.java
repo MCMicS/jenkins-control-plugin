@@ -17,7 +17,7 @@ public class RefreshNodeActionHandler {
             @Override
             public void afterLogin(Project project) {
                 BrowserPanel browser = BrowserPanel.getInstance(project);
-                browser.refreshCurrentView();
+                browser.postAuthenticationInitialization();
             }
         });
     }

@@ -151,12 +151,10 @@ public class RequestManager implements RequestManagerInterface {
         return jsonParser.createJob(jenkinsJobData);
     }
 
-    private boolean stopBuild(String jenkinsBuildUrl){
-        if (handleNotYetLoggedInState()) return false;
+    private void stopBuild(String jenkinsBuildUrl){
+        if (handleNotYetLoggedInState()) return ;
         URL url = urlBuilder.createStopBuildUrl(jenkinsBuildUrl);
         String jenkinsJobData = securityClient.execute(url);
-        return true;
-//FIXME parse real result        return jsonParser.createJob(jenkinsJobData);
     }
 
     private Build loadBuild(String jenkinsBuildUrl) {
@@ -227,9 +225,10 @@ public class RequestManager implements RequestManagerInterface {
     }
 
     @Override
-    public boolean stopBuild(Build build) {
-        return stopBuild(build.getUrl());
+    public void stopBuild(Build build) {
+        stopBuild(build.getUrl());
     }
+
     @Override
     public Job loadJob(Job job){
         return loadJob(job.getUrl());

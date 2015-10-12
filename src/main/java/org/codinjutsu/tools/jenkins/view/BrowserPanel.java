@@ -357,7 +357,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         if (!SwingUtilities.isEventDispatchThread()) {
             logger.warn("BrowserPanel.reloadConfiguration called from outside of EDT");
         }
-        if (!jenkinsAppSettings.isServerUrlSet()) { //run when there is not configuration
+        if (!isConfigured()) { //run when there is not configuration
             JenkinsWidget.getInstance(project).updateStatusIcon(BuildStatusAggregator.EMPTY);
             DefaultTreeModel model = (DefaultTreeModel) jobTree.getModel();
             DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
@@ -396,7 +396,9 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         }.queue();
 
 
-        //fixme this part should happen after login
+    }
+
+    public void postAuthenticationInitialization() {
         if (!jenkinsSettings.getFavoriteJobs().isEmpty()) {
             createFavoriteViewIfNecessary();
         }
@@ -428,7 +430,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         actionGroup.add(new SelectViewAction(this));
         actionGroup.add(new RefreshNodeAction(this));
         actionGroup.add(new RunBuildAction(this));
-        actionGroup.add(new StopBuildAction(this)); //FIXME stopping build shouldn't be available in this version
+        actionGroup.add(new StopBuildAction(this));
         actionGroup.add(new SortByStatusAction(this));
         actionGroup.add(new RefreshRssAction());
         actionGroup.addSeparator();
@@ -442,7 +444,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         DefaultActionGroup popupGroup = new DefaultActionGroup("JenkinsPopupAction", true);
 
         popupGroup.add(new RunBuildAction(this));
-        popupGroup.add(new StopBuildAction(this));//FIXME stopping build shouldn't be available in this version
+        popupGroup.add(new StopBuildAction(this));
         //TODO add show log
         popupGroup.addSeparator();
         popupGroup.add(new SetJobAsFavoriteAction(this));
@@ -564,8 +566,9 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
     }
 
-
-
+    public boolean isConfigured() {
+        return jenkinsAppSettings.isServerUrlSet();
+    }
 
 
     private class LoadSelectedViewJob extends Task.Backgroundable {

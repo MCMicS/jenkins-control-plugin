@@ -62,7 +62,7 @@ public class StopBuildAction extends AnAction implements DumbAware {
 
     @Override
     public void update(AnActionEvent event) {
-        Job selectedJob = browserPanel.getSelectedJob();
+        Job selectedJob = null; //browserPanel.getSelectedJob(); //temporarily disabled
         event.getPresentation().setVisible(selectedJob != null && selectedJob.isBuildable());
     }
 }

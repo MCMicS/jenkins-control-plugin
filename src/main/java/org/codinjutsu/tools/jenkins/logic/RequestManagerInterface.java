@@ -31,7 +31,7 @@ public interface RequestManagerInterface {
 
     List<Job> loadFavoriteJobs(List<JenkinsSettings.FavoriteJob> favoriteJobs);
 
-    boolean stopBuild(Build build);
+    void stopBuild(Build build);
 
     Job loadJob(Job job);
 
