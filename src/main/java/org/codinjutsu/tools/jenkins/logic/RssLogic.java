@@ -51,7 +51,6 @@ public class RssLogic implements Disposable {
     private final Project project;
     private final JenkinsAppSettings jenkinsAppSettings;
     private RequestManager requestManager;
-
     private Map<String, Build> currentBuildMap = new HashMap<String, Build>();
 
     private final Runnable refreshRssBuildsJob;
@@ -68,18 +67,12 @@ public class RssLogic implements Disposable {
         refreshRssBuildsJob = new Runnable() {
             @Override
             public void run() {
-                GuiUtil.runInSwingThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        new LoadLatestBuildsJob(project, true).queue();
-                    }
-                });
+                GuiUtil.runInSwingThread(new LoadLatestBuildsJob(project, true));
             }
         };
     }
 
     public void init() {
-        loadLatestBuilds(false);
     }
 
     public void loadLatestBuilds(boolean shouldDisplayResult) {
@@ -212,6 +205,7 @@ public class RssLogic implements Disposable {
 
         @Override
         public void run(@NotNull ProgressIndicator indicator) {
+            indicator.setIndeterminate(true);
             final Map<String, Build> finishedBuilds;
             try {
                 finishedBuilds = loadAndReturnNewLatestBuilds();

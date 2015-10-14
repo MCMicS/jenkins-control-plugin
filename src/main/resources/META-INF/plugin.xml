@@ -1,9 +1,9 @@
 <idea-plugin>
     <name>Jenkins Control Plugin</name>
     <description>A Jenkins Plugin for Intellij</description>
-    <version>0.9.1</version>
+    <version>0.9.3-SNAPSHOT</version>
     <vendor email="david.boissier [at] gmail [dot] com" url="http://codinjutsu.blogspot.com">David Boissier and Yuri Novitsky (support of PPP)</vendor>
-    <idea-version since-build="117.963" until-build="129.99999"/>
+    <idea-version since-build="131.00000"/>
 
     <depends>com.intellij.modules.lang</depends>
 
@@ -25,6 +25,8 @@
         <projectService serviceInterface="org.codinjutsu.tools.jenkins.logic.UrlBuilder" serviceImplementation="org.codinjutsu.tools.jenkins.logic.UrlBuilder"/>
         <projectService serviceInterface="org.codinjutsu.tools.jenkins.view.BrowserPanel" serviceImplementation="org.codinjutsu.tools.jenkins.view.BrowserPanel"/>
         <projectService serviceInterface="org.codinjutsu.tools.jenkins.logic.RssLogic" serviceImplementation="org.codinjutsu.tools.jenkins.logic.RssLogic"/>
+        <projectService serviceInterface="org.codinjutsu.tools.jenkins.logic.RefreshNodeActionHandler" serviceImplementation="org.codinjutsu.tools.jenkins.logic.RefreshNodeActionHandler"/>
+        <projectService serviceInterface="org.codinjutsu.tools.jenkins.logic.RSSLoaderActionHandler" serviceImplementation="org.codinjutsu.tools.jenkins.logic.RSSLoaderActionHandler"/>
     </extensions>
 
     <actions>
@@ -34,7 +36,7 @@
     </actions>
 
     <change-notes><![CDATA[
-<a href="https://github.com/dboissier/jenkins-control-plugin/blob/jenkins-control-plugin-0.9.1/README.md">Read Me</a><br/>
-<a href="https://github.com/dboissier/jenkins-control-plugin/blob/jenkins-control-plugin-0.9.1/CHANGELOG.txt">Changelog</a>
+<a href="https://github.com/dboissier/jenkins-control-plugin/blob/jenkins-control-plugin-0.9.3/README.md">Read Me</a><br/>
+<a href="https://github.com/dboissier/jenkins-control-plugin/blob/jenkins-control-plugin-0.9.3/CHANGELOG.txt">Changelog</a>
 ]]> </change-notes>
 </idea-plugin>

@@ -75,11 +75,11 @@ public class UploadPatchToJob extends AnAction implements DumbAware {
 
                     JenkinsAppSettings settings = JenkinsAppSettings.getSafeInstance(project);
 
-                    final VirtualFile virtualFile =
-                        prepareFile(browserPanel, FileChooser.chooseFile(
-                                browserPanel,
-                                new FileChooserDescriptor(true, false, false, false, false, false))
-                        , settings, job);
+                    final VirtualFile virtualFile = prepareFile(
+                            browserPanel,
+                            FileChooser.chooseFile(new FileChooserDescriptor(true, false, false, false, false, false), browserPanel, project, null),
+                            settings,
+                            job);
 
                     if ((null != virtualFile)) {
                         if (virtualFile.exists()) {
@@ -121,7 +121,7 @@ public class UploadPatchToJob extends AnAction implements DumbAware {
             String suffix = settings.getSuffix();
             suffix = suffix.replace(SUFFIX_JOB_NAME_MACROS, job.getName());
             StringBuilder builder = new StringBuilder();
-            while((line = bufferReader.readLine()) != null) {
+            while ((line = bufferReader.readLine()) != null) {
                 if (line.startsWith("Index: ") && !line.startsWith("Index: " + suffix)) {
                     line = line.replaceFirst("^(Index: )(.+)", "$1" + suffix + "$2");
                 }

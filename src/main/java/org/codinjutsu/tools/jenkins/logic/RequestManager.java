@@ -20,21 +20,27 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.model.Job;
+import org.codinjutsu.tools.jenkins.model.View;
 import org.codinjutsu.tools.jenkins.security.SecurityClient;
 import org.codinjutsu.tools.jenkins.security.SecurityClientFactory;
 
+import javax.swing.*;
 import java.net.URL;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class RequestManager {
+public class RequestManager implements RequestManagerInterface {
+
+    private static final Logger logger = Logger.getLogger(RequestManager.class);
 
     private static final String BUILDHIVE_CLOUDBEES = "buildhive";
 
@@ -62,7 +68,9 @@ public class RequestManager {
         this.securityClient = securityClient;
     }
 
+    @Override
     public Jenkins loadJenkinsWorkspace(JenkinsAppSettings configuration) {
+        if (handleNotYetLoggedInState()) return null;
         URL url = urlBuilder.createJenkinsWorkspaceUrl(configuration);
         String jenkinsWorkspaceData = securityClient.execute(url);
 
@@ -93,7 +101,14 @@ public class RequestManager {
         return jenkinsPort != -1;
     }
 
+    /**
+     * Note! needs to be called after plugin is logged in
+     * @param configuration
+     * @return
+     */
+    @Override
     public Map<String, Build> loadJenkinsRssLatestBuilds(JenkinsAppSettings configuration) {
+        if (handleNotYetLoggedInState()) return Collections.emptyMap();
         URL url = urlBuilder.createRssLatestUrl(configuration.getServerUrl());
 
         String rssData = securityClient.execute(url);
@@ -101,7 +116,8 @@ public class RequestManager {
         return rssParser.loadJenkinsRssLatestBuilds(rssData);
     }
 
-    public List<Job> loadJenkinsView(String viewUrl) {
+    private List<Job> loadJenkinsView(String viewUrl) {
+        if (handleNotYetLoggedInState()) return Collections.emptyList();
         URL url = urlBuilder.createViewUrl(jenkinsPlateform, viewUrl);
         String jenkinsViewData = securityClient.execute(url);
         if (jenkinsPlateform.equals(JenkinsPlateform.CLASSIC)) {
@@ -111,19 +127,46 @@ public class RequestManager {
         }
     }
 
-    public Job loadJob(String jenkinsJobUrl) {
+    private boolean handleNotYetLoggedInState() {
+        boolean threadStack = false;
+        boolean result = false;
+        if(SwingUtilities.isEventDispatchThread()){
+            logger.warn("RequestManager.handleNotYetLoggedInState called from EDT");
+            threadStack = true;
+        }
+        if(securityClient == null){
+            logger.warn("Not yet logged in, all calls until login will fail");
+            threadStack = true;
+            result = true;
+        }
+        if(threadStack)
+            Thread.dumpStack();
+        return result;
+    }
+
+    private Job loadJob(String jenkinsJobUrl) {
+        if (handleNotYetLoggedInState()) return null;
         URL url = urlBuilder.createJobUrl(jenkinsJobUrl);
         String jenkinsJobData = securityClient.execute(url);
         return jsonParser.createJob(jenkinsJobData);
     }
 
-    public Build loadBuild(String jenkinsBuildUrl) {
+    private void stopBuild(String jenkinsBuildUrl){
+        if (handleNotYetLoggedInState()) return ;
+        URL url = urlBuilder.createStopBuildUrl(jenkinsBuildUrl);
+        String jenkinsJobData = securityClient.execute(url);
+    }
+
+    private Build loadBuild(String jenkinsBuildUrl) {
+        if (handleNotYetLoggedInState()) return null;
         URL url = urlBuilder.createBuildUrl(jenkinsBuildUrl);
         String jenkinsJobData = securityClient.execute(url);
         return jsonParser.createBuild(jenkinsJobData);
     }
 
+    @Override
     public void runBuild(Job job, JenkinsAppSettings configuration, Map<String, VirtualFile> files) {
+        if (handleNotYetLoggedInState()) return;
         if (job.hasParameters()) {
             if (files.size() > 0) {
                 for(String key: files.keySet()) {
@@ -137,16 +180,21 @@ public class RequestManager {
         runBuild(job, configuration);
     }
 
+    @Override
     public void runBuild(Job job, JenkinsAppSettings configuration) {
+        if (handleNotYetLoggedInState()) return ;
         URL url = urlBuilder.createRunJobUrl(job.getUrl(), configuration);
         securityClient.execute(url);
     }
 
+    @Override
     public void runParameterizedBuild(Job job, JenkinsAppSettings configuration, Map<String, String> paramValueMap) {
+        if (handleNotYetLoggedInState()) return ;
         URL url = urlBuilder.createRunParameterizedJobUrl(job.getUrl(), configuration, paramValueMap);
         securityClient.execute(url);
     }
 
+    @Override
     public void authenticate(JenkinsAppSettings jenkinsAppSettings, JenkinsSettings jenkinsSettings) {
         if (jenkinsSettings.isSecurityMode()) {
             securityClient = SecurityClientFactory.basic(jenkinsSettings.getUsername(), jenkinsSettings.getPassword(), jenkinsSettings.getCrumbData());
@@ -156,6 +204,7 @@ public class RequestManager {
         securityClient.connect(urlBuilder.createAuthenticationUrl(jenkinsAppSettings.getServerUrl()));
     }
 
+    @Override
     public void authenticate(String serverUrl, String username, String password, String crumbData) {
         if (StringUtils.isNotBlank(username)) {
             securityClient = SecurityClientFactory.basic(username, password, crumbData);
@@ -165,11 +214,33 @@ public class RequestManager {
         securityClient.connect(urlBuilder.createAuthenticationUrl(serverUrl));
     }
 
+    @Override
     public List<Job> loadFavoriteJobs(List<JenkinsSettings.FavoriteJob> favoriteJobs) {
+        if (handleNotYetLoggedInState()) return Collections.emptyList();
         List<Job> jobs = new LinkedList<Job>();
         for (JenkinsSettings.FavoriteJob favoriteJob : favoriteJobs) {
             jobs.add(loadJob(favoriteJob.url));
         }
         return jobs;
+    }
+
+    @Override
+    public void stopBuild(Build build) {
+        stopBuild(build.getUrl());
+    }
+
+    @Override
+    public Job loadJob(Job job){
+        return loadJob(job.getUrl());
+    }
+
+    @Override
+    public List<Job>loadJenkinsView(View view){
+        return loadJenkinsView(view.getUrl());
+    }
+
+    @Override
+    public Build loadBuild(Build build){
+        return loadBuild(build.getUrl());
     }
 }
