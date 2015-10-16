@@ -48,18 +48,18 @@
     </developers>
 
     <dependencies>
-        <!--<dependency>-->
-            <!--<groupId>commons-lang</groupId>-->
-            <!--<artifactId>commons-lang</artifactId>-->
-            <!--<version>2.4</version>-->
-        <!--</dependency>-->
+        <!--<dependency> provided by velocity.jar from intellij
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.4</version>
+        </dependency>-->
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>1.2.14</version>
             <scope>provided</scope>
         </dependency>
-        <!--<dependency>
+        <dependency>
             <groupId>com.intellij</groupId>
             <artifactId>forms_rt</artifactId>
             <version>${intellij.sdk.version}</version>

@@ -2,7 +2,11 @@
     <name>Jenkins Control Plugin</name>
     <description>A Jenkins Plugin for Intellij</description>
     <version>0.9.3-SNAPSHOT</version>
-    <vendor email="david.boissier [at] gmail [dot] com" url="http://codinjutsu.blogspot.com">David Boissier and Yuri Novitsky (support of PPP)</vendor>
+    <vendor email="david.boissier [at] gmail [dot] com" url="http://codinjutsu.blogspot.com">
+        David Boissier,
+        Yuri Novitsky (support of PPP),
+        Programisci.eu (bugfix)
+    </vendor>
     <idea-version since-build="131.00000"/>
 
     <depends>com.intellij.modules.lang</depends>
@@ -36,7 +40,8 @@
     </actions>
 
     <change-notes><![CDATA[
-<a href="https://github.com/dboissier/jenkins-control-plugin/blob/jenkins-control-plugin-0.9.3/README.md">Read Me</a><br/>
-<a href="https://github.com/dboissier/jenkins-control-plugin/blob/jenkins-control-plugin-0.9.3/CHANGELOG.txt">Changelog</a>
+<a href="http://programisci.eu/en/intellij-jenkins-plugin/" > Note </a>
+<a href="https://github.com/programisci/jenkins-control-plugin/blob/jenkins-control-plugin-0.9.3/README.md">Read Me</a><br/>
+<a href="https://github.com/programisci/jenkins-control-plugin/blob/jenkins-control-plugin-0.9.3/CHANGELOG.txt">Changelog</a>
 ]]> </change-notes>
 </idea-plugin>

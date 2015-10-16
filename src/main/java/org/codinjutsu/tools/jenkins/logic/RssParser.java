@@ -68,7 +68,7 @@ public class RssParser {
             LOG.error("Error during analyzing the Jenkins data.", e);
             throw new RuntimeException("Error during analyzing the Jenkins data.");
         } finally {
-            IOUtils.closeQuietly(jenkinsDataReader);
+            IOUtils.closeQuietly(jenkinsDataReader);//FIXME use commons-io for test only, this is unnecessary dependency
         }
     }
 

@@ -3,7 +3,7 @@
   <component name="EntryPointsManager">
     <entry_points version="2.0" />
   </component>
-  <component name="IdProvider" IDEtalkID="E7320B7B4C9E03CA98B38E98B821EFF5" />
+  <component name="IdProvider" IDEtalkID="A4A5995A96F88EEB913431AEF19C618B" />
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>
@@ -21,5 +21,7 @@
     <ConfirmationsSetting value="0" id="Add" />
     <ConfirmationsSetting value="0" id="Remove" />
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="false" assert-keyword="true" jdk-15="true" project-jdk-name="IntelliJ IDEA IU-141.2735.5" project-jdk-type="IDEA JDK" />
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" assert-keyword="true" jdk-15="true" project-jdk-name="IntelliJ IDEA IU-141.2735.5" project-jdk-type="IDEA JDK">
+    <output url="file://$PROJECT_DIR$/classes" />
+  </component>
 </project>
