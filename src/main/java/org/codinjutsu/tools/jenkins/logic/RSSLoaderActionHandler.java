@@ -7,6 +7,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBus;
+import org.codinjutsu.tools.jenkins.JenkinsWindowManager;
 
 public class RSSLoaderActionHandler {
     public RSSLoaderActionHandler() {
@@ -16,7 +17,8 @@ public class RSSLoaderActionHandler {
             @Override
             public void afterLogin(Project project) {
                 RssLogic rssLogic = RssLogic.getInstance(project);
-                rssLogic.loadLatestBuilds(false);
+                rssLogic.loadLatestBuilds(false);//FIXME is this what should be called
+                rssLogic.initScheduledJobs(JenkinsWindowManager.getInstance(project).getScheduledThreadPoolExecutor());
             }
         });
     }

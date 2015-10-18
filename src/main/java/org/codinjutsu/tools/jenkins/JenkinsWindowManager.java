@@ -39,7 +39,7 @@ public class JenkinsWindowManager {
     public static final String JENKINS_BROWSER = "Jenkins";
     private final Project project;
 
-    private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(2);
+    private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(2); //FIXME probably single thread would be enough there is no reason to update all thins all the time
 
 
     public static JenkinsWindowManager getInstance(Project project) {
@@ -65,14 +65,14 @@ public class JenkinsWindowManager {
 
         final RssLogic rssLogic = RssLogic.getInstance(project);
 
+        //FIXME jobs should be scheduled after successfull authentication
         StartupManager.getInstance(project).registerPostStartupActivity(new DumbAwareRunnable() {
             @Override
             public void run() {
-
                 browserPanel.init();
-                browserPanel.initScheduledJobs(scheduledThreadPoolExecutor);
+//                browserPanel.initScheduledJobs(scheduledThreadPoolExecutor);
                 rssLogic.init();
-                rssLogic.initScheduledJobs(scheduledThreadPoolExecutor);
+//                rssLogic.initScheduledJobs(scheduledThreadPoolExecutor);
             }
         });
     }
@@ -85,11 +85,16 @@ public class JenkinsWindowManager {
         scheduledThreadPoolExecutor.shutdown();
     }
 
+    //FIXME find different way to provide that
+    public ScheduledThreadPoolExecutor getScheduledThreadPoolExecutor() {
+        return scheduledThreadPoolExecutor;
+    }
+
     public void reloadConfiguration() {
         BrowserPanel browserPanel = BrowserPanel.getInstance(project);
         browserPanel.reloadConfiguration();
-        browserPanel.initScheduledJobs(scheduledThreadPoolExecutor);
+//        browserPanel.initScheduledJobs(scheduledThreadPoolExecutor);//FIXME probably should be scheduled automatically after successful authentication
 
-        RssLogic.getInstance(project).initScheduledJobs(scheduledThreadPoolExecutor);
+//        RssLogic.getInstance(project).initScheduledJobs(scheduledThreadPoolExecutor);//FIXME probably should be scheduled automatically after successful authentication
     }
 }
