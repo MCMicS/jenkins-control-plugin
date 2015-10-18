@@ -21,14 +21,15 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.multipart.*;
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.httpclient.methods.multipart.FilePart;
+import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
+import org.apache.commons.httpclient.methods.multipart.Part;
+import org.apache.commons.httpclient.methods.multipart.StringPart;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.model.VirtualFilePartSource;
+import org.codinjutsu.tools.jenkins.util.IOUtils;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -36,7 +37,6 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 class DefaultSecurityClient implements SecurityClient {
@@ -46,7 +46,7 @@ class DefaultSecurityClient implements SecurityClient {
     private static final int DEFAULT_SOCKET_TIMEOUT = 10000;
     private static final int DEFAULT_CONNECTION_TIMEOUT = 10000;
 
-    String crumbData;
+    protected String crumbData;
 
     protected final HttpClient httpClient;
     protected Map<String, VirtualFile> files = new HashMap<String, VirtualFile>();
@@ -106,7 +106,7 @@ class DefaultSecurityClient implements SecurityClient {
 
         post = addFiles(post);
 
-        InputStream inputStream = null;
+
         try {
             if (files.isEmpty()) {
                 httpClient.getParams().setParameter("http.socket.timeout", DEFAULT_SOCKET_TIMEOUT);
@@ -116,13 +116,11 @@ class DefaultSecurityClient implements SecurityClient {
                 httpClient.getParams().setParameter("http.connection.timeout", 0);
             }
 
-
             int statusCode = httpClient.executeMethod(post);
-
-            inputStream = post.getResponseBodyAsStream();
-            String responseBody = IOUtils.toString(inputStream, post.getResponseCharSet());
-
-
+            final String responseBody;
+            try(InputStream inputStream = post.getResponseBodyAsStream();) {
+                responseBody = IOUtils.toString(inputStream, post.getResponseCharSet());
+            }
             checkResponse(statusCode, responseBody);
 
             if (HttpURLConnection.HTTP_OK == statusCode) {
@@ -138,7 +136,6 @@ class DefaultSecurityClient implements SecurityClient {
         } catch (IOException ioEx) {
             throw new ConfigurationException(String.format("IO Error during method execution '%s': %s", url, ioEx.getMessage()), ioEx);
         } finally {
-            IOUtils.closeQuietly(inputStream);
             post.releaseConnection();
         }
     }

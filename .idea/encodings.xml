@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
+    <file url="jar://C:/Program Files/Java/jdk1.8.0_60/src.zip!/java/io/Reader.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../intellij/ideaIC-14.1.4-src/ideaIC-141.1532.4/platform/core-api/src/com/intellij/openapi/components/ServiceManager.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/test/resources/org/codinjutsu/tools/jenkins/util/IOTest/test-data.cp1250" charset="windows-1250" />
   </component>
 </project>

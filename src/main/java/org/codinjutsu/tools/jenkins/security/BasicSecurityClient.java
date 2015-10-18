@@ -20,9 +20,9 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
+import org.codinjutsu.tools.jenkins.util.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,7 +59,7 @@ class BasicSecurityClient extends DefaultSecurityClient {
         httpClient.getParams().setAuthenticationPreemptive(true);
 
         PostMethod post = new PostMethod(jenkinsUrl.toString());
-        InputStream inputStream = null;
+
         try {
             if (isCrumbDataSet()) {
                 post.addRequestHeader(CRUMB_NAME, crumbData);
@@ -67,8 +67,10 @@ class BasicSecurityClient extends DefaultSecurityClient {
 
             post.setDoAuthentication(true);
             int responseCode = httpClient.executeMethod(post);
-            inputStream = post.getResponseBodyAsStream();
-            String responseBody = IOUtils.toString(inputStream, post.getResponseCharSet());
+            final String responseBody;
+            try(InputStream inputStream = post.getResponseBodyAsStream();) {
+                responseBody = IOUtils.toString(inputStream, post.getResponseCharSet());
+            }
             if (responseCode != HttpURLConnection.HTTP_OK) {
                 checkResponse(responseCode, responseBody);
             }
@@ -77,7 +79,6 @@ class BasicSecurityClient extends DefaultSecurityClient {
         } catch (IOException ioEx) {
             throw new ConfigurationException(String.format("IO Error during method execution '%s': %s", jenkinsUrl.toString(), ioEx.getMessage()), ioEx);
         } finally {
-            IOUtils.closeQuietly(inputStream);
             post.releaseConnection();
         }
     }

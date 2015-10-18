@@ -16,10 +16,10 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
-import org.apache.commons.io.IOUtils;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.model.View;
+import org.codinjutsu.tools.jenkins.util.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
@@ -161,7 +161,7 @@ public class JenkinsJsonParserTest {
 
     @Test
     public void testBugWithManyParameters() throws Exception {
-        List<Job> actualJobs = jsonParser.createViewJobs(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadJobManyParameters.json")));
+        List<Job> actualJobs = jsonParser.createViewJobs(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadJobManyParameters.json"), "utf-8"));
 
 
         List<Job> expectedJobs = Arrays.asList(

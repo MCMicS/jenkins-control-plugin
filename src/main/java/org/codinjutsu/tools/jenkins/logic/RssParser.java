@@ -16,7 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
-import org.apache.commons.io.IOUtils;
+//import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.model.Build;
@@ -58,8 +58,7 @@ public class RssParser {
             throw new IllegalStateException("Empty XML data");
         }
 
-        Reader jenkinsDataReader = new StringReader(xmlData);
-        try {
+        try(Reader jenkinsDataReader = new StringReader(xmlData)) {
             return new SAXBuilder(false).build(jenkinsDataReader);
         } catch (JDOMException e) {
             LOG.error("Invalid data received from the Jenkins Server. Actual :\n" + xmlData, e);
@@ -67,8 +66,6 @@ public class RssParser {
         } catch (IOException e) {
             LOG.error("Error during analyzing the Jenkins data.", e);
             throw new RuntimeException("Error during analyzing the Jenkins data.");
-        } finally {
-            IOUtils.closeQuietly(jenkinsDataReader);//FIXME use commons-io for test only, this is unnecessary dependency
         }
     }
 
