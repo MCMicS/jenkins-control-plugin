@@ -59,20 +59,18 @@ public class JenkinsWindowManager {
         contentManager.addContent(content);
 
         final StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
-        JenkinsWidget jenkinsWidget = JenkinsWidget.getInstance(project);
+        final JenkinsWidget jenkinsWidget = JenkinsWidget.getInstance(project);
         statusBar.addWidget(jenkinsWidget);
         jenkinsWidget.install(statusBar);
 
         final RssLogic rssLogic = RssLogic.getInstance(project);
 
-        //FIXME jobs should be scheduled after successfull authentication
         StartupManager.getInstance(project).registerPostStartupActivity(new DumbAwareRunnable() {
             @Override
             public void run() {
                 browserPanel.init();
-//                browserPanel.initScheduledJobs(scheduledThreadPoolExecutor);
                 rssLogic.init();
-//                rssLogic.initScheduledJobs(scheduledThreadPoolExecutor);
+                //FIXME authentication shouldn't happen in one of above but in separate class!!!
             }
         });
     }
