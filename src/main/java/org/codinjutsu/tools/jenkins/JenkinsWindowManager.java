@@ -24,13 +24,14 @@ import com.intellij.openapi.wm.*;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.content.ContentManager;
+import org.codinjutsu.tools.jenkins.logic.ExecutorProvider;
+import org.codinjutsu.tools.jenkins.logic.LoginService;
 import org.codinjutsu.tools.jenkins.logic.RssLogic;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.codinjutsu.tools.jenkins.view.JenkinsWidget;
 
 import javax.swing.*;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 public class JenkinsWindowManager {
 
@@ -39,14 +40,11 @@ public class JenkinsWindowManager {
     public static final String JENKINS_BROWSER = "Jenkins";
     private final Project project;
 
-    private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(2); //FIXME probably single thread would be enough there is no reason to update all thins all the time
-
-
     public static JenkinsWindowManager getInstance(Project project) {
         return ServiceManager.getService(project, JenkinsWindowManager.class);
     }
 
-    public JenkinsWindowManager(Project project) {
+    public JenkinsWindowManager(final Project project) {
         this.project = project;
 
         final BrowserPanel browserPanel = BrowserPanel.getInstance(project);
@@ -70,7 +68,7 @@ public class JenkinsWindowManager {
             public void run() {
                 browserPanel.init();
                 rssLogic.init();
-                //FIXME authentication shouldn't happen in one of above but in separate class!!!
+                LoginService.getInstance(project).performAuthentication();
             }
         });
     }
@@ -80,12 +78,7 @@ public class JenkinsWindowManager {
         BrowserPanel.getInstance(project).dispose();
         JenkinsWidget.getInstance(project).dispose();
 
-        scheduledThreadPoolExecutor.shutdown();
-    }
-
-    //FIXME find different way to provide that
-    public ScheduledThreadPoolExecutor getScheduledThreadPoolExecutor() {
-        return scheduledThreadPoolExecutor;
+        ExecutorProvider.getInstance(project).getExecutor().shutdown();
     }
 
     public void reloadConfiguration() {

@@ -81,13 +81,14 @@ public class RssLogic implements Disposable {
         }
     }
 
-    public void initScheduledJobs(ScheduledThreadPoolExecutor scheduledThreadPoolExecutor1) {
+    public void initScheduledJobs() {
+        ScheduledThreadPoolExecutor executor = ExecutorProvider.getInstance(project).getExecutor();
         safeTaskCancel(refreshRssBuildFutureTask);
 
-        scheduledThreadPoolExecutor1.remove(refreshRssBuildsJob);
+        executor.remove(refreshRssBuildsJob);
 
         if (jenkinsAppSettings.isServerUrlSet() && jenkinsAppSettings.getRssRefreshPeriod() > 0) {
-            refreshRssBuildFutureTask = scheduledThreadPoolExecutor1.scheduleWithFixedDelay(refreshRssBuildsJob, jenkinsAppSettings.getRssRefreshPeriod(), jenkinsAppSettings.getRssRefreshPeriod(), TimeUnit.MINUTES);
+            refreshRssBuildFutureTask = executor.scheduleWithFixedDelay(refreshRssBuildsJob, jenkinsAppSettings.getRssRefreshPeriod(), jenkinsAppSettings.getRssRefreshPeriod(), TimeUnit.MINUTES);
         }
     }
 

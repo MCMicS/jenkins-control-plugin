@@ -144,12 +144,13 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         setContent(rootPanel);
     }
 
-    public void initScheduledJobs(ScheduledThreadPoolExecutor scheduledThreadPoolExecutor) {
+    public void initScheduledJobs() {
+        final ScheduledThreadPoolExecutor executor = ExecutorProvider.getInstance(project).getExecutor();
         safeTaskCancel(refreshViewFutureTask);
-        scheduledThreadPoolExecutor.remove(refreshViewJob);
+        executor.remove(refreshViewJob);
 
         if (jenkinsAppSettings.isServerUrlSet() && jenkinsAppSettings.getJobRefreshPeriod() > 0) {
-            refreshViewFutureTask = scheduledThreadPoolExecutor.scheduleWithFixedDelay(refreshViewJob, jenkinsAppSettings.getJobRefreshPeriod(), jenkinsAppSettings.getJobRefreshPeriod(), TimeUnit.MINUTES);
+            refreshViewFutureTask = executor.scheduleWithFixedDelay(refreshViewJob, jenkinsAppSettings.getJobRefreshPeriod(), jenkinsAppSettings.getJobRefreshPeriod(), TimeUnit.MINUTES);
         }
     }
 
@@ -353,12 +354,13 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         return tree;
     }
 
+    //FIXME all calls of this should trigger before login, and login service should be used instead
     public void reloadConfiguration() {
         if (!SwingUtilities.isEventDispatchThread()) {
             logger.warn("BrowserPanel.reloadConfiguration called from outside of EDT");
         }
         if (!isConfigured()) { //run when there is not configuration
-            JenkinsWidget.getInstance(project).updateStatusIcon(BuildStatusAggregator.EMPTY);
+            JenkinsWidget.getInstance(project).updateStatusIcon(BuildStatusAggregator.EMPTY); //FIXME could be handled elsehwere
             DefaultTreeModel model = (DefaultTreeModel) jobTree.getModel();
             DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
             root.removeAllChildren();
@@ -368,34 +370,14 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
             jenkins.update(Jenkins.byDefault());
 
             currentSelectedView = null;
-            jobTree.getEmptyText().setText(UNAVAILABLE);
+            setJobsUnavailable();
             return;
         }
 
-        new Task.Backgroundable(project, "Authenticating jenkins", false, JenkinsLoadingTaskOption.INSTANCE) {
+    }
 
-            private Jenkins jenkinsWorkspace;
-
-            @Override
-            public void onSuccess() {
-                jenkins.update(jenkinsWorkspace);
-                new RefreshBuilds(project);
-            }
-
-            @Override
-            public void onCancel() {
-                jobTree.getEmptyText().setText(UNAVAILABLE);
-            }
-
-            @Override
-            public void run(@NotNull ProgressIndicator indicator) {
-                indicator.setIndeterminate(true);
-                requestManager.authenticate(jenkinsAppSettings, jenkinsSettings);
-                jenkinsWorkspace = requestManager.loadJenkinsWorkspace(jenkinsAppSettings);
-            }
-        }.queue();
-
-
+    public void setJobsUnavailable() {
+        jobTree.getEmptyText().setText(UNAVAILABLE);
     }
 
     public void postAuthenticationInitialization() {
@@ -568,6 +550,10 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
     public boolean isConfigured() {
         return jenkinsAppSettings.isServerUrlSet();
+    }
+
+    public void updateWorkspace(Jenkins jenkinsWorkspace) {
+        jenkins.update(jenkinsWorkspace);
     }
 
 

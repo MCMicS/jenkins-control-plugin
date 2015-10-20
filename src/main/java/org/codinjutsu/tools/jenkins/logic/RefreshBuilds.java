@@ -8,11 +8,14 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBus;
 
+//FIXME don't really like that it does on in constructor, probably this class could be removed
 public class RefreshBuilds {
+
+    @Deprecated
     public RefreshBuilds(Project project) {
         MessageBus myBus = ApplicationManager.getApplication().getMessageBus();
-        RefreshActionNotifier publisher = myBus.syncPublisher(RefreshActionNotifier.USER_LOGGED_IN);
-        publisher.afterLogin(project);
+        SuccessfulAuthenticationNotifier publisher = myBus.syncPublisher(SuccessfulAuthenticationNotifier.USER_LOGGED_IN);
+//        publisher.afterLogin(project);
     }
 
 
