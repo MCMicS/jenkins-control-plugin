@@ -24,7 +24,7 @@ import com.intellij.openapi.wm.*;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.content.ContentManager;
-import org.codinjutsu.tools.jenkins.logic.ExecutorProvider;
+import org.codinjutsu.tools.jenkins.logic.ExecutorService;
 import org.codinjutsu.tools.jenkins.logic.LoginService;
 import org.codinjutsu.tools.jenkins.logic.RssLogic;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
@@ -78,14 +78,10 @@ public class JenkinsWindowManager {
         BrowserPanel.getInstance(project).dispose();
         JenkinsWidget.getInstance(project).dispose();
 
-        ExecutorProvider.getInstance(project).getExecutor().shutdown();
+        ExecutorService.getInstance(project).getExecutor().shutdown();
     }
 
     public void reloadConfiguration() {
-        BrowserPanel browserPanel = BrowserPanel.getInstance(project);
-        browserPanel.reloadConfiguration();
-//        browserPanel.initScheduledJobs(scheduledThreadPoolExecutor);//FIXME probably should be scheduled automatically after successful authentication
-
-//        RssLogic.getInstance(project).initScheduledJobs(scheduledThreadPoolExecutor);//FIXME probably should be scheduled automatically after successful authentication
+        LoginService.getInstance(project).performAuthentication();
     }
 }

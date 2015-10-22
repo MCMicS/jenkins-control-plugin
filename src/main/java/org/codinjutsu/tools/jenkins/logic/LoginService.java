@@ -10,7 +10,6 @@ import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
-import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.jetbrains.annotations.NotNull;
 
 
@@ -18,40 +17,40 @@ public class LoginService {
 
     private static final Logger logger = Logger.getLogger(LoginService.class);
     private final Project project;
-    private final SuccessfulAuthenticationNotifier publisher;
+    private final AuthenticationNotifier publisher;
     private final RequestManager requestManager;
     private final JenkinsSettings jenkinsSettings;
 
     public LoginService(final Project project) {
         this.project = project;
         final MessageBus myBus = ApplicationManager.getApplication().getMessageBus();
-        publisher = myBus.syncPublisher(SuccessfulAuthenticationNotifier.USER_LOGGED_IN);
+        publisher = myBus.syncPublisher(AuthenticationNotifier.USER_LOGGED_IN);
         requestManager = RequestManager.getInstance(project);
         jenkinsSettings = JenkinsSettings.getSafeInstance(project);
     }
 
     public void performAuthentication() {
+        if(!ApplicationManager.getApplication().isDispatchThread()){
+            logger.warn("LoginService.performAuthentication called from outside of EDT");
+        }
         final JenkinsAppSettings settings = JenkinsAppSettings.getSafeInstance(project);
 
         if (!settings.isServerUrlSet()) {
             logger.warn("Jenkins server is not setup, authentication will not happen");
+            publisher.emptyConfiguration();
             return;
         }
-        GuiUtil.runInSwingThread(new Task.Backgroundable(project, "Authenticating jenkins", false, JenkinsLoadingTaskOption.INSTANCE) {
+        new Task.Backgroundable(project, "Authenticating jenkins", false, JenkinsLoadingTaskOption.INSTANCE) {
 
             private Jenkins jenkinsWorkspace;
 
             @Override
             public void onSuccess() {
-//                    jenkins.update(jenkinsWorkspace); rememver to add that
-
-
                 publisher.afterLogin(jenkinsWorkspace);
             }
 
             @Override
             public void onCancel() {
-//                    jobTree.getEmptyText().setText(UNAVAILABLE);
                 publisher.loginCancelled();
             }
 
@@ -61,8 +60,7 @@ public class LoginService {
                 requestManager.authenticate(settings, jenkinsSettings);
                 jenkinsWorkspace = requestManager.loadJenkinsWorkspace(settings);
             }
-        });
-
+        }.queue();
     }
 
     public static LoginService getInstance(Project project) {

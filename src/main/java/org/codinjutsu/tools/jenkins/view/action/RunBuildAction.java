@@ -16,7 +16,6 @@
 
 package org.codinjutsu.tools.jenkins.view.action;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -25,13 +24,13 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
-import org.codinjutsu.tools.jenkins.logic.RefreshBuilds;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.util.HtmlUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.codinjutsu.tools.jenkins.view.BuildParamDialog;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
@@ -61,11 +60,11 @@ public class RunBuildAction extends AnAction implements DumbAware {
                 @Override
                 public void onSuccess() {
                     notifyOnGoingMessage(job);
-                    new RefreshBuilds(project);
+                    //FIXME find another way to refresh builds
                 }
 
                 @Override
-                public void run(ProgressIndicator progressIndicator) {
+                public void run(@NotNull ProgressIndicator progressIndicator) {
                     progressIndicator.setIndeterminate(true);
                     RequestManager requestManager = browserPanel.getJenkinsManager();
                     if (job.hasParameters()) {

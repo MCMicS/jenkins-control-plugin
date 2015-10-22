@@ -1,7 +1,7 @@
 <idea-plugin>
     <name>Jenkins Control Plugin</name>
     <description>A Jenkins Plugin for Intellij</description>
-    <version>0.9.3-SNAPSHOT</version>
+    <version>0.9.3-Programisci-2</version>
     <vendor email="david.boissier [at] gmail [dot] com" url="http://codinjutsu.blogspot.com">
         David Boissier,
         Yuri Novitsky (support of PPP),
@@ -21,7 +21,7 @@
     </project-components>
 
     <extensions defaultExtensionNs="com.intellij">
-        <projectService serviceInterface="org.codinjutsu.tools.jenkins.logic.ExecutorProvider" serviceImplementation="org.codinjutsu.tools.jenkins.logic.ExecutorProvider" />
+        <projectService serviceInterface="org.codinjutsu.tools.jenkins.logic.ExecutorService" serviceImplementation="org.codinjutsu.tools.jenkins.logic.ExecutorService" />
         <projectService serviceInterface="org.codinjutsu.tools.jenkins.logic.LoginService" serviceImplementation="org.codinjutsu.tools.jenkins.logic.LoginService" />
         <projectService serviceInterface="org.codinjutsu.tools.jenkins.JenkinsAppSettings" serviceImplementation="org.codinjutsu.tools.jenkins.JenkinsAppSettings"/>
         <projectService serviceInterface="org.codinjutsu.tools.jenkins.JenkinsSettings" serviceImplementation="org.codinjutsu.tools.jenkins.JenkinsSettings"/>
