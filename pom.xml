@@ -73,7 +73,7 @@
             <groupId>com.intellij</groupId>
             <artifactId>idea</artifactId>
             <version>${intellij.sdk.version}</version>
-        </dependency>-->
+        </dependency>
         <dependency>
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>

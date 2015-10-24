@@ -25,6 +25,8 @@
         <module name="jenkins-control-plugin" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel target="1.7" />
+    <bytecodeTargetLevel target="1.7">
+      <module name="jenkins-control-plugin" target="1.7" />
+    </bytecodeTargetLevel>
   </component>
 </project>
