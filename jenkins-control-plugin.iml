@@ -15,9 +15,9 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: log4j:log4j:1.2.14" level="project" />
-    <orderEntry type="library" name="Maven: com.intellij:forms_rt:13.0" level="project" />
-    <orderEntry type="library" name="Maven: com.intellij:openapi:13.0" level="project" />
-    <orderEntry type="library" name="Maven: com.intellij:idea:13.0" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: com.intellij:forms_rt:13.0" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: com.intellij:openapi:13.0" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: com.intellij:idea:13.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: commons-httpclient:commons-httpclient:3.1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: commons-codec:commons-codec:1.2" level="project" />
     <orderEntry type="library" name="Maven: com.googlecode.json-simple:json-simple:1.1.1" level="project" />
@@ -34,7 +34,7 @@
     <orderEntry type="library" scope="TEST" name="Maven: commons-lang:commons-lang:2.3" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: commons-collections:commons-collections:3.2" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: ognl:ognl:2.6.9" level="project" />
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" scope="PROVIDED">
       <library name="Maven: com.intellij:idea-extensions:13.0">
         <CLASSES>
           <root url="jar://$APPLICATION_HOME_DIR$/lib/extensions.jar!/" />
@@ -43,7 +43,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" scope="PROVIDED">
       <library name="Maven: com.intellij:idea-jdom:13.0">
         <CLASSES>
           <root url="jar://$APPLICATION_HOME_DIR$/lib/jdom.jar!/" />
@@ -52,7 +52,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" scope="PROVIDED">
       <library name="Maven: com.intellij:idea-trove4j:13.0">
         <CLASSES>
           <root url="jar://$APPLICATION_HOME_DIR$/lib/trove4j.jar!/" />
@@ -61,7 +61,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" scope="PROVIDED">
       <library name="Maven: com.intellij:idea-annotations:13.0">
         <CLASSES>
           <root url="jar://$APPLICATION_HOME_DIR$/lib/annotations.jar!/" />
@@ -70,7 +70,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" scope="PROVIDED">
       <library name="Maven: com.intellij:idea-util:13.0">
         <CLASSES>
           <root url="jar://$APPLICATION_HOME_DIR$/lib/util.jar!/" />
@@ -79,7 +79,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" scope="PROVIDED">
       <library name="Maven: com.intellij:icons:13.0">
         <CLASSES>
           <root url="jar://$APPLICATION_HOME_DIR$/lib/icons.jar!/" />
