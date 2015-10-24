@@ -50,8 +50,7 @@ public class JenkinsComponent implements ProjectComponent, Configurable {
 
 
     public void projectOpened() {
-        RssAuthenticationActionHandler.getInstance(project);
-        BrowserPanelAuthenticationHandler.getInstance(project);
+
         JenkinsWindowManager.getInstance(project);
     }
 

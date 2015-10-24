@@ -24,9 +24,7 @@ import com.intellij.openapi.wm.*;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.content.ContentManager;
-import org.codinjutsu.tools.jenkins.logic.ExecutorService;
-import org.codinjutsu.tools.jenkins.logic.LoginService;
-import org.codinjutsu.tools.jenkins.logic.RssLogic;
+import org.codinjutsu.tools.jenkins.logic.*;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.codinjutsu.tools.jenkins.view.JenkinsWidget;
@@ -66,6 +64,8 @@ public class JenkinsWindowManager {
         StartupManager.getInstance(project).registerPostStartupActivity(new DumbAwareRunnable() {
             @Override
             public void run() {
+                RssAuthenticationActionHandler.getInstance(project);
+                BrowserPanelAuthenticationHandler.getInstance(project);
                 browserPanel.init();
                 rssLogic.init();
                 LoginService.getInstance(project).performAuthentication();
@@ -74,6 +74,9 @@ public class JenkinsWindowManager {
     }
 
     public void unregisterMyself() {
+
+        RssAuthenticationActionHandler.getInstance(project).dispose();
+        BrowserPanelAuthenticationHandler.getInstance(project).dispose();
 
         BrowserPanel.getInstance(project).dispose();
         JenkinsWidget.getInstance(project).dispose();
