@@ -18,6 +18,7 @@ package org.codinjutsu.tools.jenkins.view;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.IdeBorderFactory;
+import com.intellij.ui.JBColor;
 import com.intellij.ui.NumberDocument;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
@@ -46,8 +47,8 @@ import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.URL;
 @SuppressWarnings({"unchecked"})
 public class ConfigurationPanel {
 
-    private static final Color CONNECTION_TEST_SUCCESSFUL_COLOR = new Color(0, 165, 0);
-    private static final Color CONNECTION_TEST_FAILED_COLOR = new Color(165, 0, 0);
+    private static final Color CONNECTION_TEST_SUCCESSFUL_COLOR = JBColor.GREEN;
+    private static final Color CONNECTION_TEST_FAILED_COLOR = JBColor.RED;
 
     @GuiField(validators = URL)
     private JTextField serverUrl;

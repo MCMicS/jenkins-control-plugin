@@ -24,6 +24,7 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
+import org.codinjutsu.tools.jenkins.logic.ExecutorService;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
@@ -33,11 +34,13 @@ import org.codinjutsu.tools.jenkins.view.BuildParamDialog;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.util.concurrent.TimeUnit;
 
 public class RunBuildAction extends AnAction implements DumbAware {
 
     private static final Icon EXECUTE_ICON = GuiUtil.isUnderDarcula() ? GuiUtil.loadIcon("execute_dark.png") : GuiUtil.loadIcon("execute.png");
     private static final Logger LOG = Logger.getLogger(RunBuildAction.class.getName());
+    public static final int BUILD_STATUS_UPDATE_DELAY = 1;
 
     private final BrowserPanel browserPanel;
 
@@ -60,7 +63,19 @@ public class RunBuildAction extends AnAction implements DumbAware {
                 @Override
                 public void onSuccess() {
                     notifyOnGoingMessage(job);
-                    //FIXME find another way to refresh builds
+                    ExecutorService.getInstance(project).getExecutor().schedule(new Runnable() {
+                        @Override
+                        public void run() {
+                            GuiUtil.runInSwingThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    final Job newJob = browserPanel.getJob(job.getName());
+                                    browserPanel.loadJob(newJob);
+                                }
+                            });
+                        }
+                    }, BUILD_STATUS_UPDATE_DELAY, TimeUnit.SECONDS); //FIXME check delay coud be in settings
+
                 }
 
                 @Override
