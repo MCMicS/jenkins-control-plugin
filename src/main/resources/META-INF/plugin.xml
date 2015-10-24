@@ -1,7 +1,7 @@
 <idea-plugin>
     <name>Jenkins Control Plugin</name>
     <description>A Jenkins Plugin for Intellij</description>
-    <version>0.9.3-SNAPSHOT</version>
+    <version>0.9.3-Programisci-2</version>
     <vendor email="david.boissier [at] gmail [dot] com" url="http://codinjutsu.blogspot.com">
         David Boissier,
         Yuri Novitsky (support of PPP),
@@ -21,6 +21,8 @@
     </project-components>
 
     <extensions defaultExtensionNs="com.intellij">
+        <projectService serviceInterface="org.codinjutsu.tools.jenkins.logic.ExecutorService" serviceImplementation="org.codinjutsu.tools.jenkins.logic.ExecutorService" />
+        <projectService serviceInterface="org.codinjutsu.tools.jenkins.logic.LoginService" serviceImplementation="org.codinjutsu.tools.jenkins.logic.LoginService" />
         <projectService serviceInterface="org.codinjutsu.tools.jenkins.JenkinsAppSettings" serviceImplementation="org.codinjutsu.tools.jenkins.JenkinsAppSettings"/>
         <projectService serviceInterface="org.codinjutsu.tools.jenkins.JenkinsSettings" serviceImplementation="org.codinjutsu.tools.jenkins.JenkinsSettings"/>
         <projectService serviceInterface="org.codinjutsu.tools.jenkins.JenkinsWindowManager" serviceImplementation="org.codinjutsu.tools.jenkins.JenkinsWindowManager"/>
@@ -29,8 +31,8 @@
         <projectService serviceInterface="org.codinjutsu.tools.jenkins.logic.UrlBuilder" serviceImplementation="org.codinjutsu.tools.jenkins.logic.UrlBuilder"/>
         <projectService serviceInterface="org.codinjutsu.tools.jenkins.view.BrowserPanel" serviceImplementation="org.codinjutsu.tools.jenkins.view.BrowserPanel"/>
         <projectService serviceInterface="org.codinjutsu.tools.jenkins.logic.RssLogic" serviceImplementation="org.codinjutsu.tools.jenkins.logic.RssLogic"/>
-        <projectService serviceInterface="org.codinjutsu.tools.jenkins.logic.RefreshNodeActionHandler" serviceImplementation="org.codinjutsu.tools.jenkins.logic.RefreshNodeActionHandler"/>
-        <projectService serviceInterface="org.codinjutsu.tools.jenkins.logic.RSSLoaderActionHandler" serviceImplementation="org.codinjutsu.tools.jenkins.logic.RSSLoaderActionHandler"/>
+        <projectService serviceInterface="org.codinjutsu.tools.jenkins.logic.BrowserPanelAuthenticationHandler" serviceImplementation="org.codinjutsu.tools.jenkins.logic.BrowserPanelAuthenticationHandler"/>
+        <projectService serviceInterface="org.codinjutsu.tools.jenkins.logic.RssAuthenticationActionHandler" serviceImplementation="org.codinjutsu.tools.jenkins.logic.RssAuthenticationActionHandler"/>
     </extensions>
 
     <actions>

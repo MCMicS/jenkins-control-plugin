@@ -24,13 +24,12 @@ import com.intellij.openapi.wm.*;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.content.ContentManager;
-import org.codinjutsu.tools.jenkins.logic.RssLogic;
+import org.codinjutsu.tools.jenkins.logic.*;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.codinjutsu.tools.jenkins.view.JenkinsWidget;
 
 import javax.swing.*;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 public class JenkinsWindowManager {
 
@@ -39,14 +38,11 @@ public class JenkinsWindowManager {
     public static final String JENKINS_BROWSER = "Jenkins";
     private final Project project;
 
-    private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(2);
-
-
     public static JenkinsWindowManager getInstance(Project project) {
         return ServiceManager.getService(project, JenkinsWindowManager.class);
     }
 
-    public JenkinsWindowManager(Project project) {
+    public JenkinsWindowManager(final Project project) {
         this.project = project;
 
         final BrowserPanel browserPanel = BrowserPanel.getInstance(project);
@@ -59,7 +55,7 @@ public class JenkinsWindowManager {
         contentManager.addContent(content);
 
         final StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
-        JenkinsWidget jenkinsWidget = JenkinsWidget.getInstance(project);
+        final JenkinsWidget jenkinsWidget = JenkinsWidget.getInstance(project);
         statusBar.addWidget(jenkinsWidget);
         jenkinsWidget.install(statusBar);
 
@@ -68,28 +64,27 @@ public class JenkinsWindowManager {
         StartupManager.getInstance(project).registerPostStartupActivity(new DumbAwareRunnable() {
             @Override
             public void run() {
-
+                RssAuthenticationActionHandler.getInstance(project);
+                BrowserPanelAuthenticationHandler.getInstance(project);
                 browserPanel.init();
-                browserPanel.initScheduledJobs(scheduledThreadPoolExecutor);
                 rssLogic.init();
-                rssLogic.initScheduledJobs(scheduledThreadPoolExecutor);
+                LoginService.getInstance(project).performAuthentication();
             }
         });
     }
 
     public void unregisterMyself() {
 
+        RssAuthenticationActionHandler.getInstance(project).dispose();
+        BrowserPanelAuthenticationHandler.getInstance(project).dispose();
+
         BrowserPanel.getInstance(project).dispose();
         JenkinsWidget.getInstance(project).dispose();
 
-        scheduledThreadPoolExecutor.shutdown();
+        ExecutorService.getInstance(project).getExecutor().shutdown();
     }
 
     public void reloadConfiguration() {
-        BrowserPanel browserPanel = BrowserPanel.getInstance(project);
-        browserPanel.reloadConfiguration();
-        browserPanel.initScheduledJobs(scheduledThreadPoolExecutor);
-
-        RssLogic.getInstance(project).initScheduledJobs(scheduledThreadPoolExecutor);
+        LoginService.getInstance(project).performAuthentication();
     }
 }

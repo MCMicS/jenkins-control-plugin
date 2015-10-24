@@ -50,7 +50,7 @@ public class RssLogic implements Disposable {
 
     private final Project project;
     private final JenkinsAppSettings jenkinsAppSettings;
-    private RequestManager requestManager;
+    private final RequestManager requestManager;
     private Map<String, Build> currentBuildMap = new HashMap<String, Build>();
 
     private final Runnable refreshRssBuildsJob;
@@ -81,22 +81,16 @@ public class RssLogic implements Disposable {
         }
     }
 
-    public void initScheduledJobs(ScheduledThreadPoolExecutor scheduledThreadPoolExecutor1) {
-        safeTaskCancel(refreshRssBuildFutureTask);
+    public void initScheduledJobs() {
+        final ExecutorService executorProvider = ExecutorService.getInstance(project);
+        ScheduledThreadPoolExecutor executor = executorProvider.getExecutor();
 
-        scheduledThreadPoolExecutor1.remove(refreshRssBuildsJob);
+        executorProvider.safeTaskCancel(refreshRssBuildFutureTask);
+
+        executor.remove(refreshRssBuildsJob);
 
         if (jenkinsAppSettings.isServerUrlSet() && jenkinsAppSettings.getRssRefreshPeriod() > 0) {
-            refreshRssBuildFutureTask = scheduledThreadPoolExecutor1.scheduleWithFixedDelay(refreshRssBuildsJob, jenkinsAppSettings.getRssRefreshPeriod(), jenkinsAppSettings.getRssRefreshPeriod(), TimeUnit.MINUTES);
-        }
-    }
-
-    private void safeTaskCancel(ScheduledFuture<?> futureTask) {
-        if (futureTask == null) {
-            return;
-        }
-        if (!futureTask.isDone() || !futureTask.isCancelled()) {
-            futureTask.cancel(false);
+            refreshRssBuildFutureTask = executor.scheduleWithFixedDelay(refreshRssBuildsJob, 0, jenkinsAppSettings.getRssRefreshPeriod(), TimeUnit.MINUTES);
         }
     }
 

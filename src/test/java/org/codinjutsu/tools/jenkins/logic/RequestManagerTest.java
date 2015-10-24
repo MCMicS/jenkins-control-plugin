@@ -16,11 +16,11 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
-import org.apache.commons.io.IOUtils;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.security.SecurityClient;
 import org.codinjutsu.tools.jenkins.security.SecurityClientFactory;
+import org.codinjutsu.tools.jenkins.util.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

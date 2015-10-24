@@ -8,16 +8,12 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import org.apache.log4j.Logger;
-import org.codinjutsu.tools.jenkins.logic.RefreshBuilds;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-
-/**
- * Created by marcin on 06.10.15.
- */
 
 public class StopBuildAction extends AnAction implements DumbAware {
 
@@ -36,7 +32,6 @@ public class StopBuildAction extends AnAction implements DumbAware {
     public void actionPerformed(AnActionEvent event) {
         final Project project = ActionUtil.getProject(event);
 
-        final BrowserPanel browserPanel = BrowserPanel.getInstance(project);
         try {
             final Job job = browserPanel.getSelectedJob();
             new Task.Backgroundable(project, "Stopping build", false){
@@ -44,11 +39,11 @@ public class StopBuildAction extends AnAction implements DumbAware {
                 @Override
                 public void onSuccess() {
                     browserPanel.loadJob(job);
-                    new RefreshBuilds(project);
+//                    browserPanel.refreshCurrentView();
                 }
 
                 @Override
-                public void run(ProgressIndicator progressIndicator) {
+                public void run(@NotNull ProgressIndicator progressIndicator) {
                     RequestManager requestManager = RequestManager.getInstance(project);
                     requestManager.stopBuild(job.getLastBuild());
                 }
