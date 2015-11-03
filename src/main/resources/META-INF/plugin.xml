@@ -3,9 +3,9 @@
     <description>A Jenkins Plugin for Intellij</description>
     <version>0.9.3</version>
     <vendor email="david.boissier [at] gmail [dot] com" url="http://codinjutsu.blogspot.com">
+        Programisci.eu
         David Boissier,
         Yuri Novitsky (support of PPP),
-        Programisci.eu (bugfix)
     </vendor>
     <idea-version since-build="131.00000"/>
 

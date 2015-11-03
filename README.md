@@ -2,18 +2,10 @@
 
 ## Version 0.9.3 (important refactorings and fixes made by Cezary Butler)
 * [update] Improve background task running
-* [fix] fix Idea 14 compatibility
-* [fix] Fixed threading issues
-
-## Version 0.9.2
-* [fix] API changes in idea 13
-
-## Version 0.9.1
-* [fix] limit version for idea 12 and below due to some API changes in idea 13
+* [fix] fix Idea 14 and 15 compatibility
 
 ### Last features
 See the [changelog](https://github.com/dboissier/jenkins-control-plugin/blob/master/CHANGELOG.txt)
-
 
 ## Description
 This plugin allows to view the content of your Jenkins Continous Integration Server.
@@ -95,6 +87,7 @@ The RSS reader has moved to the Event Log. If you need to refresh manually, clic
 
 ## Thanks
 I would like to thank:
+* [Cezary Butler](https://github.com/cezary-butler) for his contribution to fix and improve this plugin for Idea 14 and 15
 * [Yuri Novitsky](https://github.com/nyver) for his contribution to this plugin (pre-commit feature)
 * Kohsuke Kawaguchi for providing us such a great CI server
 * Jetbrains Team for providing us such an incredible IDE (certainly the best that Java developers could have).
