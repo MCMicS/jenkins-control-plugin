@@ -28,6 +28,7 @@ import org.fest.swing.edt.GuiQuery;
 import org.fest.swing.fixture.DialogFixture;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -122,6 +123,7 @@ public class BuildParamDialogTest {
     }
 
     @Test
+    @Ignore
     public void testLaunchBuild() throws Exception {
         createDialog(JOB_WITH_GOOD_PARAMS);
 
