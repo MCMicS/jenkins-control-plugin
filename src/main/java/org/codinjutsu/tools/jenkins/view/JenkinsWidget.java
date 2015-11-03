@@ -80,7 +80,7 @@ public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidg
             }
         });
 
-        setBorder(StatusBarWidget.WidgetBorder.INSTANCE);
+        setBorder(WidgetBorder.INSTANCE);
 
         return statusIcon;
     }
