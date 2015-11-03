@@ -1,4 +1,6 @@
-Version 0.9.3
+Version 0.9.3 (thx Cezary for your great work)
+    * [update] Improve background task running
+    * [fix] fix Idea 14 compatibility
     * [fix] Fixed threading issues
 
 Version 0.9.2
