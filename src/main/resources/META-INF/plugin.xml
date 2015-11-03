@@ -1,7 +1,7 @@
 <idea-plugin>
     <name>Jenkins Control Plugin</name>
     <description>A Jenkins Plugin for Intellij</description>
-    <version>0.9.3-Programisci-2</version>
+    <version>0.9.3</version>
     <vendor email="david.boissier [at] gmail [dot] com" url="http://codinjutsu.blogspot.com">
         David Boissier,
         Yuri Novitsky (support of PPP),

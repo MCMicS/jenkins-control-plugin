@@ -6,7 +6,6 @@
     <artifactId>jenkins-control-plugin</artifactId>
     <version>0.9.3-SNAPSHOT</version>
 
-    <!-- FIXME remove unnecessary dependencies -->
     <properties>
         <ij.plugin>true</ij.plugin>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -14,13 +13,10 @@
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
 
-        <intellij.sdk.name>133.193</intellij.sdk.name>
-        <intellij.sdk.version>13.0</intellij.sdk.version>
+        <intellij.sdk.name>133.1306</intellij.sdk.name>
+        <intellij.sdk.version>13.1</intellij.sdk.version>
 
-        <intellij.lib.path>C:\Program Files (x86)\JetBrains\IntelliJ IDEA 14.1.3\lib</intellij.lib.path>
-
-        <release.dir>file:////home/dboissier/incubator/distribution/maven/m2/inhouse</release.dir>
-        <snapshot.dir>file:///home/dboissier/incubator/distribution/maven/m2/inhouse-snapshot</snapshot.dir>
+        <intellij.lib.path>${env.IDEA_HOME}/lib</intellij.lib.path>
     </properties>
 
     <packaging>jar</packaging>
@@ -33,6 +29,12 @@
     <inceptionYear>2011</inceptionYear>
 
     <developers>
+        <developer>
+            <name>Cezary Butler</name>
+            <email>cezary [dot] butler [at] programisci [dot] eu</email>
+            <organization>Programiści</organization>
+            <timezone>+1</timezone>
+        </developer>
         <developer>
             <name>David Boissier</name>
             <email>david [dot] boissier [at] gmail [dot] com</email>
@@ -48,11 +50,11 @@
     </developers>
 
     <dependencies>
-        <!--<dependency> provided by velocity.jar from intellij
+        <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
             <version>2.4</version>
-        </dependency>-->
+        </dependency>
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
@@ -221,36 +223,6 @@
                     <jdkName>${intellij.sdk.name}</jdkName>
                     <downloadSources>true</downloadSources>
                     <dependenciesAsLibraries>true</dependenciesAsLibraries>
-                    <libraries>
-                        <library>
-                            <name>idea-annotations</name>
-                            <exclude>true</exclude>
-                        </library>
-                        <library>
-                            <name>idea-jdom</name>
-                            <exclude>true</exclude>
-                        </library>
-                        <library>
-                            <name>idea</name>
-                            <exclude>true</exclude>
-                        </library>
-                        <library>
-                            <name>idea-trove4j</name>
-                            <exclude>true</exclude>
-                        </library>
-                        <library>
-                            <name>idea-util</name>
-                            <exclude>true</exclude>
-                        </library>
-                        <library>
-                            <name>idea-extensions</name>
-                            <exclude>true</exclude>
-                        </library>
-                        <library>
-                            <name>idea-openapi</name>
-                            <exclude>true</exclude>
-                        </library>
-                    </libraries>
                 </configuration>
             </plugin>
         </plugins>
@@ -258,18 +230,10 @@
             <resource>
                 <directory>src/main/resources</directory>
             </resource>
-            <resource>
-                <directory>src/main/resources-filtered</directory>
-                <filtering>true</filtering>
-            </resource>
         </resources>
         <testResources>
             <testResource>
                 <directory>src/test/resources</directory>
-            </testResource>
-            <testResource>
-                <directory>src/test/resources-filtered</directory>
-                <filtering>true</filtering>
             </testResource>
         </testResources>
     </build>
@@ -284,17 +248,6 @@
         </license>
     </licenses>
 
-    <distributionManagement>
-        <repository>
-            <id>scp-repository</id>
-            <url>${release.dir}</url>
-        </repository>
-        <snapshotRepository>
-            <id>scp-repository</id>
-            <url>${snapshot.dir}</url>
-        </snapshotRepository>
-    </distributionManagement>
-
     <!--
       | SCM Information
     -->
@@ -302,29 +255,4 @@
         <connection>scm:git:ssh://git@github.com/dboissier/jenkins-control-plugin.git</connection>
         <url>git:ssh://git@github.com/dboissier/jenkins-control-plugin.git</url>
     </scm>
-
-
-    <!--
-      | Reporting tools
-    -->
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>cobertura-maven-plugin</artifactId>
-                <configuration>
-                    <formats>
-                        <format>xml</format>
-                    </formats>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <configuration>
-                    <findbugsXmlOutput>true</findbugsXmlOutput>
-                </configuration>
-            </plugin>
-        </plugins>
-    </reporting>
 </project>

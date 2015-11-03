@@ -1,6 +1,8 @@
-# Jenkins Plugin 0.9.0 for Jetbrains products
+# Jenkins Plugin 0.9.3 for Jetbrains products
 
-## Version 0.9.3
+## Version 0.9.3 (important refactorings and fixes made by Cezary Butler)
+* [update] Improve background task running
+* [fix] fix Idea 14 compatibility
 * [fix] Fixed threading issues
 
 ## Version 0.9.2
@@ -19,7 +21,7 @@ This plugin allows to view the content of your Jenkins Continous Integration Ser
 ![Browser](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/images/Browser.png?raw=true)
 
 ## Plugin Compatibility
-This plugin was built with JDK 1.6 and IDEA 11 version. Jenkins CIs of jenkins-ci and apache.org are used for manual and stress testing.
+This plugin was built with JDK 1.7 and IDEA 13 version. Jenkins CIs of jenkins-ci and apache.org are used for manual and stress testing.
 
 ## Installation steps
 Download this plugin from your IDE or [from the plugin website](http://plugins.jetbrains.com/plugin/6110).
