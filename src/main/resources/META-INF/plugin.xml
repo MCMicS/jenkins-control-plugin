@@ -1,13 +1,13 @@
 <idea-plugin>
     <name>Jenkins Control Plugin</name>
     <description>A Jenkins Plugin for Intellij</description>
-    <version>0.9.3-Programisci-2</version>
+    <version>0.9.3-Programisci-3</version>
     <vendor email="david.boissier [at] gmail [dot] com" url="http://codinjutsu.blogspot.com">
         David Boissier,
         Yuri Novitsky (support of PPP),
         Programisci.eu (bugfix)
     </vendor>
-    <idea-version since-build="131.00000"/>
+    <idea-version since-build="141.00000" />
 
     <depends>com.intellij.modules.lang</depends>
 
