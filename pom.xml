@@ -13,8 +13,8 @@
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
 
-        <intellij.sdk.name>133.1306</intellij.sdk.name>
-        <intellij.sdk.version>13.1</intellij.sdk.version>
+        <intellij.sdk.name>141.2735.5</intellij.sdk.name>
+        <intellij.sdk.version>14.1</intellij.sdk.version>
 
         <intellij.lib.path>${env.IDEA_HOME}/lib</intellij.lib.path>
     </properties>
