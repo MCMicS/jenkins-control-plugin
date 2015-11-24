@@ -1,3 +1,6 @@
+Version 0.9.4
+    * [fix] Fix major issue on Idea 15
+
 Version 0.9.3 (thx Cezary for your great work)
     * [update] Improve background task running
     * [fix] fix Idea 14 and 15 compatibility
