@@ -1,0 +1,35 @@
+{
+  "name": "Tous",
+  "url": "http://myjenkins/",
+  "jobs": [
+    {
+      "name": "swing-utils",
+      "displayName": "swing-utils",
+      "url": "http://myjenkins/job/swing-utils/",
+      "color": "disabled",
+      "healthReport": [
+        {
+          "description": "0 tests en echec sur un total de 24 tests",
+          "iconUrl": "health20to39.gif"
+        }
+      ],
+      "lastBuild": {
+        "id": "2012-04-02_10-26-29",
+        "result": "FAILURE",
+        "number": 5,
+        "url": "http://myjenkins/job/swing-utils/5/"
+      },
+      "property": [
+        {
+          "parameterDefinitions": [
+            {
+              "defaultParameterValue": null,
+              "name": "dummyParam",
+              "type": "DummyParameterDefinition"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
