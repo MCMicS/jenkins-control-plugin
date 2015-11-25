@@ -31,6 +31,10 @@ public class JenkinsJsonParser implements JenkinsParser {
 
     private static final Logger LOG = Logger.getLogger(JenkinsJsonParser.class);
 
+    private static boolean getBoolean(Object obj) {
+        return Boolean.TRUE.equals(obj);
+    }
+
     @Override
     public Jenkins createWorkspace(String jsonData, String serverUrl) {
         checkJsonDataAndThrowExceptionIfNecessary(jsonData);
@@ -143,7 +147,7 @@ public class JenkinsJsonParser implements JenkinsParser {
         Build build = new Build();
         String buildDate = (String) lastBuildObject.get(BUILD_ID);
         build.setBuildDate(buildDate);
-        Boolean building = (Boolean) lastBuildObject.get(BUILD_IS_BUILDING);
+        final boolean building = getBoolean(lastBuildObject.get(BUILD_IS_BUILDING));
         build.setBuilding(building);
         Long number = (Long) lastBuildObject.get(BUILD_NUMBER);
         build.setNumber(number.intValue());
@@ -154,7 +158,6 @@ public class JenkinsJsonParser implements JenkinsParser {
 
         return build;
     }
-
 
     private Job getJob(JSONObject jsonObject) {
         Job job = new Job();
@@ -171,9 +174,9 @@ public class JenkinsJsonParser implements JenkinsParser {
         job.setColor(color);
         JSONArray healths = (JSONArray) jsonObject.get(JOB_HEALTH);
         job.setHealth(getHealth(healths));
-        Boolean buildable = (Boolean) jsonObject.get(JOB_IS_BUILDABLE);
+        final boolean buildable = getBoolean(jsonObject.get(JOB_IS_BUILDABLE));
         job.setBuildable(buildable);
-        Boolean inQueue = (Boolean) jsonObject.get(JOB_IS_IN_QUEUE);
+        final boolean inQueue = getBoolean(jsonObject.get(JOB_IS_IN_QUEUE));
         job.setInQueue(inQueue);
 
         JSONObject lastBuildObject = (JSONObject) jsonObject.get(JOB_LAST_BUILD);
@@ -233,23 +236,7 @@ public class JenkinsJsonParser implements JenkinsParser {
     }
 
     private Build getLastBuild(JSONObject lastBuildObject) {
-        if (lastBuildObject == null) {
-            return null;
-        }
-
-        Build build = new Build();
-        String buildDate = (String) lastBuildObject.get(BUILD_ID);
-        build.setBuildDate(buildDate);
-        Boolean building = (Boolean) lastBuildObject.get(BUILD_IS_BUILDING);
-        build.setBuilding(building);
-        Long number = (Long) lastBuildObject.get(BUILD_NUMBER);
-        build.setNumber(number.intValue());
-        String status = (String) lastBuildObject.get(BUILD_RESULT);
-        build.setStatus(status);
-        String url = (String) lastBuildObject.get(BUILD_URL);
-        build.setUrl(url);
-
-        return build;
+        return getBuild(lastBuildObject);
     }
 
     private Job.Health getHealth(JSONArray healths) {
