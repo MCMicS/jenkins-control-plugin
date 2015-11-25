@@ -1,17 +1,14 @@
-# Jenkins Plugin 0.9.0 for Jetbrains products
+# Jenkins Plugin 0.9.4 for Jetbrains products
 
-## Version 0.9.3
-* [fix] Fixed threading issues
+## Version 0.9.4
+* [fix] Fix major issue on Idea 15
 
-## Version 0.9.2
-* [fix] API changes in idea 13
-
-## Version 0.9.1
-* [fix] limit version for idea 12 and below due to some API changes in idea 13
+## Version 0.9.3 (important refactorings and fixes made by Cezary Butler)
+* [update] Improve background task running
+* [fix] fix Idea 14 and 15 compatibility
 
 ### Last features
 See the [changelog](https://github.com/dboissier/jenkins-control-plugin/blob/master/CHANGELOG.txt)
-
 
 ## Description
 This plugin allows to view the content of your Jenkins Continous Integration Server.
@@ -19,7 +16,7 @@ This plugin allows to view the content of your Jenkins Continous Integration Ser
 ![Browser](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/images/Browser.png?raw=true)
 
 ## Plugin Compatibility
-This plugin was built with JDK 1.6 and IDEA 11 version. Jenkins CIs of jenkins-ci and apache.org are used for manual and stress testing.
+This plugin was built with JDK 1.7 and IDEA 14 version. Jenkins CIs of jenkins-ci and apache.org are used for manual and stress testing.
 
 ## Installation steps
 Download this plugin from your IDE or [from the plugin website](http://plugins.jetbrains.com/plugin/6110).
@@ -93,10 +90,11 @@ The RSS reader has moved to the Event Log. If you need to refresh manually, clic
 
 ## Thanks
 I would like to thank:
+* [Cezary Butler](https://github.com/cezary-butler) and **Marcin Seroka** from [Programisci](http://programisci.eu/en/) for their contribution to fix and improve this plugin for Idea 14 and 15
 * [Yuri Novitsky](https://github.com/nyver) for his contribution to this plugin (pre-commit feature)
 * Kohsuke Kawaguchi for providing us such a great CI server
 * Jetbrains Team for providing us such an incredible IDE (certainly the best that Java developers could have).
 * All users who sent me valuable suggestions
 * Mark James author of the famfamfam web site who provides beautiful icons.
 * Guys from Lex Group : Boris Gonnot, Regis Medina, Sébastien Crego, Olivier Catteau, Jean Baptiste Potonnier and others Agile ninjas.
-* My wife and my daughter who support me to have fun in software development and also remind me my husband/father duty ;).
+* My wife and my daughters who support me to have fun in software development and also remind me my husband/father duty ;).

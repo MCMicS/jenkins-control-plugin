@@ -15,7 +15,7 @@ import static org.junit.Assert.*;
 public class IOUtilsTest {
 
     public static final char SEPARATOR = '/';
-    private String POLISH_TEST_STRING = "zażółć gęślą jaźń\r\n" +
+    private String POLISH_TEST_STRING = "zażółć gęślą jaźń\n" +
             "ZAŻÓŁĆ GĘŚLĄ JAŹŃ";
 
     @Test

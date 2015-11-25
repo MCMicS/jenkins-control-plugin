@@ -5,6 +5,5 @@
 .project
 .settings/
 target/
-META-INF/
 .idea/
 out/
