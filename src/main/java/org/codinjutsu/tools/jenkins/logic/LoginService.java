@@ -57,8 +57,13 @@ public class LoginService {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 indicator.setIndeterminate(true);
-                requestManager.authenticate(settings, jenkinsSettings);
-                jenkinsWorkspace = requestManager.loadJenkinsWorkspace(settings);
+                try {
+                    requestManager.authenticate(settings, jenkinsSettings);
+                    jenkinsWorkspace = requestManager.loadJenkinsWorkspace(settings);
+                } catch (Exception ex) {
+                    publisher.loginFailed(ex);
+                    indicator.cancel();
+                }
             }
         }.queue();
     }
