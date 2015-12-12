@@ -44,6 +44,11 @@ public class RssAuthenticationActionHandler implements AuthenticationNotifier, D
     }
 
     @Override
+    public void loginFailed(Exception ex) {
+        //nothing to do
+    }
+
+    @Override
     public void dispose() {
         connection.disconnect();
     }
