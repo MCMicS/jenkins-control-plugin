@@ -113,6 +113,34 @@ public class JenkinsJsonParserTest {
     }
 
     @Test
+    public void loadClassicViewWithEmptyBuildDate() throws Exception {
+        List<Job> actualJobs = jsonParser.createViewJobs(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManger_loadWithEmptyDate.json")));
+
+        /*List<Job> expectedJobs = new LinkedList<Job>();
+        expectedJobs.add(new JobBuilder().job("swing-utils", "disabled", "http://myjenkins/job/swing-utils/", "false", "false")
+                .lastBuild("http://myjenkins/job/swing-utils/5/", "5", FAILURE.getStatus(), "false", "")
+                .health("health20to39", "0 tests en echec sur un total de 24 tests")
+                .parameter("dummyParam", null, null)
+                .get());*/
+
+//        assertReflectionEquals(expectedJobs, actualJobs); TODO create real object for assertions
+    }
+
+    @Test
+    public void loadClassicViewWithEmptyBuildDate105() throws Exception {
+        List<Job> actualJobs = jsonParser.createViewJobs(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadDataFor105.json")));
+
+        /*List<Job> expectedJobs = new LinkedList<Job>();
+        expectedJobs.add(new JobBuilder().job("swing-utils", "disabled", "http://myjenkins/job/swing-utils/", "false", "false")
+                .lastBuild("http://myjenkins/job/swing-utils/5/", "5", FAILURE.getStatus(), "false", "")
+                .health("health20to39", "0 tests en echec sur un total de 24 tests")
+                .parameter("dummyParam", null, null)
+                .get());*/
+
+//        assertReflectionEquals(expectedJobs, actualJobs); TODO create real object for assertions
+    }
+
+    @Test
     public void loadCloudbeesView() throws Exception {
         List<Job> actualJobs = jsonParser.createCloudbeesViewJobs(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadCloudbeesView.json")));
 

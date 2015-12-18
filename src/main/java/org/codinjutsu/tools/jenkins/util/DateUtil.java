@@ -35,7 +35,7 @@ public class DateUtil {
         Date date;
         try {
             date = dateFormat.parse(buildDate);
-        } catch (ParseException e) {
+        } catch (ParseException | NumberFormatException e) {
             System.out.println("invalid date format: " + buildDate + " with formater '" + dateFormat.toPattern() + "'");
             date = new Date();
         }
