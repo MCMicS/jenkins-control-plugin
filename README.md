@@ -1,11 +1,10 @@
 # Jenkins Plugin 0.9.4 for Jetbrains products
 
+## Version 0.9.5
+* [fix] #105 and #107: empty fields in the RSS JSON breaks the content reading
+
 ## Version 0.9.4
 * [fix] Fix major issue on Idea 15
-
-## Version 0.9.3 (important refactorings and fixes made by Cezary Butler)
-* [update] Improve background task running
-* [fix] fix Idea 14 and 15 compatibility
 
 ### Last features
 See the [changelog](https://github.com/dboissier/jenkins-control-plugin/blob/master/CHANGELOG.txt)
