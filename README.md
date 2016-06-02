@@ -5,6 +5,7 @@
 * [fix] #105 and #107: empty fields in the RSS JSON breaks the content reading
 
 
+### SNQPSHOT Builds
 * [Build for Idea 14](https://github.com/dboissier/jenkins-control-plugin/raw/master/snapshot/jenkins-control-plugin-0.9.5-SNAPSHOT-distribution-idea14.zip)
 * [Build for Idea 15](https://github.com/dboissier/jenkins-control-plugin/raw/master/snapshot/jenkins-control-plugin-0.9.5-SNAPSHOT-distribution-idea15.zip)
 * [Build for Idea 2016](https://github.com/dboissier/jenkins-control-plugin/raw/master/snapshot/jenkins-control-plugin-0.9.5-SNAPSHOT-distribution-idea2016.zip)
