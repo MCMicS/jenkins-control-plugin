@@ -1,7 +1,16 @@
 # Jenkins Plugin 0.9.4 for Jetbrains products
 
-## Version 0.9.5
+## Version 0.9.5-SNAPSHOT
+* [fix] idea 2016 compatibility
 * [fix] #105 and #107: empty fields in the RSS JSON breaks the content reading
+
+
+* [Build for Idea 14](https://github.com/dboissier/jenkins-control-plugin/raw/master/snapshot/jenkins-control-plugin-0.9.5-SNAPSHOT-distribution-idea14.zip)
+* [Build for Idea 15](https://github.com/dboissier/jenkins-control-plugin/raw/master/snapshot/jenkins-control-plugin-0.9.5-SNAPSHOT-distribution-idea15.zip)
+* [Build for Idea 2016](https://github.com/dboissier/jenkins-control-plugin/raw/master/snapshot/jenkins-control-plugin-0.9.5-SNAPSHOT-distribution-idea2016.zip)
+* [Changelog](https://github.com/dboissier/mongo4idea/blob/master/CHANGELOG.txt)
+
+
 
 ## Version 0.9.4
 * [fix] Fix major issue on Idea 15
