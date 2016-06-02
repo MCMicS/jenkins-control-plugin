@@ -3,21 +3,14 @@
 ## Version 0.9.5-SNAPSHOT
 * [fix] idea 2016 compatibility
 * [fix] #105 and #107: empty fields in the RSS JSON breaks the content reading
+* [Full Changelog](https://github.com/dboissier/mongo4idea/blob/master/CHANGELOG.txt)
 
 
 ### Current builds
 * [Idea 14](https://github.com/dboissier/jenkins-control-plugin/raw/master/snapshot/jenkins-control-plugin-0.9.5-SNAPSHOT-distribution-idea14.zip)
 * [Idea 15](https://github.com/dboissier/jenkins-control-plugin/raw/master/snapshot/jenkins-control-plugin-0.9.5-SNAPSHOT-distribution-idea15.zip)
 * [Idea 2016](https://github.com/dboissier/jenkins-control-plugin/raw/master/snapshot/jenkins-control-plugin-0.9.5-SNAPSHOT-distribution-idea2016.zip)
-* [Changelog](https://github.com/dboissier/mongo4idea/blob/master/CHANGELOG.txt)
 
-
-
-## Version 0.9.4
-* [fix] Fix major issue on Idea 15
-
-### Last features
-See the [changelog](https://github.com/dboissier/jenkins-control-plugin/blob/master/CHANGELOG.txt)
 
 ## Description
 This plugin allows to view the content of your Jenkins Continous Integration Server.
@@ -25,7 +18,7 @@ This plugin allows to view the content of your Jenkins Continous Integration Ser
 ![Browser](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/images/Browser.png?raw=true)
 
 ## Plugin Compatibility
-This plugin was built with JDK 1.7 and IDEA 14 version. Jenkins CIs of jenkins-ci and apache.org are used for manual and stress testing.
+This plugin was built with JDK 1.7 for IDEA 14, 15 and with JDK 8 for IDEA 2016 versions. Jenkins CIs of jenkins-ci and apache.org are used for manual and stress testing.
 
 ## Installation steps
 Download this plugin from your IDE or [from the plugin website](http://plugins.jetbrains.com/plugin/6110).
@@ -45,7 +38,7 @@ Download this plugin from your IDE or [from the plugin website](http://plugins.j
 
 * You can specify a build start delay (in sec.).
 * You can set an auto refresh Period value (in minutes) for both Job Browser and Rss Reader.
-* **NEW** You can filter the RSS data based on the status of the build
+* You can filter the RSS data based on the status of the build
 * When your configuration is set up, click on the **Apply** Button to save it.
 
 ## Usage
