@@ -17,19 +17,18 @@
 package org.codinjutsu.tools.jenkins;
 
 import com.intellij.openapi.components.ProjectComponent;
-import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
-import org.codinjutsu.tools.jenkins.logic.RssAuthenticationActionHandler;
-import org.codinjutsu.tools.jenkins.logic.BrowserPanelAuthenticationHandler;
 import org.codinjutsu.tools.jenkins.view.ConfigurationPanel;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
 
-public class JenkinsComponent implements ProjectComponent, Configurable {
+public class JenkinsComponent implements ProjectComponent, SearchableConfigurable {
 
 
     private static final String JENKINS_CONTROL_PLUGIN_NAME = "Jenkins Plugin";
@@ -78,7 +77,7 @@ public class JenkinsComponent implements ProjectComponent, Configurable {
     }
 
     public String getHelpTopic() {
-        return null;
+        return "preferences.jenkins";
     }
 
 
@@ -123,5 +122,17 @@ public class JenkinsComponent implements ProjectComponent, Configurable {
 
     public void disposeComponent() {
 
+    }
+
+    @NotNull
+    @Override
+    public String getId() {
+        return "preferences.Jenkins";
+    }
+
+    @Nullable
+    @Override
+    public Runnable enableSearch(String option) {
+        return null;
     }
 }

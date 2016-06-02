@@ -7,7 +7,9 @@
         David Boissier,
         Yuri Novitsky (support of PPP),
     </vendor>
-    <idea-version since-build="141.00000" />
+    <idea-version since-build="141.0" until-build="141.9999"/>
+    <!--<idea-version since-build="143.0" until-build="143.9999"/>-->
+    <!--<idea-version since-build="145.0" />-->
 
     <depends>com.intellij.modules.lang</depends>
 
@@ -21,6 +23,8 @@
     </project-components>
 
     <extensions defaultExtensionNs="com.intellij">
+        <projectConfigurable groupId="tools" groupWeight="110" dynamic="true" displayName="Jenkins Plugin" id="preferences.Jenkins" instance="org.codinjutsu.tools.jenkins.JenkinsComponent"/>
+
         <projectService serviceInterface="org.codinjutsu.tools.jenkins.logic.ExecutorService" serviceImplementation="org.codinjutsu.tools.jenkins.logic.ExecutorService" />
         <projectService serviceInterface="org.codinjutsu.tools.jenkins.logic.LoginService" serviceImplementation="org.codinjutsu.tools.jenkins.logic.LoginService" />
         <projectService serviceInterface="org.codinjutsu.tools.jenkins.JenkinsAppSettings" serviceImplementation="org.codinjutsu.tools.jenkins.JenkinsAppSettings"/>
