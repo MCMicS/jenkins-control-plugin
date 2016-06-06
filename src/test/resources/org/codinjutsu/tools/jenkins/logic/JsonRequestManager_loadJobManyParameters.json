@@ -72,6 +72,9 @@
                         "type": "ListSubversionTagsParameterDefinition"
                     }
                 ]
+            },
+            {
+                "_class": "jenkins.model.BuildDiscarderProperty"
             }
         ]
     }

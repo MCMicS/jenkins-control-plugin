@@ -200,6 +200,9 @@ public class JenkinsJsonParser implements JenkinsParser {
 
 
             JSONArray definitions = (JSONArray) parameterProperty.get(PARAMETER_DEFINITIONS);
+            if (definitions == null) {
+                continue;
+            }
             for (Object defObj : definitions) {
                 JSONObject parameterObj = (JSONObject) defObj;
                 JobParameter jobParameter = new JobParameter();
