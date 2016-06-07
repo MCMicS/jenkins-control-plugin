@@ -1,3 +1,7 @@
+Version 0.9.7
+    * Idea 2016 version
+Version 0.9.6
+    * Idea 15 version
 Version 0.9.5
     * [fix] #105 and #107: empty fields in the RSS JSON breaks the content reading
     * [fix] Fix Job parser when property has no parameter
