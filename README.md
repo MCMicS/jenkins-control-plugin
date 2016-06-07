@@ -8,9 +8,9 @@
 
 ### Current builds
 * [Jetbrains plugin repository](https://plugins.jetbrains.com/plugin/6110)
-* [Idea 14](https://github.com/dboissier/jenkins-control-plugin/raw/master/snapshot/jenkins-control-plugin-0.9.5-SNAPSHOT-distribution-idea14.zip)
-* [Idea 15](https://github.com/dboissier/jenkins-control-plugin/raw/master/snapshot/jenkins-control-plugin-0.9.5-SNAPSHOT-distribution-idea15.zip)
-* [Idea 2016](https://github.com/dboissier/jenkins-control-plugin/raw/master/snapshot/jenkins-control-plugin-0.9.5-SNAPSHOT-distribution-idea2016.zip)
+* [Idea 14](https://github.com/dboissier/jenkins-control-plugin/raw/master/snapshot/jenkins-control-plugin-0.9.5-distribution-idea14.zip)
+* [Idea 15](https://github.com/dboissier/jenkins-control-plugin/raw/master/snapshot/jenkins-control-plugin-0.9.5-distribution-idea15.zip)
+* [Idea 2016](https://github.com/dboissier/jenkins-control-plugin/raw/master/snapshot/jenkins-control-plugin-0.9.5-distribution-idea2016.zip)
 
 
 ## Description
