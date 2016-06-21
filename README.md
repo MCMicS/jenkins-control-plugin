@@ -87,6 +87,44 @@ The RSS reader has moved to the Event Log. If you need to refresh manually, clic
 2. That's all. Now you can run builds with local changes directly from the IDE ![Create](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/2_setup_ide/05.png?raw=true) ![Upload](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/2_setup_ide/04.png?raw=true)
 3. Build status is displayed near the name of the changelist ![status](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/howto/2_setup_ide/06.png?raw=true)
 
+## How to build
+
+This project is built with maven and use profile to manage all compatible version of Intellij `mvn clean install -P[idea-14| idea-15|idea-2016]`.
+
+However, you need to import an Intellij Community Edition matching with the target version you want to build for. The script `fetchIdea.sh` allows downloading and installing the required IntelliJ librairies in your maven repository.
+You have to set 2 variables in it:
+* `ideaVersion='15.0.6' # this is the version of the ZIP distribution to be downloaded from jetbrains`
+* `ideaVersionForMaven='15.0' # this is the version used in maven dependency, should match with profile/properties/intellij.sdk.version node in the pom.xml`
+
+Run it once and then run the first maven command described above with the target profile.
+
+### Open the plugin source in Intellij
+
+You can use the command `mvn idea:idea`. However you will have to change some entries in the Project configuration panel.
+* If needed import JDK 7 (and JDK 8 for)
+* Import an Intellij SDK, precise JDK7 or 8 and then select it for the project
+* Remove Intellij dependencies from `Modules -> jenkins-control-plugin -> Dependencies`:
+```
+- forms_rt
+- openapi
+- util
+- idea
+- resources
+- resources_en
+- swingx-core-1.6.2
+- annotations
+- extensions
+- jna
+- jdom
+- icons
+```
+At last, build it to check whether everything is ok.
+
+
+### Run Intellij from IntelliJ
+
+Create a plugin Run configuration and just run it.
+
 ## Limitations
 * This software is written under Apache License 2.0.
 * if Jenkins is behing an HTTPS web server, set a **trusted** certificate.
