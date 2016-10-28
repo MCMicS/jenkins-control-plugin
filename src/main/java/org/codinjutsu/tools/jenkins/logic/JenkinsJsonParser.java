@@ -139,6 +139,23 @@ public class JenkinsJsonParser implements JenkinsParser {
         }
     }
 
+    @Override
+    public List<Build> createBuilds(String jsonData) {
+        checkJsonDataAndThrowExceptionIfNecessary(jsonData);
+
+        JSONParser parser = new JSONParser();
+        try {
+            JSONObject jsonObject = (JSONObject) parser.parse(jsonData);
+            JSONArray buildsObject = (JSONArray) jsonObject.get(BUILDS);
+            return getBuilds(buildsObject);
+
+        } catch (ParseException e) {
+            String message = String.format("Error during parsing JSON data : %s", jsonData);
+            LOG.error(message, e);
+            throw new RuntimeException(e);
+        }
+    }
+
     private Build getBuild(JSONObject lastBuildObject) {
         if (lastBuildObject == null) {
             return null;
@@ -155,8 +172,21 @@ public class JenkinsJsonParser implements JenkinsParser {
         build.setStatus(status);
         String url = (String) lastBuildObject.get(BUILD_URL);
         build.setUrl(url);
+        Long timestamp = (Long) lastBuildObject.get(BUILD_TIMESTAMP);
+        build.setTimestamp(timestamp);
+        Long duration = (Long) lastBuildObject.get(BUILD_DURATION);
+        build.setDuration(duration);
 
         return build;
+    }
+
+    private List<Build> getBuilds(JSONArray buildsObjects) {
+        List<Build> builds = new LinkedList<>();
+        for (Object obj: buildsObjects) {
+            JSONObject buildObject = (JSONObject) obj;
+            builds.add(getBuild(buildObject));
+        }
+        return builds;
     }
 
     private Job getJob(JSONObject jsonObject) {

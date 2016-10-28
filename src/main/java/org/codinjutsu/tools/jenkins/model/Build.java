@@ -16,7 +16,6 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
-import org.apache.commons.httpclient.util.URIUtil;
 import org.codinjutsu.tools.jenkins.util.DateUtil;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
@@ -35,6 +34,8 @@ public class Build {
     private int number;
     private boolean building;
     private String message;
+    private Date timestamp;
+    private Long duration;
 
     private BuildStatusEnum status;
 
@@ -92,6 +93,10 @@ public class Build {
         return ICON_BY_BUILD_STATUS_MAP.get(BuildStatusEnum.NULL);
     }
 
+    public Icon getStateIcon() {
+        return ICON_BY_BUILD_STATUS_MAP.get(status);
+    }
+
 
     public String getUrl() {
         return url;
@@ -125,6 +130,21 @@ public class Build {
         this.buildDate = DateUtil.parseDate(buildDate, DateUtil.WORKSPACE_DATE_FORMAT);
     }
 
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Long timestamp) {
+        this.timestamp = new Date(timestamp);
+    }
+
+    public Long getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Long duration) {
+        this.duration = duration;
+    }
 
     public boolean isBuilding() {
         return building;
