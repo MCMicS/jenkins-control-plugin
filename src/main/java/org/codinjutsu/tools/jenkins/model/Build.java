@@ -16,7 +16,6 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
-import org.apache.commons.httpclient.util.URIUtil;
 import org.codinjutsu.tools.jenkins.util.DateUtil;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
@@ -35,6 +34,8 @@ public class Build {
     private int number;
     private boolean building;
     private String message;
+    private Date timestamp;
+    private Long duration;
 
     private BuildStatusEnum status;
 
@@ -48,35 +49,37 @@ public class Build {
     }
 
 
-    public static Build createBuildFromWorkspace(String buildUrl, Long number, String status, Boolean isBuilding, String buildDate) {
-        return createBuild(buildUrl, number, status, isBuilding, buildDate, DateUtil.WORKSPACE_DATE_FORMAT, null);
+    public static Build createBuildFromWorkspace(String buildUrl, Long number, String status, Boolean isBuilding, String buildDate, Long timestamp, Long duration) {
+        return createBuild(buildUrl, number, status, isBuilding, buildDate, DateUtil.WORKSPACE_DATE_FORMAT, null, timestamp, duration);
     }
 
-    public static Build createBuildFromWorkspace(String buildUrl, String number, String status, String isBuilding, String buildDate) {
-        return createBuild(buildUrl, Long.parseLong(number), status, Boolean.parseBoolean(isBuilding), buildDate, DateUtil.WORKSPACE_DATE_FORMAT, null);
+    public static Build createBuildFromWorkspace(String buildUrl, String number, String status, String isBuilding, String buildDate, Long timestamp, Long duration) {
+        return createBuild(buildUrl, Long.parseLong(number), status, Boolean.parseBoolean(isBuilding), buildDate, DateUtil.WORKSPACE_DATE_FORMAT, null, timestamp, duration);
     }
 
     public static Build createBuildFromRss(String buildUrl, String number, String status, String isBuilding, String buildDate, String message) {
-        return createBuild(buildUrl, Long.parseLong(number), status, Boolean.parseBoolean(isBuilding), buildDate, DateUtil.RSS_DATE_FORMAT, message);
+        return createBuild(buildUrl, Long.parseLong(number), status, Boolean.parseBoolean(isBuilding), buildDate, DateUtil.RSS_DATE_FORMAT, message, 0l, 0l);
     }
 
-    private static Build createBuild(String buildUrl, Long number, String status, Boolean isBuilding, String buildDate, SimpleDateFormat simpleDateFormat, String message) {
+    private static Build createBuild(String buildUrl, Long number, String status, Boolean isBuilding, String buildDate, SimpleDateFormat simpleDateFormat, String message, Long timestamp, Long duration) {
         BuildStatusEnum buildStatusEnum = BuildStatusEnum.parseStatus(status);
         Date date = DateUtil.parseDate(buildDate, simpleDateFormat);
 
-        return new Build(buildUrl, number.intValue(), date, buildStatusEnum, isBuilding, message);
+        return new Build(buildUrl, number.intValue(), date, buildStatusEnum, isBuilding, message, timestamp, duration);
     }
 
     public Build() {
     }
 
-    private Build(String url, int number, Date buildDate, BuildStatusEnum status, boolean isBuilding, String message) {
+    private Build(String url, int number, Date buildDate, BuildStatusEnum status, boolean isBuilding, String message, Long timestamp, Long duration) {
         this.url = url;
         this.number = number;
         this.buildDate = buildDate;
         this.status = status;
         this.building = isBuilding;
         this.message = message;
+        setTimestamp(timestamp);
+        this.duration = duration;
     }
 
 
@@ -90,6 +93,10 @@ public class Build {
         }
 
         return ICON_BY_BUILD_STATUS_MAP.get(BuildStatusEnum.NULL);
+    }
+
+    public Icon getStateIcon() {
+        return ICON_BY_BUILD_STATUS_MAP.get(status);
     }
 
 
@@ -125,6 +132,21 @@ public class Build {
         this.buildDate = DateUtil.parseDate(buildDate, DateUtil.WORKSPACE_DATE_FORMAT);
     }
 
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Long timestamp) {
+        this.timestamp = new Date(timestamp);
+    }
+
+    public Long getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Long duration) {
+        this.duration = duration;
+    }
 
     public boolean isBuilding() {
         return building;

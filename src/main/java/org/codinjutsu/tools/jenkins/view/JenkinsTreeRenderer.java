@@ -19,6 +19,9 @@ package org.codinjutsu.tools.jenkins.view;
 import com.intellij.ui.ColoredTreeCellRenderer;
 import com.intellij.ui.RowIcon;
 import com.intellij.ui.SimpleTextAttributes;
+import com.intellij.util.text.DateFormatUtil;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DurationFormatUtils;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
@@ -63,6 +66,10 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
             } else {
                 setIcon(new CompositeIcon(job.getStateIcon(), job.getHealthIcon()));
             }
+        } else if (userObject instanceof Build) {
+            Build build = (Build) node.getUserObject();
+            append(buildLabel(build), SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
+            setIcon(new CompositeIcon(build.getStateIcon()));
         }
     }
 
@@ -84,6 +91,14 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
         }
 
         return SimpleTextAttributes.REGULAR_ATTRIBUTES;
+    }
+
+    public static String buildLabel(Build build) {
+        String status = "";
+        if (build.isBuilding()) {
+            status = " (running)";
+        }
+        return String.format("#%d (%s) duration: %s %s", build.getNumber(), DateFormatUtil.formatDateTime(build.getTimestamp()), DurationFormatUtils.formatDurationHMS(build.getDuration()), status);
     }
 
 

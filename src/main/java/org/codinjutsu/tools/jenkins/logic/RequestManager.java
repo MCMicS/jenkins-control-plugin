@@ -164,6 +164,13 @@ public class RequestManager implements RequestManagerInterface {
         return jsonParser.createBuild(jenkinsJobData);
     }
 
+    private List<Build> loadBuilds(String jenkinsBuildUrl) {
+        if (handleNotYetLoggedInState()) return null;
+        URL url = urlBuilder.createBuildsUrl(jenkinsBuildUrl);
+        String jenkinsJobData = securityClient.execute(url);
+        return jsonParser.createBuilds(jenkinsJobData);
+    }
+
     @Override
     public void runBuild(Job job, JenkinsAppSettings configuration, Map<String, VirtualFile> files) {
         if (handleNotYetLoggedInState()) return;
@@ -237,6 +244,11 @@ public class RequestManager implements RequestManagerInterface {
     @Override
     public List<Job>loadJenkinsView(View view){
         return loadJenkinsView(view.getUrl());
+    }
+
+    @Override
+    public List<Build> loadBuilds(Job job) {
+        return loadBuilds(job.getUrl());
     }
 
     @Override

@@ -38,4 +38,6 @@ public interface RequestManagerInterface {
     List<Job>loadJenkinsView (View view);
 
     Build loadBuild(Build build);
+
+    List<Build> loadBuilds(Job job);
 }
