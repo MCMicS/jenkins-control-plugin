@@ -173,9 +173,13 @@ public class JenkinsJsonParser implements JenkinsParser {
         String url = (String) lastBuildObject.get(BUILD_URL);
         build.setUrl(url);
         Long timestamp = (Long) lastBuildObject.get(BUILD_TIMESTAMP);
-        build.setTimestamp(timestamp);
+        if (null != timestamp) {
+            build.setTimestamp(timestamp);
+        }
         Long duration = (Long) lastBuildObject.get(BUILD_DURATION);
-        build.setDuration(duration);
+        if (null != duration) {
+            build.setDuration(duration);
+        }
 
         return build;
     }

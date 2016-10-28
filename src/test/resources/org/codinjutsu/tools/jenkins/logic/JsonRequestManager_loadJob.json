@@ -20,7 +20,9 @@
         "building":false,
         "number":8,
         "result":"SUCCESS",
-        "url":"http://ci.jenkins-ci.org/job/config-provider-model/8/"
+        "url":"http://ci.jenkins-ci.org/job/config-provider-model/8/",
+        "timestamp": 1477640156281,
+        "duration": 4386421
     },
     "property":[]
 }
