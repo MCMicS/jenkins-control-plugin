@@ -17,7 +17,9 @@
             "id": "2011-12-01_16-53-48",
             "number": 26,
             "result": "FAILURE",
-            "url": "http://localhost:8484/jenkins/job/DummyProject/26/"
+            "url": "http://localhost:8484/jenkins/job/DummyProject/26/",
+            "timestamp": 1477640156281,
+            "duration": 4386421
         },
         "property": [
             {

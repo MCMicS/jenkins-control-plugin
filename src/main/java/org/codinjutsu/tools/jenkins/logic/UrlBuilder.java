@@ -34,11 +34,12 @@ public class UrlBuilder {
     private static final String RSS_LATEST = "/rssLatest";
     private static final String TREE_PARAM = "?tree=";
     private static final String BASIC_JENKINS_INFO = "nodeName,nodeDescription,primaryView[name,url],views[name,url,views[name,url]]";
-    private static final String BASIC_JOB_INFO = "name,displayName,url,color,buildable,inQueue,healthReport[description,iconUrl],lastBuild[id,url,building,result,number],property[parameterDefinitions[name,type,defaultParameterValue[value],choices]]";
+    private static final String BASIC_JOB_INFO = "name,displayName,url,color,buildable,inQueue,healthReport[description,iconUrl],lastBuild[id,url,building,result,number,timestamp,duration],property[parameterDefinitions[name,type,defaultParameterValue[value],choices]]";
     private static final String BASIC_VIEW_INFO = "name,url,jobs[" + BASIC_JOB_INFO + "]";
     private static final String CLOUDBEES_VIEW_INFO = "name,url,views[jobs[" + BASIC_JOB_INFO + "]]";
     private static final String TEST_CONNECTION_REQUEST = "?tree=nodeName";
-    private static final String BASIC_BUILD_INFO = "id,url,building,result,number";
+    private static final String BASIC_BUILD_INFO = "id,url,building,result,number,timestamp,duration";
+    private static final String BASIC_BUILDS_INFO = "builds[" + BASIC_BUILD_INFO + "]";
 
     public static UrlBuilder getInstance(Project project) {
         return ServiceManager.getService(project, UrlBuilder.class);
@@ -112,6 +113,15 @@ public class UrlBuilder {
     public URL createBuildUrl(String buildUrl) {
         try {
             return new URL(buildUrl + URIUtil.encodePathQuery(API_JSON + TREE_PARAM + BASIC_BUILD_INFO));
+        } catch (Exception ex) {
+            handleException(ex);
+        }
+        return null;
+    }
+
+    public URL createBuildsUrl(String buildUrl) {
+        try {
+            return new URL(buildUrl + URIUtil.encodePathQuery(API_JSON + TREE_PARAM + BASIC_BUILDS_INFO));
         } catch (Exception ex) {
             handleException(ex);
         }

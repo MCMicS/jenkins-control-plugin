@@ -26,7 +26,9 @@
                 "id":"2012-11-04_14-56-10",
                 "number":80,
                 "result":"SUCCESS",
-                "url":"http://jenkins.home.lobach.info:8080/job/abris/80/"
+                "url":"http://jenkins.home.lobach.info:8080/job/abris/80/",
+                "timestamp": 1477640156281,
+                "duration": 4386421
             },
             "property":[
                 {}
@@ -73,7 +75,9 @@
                 "id":"2011-10-13_11-16-52",
                 "number":14,
                 "result":"SUCCESS",
-                "url":"http://jenkins.home.lobach.info:8080/job/zfImageFilter/14/"
+                "url":"http://jenkins.home.lobach.info:8080/job/zfImageFilter/14/",
+                "timestamp": 1477640156281,
+                "duration": 4386421
             },
             "property":[
                 {}

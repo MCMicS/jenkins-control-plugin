@@ -22,7 +22,9 @@
                         "building":false,
                         "result":"SUCCESS",
                         "number":15,
-                        "url":"http://myjenkins/job/sql-tools/15/"
+                        "url":"http://myjenkins/job/sql-tools/15/",
+                        "timestamp": 1477640156281,
+                        "duration": 4386421
                     }
                 },
                 {
@@ -51,7 +53,9 @@
                         "building":true,
                         "result":"FAILURE",
                         "number":12,
-                        "url":"http://myjenkins/job/myapp/12/"
+                        "url":"http://myjenkins/job/myapp/12/",
+                        "timestamp": 1477640156281,
+                        "duration": 4386421
                     },
                     "property":[
                         {},
@@ -92,7 +96,9 @@
                         "building":false,
                         "result":"FAILURE",
                         "number":5,
-                        "url":"http://myjenkins/job/swing-utils/5/"
+                        "url":"http://myjenkins/job/swing-utils/5/",
+                        "timestamp": 1477640156281,
+                        "duration": 4386421
                     },
                     "property":[
                         {

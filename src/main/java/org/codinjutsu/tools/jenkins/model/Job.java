@@ -36,10 +36,13 @@ public class Job {
     private String color;
     private boolean inQueue;
     private boolean buildable;
+    private boolean fetchBuild = false;
 
     private Health health;
 
     private Build lastBuild;
+
+    private List<Build> lastBuilds = new LinkedList<>();
 
     private final List<JobParameter> parameters = new LinkedList<JobParameter>();
 
@@ -95,6 +98,7 @@ public class Job {
         this.health = updatedJob.getHealth();
         this.inQueue = updatedJob.isInQueue();
         this.lastBuild = updatedJob.getLastBuild();
+        this.lastBuilds = updatedJob.getLastBuilds();
     }
 
 
@@ -153,9 +157,16 @@ public class Job {
         return lastBuild;
     }
 
-
     public void setLastBuild(Build lastBuild) {
         this.lastBuild = lastBuild;
+    }
+
+    public List<Build> getLastBuilds() {
+        return lastBuilds;
+    }
+
+    public void setLastBuilds(List<Build> builds) {
+        lastBuilds = builds;
     }
 
     Health getHealth() {
@@ -168,6 +179,14 @@ public class Job {
 
     public boolean hasParameters() {
         return !parameters.isEmpty();
+    }
+
+    public void setFetchBuild(boolean fetchBuild) {
+        this.fetchBuild = fetchBuild;
+    }
+
+    public boolean isFetchBuild() {
+        return fetchBuild;
     }
 
 

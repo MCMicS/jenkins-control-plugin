@@ -62,7 +62,11 @@ class BasicSecurityClient extends DefaultSecurityClient {
 
         try {
             if (isCrumbDataSet()) {
-                post.addRequestHeader(CRUMB_NAME, crumbData);
+                if (version.equals(Version.VER_1)) {
+                    post.addRequestHeader(CRUMB_NAME, crumbData);
+                } else {
+                    post.addRequestHeader(CRUMB_NAME_VER2, crumbData);
+                }
             }
 
             post.setDoAuthentication(true);

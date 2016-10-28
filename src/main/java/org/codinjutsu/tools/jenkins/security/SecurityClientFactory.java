@@ -26,4 +26,15 @@ public class SecurityClientFactory {
         return new DefaultSecurityClient(crumbData);
     }
 
+    public static SecurityClient basicVer2(String username, String password, String crumbData) {
+        BasicSecurityClient basicSecurityClient = new BasicSecurityClient(username, password, crumbData);
+        basicSecurityClient.setVersion(DefaultSecurityClient.Version.VER_2);
+        return basicSecurityClient;
+    }
+
+    public static SecurityClient noneVer2(String crumbData) {
+        DefaultSecurityClient defaultSecurityClient = new DefaultSecurityClient(crumbData);
+        defaultSecurityClient.setVersion(DefaultSecurityClient.Version.VER_2);
+        return defaultSecurityClient;
+    }
 }

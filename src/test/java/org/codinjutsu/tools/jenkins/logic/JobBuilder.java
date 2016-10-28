@@ -32,8 +32,8 @@ public class JobBuilder {
         return this;
     }
 
-    public JobBuilder lastBuild(String buildUrl, String number, String status, String isBuilding, String buildingDate) {
-        job.setLastBuild(Build.createBuildFromWorkspace(buildUrl, number, status, isBuilding, buildingDate));
+    public JobBuilder lastBuild(String buildUrl, String number, String status, String isBuilding, String buildingDate, Long timestamp, Long duration) {
+        job.setLastBuild(Build.createBuildFromWorkspace(buildUrl, number, status, isBuilding, buildingDate, timestamp, duration));
         return this;
     }
 

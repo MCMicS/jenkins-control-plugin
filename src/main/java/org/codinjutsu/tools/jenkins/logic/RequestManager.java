@@ -164,6 +164,13 @@ public class RequestManager implements RequestManagerInterface {
         return jsonParser.createBuild(jenkinsJobData);
     }
 
+    private List<Build> loadBuilds(String jenkinsBuildUrl) {
+        if (handleNotYetLoggedInState()) return null;
+        URL url = urlBuilder.createBuildsUrl(jenkinsBuildUrl);
+        String jenkinsJobData = securityClient.execute(url);
+        return jsonParser.createBuilds(jenkinsJobData);
+    }
+
     @Override
     public void runBuild(Job job, JenkinsAppSettings configuration, Map<String, VirtualFile> files) {
         if (handleNotYetLoggedInState()) return;
@@ -197,9 +204,17 @@ public class RequestManager implements RequestManagerInterface {
     @Override
     public void authenticate(JenkinsAppSettings jenkinsAppSettings, JenkinsSettings jenkinsSettings) {
         if (jenkinsSettings.isSecurityMode()) {
-            securityClient = SecurityClientFactory.basic(jenkinsSettings.getUsername(), jenkinsSettings.getPassword(), jenkinsSettings.getCrumbData());
+            if (jenkinsSettings.isVersion2()) {
+                securityClient = SecurityClientFactory.basicVer2(jenkinsSettings.getUsername(), jenkinsSettings.getPassword(), jenkinsSettings.getCrumbData());
+            } else {
+                securityClient = SecurityClientFactory.basic(jenkinsSettings.getUsername(), jenkinsSettings.getPassword(), jenkinsSettings.getCrumbData());
+            }
         } else {
-            securityClient = SecurityClientFactory.none(jenkinsSettings.getCrumbData());
+            if (jenkinsSettings.isVersion2()) {
+                securityClient = SecurityClientFactory.noneVer2(jenkinsSettings.getCrumbData());
+            } else {
+                securityClient = SecurityClientFactory.none(jenkinsSettings.getCrumbData());
+            }
         }
         securityClient.connect(urlBuilder.createAuthenticationUrl(jenkinsAppSettings.getServerUrl()));
     }
@@ -237,6 +252,11 @@ public class RequestManager implements RequestManagerInterface {
     @Override
     public List<Job>loadJenkinsView(View view){
         return loadJenkinsView(view.getUrl());
+    }
+
+    @Override
+    public List<Build> loadBuilds(Job job) {
+        return loadBuilds(job.getUrl());
     }
 
     @Override

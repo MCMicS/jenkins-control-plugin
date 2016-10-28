@@ -157,6 +157,17 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         }
     }
 
+    public Build getSelectedBuild() {
+        DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) jobTree.getLastSelectedPathComponent();
+        if (treeNode != null) {
+            Object userObject = treeNode.getUserObject();
+            if (userObject instanceof Build) {
+                return (Build) userObject;
+            }
+        }
+        return null;
+    }
+
     public Job getSelectedJob() {
         DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) jobTree.getLastSelectedPathComponent();
         if (treeNode != null) {
@@ -286,6 +297,10 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         });
     }
 
+    public void refreshJob(Job job) {
+        updateJobNode(job);
+    }
+
     private void updateJobNode(Job job) {
         final DefaultTreeModel model = (DefaultTreeModel) jobTree.getModel();
         final Object modelRoot = model.getRoot();
@@ -296,6 +311,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
                 DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) child;
                 if (childNode.getUserObject() == job) {
                     model.nodeChanged(childNode);
+                    fillBuildsTree(job, childNode);
                     break;
                 }
             }
@@ -401,6 +417,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         DefaultActionGroup actionGroup = new DefaultActionGroup("JenkinsToolbarGroup", false);
         actionGroup.add(new SelectViewAction(this));
         actionGroup.add(new RefreshNodeAction(this));
+        actionGroup.add(new LoadBuildsAction(this));
         actionGroup.add(new RunBuildAction(this));
         actionGroup.add(new StopBuildAction(this));
         actionGroup.add(new SortByStatusAction(this));
@@ -424,6 +441,9 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         popupGroup.add(new UnsetJobAsFavoriteAction(this));
         popupGroup.addSeparator();
         popupGroup.add(new GotoJobPageAction(this));
+        popupGroup.add(new GotoBuildPageAction(this));
+        popupGroup.add(new GotoBuildConsolePageAction(this));
+        popupGroup.add(new GotoBuildTestResultsPageAction(this));
         popupGroup.add(new GotoLastBuildPageAction(this));
         popupGroup.addSeparator();
         popupGroup.add(new UploadPatchToJob(this));
@@ -475,6 +495,14 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         return null;
     }
 
+    private void fillBuildsTree(Job job, DefaultMutableTreeNode jobNode) {
+        if (!job.getLastBuilds().isEmpty()) {
+            for (Build build : job.getLastBuilds()) {
+                DefaultMutableTreeNode buildNode = new DefaultMutableTreeNode(build);
+                jobNode.add(buildNode);
+            }
+        }
+    }
 
     private void fillJobTree(final BuildStatusVisitor buildStatusVisitor) {
         final List<Job> jobList = jenkins.getJobs();
@@ -488,6 +516,9 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
         for (Job job : jobList) {
             DefaultMutableTreeNode jobNode = new DefaultMutableTreeNode(job);
+            if (job.isFetchBuild()) {
+                fillBuildsTree(job, jobNode);
+            }
             rootNode.add(jobNode);
             visit(job, buildStatusVisitor);
         }

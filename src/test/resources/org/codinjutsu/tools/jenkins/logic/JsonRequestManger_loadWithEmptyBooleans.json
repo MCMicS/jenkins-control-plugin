@@ -17,7 +17,9 @@
         "id": "2012-04-02_10-26-29",
         "result": "FAILURE",
         "number": 5,
-        "url": "http://myjenkins/job/swing-utils/5/"
+        "url": "http://myjenkins/job/swing-utils/5/",
+        "timestamp": 1477640156281,
+        "duration": 4386421
       },
       "property": [
         {

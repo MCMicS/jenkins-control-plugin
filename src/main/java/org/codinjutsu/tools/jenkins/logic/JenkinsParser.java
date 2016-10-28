@@ -38,11 +38,14 @@ public interface JenkinsParser {
     String PRIMARY_VIEW = "primaryView";
     String VIEW_NAME = "name";
     String VIEW_URL = "url";
+    String BUILDS = "builds";
     String BUILD_IS_BUILDING = "building";
     String BUILD_ID = "id";
     String BUILD_RESULT = "result";
     String BUILD_URL = "url";
     String BUILD_NUMBER = "number";
+    String BUILD_TIMESTAMP = "timestamp";
+    String BUILD_DURATION = "duration";
     String PARAMETER_PROPERTY = "property";
     String PARAMETER_DEFINITIONS = "parameterDefinitions";
     String PARAMETER_NAME = "name";
@@ -56,6 +59,8 @@ public interface JenkinsParser {
     Job createJob(String jsonData);
 
     Build createBuild(String jsonData);
+
+    List<Build> createBuilds(String jsonData);
 
     List<Job> createViewJobs(String jsonData);
 
