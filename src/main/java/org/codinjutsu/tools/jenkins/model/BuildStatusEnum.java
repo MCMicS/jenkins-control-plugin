@@ -26,7 +26,10 @@ public enum BuildStatusEnum {
     ABORTED("Aborted", "aborted"),
     SUCCESS("Success", "blue"),
     STABLE("Stable", "blue"),
-    NULL("Null", "disabled");
+    NULL("Null", "disabled"),
+    // TODO: handle the folder-case explicitly
+    // instead of simply making it a BuildStatusEnum so that the icon renders
+    FOLDER("Folder", "disabled");
 
     private final String status;
     private final String color;
