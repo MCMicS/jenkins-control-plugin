@@ -80,6 +80,14 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
     public void setCrumbData(String crumbData) {
         myState.crumbData = crumbData;
     }
+    
+    public boolean isVersion2() {
+        return myState.version2;
+    }
+
+    public void setVersion2(boolean flag) {
+        myState.version2 = flag;
+    }
 
     public String getPassword() {
         String password;
@@ -164,6 +172,7 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
 
         public List<FavoriteJob> favoriteJobs = new LinkedList<FavoriteJob>();
 
+        public boolean version2;
     }
 
     @Tag("favorite")

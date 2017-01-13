@@ -77,6 +77,7 @@ public class ConfigurationPanel {
 
     private JPanel uploadPatchSettingsPanel;
     private JTextField replaceWithSuffix;
+    private JCheckBox jenkinsVersion;
 
     private final FormValidator formValidator;
 
@@ -92,6 +93,7 @@ public class ConfigurationPanel {
 
         passwordField.setName("passwordFile");
         crumbDataField.setName("crumbDataFile");
+        jenkinsVersion.setName("jenkinsVersion");
 
         testConnexionButton.setName("testConnexionButton");
         connectionStatusLabel.setName("connectionStatusLabel");
@@ -138,10 +140,11 @@ public class ConfigurationPanel {
                     new UrlValidator().validate(serverUrl);
 
                     JenkinsSettings jenkinsSettings = JenkinsSettings.getSafeInstance(project);
+                    JenkinsAppSettings jenkinsAppSettings = JenkinsAppSettings.getSafeInstance(project);
 
                     String password = isPasswordModified() ? getPassword() : jenkinsSettings.getPassword();
 
-                    RequestManager.getInstance(project).authenticate(serverUrl.getText(), username.getText(), password, crumbDataField.getText());
+                    RequestManager.getInstance(project).authenticate(jenkinsAppSettings, jenkinsSettings);
                     setConnectionFeedbackLabel(CONNECTION_TEST_SUCCESSFUL_COLOR, "Successful");
                     setPassword(password);
                 } catch (Exception ex) {
@@ -187,6 +190,7 @@ public class ConfigurationPanel {
                 || !(jenkinsAppSettings.getJobRefreshPeriod() == getJobRefreshPeriod())
                 || !(jenkinsAppSettings.getRssRefreshPeriod() == getRssRefreshPeriod())
                 || !(jenkinsSettings.getCrumbData().equals(crumbDataField.getText()))
+                || !(jenkinsSettings.isVersion2() == jenkinsVersion.isSelected())
                 || credentialModified
                 || statusToIgnoreModified || (!jenkinsAppSettings.getSuffix().equals(replaceWithSuffix.getText()));
     }
@@ -205,6 +209,7 @@ public class ConfigurationPanel {
         jenkinsAppSettings.setJobRefreshPeriod(getJobRefreshPeriod());
         jenkinsAppSettings.setRssRefreshPeriod(getRssRefreshPeriod());
         jenkinsSettings.setCrumbData(crumbDataField.getText());
+        jenkinsSettings.setVersion2(jenkinsVersion.isSelected());
 
         jenkinsAppSettings.setIgnoreSuccessOrStable(successOrStableCheckBox.isSelected());
         jenkinsAppSettings.setDisplayUnstableOrFail(unstableOrFailCheckBox.isSelected());
@@ -238,6 +243,7 @@ public class ConfigurationPanel {
             resetPasswordModification();
         }
 
+        jenkinsVersion.setSelected(jenkinsSettings.isVersion2());
         crumbDataField.setText(jenkinsSettings.getCrumbData());
 
         successOrStableCheckBox.setSelected(jenkinsAppSettings.shouldDisplaySuccessOrStable());

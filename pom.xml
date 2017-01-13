@@ -263,6 +263,17 @@
                 <plugin.max.version>149.9999</plugin.max.version>
             </properties>
         </profile>
+        <profile>
+            <id>idea-UI-2016.3.2</id>
+            <properties>
+                <maven.compiler.source>1.8</maven.compiler.source>
+                <maven.compiler.target>1.8</maven.compiler.target>
+                <intellij.sdk.name>163.10154.41</intellij.sdk.name>
+                <intellij.sdk.version>2016.3.2</intellij.sdk.version>
+                <intellij.lib.path>/home/bidek/Pulpit/idea-IU-${intellij.sdk.name}/lib</intellij.lib.path>
+                <plugin.min.version>145.0</plugin.min.version>
+            </properties>
+        </profile>
     </profiles>
 
     <!--
