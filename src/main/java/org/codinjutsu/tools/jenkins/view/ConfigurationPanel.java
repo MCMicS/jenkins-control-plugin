@@ -26,6 +26,7 @@ import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.security.AuthenticationException;
+import org.codinjutsu.tools.jenkins.security.JenkinsVersion;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.annotation.FormValidator;
 import org.codinjutsu.tools.jenkins.view.annotation.GuiField;
@@ -77,6 +78,8 @@ public class ConfigurationPanel {
 
     private JPanel uploadPatchSettingsPanel;
     private JTextField replaceWithSuffix;
+    private JRadioButton version1RadioButton;
+    private JRadioButton version2RadioButton;
 
     private final FormValidator formValidator;
 
@@ -99,6 +102,8 @@ public class ConfigurationPanel {
         successOrStableCheckBox.setName("successOrStableCheckBox");
         unstableOrFailCheckBox.setName("unstableOrFailCheckBox");
         abortedCheckBox.setName("abortedCheckBox");
+        version1RadioButton.setName("version1RadioButton");
+        version2RadioButton.setName("version2RadioButton");
 
         rssStatusFilterPanel.setBorder(IdeBorderFactory.createTitledBorder("Event Log Settings", true));
 
@@ -141,7 +146,9 @@ public class ConfigurationPanel {
 
                     String password = isPasswordModified() ? getPassword() : jenkinsSettings.getPassword();
 
-                    RequestManager.getInstance(project).authenticate(serverUrl.getText(), username.getText(), password, crumbDataField.getText());
+                    JenkinsVersion version = version1RadioButton.isSelected() ? JenkinsVersion.VERSION_1 : JenkinsVersion.VERSION_2;
+
+                    RequestManager.getInstance(project).authenticate(serverUrl.getText(), username.getText(), password, crumbDataField.getText(), version);
                     setConnectionFeedbackLabel(CONNECTION_TEST_SUCCESSFUL_COLOR, "Successful");
                     setPassword(password);
                 } catch (Exception ex) {
@@ -222,6 +229,11 @@ public class ConfigurationPanel {
             jenkinsSettings.setPassword(getPassword());
             resetPasswordModification();
         }
+        if(version1RadioButton.isSelected()){
+            jenkinsSettings.setVersion(JenkinsVersion.VERSION_1);
+        } else {
+            jenkinsSettings.setVersion(JenkinsVersion.VERSION_2);
+        }
     }
 
     public void loadConfigurationData(JenkinsAppSettings jenkinsAppSettings, JenkinsSettings jenkinsSettings) {
@@ -245,6 +257,14 @@ public class ConfigurationPanel {
         abortedCheckBox.setSelected(jenkinsAppSettings.shouldDisplayAborted());
 
         replaceWithSuffix.setText(String.valueOf(jenkinsAppSettings.getSuffix()));
+
+        if( jenkinsSettings.getVersion().equals(JenkinsVersion.VERSION_1)){
+            version1RadioButton.setSelected(true);
+            version2RadioButton.setSelected(false);
+        } else {
+            version1RadioButton.setSelected(false);
+            version2RadioButton.setSelected(true);
+        }
     }
 
     private boolean isPasswordModified() {

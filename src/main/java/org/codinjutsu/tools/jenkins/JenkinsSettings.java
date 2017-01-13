@@ -30,6 +30,7 @@ import com.intellij.util.xmlb.annotations.Attribute;
 import com.intellij.util.xmlb.annotations.Tag;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.model.Job;
+import org.codinjutsu.tools.jenkins.security.JenkinsVersion;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -152,6 +153,14 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
         return StringUtils.isNotBlank(getUsername());
     }
 
+    public JenkinsVersion getVersion() {
+        return this.myState.jenkinsVersion;
+    }
+
+    public void setVersion(JenkinsVersion jenkinsVersion) {
+        this.myState.jenkinsVersion = jenkinsVersion;
+    }
+
     public static class State {
 
         public static final String RESET_STR_VALUE = "";
@@ -163,6 +172,8 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
         public String lastSelectedView;
 
         public List<FavoriteJob> favoriteJobs = new LinkedList<FavoriteJob>();
+
+        public JenkinsVersion jenkinsVersion = JenkinsVersion.VERSION_1;
 
     }
 
