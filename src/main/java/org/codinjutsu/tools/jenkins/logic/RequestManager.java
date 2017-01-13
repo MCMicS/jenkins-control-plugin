@@ -204,9 +204,17 @@ public class RequestManager implements RequestManagerInterface {
     @Override
     public void authenticate(JenkinsAppSettings jenkinsAppSettings, JenkinsSettings jenkinsSettings) {
         if (jenkinsSettings.isSecurityMode()) {
-            securityClient = SecurityClientFactory.basic(jenkinsSettings.getUsername(), jenkinsSettings.getPassword(), jenkinsSettings.getCrumbData());
+            if (jenkinsSettings.isVersion2()) {
+                securityClient = SecurityClientFactory.basicVer2(jenkinsSettings.getUsername(), jenkinsSettings.getPassword(), jenkinsSettings.getCrumbData());
+            } else {
+                securityClient = SecurityClientFactory.basic(jenkinsSettings.getUsername(), jenkinsSettings.getPassword(), jenkinsSettings.getCrumbData());
+            }
         } else {
-            securityClient = SecurityClientFactory.none(jenkinsSettings.getCrumbData());
+            if (jenkinsSettings.isVersion2()) {
+                securityClient = SecurityClientFactory.noneVer2(jenkinsSettings.getCrumbData());
+            } else {
+                securityClient = SecurityClientFactory.none(jenkinsSettings.getCrumbData());
+            }
         }
         securityClient.connect(urlBuilder.createAuthenticationUrl(jenkinsAppSettings.getServerUrl()));
     }

@@ -43,9 +43,15 @@ class DefaultSecurityClient implements SecurityClient {
 
     private static final String BAD_CRUMB_DATA = "No valid crumb was included in the request";
     static final String CRUMB_NAME = ".crumb";
+    static final String CRUMB_NAME_VER2 = "Jenkins-Crumb";
     private static final int DEFAULT_SOCKET_TIMEOUT = 10000;
     private static final int DEFAULT_CONNECTION_TIMEOUT = 10000;
 
+    public enum Version {
+        VER_1, VER_2
+    }
+
+    protected Version version = Version.VER_1;
     protected String crumbData;
 
     protected final HttpClient httpClient;
@@ -54,6 +60,9 @@ class DefaultSecurityClient implements SecurityClient {
     DefaultSecurityClient(String crumbData) {
         this.httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
         this.crumbData = crumbData;
+    }
+    public void setVersion(Version version) {
+        this.version = version;
     }
 
     @Override
@@ -101,7 +110,11 @@ class DefaultSecurityClient implements SecurityClient {
         PostMethod post = new PostMethod(url);
 
         if (isCrumbDataSet()) {
-            post.addRequestHeader(CRUMB_NAME, crumbData);
+            if (version.equals(Version.VER_1)) {
+                post.addRequestHeader(CRUMB_NAME, crumbData);
+            } else {
+                post.addRequestHeader(CRUMB_NAME_VER2, crumbData);
+            }
         }
 
         post = addFiles(post);
