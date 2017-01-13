@@ -46,6 +46,7 @@ public class Build {
         ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.UNSTABLE, GuiUtil.loadIcon("yellow.png"));
         ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.NULL, GuiUtil.loadIcon("grey.png"));
         ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.ABORTED, GuiUtil.loadIcon("grey.png"));
+        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.FOLDER, GuiUtil.loadIcon("folder.png"));
     }
 
 
@@ -84,6 +85,11 @@ public class Build {
 
 
     public static Icon getStateIcon(String jobColor) {
+        if (jobColor == null) {
+            // NB: This assumes the case of rendering a folder.
+            // TODO: handle the folder-case explicitly
+            return ICON_BY_BUILD_STATUS_MAP.get(BuildStatusEnum.FOLDER);
+        }
         BuildStatusEnum[] jobStates = BuildStatusEnum.values();
         for (BuildStatusEnum jobState : jobStates) {
             String stateName = jobState.getColor();
