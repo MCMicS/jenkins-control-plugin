@@ -28,6 +28,7 @@ import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.model.View;
+import org.codinjutsu.tools.jenkins.security.JenkinsVersion;
 import org.codinjutsu.tools.jenkins.security.SecurityClient;
 import org.codinjutsu.tools.jenkins.security.SecurityClientFactory;
 
@@ -203,6 +204,7 @@ public class RequestManager implements RequestManagerInterface {
 
     @Override
     public void authenticate(JenkinsAppSettings jenkinsAppSettings, JenkinsSettings jenkinsSettings) {
+        SecurityClientFactory.setVersion(jenkinsSettings.getVersion());
         if (jenkinsSettings.isSecurityMode()) {
             securityClient = SecurityClientFactory.basic(jenkinsSettings.getUsername(), jenkinsSettings.getPassword(), jenkinsSettings.getCrumbData());
         } else {
@@ -212,7 +214,8 @@ public class RequestManager implements RequestManagerInterface {
     }
 
     @Override
-    public void authenticate(String serverUrl, String username, String password, String crumbData) {
+    public void authenticate(String serverUrl, String username, String password, String crumbData, JenkinsVersion version) {
+        SecurityClientFactory.setVersion(version);
         if (StringUtils.isNotBlank(username)) {
             securityClient = SecurityClientFactory.basic(username, password, crumbData);
         } else {

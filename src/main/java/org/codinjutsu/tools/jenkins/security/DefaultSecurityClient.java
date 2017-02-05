@@ -42,11 +42,11 @@ import java.util.Map;
 class DefaultSecurityClient implements SecurityClient {
 
     private static final String BAD_CRUMB_DATA = "No valid crumb was included in the request";
-    static final String CRUMB_NAME = ".crumb";
     private static final int DEFAULT_SOCKET_TIMEOUT = 10000;
     private static final int DEFAULT_CONNECTION_TIMEOUT = 10000;
 
     protected String crumbData;
+    protected JenkinsVersion jenkinsVersion = JenkinsVersion.VERSION_1;
 
     protected final HttpClient httpClient;
     protected Map<String, VirtualFile> files = new HashMap<String, VirtualFile>();
@@ -101,7 +101,7 @@ class DefaultSecurityClient implements SecurityClient {
         PostMethod post = new PostMethod(url);
 
         if (isCrumbDataSet()) {
-            post.addRequestHeader(CRUMB_NAME, crumbData);
+            post.addRequestHeader(jenkinsVersion.getCrumbName(), crumbData);
         }
 
         post = addFiles(post);
@@ -177,5 +177,9 @@ class DefaultSecurityClient implements SecurityClient {
             this.data = body;
         }
 
+    }
+
+    public void setJenkinsVersion(JenkinsVersion jenkinsVersion) {
+        this.jenkinsVersion = jenkinsVersion;
     }
 }

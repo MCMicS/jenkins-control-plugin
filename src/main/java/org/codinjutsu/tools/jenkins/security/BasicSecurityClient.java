@@ -62,7 +62,7 @@ class BasicSecurityClient extends DefaultSecurityClient {
 
         try {
             if (isCrumbDataSet()) {
-                post.addRequestHeader(CRUMB_NAME, crumbData);
+                post.addRequestHeader(jenkinsVersion.getCrumbName(), crumbData);
             }
 
             post.setDoAuthentication(true);

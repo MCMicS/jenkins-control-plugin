@@ -17,13 +17,24 @@
 package org.codinjutsu.tools.jenkins.security;
 
 public class SecurityClientFactory {
+    private static JenkinsVersion _version;
+
+    public static void setVersion(JenkinsVersion version) {
+        _version = version;
+    }
 
     public static SecurityClient basic(String username, String password, String crumbData) {
-        return new BasicSecurityClient(username, password, crumbData);
+        BasicSecurityClient basicSecurityClient = new BasicSecurityClient(username, password, crumbData);
+        basicSecurityClient.setJenkinsVersion(_version);
+
+        return basicSecurityClient;
     }
 
     public static SecurityClient none(String crumbData) {
-        return new DefaultSecurityClient(crumbData);
+        DefaultSecurityClient defaultSecurityClient = new DefaultSecurityClient(crumbData);
+        defaultSecurityClient.setJenkinsVersion(_version);
+
+        return defaultSecurityClient;
     }
 
 }
