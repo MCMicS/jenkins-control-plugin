@@ -146,6 +146,15 @@ public class UrlBuilder {
         return null;
     }
 
+    public URL createConsoleTextURLFor(String buildURL) {
+        try {
+            return new URL(buildURL + "/consoleText");
+        } catch (Exception ex) {
+            handleException(ex);
+        }
+        return null;
+    }
+
     private void handleException(Exception ex) {
         if (ex instanceof MalformedURLException) {
             throw new IllegalArgumentException("URL is malformed", ex);

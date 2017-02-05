@@ -255,4 +255,9 @@ public class RequestManager implements RequestManagerInterface {
     public Build loadBuild(Build build){
         return loadBuild(build.getUrl());
     }
+
+    @Override
+    public String loadConsoleTextFor(Build build) {
+        return securityClient.execute(urlBuilder.createConsoleTextURLFor(build.getUrl()));
+    }
 }

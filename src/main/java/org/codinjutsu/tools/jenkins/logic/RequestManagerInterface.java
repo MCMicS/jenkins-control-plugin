@@ -40,4 +40,6 @@ public interface RequestManagerInterface {
     Build loadBuild(Build build);
 
     List<Build> loadBuilds(Job job);
+
+    String loadConsoleTextFor(Build build);
 }
