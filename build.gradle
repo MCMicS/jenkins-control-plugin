@@ -39,6 +39,10 @@ repositories {
 
 dependencies {
     compile 'com.googlecode.json-simple:json-simple:1.1.1'
+    compile ('com.offbytwo.jenkins:jenkins-client:0.3.7') {
+        exclude group: 'org.slf4j'
+        exclude group: 'org.apache.logging.log4j'
+    }
 
     testCompile 'junit:junit:4.10'
     testCompile 'org.mockito:mockito-all:1.8.5'

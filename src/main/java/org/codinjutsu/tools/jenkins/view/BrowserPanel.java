@@ -365,7 +365,6 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
     }
 
 
-
     public void handleEmptyConfiguration() {
         JenkinsWidget.getInstance(project).updateStatusIcon(BuildStatusAggregator.EMPTY); //FIXME could be handled elsehwere
         DefaultTreeModel model = (DefaultTreeModel) jobTree.getModel();

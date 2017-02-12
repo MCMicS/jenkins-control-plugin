@@ -1,6 +1,7 @@
 package org.codinjutsu.tools.jenkins.logic;
 
 import com.intellij.openapi.vfs.VirtualFile;
+import com.offbytwo.jenkins.model.TestResult;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.model.Build;
@@ -43,4 +44,6 @@ public interface RequestManagerInterface {
     List<Build> loadBuilds(Job job);
 
     String loadConsoleTextFor(Build build);
+
+    List<TestResult> loadTestResultsFor(Job job);
 }

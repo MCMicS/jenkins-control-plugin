@@ -20,7 +20,6 @@ import com.intellij.execution.ExecutionManager;
 import com.intellij.execution.executors.DefaultRunExecutor;
 import com.intellij.execution.filters.TextConsoleBuilder;
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
-import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.execution.ui.RunContentDescriptor;
@@ -35,11 +34,9 @@ import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.OutputStream;
 
 public class ShowLogAction extends AnAction implements DumbAware {
 
@@ -83,7 +80,7 @@ public class ShowLogAction extends AnAction implements DumbAware {
                     actionToolbar.setTargetComponent(panel);
 
                     toolbarActions.addAll(consoleView.createConsoleActions());
-                    toolbarActions.addAction(ActionManager.getInstance().getAction(IdeActions.ACTION_STOP_PROGRAM));
+                    toolbarActions.addAction(new ShowJobResultsAsJUnitViewAction());
                     panel.updateUI();
 
                     final RunContentDescriptor contentDescriptor = new RunContentDescriptor(consoleView, null, panel, myTitle);
@@ -112,31 +109,5 @@ public class ShowLogAction extends AnAction implements DumbAware {
     public void update(AnActionEvent event) {
         Job selectedJob = browserPanel.getSelectedJob();
         event.getPresentation().setVisible(selectedJob != null && selectedJob.isBuildable());
-    }
-
-    private static class DummyHandler extends ProcessHandler {
-        @Override
-        protected void destroyProcessImpl() {
-        }
-
-        @Override
-        protected void detachProcessImpl() {
-        }
-
-        @Override
-        public boolean detachIsDefault() {
-            return false;
-        }
-
-        @Nullable
-        @Override
-        public OutputStream getProcessInput() {
-            return null;
-        }
-
-        @Override
-        public boolean isProcessTerminated() {
-            return true;
-        }
     }
 }
