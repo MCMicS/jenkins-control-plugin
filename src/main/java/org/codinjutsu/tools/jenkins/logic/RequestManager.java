@@ -266,8 +266,13 @@ public class RequestManager implements RequestManagerInterface {
     }
 
     @Override
-    public String loadConsoleTextFor(Build build) {
-        return securityClient.execute(urlBuilder.createConsoleTextURLFor(build.getUrl()));
+    public String loadConsoleTextFor(Job job) {
+        try {
+            return jenkinsServer.getJob(job.getName()).getLastCompletedBuild().details().getConsoleOutputText();
+        } catch (IOException e) {
+            logger.warn("cannot load log for " + job.getName());
+            return null;
+        }
     }
 
     @Override
@@ -278,9 +283,11 @@ public class RequestManager implements RequestManagerInterface {
             if (lastCompletedBuild.getTestResult() != null) {
                 result.add(lastCompletedBuild.getTestResult());
             }
-            result.addAll(lastCompletedBuild.getTestReport().getChildReports().stream()
-                    .map(TestChildReport::getResult)
-                    .collect(Collectors.toList()));
+            if (lastCompletedBuild.getTestReport().getChildReports() != null) {
+                result.addAll(lastCompletedBuild.getTestReport().getChildReports().stream()
+                        .map(TestChildReport::getResult)
+                        .collect(Collectors.toList()));
+            }
             return result;
         } catch (IOException e) {
             logger.warn("cannot load test results for " + job.getName());

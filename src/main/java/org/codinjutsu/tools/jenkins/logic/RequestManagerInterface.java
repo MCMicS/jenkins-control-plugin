@@ -13,9 +13,6 @@ import org.codinjutsu.tools.jenkins.security.JenkinsVersion;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by marcin on 07.10.15.
- */
 public interface RequestManagerInterface {
     Jenkins loadJenkinsWorkspace(JenkinsAppSettings configuration);
 
@@ -43,7 +40,7 @@ public interface RequestManagerInterface {
 
     List<Build> loadBuilds(Job job);
 
-    String loadConsoleTextFor(Build build);
+    String loadConsoleTextFor(Job job);
 
     List<TestResult> loadTestResultsFor(Job job);
 }

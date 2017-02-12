@@ -29,7 +29,6 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
-import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
@@ -95,11 +94,7 @@ public class ShowLogAction extends AnAction implements DumbAware {
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 RequestManager requestManager = browserPanel.getJenkinsManager();
                 progressIndicator.setIndeterminate(true);
-                Build lastBuild = job.getLastBuild();
-                if (lastBuild == null) {
-                    return;
-                }
-                consoleContent = requestManager.loadConsoleTextFor(lastBuild);
+                consoleContent = requestManager.loadConsoleTextFor(job);
             }
         }.queue();
 
