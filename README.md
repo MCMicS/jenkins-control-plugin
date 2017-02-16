@@ -1,4 +1,4 @@
-# Jenkins Plugin 0.9.5 for Jetbrains products
+# Jenkins Plugin 0.10.0 for Jetbrains products
 
 * [fix] idea 2016 compatibility
 * [fix] #105 and #107: empty fields in the RSS JSON breaks the content reading
@@ -89,7 +89,7 @@ The RSS reader has moved to the Event Log. If you need to refresh manually, clic
 
 ## How to build
 
-This project is built with maven and use profile to manage all compatible version of Intellij `mvn clean install -P[idea-14| idea-15|idea-2016]`.
+This project is built with maven and use profile to manage all compatible version of Intellij `mvn clean install -P[idea-15|idea-2016]`.
 
 However, you need to import an Intellij Community Edition matching with the target version you want to build for. The script `fetchIdea.sh` allows downloading and installing the required IntelliJ librairies in your maven repository.
 You have to set 2 variables in it:
@@ -131,6 +131,7 @@ Create a plugin Run configuration and just run it.
 
 ## Thanks
 I would like to thank:
+* All Github contributors who fixed the plugin for Jenkins 2 
 * [Cezary Butler](https://github.com/cezary-butler) and **Marcin Seroka** from [Programisci](http://programisci.eu/en/) for their contribution to fix and improve this plugin for Idea 14 and 15
 * [Yuri Novitsky](https://github.com/nyver) for his contribution to this plugin (pre-commit feature)
 * Kohsuke Kawaguchi for providing us such a great CI server

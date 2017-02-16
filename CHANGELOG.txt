@@ -1,3 +1,8 @@
+Version 0.10.0
+    * [fix] #137: Jenkins 2 compatibility
+    * [fix] #135: NPE when Jenkins has some folder
+    * [add] #131: View job builds + related actions
+
 Version 0.9.7
     * Idea 2016 version
 Version 0.9.6
