@@ -1,6 +1,7 @@
 package org.codinjutsu.tools.jenkins.logic;
 
 import com.intellij.openapi.vfs.VirtualFile;
+import com.offbytwo.jenkins.model.TestResult;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.model.Build;
@@ -12,9 +13,6 @@ import org.codinjutsu.tools.jenkins.security.JenkinsVersion;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by marcin on 07.10.15.
- */
 public interface RequestManagerInterface {
     Jenkins loadJenkinsWorkspace(JenkinsAppSettings configuration);
 
@@ -41,4 +39,8 @@ public interface RequestManagerInterface {
     Build loadBuild(Build build);
 
     List<Build> loadBuilds(Job job);
+
+    String loadConsoleTextFor(Job job);
+
+    List<TestResult> loadTestResultsFor(Job job);
 }

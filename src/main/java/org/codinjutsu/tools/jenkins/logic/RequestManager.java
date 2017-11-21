@@ -19,6 +19,9 @@ package org.codinjutsu.tools.jenkins.logic;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.offbytwo.jenkins.JenkinsServer;
+import com.offbytwo.jenkins.model.TestChildReport;
+import com.offbytwo.jenkins.model.TestResult;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
@@ -33,11 +36,10 @@ import org.codinjutsu.tools.jenkins.security.SecurityClient;
 import org.codinjutsu.tools.jenkins.security.SecurityClientFactory;
 
 import javax.swing.*;
+import java.io.IOException;
 import java.net.URL;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class RequestManager implements RequestManagerInterface {
 
@@ -54,6 +56,7 @@ public class RequestManager implements RequestManagerInterface {
     private RssParser rssParser = new RssParser();
 
     private JenkinsParser jsonParser = new JenkinsJsonParser();
+    private JenkinsServer jenkinsServer;
 
     public static RequestManager getInstance(Project project) {
         return ServiceManager.getService(project, RequestManager.class);
@@ -104,6 +107,7 @@ public class RequestManager implements RequestManagerInterface {
 
     /**
      * Note! needs to be called after plugin is logged in
+     *
      * @param configuration
      * @return
      */
@@ -131,16 +135,16 @@ public class RequestManager implements RequestManagerInterface {
     private boolean handleNotYetLoggedInState() {
         boolean threadStack = false;
         boolean result = false;
-        if(SwingUtilities.isEventDispatchThread()){
+        if (SwingUtilities.isEventDispatchThread()) {
             logger.warn("RequestManager.handleNotYetLoggedInState called from EDT");
             threadStack = true;
         }
-        if(securityClient == null){
+        if (securityClient == null) {
             logger.warn("Not yet logged in, all calls until login will fail");
             threadStack = true;
             result = true;
         }
-        if(threadStack)
+        if (threadStack)
             Thread.dumpStack();
         return result;
     }
@@ -152,10 +156,10 @@ public class RequestManager implements RequestManagerInterface {
         return jsonParser.createJob(jenkinsJobData);
     }
 
-    private void stopBuild(String jenkinsBuildUrl){
-        if (handleNotYetLoggedInState()) return ;
+    private void stopBuild(String jenkinsBuildUrl) {
+        if (handleNotYetLoggedInState()) return;
         URL url = urlBuilder.createStopBuildUrl(jenkinsBuildUrl);
-        String jenkinsJobData = securityClient.execute(url);
+        securityClient.execute(url);
     }
 
     private Build loadBuild(String jenkinsBuildUrl) {
@@ -177,7 +181,7 @@ public class RequestManager implements RequestManagerInterface {
         if (handleNotYetLoggedInState()) return;
         if (job.hasParameters()) {
             if (files.size() > 0) {
-                for(String key: files.keySet()) {
+                for (String key : files.keySet()) {
                     if (!job.hasParameter(key)) {
                         files.remove(files.get(key));
                     }
@@ -190,14 +194,14 @@ public class RequestManager implements RequestManagerInterface {
 
     @Override
     public void runBuild(Job job, JenkinsAppSettings configuration) {
-        if (handleNotYetLoggedInState()) return ;
+        if (handleNotYetLoggedInState()) return;
         URL url = urlBuilder.createRunJobUrl(job.getUrl(), configuration);
         securityClient.execute(url);
     }
 
     @Override
     public void runParameterizedBuild(Job job, JenkinsAppSettings configuration, Map<String, String> paramValueMap) {
-        if (handleNotYetLoggedInState()) return ;
+        if (handleNotYetLoggedInState()) return;
         URL url = urlBuilder.createRunParameterizedJobUrl(job.getUrl(), configuration, paramValueMap);
         securityClient.execute(url);
     }
@@ -211,6 +215,8 @@ public class RequestManager implements RequestManagerInterface {
             securityClient = SecurityClientFactory.none(jenkinsSettings.getCrumbData());
         }
         securityClient.connect(urlBuilder.createAuthenticationUrl(jenkinsAppSettings.getServerUrl()));
+
+        jenkinsServer = new JenkinsServer(urlBuilder.createServerUrl(jenkinsAppSettings.getServerUrl()), jenkinsSettings.getUsername(), jenkinsSettings.getPassword());
     }
 
     @Override
@@ -227,7 +233,7 @@ public class RequestManager implements RequestManagerInterface {
     @Override
     public List<Job> loadFavoriteJobs(List<JenkinsSettings.FavoriteJob> favoriteJobs) {
         if (handleNotYetLoggedInState()) return Collections.emptyList();
-        List<Job> jobs = new LinkedList<Job>();
+        List<Job> jobs = new LinkedList<>();
         for (JenkinsSettings.FavoriteJob favoriteJob : favoriteJobs) {
             jobs.add(loadJob(favoriteJob.url));
         }
@@ -240,12 +246,12 @@ public class RequestManager implements RequestManagerInterface {
     }
 
     @Override
-    public Job loadJob(Job job){
+    public Job loadJob(Job job) {
         return loadJob(job.getUrl());
     }
 
     @Override
-    public List<Job>loadJenkinsView(View view){
+    public List<Job> loadJenkinsView(View view) {
         return loadJenkinsView(view.getUrl());
     }
 
@@ -255,7 +261,37 @@ public class RequestManager implements RequestManagerInterface {
     }
 
     @Override
-    public Build loadBuild(Build build){
+    public Build loadBuild(Build build) {
         return loadBuild(build.getUrl());
+    }
+
+    @Override
+    public String loadConsoleTextFor(Job job) {
+        try {
+            return jenkinsServer.getJob(job.getName()).getLastCompletedBuild().details().getConsoleOutputText();
+        } catch (IOException e) {
+            logger.warn("cannot load log for " + job.getName());
+            return null;
+        }
+    }
+
+    @Override
+    public List<TestResult> loadTestResultsFor(Job job) {
+        try {
+            List<TestResult> result = new ArrayList<>();
+            com.offbytwo.jenkins.model.Build lastCompletedBuild = jenkinsServer.getJob(job.getName()).getLastCompletedBuild();
+            if (lastCompletedBuild.getTestResult() != null) {
+                result.add(lastCompletedBuild.getTestResult());
+            }
+            if (lastCompletedBuild.getTestReport().getChildReports() != null) {
+                result.addAll(lastCompletedBuild.getTestReport().getChildReports().stream()
+                        .map(TestChildReport::getResult)
+                        .collect(Collectors.toList()));
+            }
+            return result;
+        } catch (IOException e) {
+            logger.warn("cannot load test results for " + job.getName());
+            return Collections.emptyList();
+        }
     }
 }
