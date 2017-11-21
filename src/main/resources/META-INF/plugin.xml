@@ -7,8 +7,8 @@
         David Boissier,
         Yuri Novitsky (support of PPP),
     </vendor>
-    <idea-version since-build="143.0" until-build="143.*"/>
-    <!--<idea-version since-build="145.0" />-->
+    <idea-version since-build="141.0"/>
+    <!--<idea-version since-build="143.0" until-build="143.9999"/>-->
 
     <depends>com.intellij.modules.lang</depends>
 

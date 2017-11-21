@@ -23,6 +23,7 @@ import org.apache.commons.httpclient.util.URIUtil;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Map;
 
@@ -56,7 +57,7 @@ public class UrlBuilder {
         return null;
     }
 
-    public URL createStopBuildUrl(String buildUrl){
+    public URL createStopBuildUrl(String buildUrl) {
         try {//http://jenkins.internal/job/it4em-it4em-DPD-GEOR-UAT-RO/27/stop
             return new URL(buildUrl + URIUtil.encodePath("stop"));
         } catch (Exception ex) {
@@ -145,6 +146,16 @@ public class UrlBuilder {
         }
         return null;
     }
+
+    public URI createServerUrl(String serverUrl) {
+        try {
+            return new URL(serverUrl).toURI();
+        } catch (Exception ex) {
+            handleException(ex);
+        }
+        return null;
+    }
+
 
     private void handleException(Exception ex) {
         if (ex instanceof MalformedURLException) {

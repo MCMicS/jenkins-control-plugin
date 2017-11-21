@@ -1,8 +1,5 @@
 package org.codinjutsu.tools.jenkins.security;
 
-/**
- * Created by bidek on 13.01.17.
- */
 public enum JenkinsVersion {
     VERSION_1 {
         @Override
