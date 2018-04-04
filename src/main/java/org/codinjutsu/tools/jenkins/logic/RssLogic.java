@@ -30,6 +30,7 @@ import com.intellij.openapi.ui.popup.BalloonBuilder;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.ui.awt.RelativePoint;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
+import org.codinjutsu.tools.jenkins.JobTracker;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
@@ -210,6 +211,8 @@ public class RssLogic implements Disposable {
             if (!shouldDisplayResult || finishedBuilds.isEmpty()) {
                 return;
             }
+
+            JobTracker.getInstance().onNewFinishedBuilds(finishedBuilds);
 
             sendNotificationForEachBuild(sortByDateDescending(finishedBuilds));
 

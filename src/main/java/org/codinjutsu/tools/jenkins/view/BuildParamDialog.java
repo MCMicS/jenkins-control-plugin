@@ -16,24 +16,46 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
-import com.intellij.openapi.ui.ComboBox;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
+import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.KeyStroke;
+import javax.swing.SpringLayout;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
+import org.codinjutsu.tools.jenkins.JobTracker;
+import org.codinjutsu.tools.jenkins.TraceableBuildJob;
+import org.codinjutsu.tools.jenkins.TraceableBuildJobFactory;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.util.SpringUtilities;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
+import com.intellij.openapi.ui.ComboBox;
 
 public class BuildParamDialog extends JDialog {
     private static final Logger logger = Logger.getLogger(BuildParamDialog.class);
@@ -58,7 +80,6 @@ public class BuildParamDialog extends JDialog {
 //        RunParameterDefinition
 //        ListSubversionTagsParameterDefinition
 
-
     BuildParamDialog(Job job, JenkinsAppSettings configuration, RequestManager requestManager, RunBuildCallback runBuildCallback) {
         this.job = job;
         this.configuration = configuration;
@@ -76,7 +97,8 @@ public class BuildParamDialog extends JDialog {
         registerListeners();
     }
 
-    public static void showDialog(final Job job, final JenkinsAppSettings configuration, final RequestManager requestManager, final RunBuildCallback runBuildCallback) {
+    public static void showDialog(final Job job, final JenkinsAppSettings configuration, final RequestManager requestManager,
+            final RunBuildCallback runBuildCallback) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 BuildParamDialog dialog = new BuildParamDialog(job, configuration, requestManager, runBuildCallback);
@@ -188,28 +210,30 @@ public class BuildParamDialog extends JDialog {
     private void onOK() {
         final Map<String, String> paramValueMap = getParamValueMap();
 
-            new SwingWorker<Void, Void>(){ //FIXME don't use swing worker
-                @Override
-                protected Void doInBackground() throws Exception {
-                    requestManager.runParameterizedBuild(job, configuration, paramValueMap);
-                    return null;
+        new SwingWorker<Void, Void>() { //FIXME don't use swing worker
+            @Override
+            protected Void doInBackground() throws Exception {
+                TraceableBuildJob buildJob = TraceableBuildJobFactory.newBuildJob(job, configuration, paramValueMap, requestManager);
+                JobTracker.getInstance().registerJob(buildJob);
+                requestManager.runParameterizedBuild(job, configuration, paramValueMap);
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                dispose();
+                try {
+                    get();
+                    runBuildCallback.notifyOnOk(job);
+                } catch (InterruptedException e) {
+                    logger.log(Level.WARN, "Exception occured while...", e);
+                } catch (ExecutionException e) {
+                    runBuildCallback.notifyOnError(job, e);
+                    logger.log(Level.WARN, "Exception occured while trying to invoke build", e);
                 }
 
-                @Override
-                protected void done() {
-                    dispose();
-                    try {
-                        get();
-                        runBuildCallback.notifyOnOk(job);
-                    } catch (InterruptedException e) {
-                        logger.log(Level.WARN, "Exception occured while...", e);
-                    } catch (ExecutionException e) {
-                        runBuildCallback.notifyOnError(job, e);
-                        logger.log(Level.WARN, "Exception occured while trying to invoke build", e);
-                    }
-
-                }
-            }.execute();
+            }
+        }.execute();
     }
 
     private void onCancel() {
