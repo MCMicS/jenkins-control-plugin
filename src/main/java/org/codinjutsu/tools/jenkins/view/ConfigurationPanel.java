@@ -31,14 +31,13 @@ import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.annotation.FormValidator;
 import org.codinjutsu.tools.jenkins.view.annotation.GuiField;
 import org.codinjutsu.tools.jenkins.view.validator.NotNullValidator;
+import org.codinjutsu.tools.jenkins.view.validator.UIValidator;
 import org.codinjutsu.tools.jenkins.view.validator.UrlValidator;
 
-import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.text.html.HTMLDocument;
-import javax.swing.text.html.HTMLEditorKit;
-import java.awt.*;
+import com.intellij.openapi.project.Project;
+import com.intellij.ui.IdeBorderFactory;
+import com.intellij.ui.JBColor;
+import com.intellij.ui.NumberDocument;
 
 import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.URL;
 
@@ -59,6 +58,7 @@ public class ConfigurationPanel {
     private JTextField buildDelay;
     private JTextField jobRefreshPeriod;
     private JTextField rssRefreshPeriod;
+    private JTextField numBuildRetries;
 
     private JPanel rootPanel;
 
@@ -88,6 +88,7 @@ public class ConfigurationPanel {
         buildDelay.setName("buildDelay");
         jobRefreshPeriod.setName("jobRefreshPeriod");
         rssRefreshPeriod.setName("rssRefreshPeriod");
+        numBuildRetries.setName("numBuildRetries");
         username.setName("_username_");
 
         passwordField.setName("passwordFile");
@@ -111,6 +112,7 @@ public class ConfigurationPanel {
         buildDelay.setDocument(new NumberDocument());
         jobRefreshPeriod.setDocument(new NumberDocument());
         rssRefreshPeriod.setDocument(new NumberDocument());
+        numBuildRetries.setDocument(new NumberDocument());
 
         uploadPatchSettingsPanel.setBorder(IdeBorderFactory.createTitledBorder("Upload a Patch Settings", true));
 
@@ -186,6 +188,7 @@ public class ConfigurationPanel {
                 || !(jenkinsAppSettings.getBuildDelay() == getBuildDelay())
                 || !(jenkinsAppSettings.getJobRefreshPeriod() == getJobRefreshPeriod())
                 || !(jenkinsAppSettings.getRssRefreshPeriod() == getRssRefreshPeriod())
+                || !(jenkinsAppSettings.getNumBuildRetries() == getNumBuildRetries())
                 || !(jenkinsSettings.getCrumbData().equals(crumbDataField.getText()))
                 || credentialModified
                 || statusToIgnoreModified || (!jenkinsAppSettings.getSuffix().equals(replaceWithSuffix.getText()));
@@ -204,13 +207,13 @@ public class ConfigurationPanel {
         jenkinsAppSettings.setDelay(getBuildDelay());
         jenkinsAppSettings.setJobRefreshPeriod(getJobRefreshPeriod());
         jenkinsAppSettings.setRssRefreshPeriod(getRssRefreshPeriod());
+        jenkinsAppSettings.setNumBuildRetries(getNumBuildRetries());
         jenkinsSettings.setCrumbData(crumbDataField.getText());
 
         jenkinsAppSettings.setIgnoreSuccessOrStable(successOrStableCheckBox.isSelected());
         jenkinsAppSettings.setDisplayUnstableOrFail(unstableOrFailCheckBox.isSelected());
         jenkinsAppSettings.setDisplayAborted(abortedCheckBox.isSelected());
         jenkinsAppSettings.setSuffix(getSuffix());
-
 
         if (StringUtils.isNotBlank(username.getText())) {
             jenkinsSettings.setUsername(username.getText());
@@ -236,6 +239,7 @@ public class ConfigurationPanel {
         jobRefreshPeriod.setText(String.valueOf(jenkinsAppSettings.getJobRefreshPeriod()));
 
         rssRefreshPeriod.setText(String.valueOf(jenkinsAppSettings.getRssRefreshPeriod()));
+        numBuildRetries.setText(String.valueOf(jenkinsAppSettings.getNumBuildRetries()));
 
         username.setText(jenkinsSettings.getUsername());
         if (StringUtils.isNotBlank(jenkinsSettings.getUsername())) {
@@ -295,6 +299,14 @@ public class ConfigurationPanel {
         return 0;
     }
 
+    private int getNumBuildRetries() {
+        String period = numBuildRetries.getText();
+        if (StringUtils.isNotBlank(period)) {
+            return Integer.parseInt(period);
+        }
+        return 1;
+    }
+
     private int getJobRefreshPeriod() {
         String period = jobRefreshPeriod.getText();
         if (StringUtils.isNotBlank(period)) {
@@ -318,7 +330,6 @@ public class ConfigurationPanel {
     public JPanel getRootPanel() {
         return rootPanel;
     }
-
 
     private void setConnectionFeedbackLabel(final Color labelColor, final String labelText) {
         GuiUtil.runInSwingThread(() -> {
