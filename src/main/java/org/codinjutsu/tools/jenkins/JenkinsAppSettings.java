@@ -16,12 +16,17 @@
 
 package org.codinjutsu.tools.jenkins;
 
-import com.intellij.openapi.components.*;
-import com.intellij.openapi.project.Project;
-import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
+
+import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.components.StorageScheme;
+import com.intellij.openapi.project.Project;
+import com.intellij.util.xmlb.XmlSerializerUtil;
 
 @State(
         name = "Jenkins.Application.Settings",
@@ -53,41 +58,33 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
         XmlSerializerUtil.copyBean(state, myState);
     }
 
-
     public String getServerUrl() {
         return myState.serverUrl;
     }
-
 
     public void setServerUrl(String serverUrl) {
         myState.serverUrl = serverUrl;
     }
 
-
     public boolean isServerUrlSet() {
         return StringUtils.isNotEmpty(myState.serverUrl) && !DUMMY_JENKINS_SERVER_URL.equals(myState.serverUrl);
     }
-
 
     public int getBuildDelay() {
         return myState.delay;
     }
 
-
     public void setDelay(int delay) {
         myState.delay = delay;
     }
-
 
     public int getJobRefreshPeriod() {
         return myState.jobRefreshPeriod;
     }
 
-
     public void setJobRefreshPeriod(int jobRefreshPeriod) {
         myState.jobRefreshPeriod = jobRefreshPeriod;
     }
-
 
     public int getRssRefreshPeriod() {
         return myState.rssRefreshPeriod;
@@ -144,6 +141,14 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
         return false;
     }
 
+    public int getNumBuildRetries() {
+        return myState.numBuildRetries;
+    }
+
+    public void setNumBuildRetries(int numBuildRetries) {
+        myState.numBuildRetries = numBuildRetries;
+    }
+
     public static class State {
 
         public String serverUrl = DUMMY_JENKINS_SERVER_URL;
@@ -152,6 +157,7 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
         public int rssRefreshPeriod = RESET_PERIOD_VALUE;
         public String suffix = "";
 
+        public int numBuildRetries = 1;
         public RssSettings rssSettings = new RssSettings();
     }
 
