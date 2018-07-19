@@ -80,8 +80,9 @@ public class BuildParamDialog extends JDialog {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 BuildParamDialog dialog = new BuildParamDialog(job, configuration, requestManager, runBuildCallback);
-                dialog.setLocationRelativeTo(null);
+                dialog.setSize(dialog.getPreferredSize());
                 dialog.setMaximumSize(new Dimension(300, 200));
+                dialog.setLocationRelativeTo(null);
                 dialog.pack();
                 dialog.setVisible(true);
             }
@@ -92,6 +93,7 @@ public class BuildParamDialog extends JDialog {
         contentPanel.setLayout(new SpringLayout());
         List<JobParameter> parameters = job.getParameters();
 
+        int rows = parameters.size();
         for (JobParameter jobParameter : parameters) {
             JComponent inputField = createInputField(jobParameter);
 
@@ -112,11 +114,22 @@ public class BuildParamDialog extends JDialog {
             contentPanel.add(label);
             contentPanel.add(inputField);
 
+            String description = jobParameter.getDescription();
+            if (StringUtils.isNotEmpty(description)) {
+                JLabel placeHolder = new JLabel("", JLabel.CENTER);
+                JTextPane descText = new JTextPane();
+                descText.setText(description);
+
+                contentPanel.add(placeHolder);
+                contentPanel.add(descText);
+                rows++;
+            }
+
             inputFieldByParameterMap.put(jobParameter, inputField);
         }
 
         SpringUtilities.makeCompactGrid(contentPanel,
-                parameters.size(), 2,
+                rows, 2,
                 6, 6,        //initX, initY
                 6, 6);       //xPad, yPad
 
