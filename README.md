@@ -6,6 +6,7 @@
 ### Current builds
 * [Idea 15](https://github.com/dboissier/jenkins-control-plugin/raw/master/snapshot/jenkins-control-plugin-0.10.15-distribution.zip)
 * [Idea 2016](https://github.com/dboissier/jenkins-control-plugin/raw/master/snapshot/jenkins-control-plugin-0.10.2016-distribution.zip)
+* [Idea 2019](https://github.com/dboissier/jenkins-control-plugin/raw/master/snapshot/jenkins-control-plugin-0.10.2019-distribution.zip)
 
 
 ## Description
@@ -14,7 +15,7 @@ This plugin allows to view the content of your Jenkins Continous Integration Ser
 ![Browser](https://github.com/dboissier/jenkins-control-plugin/blob/master/doc/images/Browser.png?raw=true)
 
 ## Plugin Compatibility
-This plugin was built with JDK 1.7 for IDEA 14, 15 and with JDK 8 for IDEA 2016 versions. Jenkins CIs of jenkins-ci and apache.org are used for manual and stress testing.
+This plugin was built with JDK 1.7 for IDEA 14, 15 and with JDK 8 for IDEA 2016, 2019 versions. Jenkins CIs of jenkins-ci and apache.org are used for manual and stress testing.
 
 ## Installation steps
 Download this plugin from your IDE or [from the plugin website](http://plugins.jetbrains.com/plugin/6110).

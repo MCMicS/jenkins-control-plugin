@@ -26,8 +26,7 @@ import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
 @State(
         name = "Jenkins.Application.Settings",
         storages = {
-                @Storage(id = "JenkinsAppSettings", file = "$PROJECT_FILE$"),
-                @Storage(file = "$PROJECT_CONFIG_DIR$/jenkinsSettings.xml", scheme = StorageScheme.DIRECTORY_BASED)
+                @Storage("jenkinsSettings.xml")
         }
 )
 public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSettings.State> {

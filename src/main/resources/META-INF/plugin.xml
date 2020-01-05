@@ -12,6 +12,7 @@
 
     <depends>com.intellij.modules.lang</depends>
 
+
     <project-components>
         <component>
             <implementation-class>org.codinjutsu.tools.jenkins.JenkinsComponent</implementation-class>

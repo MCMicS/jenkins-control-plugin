@@ -1,11 +1,17 @@
 plugins {
-    id "org.jetbrains.intellij" version "0.2.0"
+    id 'java'
+    id 'org.jetbrains.intellij' version '0.4.15'
 }
 
+group 'org.codinjutsu'
+version '0.10.0-SNAPSHOT'
 apply plugin: 'org.jetbrains.intellij'
 
+sourceCompatibility = 1.8
+
 intellij {
-    version '2016.1'
+    version '2019.3'
+    plugins 'java'
     updateSinceUntilBuild false
     pluginName 'jenkins-control-plugin'
 }

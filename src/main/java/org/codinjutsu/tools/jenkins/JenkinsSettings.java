@@ -39,7 +39,7 @@ import java.util.List;
 @State(
         name = "Jenkins.Settings",
         storages = {
-                @Storage(id = "JenkinsSettings", file = "$WORKSPACE_FILE$")
+                @Storage("$WORKSPACE_FILE$")
         }
 )
 public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings.State> {
