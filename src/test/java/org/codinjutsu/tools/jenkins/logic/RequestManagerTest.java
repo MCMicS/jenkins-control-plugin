@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
+import com.intellij.openapi.project.Project;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.security.SecurityClient;
@@ -26,6 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.picocontainer.PicoContainer;
 
 import java.net.URL;
 
@@ -46,6 +48,8 @@ public class RequestManagerTest {
     @Mock
     private UrlBuilder urlBuilderMock;
 
+    @Mock
+    private Project project;
 
     @Test
     public void loadJenkinsWorkspaceWithMismatchServerPortInTheResponse() throws Exception {
@@ -90,6 +94,11 @@ public class RequestManagerTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         configuration = new JenkinsAppSettings();
-        requestManager = new RequestManager(urlBuilderMock, securityClientMock);
+        //when(project.getService(UrlBuilder.class, true)).thenReturn(urlBuilderMock);
+        final PicoContainer container = mock(PicoContainer.class);
+        when(project.getPicoContainer()).thenReturn(container);
+        when(container.getComponentInstance(UrlBuilder.class.getName())).thenReturn(urlBuilderMock);
+        requestManager = new RequestManager(project);
+        requestManager.setSecurityClient(securityClientMock);
     }
 }

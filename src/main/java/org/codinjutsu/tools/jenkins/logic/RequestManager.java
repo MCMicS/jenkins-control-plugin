@@ -47,7 +47,7 @@ public class RequestManager implements RequestManagerInterface {
 
     private static final String BUILDHIVE_CLOUDBEES = "buildhive";
 
-    private UrlBuilder urlBuilder;
+    private final UrlBuilder urlBuilder;
 
     private SecurityClient securityClient;
 
@@ -62,14 +62,8 @@ public class RequestManager implements RequestManagerInterface {
         return ServiceManager.getService(project, RequestManager.class);
     }
 
-
     public RequestManager(Project project) {
         this.urlBuilder = UrlBuilder.getInstance(project);
-    }
-
-    RequestManager(UrlBuilder urlBuilder, SecurityClient securityClient) {
-        this.urlBuilder = urlBuilder;
-        this.securityClient = securityClient;
     }
 
     @Override
@@ -293,5 +287,9 @@ public class RequestManager implements RequestManagerInterface {
             logger.warn("cannot load test results for " + job.getName());
             return Collections.emptyList();
         }
+    }
+
+    void setSecurityClient(SecurityClient securityClient) {
+        this.securityClient = securityClient;
     }
 }
