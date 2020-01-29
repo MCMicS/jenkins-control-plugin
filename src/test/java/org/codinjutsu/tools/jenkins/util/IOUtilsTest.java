@@ -1,13 +1,14 @@
 package org.codinjutsu.tools.jenkins.util;
 
-import org.hamcrest.CoreMatchers;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
+import org.hamcrest.core.IsEqual;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.InputStream;
 
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 /**
  * Created by Cezary on 2015-10-18.
@@ -25,7 +26,7 @@ public class IOUtilsTest {
         //when
         final String result = IOUtils.toString(inputStream, "UTF-8");
         //then
-        assertThat(result, CoreMatchers.equalTo(POLISH_TEST_STRING));
+        assertThat(result, IgnoreLineEndingsMatcher.equalTo(POLISH_TEST_STRING));
     }
 
     @Test
@@ -35,11 +36,37 @@ public class IOUtilsTest {
         //when
         final String result = IOUtils.toString(inputStream, "CP1250");
         //then
-        assertThat(result, CoreMatchers.equalTo(POLISH_TEST_STRING));
+        assertThat(result.replaceAll("\\r\\n?", "\n"), IgnoreLineEndingsMatcher.equalTo(POLISH_TEST_STRING));
     }
 
     private InputStream getTestResourceInputStream(String resource) {
         final Class<? extends IOUtilsTest> aClass = getClass();
         return aClass.getClassLoader().getResourceAsStream(aClass.getPackage().getName().replace('.', SEPARATOR) + SEPARATOR + "IOTest" + SEPARATOR + resource);
+    }
+
+    private static class IgnoreLineEndingsMatcher extends TypeSafeMatcher<String> {
+        private final Matcher<String> matcher;
+
+        private IgnoreLineEndingsMatcher(String expectedValue) {
+            this.matcher = IsEqual.equalTo(expectedValue);
+        }
+
+        public static Matcher<String> equalTo(String expected) {
+            return new IgnoreLineEndingsMatcher(expected);
+        }
+
+        @Override
+        protected boolean matchesSafely(String s) {
+            return matcher.matches(replaceLineEndings(s));
+        }
+
+        @Override
+        public void describeTo(Description description) {
+            matcher.describeTo(description);
+        }
+
+        private String replaceLineEndings(String content) {
+            return content == null ? null : content.replaceAll("\\r\\n?", "\n");
+        }
     }
 }

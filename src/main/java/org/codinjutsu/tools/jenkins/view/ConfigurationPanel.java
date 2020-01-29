@@ -31,7 +31,6 @@ import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.annotation.FormValidator;
 import org.codinjutsu.tools.jenkins.view.annotation.GuiField;
 import org.codinjutsu.tools.jenkins.view.validator.NotNullValidator;
-import org.codinjutsu.tools.jenkins.view.validator.UIValidator;
 import org.codinjutsu.tools.jenkins.view.validator.UrlValidator;
 
 import javax.swing.*;
@@ -40,8 +39,6 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.URL;
 
@@ -65,7 +62,7 @@ public class ConfigurationPanel {
 
     private JPanel rootPanel;
 
-    private JButton testConnexionButton;
+    private JButton testConnectionButton;
     private JLabel connectionStatusLabel;
     private JPanel debugPanel;
     private JTextPane debugTextPane;
@@ -81,7 +78,7 @@ public class ConfigurationPanel {
     private JRadioButton version1RadioButton;
     private JRadioButton version2RadioButton;
 
-    private final FormValidator formValidator;
+    private final FormValidator<JTextField> formValidator;
 
     private boolean myPasswordModified = false;
 
@@ -96,7 +93,7 @@ public class ConfigurationPanel {
         passwordField.setName("passwordFile");
         crumbDataField.setName("crumbDataFile");
 
-        testConnexionButton.setName("testConnexionButton");
+        testConnectionButton.setName("testConnectionButton");
         connectionStatusLabel.setName("connectionStatusLabel");
 
         successOrStableCheckBox.setName("successOrStableCheckBox");
@@ -134,50 +131,46 @@ public class ConfigurationPanel {
             }
         });
 
-        testConnexionButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent event) {
-                try {
-                    debugPanel.setVisible(false);
+        testConnectionButton.addActionListener(event -> testConnection(project));
 
-                    new NotNullValidator().validate(serverUrl);
-                    new UrlValidator().validate(serverUrl);
-
-                    JenkinsSettings jenkinsSettings = JenkinsSettings.getSafeInstance(project);
-
-                    String password = isPasswordModified() ? getPassword() : jenkinsSettings.getPassword();
-
-                    JenkinsVersion version = version1RadioButton.isSelected() ? JenkinsVersion.VERSION_1 : JenkinsVersion.VERSION_2;
-
-                    RequestManager.getInstance(project).authenticate(serverUrl.getText(), username.getText(), password, crumbDataField.getText(), version);
-                    setConnectionFeedbackLabel(CONNECTION_TEST_SUCCESSFUL_COLOR, "Successful");
-                    setPassword(password);
-                } catch (Exception ex) {
-                    setConnectionFeedbackLabel(CONNECTION_TEST_FAILED_COLOR, "[Fail] " + ex.getMessage());
-                    if (ex instanceof AuthenticationException) {
-                        AuthenticationException authenticationException = (AuthenticationException) ex;
-                        String responseBody = authenticationException.getResponseBody();
-                        if (StringUtils.isNotBlank(responseBody)) {
-                            debugPanel.setVisible(true);
-                            debugTextPane.setText(responseBody);
-                        }
-                    }
-                }
-            }
-        });
-
-        formValidator = FormValidator.init(this)
-                .addValidator(username, new UIValidator<JTextField>() {
-                    public void validate(JTextField component) throws ConfigurationException {
-                        if (StringUtils.isNotBlank(component.getText())) {
-                            String password = getPassword();
-                            if (StringUtils.isBlank(password)) {
-                                throw new ConfigurationException(String.format("'%s' must be set", passwordField.getName()));
-                            }
+        formValidator = FormValidator.<JTextField>init(this)
+                .addValidator(username, component -> {
+                    if (StringUtils.isNotBlank(component.getText())) {
+                        String password = getPassword();
+                        if (StringUtils.isBlank(password)) {
+                            throw new ConfigurationException(String.format("'%s' must be set", passwordField.getName()));
                         }
                     }
                 });
+    }
 
+    private void testConnection(Project project) {
+        try {
+            debugPanel.setVisible(false);
 
+            new NotNullValidator().validate(serverUrl);
+            new UrlValidator().validate(serverUrl);
+
+            JenkinsSettings jenkinsSettings = JenkinsSettings.getSafeInstance(project);
+
+            String password = isPasswordModified() ? getPassword() : jenkinsSettings.getPassword();
+
+            JenkinsVersion version = version1RadioButton.isSelected() ? JenkinsVersion.VERSION_1 : JenkinsVersion.VERSION_2;
+
+            RequestManager.getInstance(project).authenticate(serverUrl.getText(), username.getText(), password, crumbDataField.getText(), version);
+            setConnectionFeedbackLabel(CONNECTION_TEST_SUCCESSFUL_COLOR, "Successful");
+            setPassword(password);
+        } catch (Exception ex) {
+            setConnectionFeedbackLabel(CONNECTION_TEST_FAILED_COLOR, "[Fail] " + ex.getMessage());
+            if (ex instanceof AuthenticationException) {
+                AuthenticationException authenticationException = (AuthenticationException) ex;
+                String responseBody = authenticationException.getResponseBody();
+                if (StringUtils.isNotBlank(responseBody)) {
+                    debugPanel.setVisible(true);
+                    debugTextPane.setText(responseBody);
+                }
+            }
+        }
     }
 
     //TODO use annotation to create a guiwrapper so isModified could be simplified
@@ -216,7 +209,7 @@ public class ConfigurationPanel {
         jenkinsAppSettings.setIgnoreSuccessOrStable(successOrStableCheckBox.isSelected());
         jenkinsAppSettings.setDisplayUnstableOrFail(unstableOrFailCheckBox.isSelected());
         jenkinsAppSettings.setDisplayAborted(abortedCheckBox.isSelected());
-        jenkinsAppSettings.setSuffix(replaceWithSuffix.getText());
+        jenkinsAppSettings.setSuffix(getSuffix());
 
 
         if (StringUtils.isNotBlank(username.getText())) {
@@ -229,7 +222,7 @@ public class ConfigurationPanel {
             jenkinsSettings.setPassword(getPassword());
             resetPasswordModification();
         }
-        if(version1RadioButton.isSelected()){
+        if (version1RadioButton.isSelected()) {
             jenkinsSettings.setVersion(JenkinsVersion.VERSION_1);
         } else {
             jenkinsSettings.setVersion(JenkinsVersion.VERSION_2);
@@ -258,7 +251,7 @@ public class ConfigurationPanel {
 
         replaceWithSuffix.setText(String.valueOf(jenkinsAppSettings.getSuffix()));
 
-        if( jenkinsSettings.getVersion().equals(JenkinsVersion.VERSION_1)){
+        if (jenkinsSettings.getVersion().equals(JenkinsVersion.VERSION_1)) {
             version1RadioButton.setSelected(true);
             version2RadioButton.setSelected(false);
         } else {
@@ -276,7 +269,7 @@ public class ConfigurationPanel {
         HTMLDocument htmlDocument = new HTMLDocument();
 
         debugTextPane.setEditable(false);
-        debugTextPane.setBackground(Color.WHITE);
+        debugTextPane.setBackground(JBColor.WHITE);
         debugTextPane.setEditorKit(htmlEditorKit);
         htmlEditorKit.install(debugTextPane);
         debugTextPane.setDocument(htmlDocument);
@@ -328,11 +321,9 @@ public class ConfigurationPanel {
 
 
     private void setConnectionFeedbackLabel(final Color labelColor, final String labelText) {
-        GuiUtil.runInSwingThread(new Runnable() {
-            public void run() {
-                connectionStatusLabel.setForeground(labelColor);
-                connectionStatusLabel.setText(labelText);
-            }
+        GuiUtil.runInSwingThread(() -> {
+            connectionStatusLabel.setForeground(labelColor);
+            connectionStatusLabel.setText(labelText);
         });
     }
 }

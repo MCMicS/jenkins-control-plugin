@@ -17,41 +17,38 @@
 package org.codinjutsu.tools.jenkins.view;
 
 import com.intellij.ui.ColoredListCellRenderer;
+import com.intellij.ui.JBColor;
 import com.intellij.ui.SimpleTextAttributes;
 import org.codinjutsu.tools.jenkins.model.FavoriteView;
 import org.codinjutsu.tools.jenkins.model.View;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class JenkinsNestedViewComboRenderer extends ColoredListCellRenderer {
+public class JenkinsNestedViewComboRenderer extends ColoredListCellRenderer<View> {
 
     private static final Icon FAVORITE_ICON = GuiUtil.loadIcon("star.png");
 
     @Override
-    protected void customizeCellRenderer(JList list, Object value, int index, boolean selected, boolean hasFocus) {
-
-        if (value instanceof View) {
-            View view = (View) value;
-            if (view.hasNestedView()) {
-                setEnabled(false);
-                setFocusable(false);
-                setBackground(Color.LIGHT_GRAY);
-                append(view.getName(), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+    protected void customizeCellRenderer(@NotNull JList<? extends View> list, View view, int index, boolean selected, boolean hasFocus) {
+        if (view.hasNestedView()) {
+            setEnabled(false);
+            setFocusable(false);
+            setBackground(JBColor.LIGHT_GRAY);
+            append(view.getName(), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+        } else {
+            String viewName = view.getName();
+            if (view.isNested()) {
+                append("   " + viewName, SimpleTextAttributes.REGULAR_ATTRIBUTES);
             } else {
-                String viewName = view.getName();
-                if (view.isNested()) {
-                    append("   " + viewName, SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                } else {
-                    append(viewName, SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                }
-            }
-
-            if (value instanceof FavoriteView) {
-                setIcon(FAVORITE_ICON);
+                append(viewName, SimpleTextAttributes.REGULAR_ATTRIBUTES);
             }
         }
 
+        if (view instanceof FavoriteView) {
+            setIcon(FAVORITE_ICON);
+        }
     }
 }

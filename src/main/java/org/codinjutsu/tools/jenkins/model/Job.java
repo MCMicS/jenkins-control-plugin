@@ -27,7 +27,7 @@ import java.util.Map;
 
 public class Job {
 
-    private static final Map<String, Icon> ICON_BY_JOB_HEALTH_MAP = new HashMap<String, Icon>();
+    private static final Map<String, Icon> ICON_BY_JOB_HEALTH_MAP = new HashMap<>();
     private String name;
 
     private String displayName;
@@ -44,7 +44,7 @@ public class Job {
 
     private List<Build> lastBuilds = new LinkedList<>();
 
-    private final List<JobParameter> parameters = new LinkedList<JobParameter>();
+    private final List<JobParameter> parameters = new LinkedList<>();
 
     static {
         ICON_BY_JOB_HEALTH_MAP.put("health-00to19", GuiUtil.loadIcon("health-00to19.png"));

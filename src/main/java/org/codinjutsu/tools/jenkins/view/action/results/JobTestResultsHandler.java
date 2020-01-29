@@ -1,7 +1,6 @@
 package org.codinjutsu.tools.jenkins.view.action.results;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
 import com.intellij.execution.PsiLocation;
 import com.intellij.execution.testframework.sm.runner.GeneralTestEventsProcessor;
 import com.intellij.execution.testframework.sm.runner.events.*;
@@ -89,7 +88,7 @@ class JobTestResultsHandler {
         private String message;
 
         MyTestFailed(TestCase c) {
-            super(c.getName(), (String) null);
+            super(c.getName(), null);
             this.stacktrace = c.getErrorStackTrace();
             this.message = c.getErrorDetails();
         }

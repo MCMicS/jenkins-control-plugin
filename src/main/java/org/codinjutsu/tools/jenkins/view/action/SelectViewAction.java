@@ -112,6 +112,7 @@ import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.codinjutsu.tools.jenkins.view.JenkinsNestedViewComboRenderer;
 import org.codinjutsu.tools.jenkins.view.JenkinsViewComboRenderer;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
@@ -149,14 +150,14 @@ public class SelectViewAction extends DumbAwareAction implements CustomComponent
         myPanel.addMouseListener(new MyMouseAdapter());
     }
 
-    private JBList buildViewList(List<View> views, BrowserPanel browserPanel) {
+    private JBList<View> buildViewList(List<View> views, BrowserPanel browserPanel) {
         List<View> unflattenViews = flatViewList(views);
 
         if (browserPanel.hasFavoriteJobs()) {
             unflattenViews.add(FavoriteView.create());
         }
 
-        final JBList viewList = new JBList(unflattenViews);
+        final JBList<View> viewList = new JBList<>(unflattenViews);
 
         if (hasNestedViews(unflattenViews)) {
             viewList.setCellRenderer(new JenkinsNestedViewComboRenderer());
@@ -177,8 +178,9 @@ public class SelectViewAction extends DumbAwareAction implements CustomComponent
         }
     }
 
+    @NotNull
     @Override
-    public JComponent createCustomComponent(Presentation presentation) {
+    public JComponent createCustomComponent(@NotNull Presentation presentation, @NotNull String place) {
         return myPanel;
     }
 
@@ -217,18 +219,15 @@ public class SelectViewAction extends DumbAwareAction implements CustomComponent
                 return;
             }
 
-            final JBList viewList = buildViewList(views, browserPanel);
+            final JBList<View> viewList = buildViewList(views, browserPanel);
 
-            JBPopup popup = new PopupChooserBuilder(viewList)
+            JBPopup popup = new PopupChooserBuilder<View>(viewList)
                     .setMovable(false)
                     .setCancelKeyEnabled(true)
-                    .setItemChoosenCallback(new Runnable() {
-                        public void run() {
-                            final View view = (View) viewList.getSelectedValue();
-                            if (view == null || view.hasNestedView()) return;
-
-                            browserPanel.loadView(view);
-                        }
+                    .setItemChoosenCallback(() -> {
+                        final View view = viewList.getSelectedValue();
+                        if (view == null || view.hasNestedView()) return;
+                        browserPanel.loadView(view);
                     })
                     .createPopup();
 

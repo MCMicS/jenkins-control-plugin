@@ -25,7 +25,7 @@ import com.intellij.execution.testframework.sm.runner.OutputToGeneralTestEventsC
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.config.Storage;
+import com.intellij.util.config.Storage.PropertiesComponentStorage;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,7 +35,7 @@ public class JobTestConsoleProperties extends TestConsoleProperties implements S
     private final Job job;
 
     public JobTestConsoleProperties(Job job, Project project, Executor executor, RunProfile configuration, ProcessHandler processHandler) {
-        super(new Storage.PropertiesComponentStorage("Jenkins.", PropertiesComponent.getInstance()), project, executor);
+        super(new PropertiesComponentStorage("Jenkins.", PropertiesComponent.getInstance()), project, executor);
         this.job = job;
         this.configuration = configuration;
         this.processHandler = processHandler;

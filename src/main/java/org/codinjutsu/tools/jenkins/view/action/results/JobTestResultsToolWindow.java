@@ -63,6 +63,7 @@ public class JobTestResultsToolWindow {
                 return new UnknownRunConfiguration(this, project);
             }
         };
+
         RunConfiguration configuration = new UnknownRunConfiguration(configurationFactory, project);
         Executor executor = new DefaultRunExecutor();
         ProcessHandler processHandler = new MyProcessHandler();

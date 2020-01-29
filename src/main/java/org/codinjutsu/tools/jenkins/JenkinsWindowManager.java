@@ -20,7 +20,9 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.DumbAwareRunnable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupManager;
-import com.intellij.openapi.wm.*;
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.openapi.wm.ToolWindowAnchor;
+import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.content.ContentManager;
@@ -54,22 +56,14 @@ public class JenkinsWindowManager {
         ContentManager contentManager = toolWindow.getContentManager();
         contentManager.addContent(content);
 
-        final StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
-        final JenkinsWidget jenkinsWidget = JenkinsWidget.getInstance(project);
-        statusBar.addWidget(jenkinsWidget);
-        jenkinsWidget.install(statusBar);
-
         final RssLogic rssLogic = RssLogic.getInstance(project);
 
-        StartupManager.getInstance(project).registerPostStartupActivity(new DumbAwareRunnable() {
-            @Override
-            public void run() {
-                RssAuthenticationActionHandler.getInstance(project);
-                BrowserPanelAuthenticationHandler.getInstance(project);
-                browserPanel.init();
-                rssLogic.init();
-                LoginService.getInstance(project).performAuthentication();
-            }
+        StartupManager.getInstance(project).registerPostStartupActivity((DumbAwareRunnable) () -> {
+            RssAuthenticationActionHandler.getInstance(project);
+            BrowserPanelAuthenticationHandler.getInstance(project);
+            browserPanel.init();
+            rssLogic.init();
+            LoginService.getInstance(project).performAuthentication();
         });
     }
 

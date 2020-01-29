@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
+import com.intellij.application.options.CodeStyle;
 import com.intellij.codeStyle.CodeStyleFacade;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.diff.impl.patch.FilePatch;
@@ -100,11 +101,8 @@ public class SelectJobDialog extends JDialog {
         });
 
         // call onCancel() on ESCAPE
-        contentPane.registerKeyboardAction(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onCancel();
-            }
-        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        contentPane.registerKeyboardAction(e -> onCancel(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     }
 
     private void fillJobList(List<Job> jobs) {
@@ -161,7 +159,7 @@ public class SelectJobDialog extends JDialog {
             }
         }
         List<FilePatch> patches = IdeaTextPatchBuilder.buildPatch(project, changes, project.getBaseDir().getPresentableUrl(), false);
-        UnifiedDiffWriter.write(project, patches, writer, CodeStyleFacade.getInstance(project).getLineSeparator(), null);
+        UnifiedDiffWriter.write(project, patches, writer, CodeStyle.getProjectOrDefaultSettings(project).getLineSeparator(), null);
         writer.close();
 
         return true;
