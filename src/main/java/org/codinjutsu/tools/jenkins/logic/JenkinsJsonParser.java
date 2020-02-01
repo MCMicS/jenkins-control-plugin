@@ -250,6 +250,12 @@ public class JenkinsJsonParser implements JenkinsParser {
 
                 String name = (String) parameterObj.get(PARAMETER_NAME);
                 jobParameter.setName(name);
+
+                String description = (String) parameterObj.get(PARAMETER_DESCRIPTION);
+                if (description != null && !description.isEmpty()) {
+                    jobParameter.setDescription(description);
+                }
+
                 String type = (String) parameterObj.get(PARAMETER_TYPE);
                 jobParameter.setType(type);
                 JSONArray choices = (JSONArray) parameterObj.get(PARAMETER_CHOICE);

@@ -49,6 +49,7 @@ public interface JenkinsParser {
     String PARAMETER_PROPERTY = "property";
     String PARAMETER_DEFINITIONS = "parameterDefinitions";
     String PARAMETER_NAME = "name";
+    String PARAMETER_DESCRIPTION = "description";
     String PARAMETER_TYPE = "type";
     String PARAMETER_DEFAULT_PARAM = "defaultParameterValue";
     String PARAMETER_DEFAULT_PARAM_VALUE = "value";
