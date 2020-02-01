@@ -16,8 +16,12 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
+import org.apache.log4j.Logger;
+
 /**
- *
+ * Currently missing color: nobuilt
+ * @see <a href="https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/hudson/model/BallColor.java">Jenkins Color</a>
+ * @see <a href="https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/hudson/model/StatusIcon.java>Jenkins Status</a>
  */
 public enum BuildStatusEnum {
 
@@ -27,9 +31,12 @@ public enum BuildStatusEnum {
     SUCCESS("Success", "blue"),
     STABLE("Stable", "blue"),
     NULL("Null", "disabled"),
-    // TODO: handle the folder-case explicitly
+    // TODO: handle the folder-case explicitly. @mcmics: use better Folder Detection
     // instead of simply making it a BuildStatusEnum so that the icon renders
     FOLDER("Folder", "disabled");
+
+
+    private static final Logger log = Logger.getLogger(BuildStatusEnum.class);
 
     private final String status;
     private final String color;
@@ -49,7 +56,7 @@ public enum BuildStatusEnum {
             buildStatusEnum = valueOf(status.toUpperCase());
 
         } catch (IllegalArgumentException ex) {
-            System.out.println("Unsupported status : " + status);
+            log.info("Unsupported status : " + status, ex);
             buildStatusEnum = NULL;
         }
         return buildStatusEnum;

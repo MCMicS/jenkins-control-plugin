@@ -194,24 +194,15 @@ public class JenkinsJsonParser implements JenkinsParser {
     }
 
     private Job getJob(JSONObject jsonObject) {
-        Job job = new Job();
-        String name = (String) jsonObject.get(JOB_NAME);
-        job.setName(name);
-
-        String displayName = (String) jsonObject.get(JOB_DISPLAY_NAME);
-        job.setDisplayName(displayName);
-
-        String url = (String) jsonObject.get(JOB_URL);
-        job.setUrl(url);
-
-        String color = (String) jsonObject.get(JOB_COLOR);
-        job.setColor(color);
+        final String name = (String) jsonObject.get(JOB_NAME);
+        final String displayName = (String) jsonObject.get(JOB_DISPLAY_NAME);
+        final String url = (String) jsonObject.get(JOB_URL);
+        final String color = (String) jsonObject.get(JOB_COLOR);
+        final boolean buildable = getBoolean(jsonObject.get(JOB_IS_BUILDABLE));
+        final boolean inQueue = getBoolean(jsonObject.get(JOB_IS_IN_QUEUE));
+        final Job job = Job.createJob(name, displayName, color, url, inQueue, buildable);
         JSONArray healths = (JSONArray) jsonObject.get(JOB_HEALTH);
         job.setHealth(getHealth(healths));
-        final boolean buildable = getBoolean(jsonObject.get(JOB_IS_BUILDABLE));
-        job.setBuildable(buildable);
-        final boolean inQueue = getBoolean(jsonObject.get(JOB_IS_IN_QUEUE));
-        job.setInQueue(inQueue);
 
         JSONObject lastBuildObject = (JSONObject) jsonObject.get(JOB_LAST_BUILD);
         job.setLastBuild(getLastBuild(lastBuildObject));

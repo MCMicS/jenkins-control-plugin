@@ -55,11 +55,7 @@ public class Job {
         ICON_BY_JOB_HEALTH_MAP.put("null", GuiUtil.loadIcon("null.png"));
     }
 
-
-    public Job() {
-    }
-
-    private Job(String name, String displayName, String color, String url, Boolean inQueue, Boolean buildable) {
+    private Job(String name, String displayName, String color, String url, boolean inQueue, boolean buildable) {
         this.name = name;
         this.displayName = displayName;
         this.color = color;
@@ -68,9 +64,12 @@ public class Job {
         this.buildable = buildable;
     }
 
+    public static Job createJob(String jobName, String displayName,  String jobColor, String jobUrl, boolean inQueue, boolean buildable) {
+        return new Job(jobName, displayName, jobColor, jobUrl, inQueue, buildable);
+    }
 
     public static Job createJob(String jobName, String displayName,  String jobColor, String jobUrl, String inQueue, String buildable) {
-        return new Job(jobName, displayName, jobColor, jobUrl, Boolean.valueOf(inQueue), Boolean.valueOf(buildable));
+        return createJob(jobName, displayName, jobColor, jobUrl, Boolean.parseBoolean(inQueue), Boolean.parseBoolean(buildable));
     }
 
 
@@ -123,10 +122,6 @@ public class Job {
 
     public String getColor() {
         return color;
-    }
-
-    public void setColor(String color) {
-        this.color = color;
     }
 
     public String getUrl() {
