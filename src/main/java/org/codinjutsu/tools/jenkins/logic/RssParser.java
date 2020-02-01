@@ -26,6 +26,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import org.jdom.input.sax.XMLReaders;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -59,7 +60,7 @@ public class RssParser {
         }
 
         try(Reader jenkinsDataReader = new StringReader(xmlData)) {
-            return new SAXBuilder(false).build(jenkinsDataReader);
+            return new SAXBuilder(XMLReaders.NONVALIDATING).build(jenkinsDataReader);
         } catch (JDOMException e) {
             LOG.error("Invalid data received from the Jenkins Server. Actual :\n" + xmlData, e);
             throw new RuntimeException("Invalid data received from the Jenkins Server. Please retry");
@@ -71,7 +72,7 @@ public class RssParser {
 
     private Map<String, Build> createLatestBuildList(Document doc) {
 
-        Map<String, Build> buildMap = new LinkedHashMap<String, Build>();
+        Map<String, Build> buildMap = new LinkedHashMap<>();
         Element rootElement = doc.getRootElement();
 
         List<Element> elements = rootElement.getChildren(RSS_ENTRY, rootElement.getNamespace());

@@ -27,7 +27,7 @@ import java.util.Map;
 
 public class Build {
 
-    public static final Map<BuildStatusEnum, Icon> ICON_BY_BUILD_STATUS_MAP = new HashMap<BuildStatusEnum, Icon>();
+    public static final Map<BuildStatusEnum, Icon> ICON_BY_BUILD_STATUS_MAP = new HashMap<>();
 
     private String url;
     private Date buildDate;
@@ -59,7 +59,7 @@ public class Build {
     }
 
     public static Build createBuildFromRss(String buildUrl, String number, String status, String isBuilding, String buildDate, String message) {
-        return createBuild(buildUrl, Long.parseLong(number), status, Boolean.parseBoolean(isBuilding), buildDate, DateUtil.RSS_DATE_FORMAT, message, 0l, 0l);
+        return createBuild(buildUrl, Long.parseLong(number), status, Boolean.parseBoolean(isBuilding), buildDate, DateUtil.RSS_DATE_FORMAT, message, 0L, 0L);
     }
 
     private static Build createBuild(String buildUrl, Long number, String status, Boolean isBuilding, String buildDate, SimpleDateFormat simpleDateFormat, String message, Long timestamp, Long duration) {

@@ -18,18 +18,19 @@ package org.codinjutsu.tools.jenkins.view.util;
 
 import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
+import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import javax.swing.*;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 
 public class BuildStatusIconTest {
 
     @Test
-    public void noBuildsShouldDisplayGreyIcon() throws Exception {
+    public void noBuildsShouldDisplayGreyIcon() {
         BuildStatusAggregator aggregatorMock = Mockito.mock(BuildStatusAggregator.class);
         Mockito.when(aggregatorMock.hasNoResults()).thenReturn(true);
 
@@ -40,7 +41,7 @@ public class BuildStatusIconTest {
     }
 
     @Test
-    public void brokenBuildsShouldDisplayRedIcon() throws Exception {
+    public void brokenBuildsShouldDisplayRedIcon() {
         BuildStatusAggregator aggregatorMock = Mockito.mock(BuildStatusAggregator.class);
         Mockito.when(aggregatorMock.hasNoResults()).thenReturn(false);
         Mockito.when(aggregatorMock.getNbBrokenBuilds()).thenReturn(4);
@@ -53,7 +54,7 @@ public class BuildStatusIconTest {
     }
 
     @Test
-    public void unstableBuildsShouldDisplayYellowIcon() throws Exception {
+    public void unstableBuildsShouldDisplayYellowIcon() {
         BuildStatusAggregator aggregatorMock = Mockito.mock(BuildStatusAggregator.class);
         Mockito.when(aggregatorMock.hasNoResults()).thenReturn(false);
         Mockito.when(aggregatorMock.getNbBrokenBuilds()).thenReturn(0);
@@ -66,7 +67,7 @@ public class BuildStatusIconTest {
     }
 
     @Test
-    public void noBrokenBuildsShouldDisplayYellowIcon() throws Exception {
+    public void noBrokenBuildsShouldDisplayYellowIcon() {
         BuildStatusAggregator aggregatorMock = Mockito.mock(BuildStatusAggregator.class);
         Mockito.when(aggregatorMock.hasNoResults()).thenReturn(false);
         Mockito.when(aggregatorMock.getNbBrokenBuilds()).thenReturn(0);

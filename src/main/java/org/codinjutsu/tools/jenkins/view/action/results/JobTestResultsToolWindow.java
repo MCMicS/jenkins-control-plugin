@@ -55,7 +55,7 @@ public class JobTestResultsToolWindow {
     }
 
     public void showMavenToolWindow() {
-        ConfigurationType configurationType = new UnknownConfigurationType();
+        ConfigurationType configurationType = UnknownConfigurationType.getInstance();
         ConfigurationFactory configurationFactory = new ConfigurationFactoryEx<UnknownRunConfiguration>(configurationType) {
             @NotNull
             @Override
@@ -63,6 +63,7 @@ public class JobTestResultsToolWindow {
                 return new UnknownRunConfiguration(this, project);
             }
         };
+
         RunConfiguration configuration = new UnknownRunConfiguration(configurationFactory, project);
         Executor executor = new DefaultRunExecutor();
         ProcessHandler processHandler = new MyProcessHandler();

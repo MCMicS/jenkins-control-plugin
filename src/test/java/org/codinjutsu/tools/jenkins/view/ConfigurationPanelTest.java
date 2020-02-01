@@ -132,7 +132,7 @@ public class ConfigurationPanelTest {
 //        TextBox serverUrlBox = uiSpecPanel.getTextBox("serverUrl");
 //        serverUrlBox.setText("");
 //
-//        Button connexionButton = uiSpecPanel.getButton("testConnexionButton");
+//        Button connexionButton = uiSpecPanel.getButton("testConnectionButton");
 //
 //        connexionButton.click();
 //
@@ -145,7 +145,7 @@ public class ConfigurationPanelTest {
 //        TextBox serverUrlBox = uiSpecPanel.getTextBox("serverUrl");
 //        serverUrlBox.setText("");
 //
-//        Button connexionButton = uiSpecPanel.getButton("testConnexionButton");
+//        Button connexionButton = uiSpecPanel.getButton("testConnectionButton");
 //
 //        connexionButton.click();
 //
@@ -158,7 +158,7 @@ public class ConfigurationPanelTest {
 //        TextBox serverUrlBox = uiSpecPanel.getTextBox("serverUrl");
 //        serverUrlBox.setText("http://david:david@localhost:80");
 //
-//        Button connexionButton = uiSpecPanel.getButton("testConnexionButton");
+//        Button connexionButton = uiSpecPanel.getButton("testConnectionButton");
 //
 //        connexionButton.click();
 //
@@ -173,7 +173,7 @@ public class ConfigurationPanelTest {
 //        TextBox serverUrlBox = uiSpecPanel.getTextBox("serverUrl");
 //        serverUrlBox.setText("http:///bisous");
 //
-//        Button connexionButton = uiSpecPanel.getButton("testConnexionButton");
+//        Button connexionButton = uiSpecPanel.getButton("testConnectionButton");
 //
 //        connexionButton.click();
 //

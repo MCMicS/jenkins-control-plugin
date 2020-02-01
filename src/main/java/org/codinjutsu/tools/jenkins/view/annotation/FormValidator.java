@@ -20,6 +20,7 @@ import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.view.ConfigurationPanel;
 import org.codinjutsu.tools.jenkins.view.validator.UIValidator;
 import org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.lang.reflect.Field;
@@ -29,18 +30,19 @@ import java.util.Map;
 public class FormValidator<T extends JComponent> {
 
     private final ConfigurationPanel formToValidate;
-    private final HashMap<T, UIValidator<T>> uiValidatorByUiComponent = new HashMap<T, UIValidator<T>>();
+    private final HashMap<T, UIValidator<T>> uiValidatorByUiComponent = new HashMap<>();
 
 
     private FormValidator(ConfigurationPanel formToValidate) {
         this.formToValidate = formToValidate;
     }
 
-    public static FormValidator init(ConfigurationPanel formToValidate) {
-        return new FormValidator(formToValidate);
+    public static <T extends JComponent> FormValidator<T> init(ConfigurationPanel formToValidate) {
+        return new FormValidator<>(formToValidate);
     }
 
-    public FormValidator addValidator(T componentToValidate, UIValidator<T> validator) {
+    @NotNull
+    public FormValidator<T> addValidator(T componentToValidate, UIValidator<T> validator) {
         uiValidatorByUiComponent.put(componentToValidate, validator);
         return this;
     }

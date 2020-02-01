@@ -1,6 +1,6 @@
 package org.codinjutsu.tools.jenkins.view.action.results;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.intellij.execution.PsiLocation;
 import com.intellij.execution.testframework.sm.runner.GeneralTestEventsProcessor;
 import com.intellij.execution.testframework.sm.runner.events.*;
@@ -72,7 +72,7 @@ class JobTestResultsHandler {
         testEventsProcessor.onTestStarted(new TestStartedEvent(testCase.getName(), "file://" + testCase.getClassName() + CLASS_METHOD_SEPARATOR + testCase.getName()));
 
         if (testCase.isSkipped()) {
-            testEventsProcessor.onTestIgnored(new TestIgnoredEvent(testCase.getName(), Objects.firstNonNull(testCase.getErrorDetails(), ""), testCase.getErrorStackTrace()));
+            testEventsProcessor.onTestIgnored(new TestIgnoredEvent(testCase.getName(), MoreObjects.firstNonNull(testCase.getErrorDetails(), ""), testCase.getErrorStackTrace()));
         } else if (testCase.getErrorDetails() != null) {
             testEventsProcessor.onTestFailure(new TestFailedEvent(new MyTestFailed(testCase), true));
         }

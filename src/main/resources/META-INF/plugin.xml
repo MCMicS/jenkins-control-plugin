@@ -1,14 +1,17 @@
 <idea-plugin>
+    <!--suppress PluginXmlValidity -->
     <name>Jenkins Control Plugin</name>
-    <description>A Jenkins Plugin for Intellij</description>
-    <version>0.10.15</version>
-    <vendor email="david.boissier [at] gmail [dot] com" url="http://codinjutsu.blogspot.com">
+    <id>Jenkins Control Plugin</id>
+    <description><![CDATA[A Jenkins Plugin for Intellij. Will be replaced by gradle build]]></description>
+    <version>0.11.0</version>
+    <vendor url="https://github.com/MCMicS/jenkins-control-plugin/issues">
         Programisci.eu
         David Boissier,
         Yuri Novitsky (support of PPP),
+        Michael Suhr
     </vendor>
-    <idea-version since-build="141.0"/>
-    <!--<idea-version since-build="143.0" until-build="143.9999"/>-->
+<!--    <idea-version since-build="201"/>-->
+    <idea-version since-build="192"/>
 
     <depends>com.intellij.modules.lang</depends>
 
@@ -24,29 +27,29 @@
     <extensions defaultExtensionNs="com.intellij">
         <projectConfigurable groupId="tools" groupWeight="110" dynamic="true" displayName="Jenkins Plugin" id="preferences.Jenkins" instance="org.codinjutsu.tools.jenkins.JenkinsComponent"/>
 
-        <projectService serviceInterface="org.codinjutsu.tools.jenkins.logic.ExecutorService" serviceImplementation="org.codinjutsu.tools.jenkins.logic.ExecutorService" />
-        <projectService serviceInterface="org.codinjutsu.tools.jenkins.logic.LoginService" serviceImplementation="org.codinjutsu.tools.jenkins.logic.LoginService" />
-        <projectService serviceInterface="org.codinjutsu.tools.jenkins.JenkinsAppSettings" serviceImplementation="org.codinjutsu.tools.jenkins.JenkinsAppSettings"/>
-        <projectService serviceInterface="org.codinjutsu.tools.jenkins.JenkinsSettings" serviceImplementation="org.codinjutsu.tools.jenkins.JenkinsSettings"/>
-        <projectService serviceInterface="org.codinjutsu.tools.jenkins.JenkinsWindowManager" serviceImplementation="org.codinjutsu.tools.jenkins.JenkinsWindowManager"/>
-        <projectService serviceInterface="org.codinjutsu.tools.jenkins.view.JenkinsWidget" serviceImplementation="org.codinjutsu.tools.jenkins.view.JenkinsWidget"/>
-        <projectService serviceInterface="org.codinjutsu.tools.jenkins.logic.RequestManager" serviceImplementation="org.codinjutsu.tools.jenkins.logic.RequestManager"/>
-        <projectService serviceInterface="org.codinjutsu.tools.jenkins.logic.UrlBuilder" serviceImplementation="org.codinjutsu.tools.jenkins.logic.UrlBuilder"/>
-        <projectService serviceInterface="org.codinjutsu.tools.jenkins.view.BrowserPanel" serviceImplementation="org.codinjutsu.tools.jenkins.view.BrowserPanel"/>
-        <projectService serviceInterface="org.codinjutsu.tools.jenkins.logic.RssLogic" serviceImplementation="org.codinjutsu.tools.jenkins.logic.RssLogic"/>
-        <projectService serviceInterface="org.codinjutsu.tools.jenkins.logic.BrowserPanelAuthenticationHandler" serviceImplementation="org.codinjutsu.tools.jenkins.logic.BrowserPanelAuthenticationHandler"/>
-        <projectService serviceInterface="org.codinjutsu.tools.jenkins.logic.RssAuthenticationActionHandler" serviceImplementation="org.codinjutsu.tools.jenkins.logic.RssAuthenticationActionHandler"/>
+        <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.ExecutorService" />
+        <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.LoginService" />
+        <projectService serviceImplementation="org.codinjutsu.tools.jenkins.JenkinsAppSettings"/>
+        <projectService serviceImplementation="org.codinjutsu.tools.jenkins.JenkinsSettings"/>
+        <projectService serviceImplementation="org.codinjutsu.tools.jenkins.JenkinsWindowManager"/>
+        <statusBarWidgetProvider implementation="org.codinjutsu.tools.jenkins.StatusBarProvider"/>
+        <projectService serviceImplementation="org.codinjutsu.tools.jenkins.view.JenkinsWidget"/>
+        <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.RequestManager"/>
+        <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.UrlBuilder"/>
+        <projectService serviceImplementation="org.codinjutsu.tools.jenkins.view.BrowserPanel"/>
+        <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.RssLogic"/>
+        <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.BrowserPanelAuthenticationHandler"/>
+        <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.RssAuthenticationActionHandler"/>
     </extensions>
 
     <actions>
-        <action id="Jenkins.CreatePatchAndBuildOnJenkins" class="org.codinjutsu.tools.jenkins.view.action.CreatePatchAndBuildAction" text="Create Patch and build on Jenkins">
+        <action id="Jenkins.CreatePatchAndBuildOnJenkins" class="org.codinjutsu.tools.jenkins.view.action.CreatePatchAndBuildAction" text="Create Patch and Build on Jenkins">
             <add-to-group group-id="ChangesViewPopupMenu" anchor="last"/>
         </action>
     </actions>
 
-    <change-notes><![CDATA[
-<a href="http://programisci.eu/en/intellij-jenkins-plugin/">Note</a>
-<a href="https://github.com/programisci/jenkins-control-plugin/blob/jenkins-control-plugin-0.10.0/README.md">Read Me</a><br/>
-<a href="https://github.com/programisci/jenkins-control-plugin/blob/jenkins-control-plugin-0.10.0/CHANGELOG.txt">Changelog</a>
-]]> </change-notes>
+    <!--suppress PluginXmlValidity -->
+    <change-notes>
+        <![CDATA[REPLACED BY pluginDescription.html]]>
+    </change-notes>
 </idea-plugin>

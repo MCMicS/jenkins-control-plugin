@@ -33,7 +33,7 @@ import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 
 import javax.swing.*;
 import java.io.*;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -83,7 +83,7 @@ public class UploadPatchToJob extends AnAction implements DumbAware {
 
                     if ((null != virtualFile)) {
                         if (virtualFile.exists()) {
-                            Map<String, VirtualFile> files = new HashMap<String, VirtualFile>();
+                            Map<String, VirtualFile> files = new HashMap<>();
                             files.put(PARAMETER_NAME, virtualFile);
                             requestManager.runBuild(job, settings, files);
                             notifyOnGoingMessage(job);
@@ -101,8 +101,8 @@ public class UploadPatchToJob extends AnAction implements DumbAware {
             }
 
         } catch (Exception e) {
-            message = String.format("Build cannot be run: " + e.getMessage());
-            e.printStackTrace();
+            message = String.format("Build cannot be run: %1$s", e.getMessage());
+            LOG.error(message, e);
         }
 
         if (!message.isEmpty()) {
@@ -117,7 +117,7 @@ public class UploadPatchToJob extends AnAction implements DumbAware {
             InputStream stream = file.getInputStream();
             InputStreamReader streamReader = new InputStreamReader(stream);
             BufferedReader bufferReader = new BufferedReader(streamReader);
-            String line = null;
+            String line;
             String suffix = settings.getSuffix();
             suffix = suffix.replace(SUFFIX_JOB_NAME_MACROS, job.getName());
             StringBuilder builder = new StringBuilder();
@@ -139,7 +139,7 @@ public class UploadPatchToJob extends AnAction implements DumbAware {
             stream.close();
 
             OutputStream outputStream = file.getOutputStream(browserPanel);
-            outputStream.write(builder.toString().getBytes(Charset.forName("UTF-8")));
+            outputStream.write(builder.toString().getBytes(StandardCharsets.UTF_8));
             outputStream.close();
         }
 
