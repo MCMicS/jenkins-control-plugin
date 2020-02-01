@@ -80,9 +80,9 @@ public class BuildParamDialog extends JDialog {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 BuildParamDialog dialog = new BuildParamDialog(job, configuration, requestManager, runBuildCallback);
+                dialog.setLocationRelativeTo(null);
                 dialog.setSize(dialog.getPreferredSize());
                 dialog.setMaximumSize(new Dimension(300, 200));
-                dialog.setLocationRelativeTo(null);
                 dialog.pack();
                 dialog.setVisible(true);
             }
