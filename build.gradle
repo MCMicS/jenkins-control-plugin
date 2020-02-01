@@ -93,7 +93,7 @@ buildPlugin {
     doLast {
         copy {
             from 'build/distributions'
-            include "${intellij.pluginName}-*"
+            include "${intellij.pluginName}-${project.version}.zip"
             into "snapshot"
         }
     }

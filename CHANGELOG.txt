@@ -1,5 +1,9 @@
 Version 0.11.0
     * IDEA 2019.2+ Support
+    * [fix] #163: spelling error in config form
+    * [add] #161: Retry Failed Builds
+    * [add] #140: Add View Log and Test Results
+    * [add] #162: Add description text in build param dialog
 
 Version 0.10.0
     * [fix] #137: Jenkins 2 compatibility

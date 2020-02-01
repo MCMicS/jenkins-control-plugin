@@ -4,8 +4,8 @@
 * [Jetbrains plugin page](https://plugins.jetbrains.com/idea/plugin/6110)
 * [Changelog](CHANGELOG.txt)
 
-### Current build
-* [Idea 2019](snapshot/jenkins-control-plugin-0.11.0-SNAPSHOT.zip)
+### Current Build
+* [Idea 2019](snapshot/jenkins-control-plugin-0.11.0-Idea2019.2-eap1.zip)
 
 
 ## Description
