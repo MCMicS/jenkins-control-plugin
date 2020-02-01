@@ -19,7 +19,7 @@ intellij {
 }
 
 patchPluginXml {
-    version '0.11.0-Idea2019.2-eap1'
+    version "${project.version}"
     pluginDescription (file('includes/pluginDescription.html').text)
     changeNotes (file('includes/pluginChanges.html').text)
 }
