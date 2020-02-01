@@ -33,9 +33,7 @@ public class JobTracker {
     }
 
     private void removeDoneJobs() {
-        buildJobs.stream()
-                .filter(TraceableBuildJob::isDone)
-                .forEach(buildJobs::remove);
+        buildJobs.removeIf(TraceableBuildJob::isDone);
     }
 
     private void notifyJobsAboutNewFinishedBuilds(Collection<Build> finishedBuilds) {

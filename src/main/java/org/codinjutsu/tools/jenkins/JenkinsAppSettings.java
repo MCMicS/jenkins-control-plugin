@@ -16,17 +16,12 @@
 
 package org.codinjutsu.tools.jenkins;
 
+import com.intellij.openapi.components.*;
+import com.intellij.openapi.project.Project;
+import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
-
-import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.components.State;
-import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.components.StorageScheme;
-import com.intellij.openapi.project.Project;
-import com.intellij.util.xmlb.XmlSerializerUtil;
 
 @State(
         name = "Jenkins.Application.Settings",
@@ -38,6 +33,7 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
 
     public static final String DUMMY_JENKINS_SERVER_URL = "http://dummyjenkinsserver";
     public static final int DEFAULT_BUILD_DELAY = 0;
+    public static final int DEFAULT_BUILD_RETRY = 0;
     public static final int RESET_PERIOD_VALUE = 0;
 
     private State myState = new State();
@@ -156,7 +152,7 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
         public int rssRefreshPeriod = RESET_PERIOD_VALUE;
         public String suffix = "";
 
-        public int numBuildRetries = 1;
+        public int numBuildRetries = DEFAULT_BUILD_RETRY;
         public RssSettings rssSettings = new RssSettings();
     }
 

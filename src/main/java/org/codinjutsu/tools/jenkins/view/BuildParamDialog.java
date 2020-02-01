@@ -16,32 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-
-import javax.swing.Icon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
-import javax.swing.KeyStroke;
-import javax.swing.SpringLayout;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
-
+import com.intellij.openapi.ui.ComboBox;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -55,7 +30,13 @@ import org.codinjutsu.tools.jenkins.model.JobParameter;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.util.SpringUtilities;
 
-import com.intellij.openapi.ui.ComboBox;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 public class BuildParamDialog extends JDialog {
     private static final Logger logger = Logger.getLogger(BuildParamDialog.class);

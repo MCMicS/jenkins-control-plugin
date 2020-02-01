@@ -31,21 +31,22 @@ import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.annotation.FormValidator;
 import org.codinjutsu.tools.jenkins.view.annotation.GuiField;
 import org.codinjutsu.tools.jenkins.view.validator.NotNullValidator;
-import org.codinjutsu.tools.jenkins.view.validator.UIValidator;
 import org.codinjutsu.tools.jenkins.view.validator.UrlValidator;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.ui.IdeBorderFactory;
-import com.intellij.ui.JBColor;
-import com.intellij.ui.NumberDocument;
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
+import java.awt.*;
 
 import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.URL;
 
 @SuppressWarnings({"unchecked"})
 public class ConfigurationPanel {
 
-    private static final Color CONNECTION_TEST_SUCCESSFUL_COLOR = JBColor.GREEN;
-    private static final Color CONNECTION_TEST_FAILED_COLOR = JBColor.RED;
+    private static final JBColor CONNECTION_TEST_SUCCESSFUL_COLOR = JBColor.GREEN;
+    private static final JBColor CONNECTION_TEST_FAILED_COLOR = JBColor.RED;
 
     @GuiField(validators = URL)
     private JTextField serverUrl;

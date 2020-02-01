@@ -12,9 +12,9 @@ public class TraceableBuildJob {
     private Integer numBuildTriesLeft;
     private Boolean passedAnyBuild = false;
 
-    TraceableBuildJob(Job job, Runnable runBuildCommand, Integer numTries) {
+    TraceableBuildJob(Job job, Runnable runBuildCommand, Integer numBuildTriesLeft) {
         this.job = job;
-        this.numBuildTriesLeft = numTries - 1;//view execute jobs itself after registering
+        this.numBuildTriesLeft = numBuildTriesLeft;//view execute jobs itself after registering
         this.runBuild = runBuildCommand;
     }
 
