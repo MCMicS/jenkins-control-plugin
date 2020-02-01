@@ -33,6 +33,7 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
 
     public static final String DUMMY_JENKINS_SERVER_URL = "http://dummyjenkinsserver";
     public static final int DEFAULT_BUILD_DELAY = 0;
+    public static final int DEFAULT_BUILD_RETRY = 0;
     public static final int RESET_PERIOD_VALUE = 0;
 
     private State myState = new State();
@@ -52,41 +53,33 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
         XmlSerializerUtil.copyBean(state, myState);
     }
 
-
     public String getServerUrl() {
         return myState.serverUrl;
     }
-
 
     public void setServerUrl(String serverUrl) {
         myState.serverUrl = serverUrl;
     }
 
-
     public boolean isServerUrlSet() {
         return StringUtils.isNotEmpty(myState.serverUrl) && !DUMMY_JENKINS_SERVER_URL.equals(myState.serverUrl);
     }
-
 
     public int getBuildDelay() {
         return myState.delay;
     }
 
-
     public void setDelay(int delay) {
         myState.delay = delay;
     }
-
 
     public int getJobRefreshPeriod() {
         return myState.jobRefreshPeriod;
     }
 
-
     public void setJobRefreshPeriod(int jobRefreshPeriod) {
         myState.jobRefreshPeriod = jobRefreshPeriod;
     }
-
 
     public int getRssRefreshPeriod() {
         return myState.rssRefreshPeriod;
@@ -143,6 +136,14 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
         return false;
     }
 
+    public int getNumBuildRetries() {
+        return myState.numBuildRetries;
+    }
+
+    public void setNumBuildRetries(int numBuildRetries) {
+        myState.numBuildRetries = numBuildRetries;
+    }
+
     public static class State {
 
         public String serverUrl = DUMMY_JENKINS_SERVER_URL;
@@ -151,6 +152,7 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
         public int rssRefreshPeriod = RESET_PERIOD_VALUE;
         public String suffix = "";
 
+        public int numBuildRetries = DEFAULT_BUILD_RETRY;
         public RssSettings rssSettings = new RssSettings();
     }
 

@@ -21,6 +21,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
+import org.codinjutsu.tools.jenkins.JobTracker;
+import org.codinjutsu.tools.jenkins.TraceableBuildJob;
+import org.codinjutsu.tools.jenkins.TraceableBuildJobFactory;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
@@ -58,7 +61,6 @@ public class BuildParamDialog extends JDialog {
 //        RunParameterDefinition
 //        ListSubversionTagsParameterDefinition
 
-
     BuildParamDialog(Job job, JenkinsAppSettings configuration, RequestManager requestManager, RunBuildCallback runBuildCallback) {
         this.job = job;
         this.configuration = configuration;
@@ -76,7 +78,8 @@ public class BuildParamDialog extends JDialog {
         registerListeners();
     }
 
-    public static void showDialog(final Job job, final JenkinsAppSettings configuration, final RequestManager requestManager, final RunBuildCallback runBuildCallback) {
+    public static void showDialog(final Job job, final JenkinsAppSettings configuration, final RequestManager requestManager,
+            final RunBuildCallback runBuildCallback) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 BuildParamDialog dialog = new BuildParamDialog(job, configuration, requestManager, runBuildCallback);
@@ -201,28 +204,30 @@ public class BuildParamDialog extends JDialog {
     private void onOK() {
         final Map<String, String> paramValueMap = getParamValueMap();
 
-            new SwingWorker<Void, Void>(){ //FIXME don't use swing worker
-                @Override
-                protected Void doInBackground() throws Exception {
-                    requestManager.runParameterizedBuild(job, configuration, paramValueMap);
-                    return null;
+        new SwingWorker<Void, Void>() { //FIXME don't use swing worker
+            @Override
+            protected Void doInBackground() throws Exception {
+                TraceableBuildJob buildJob = TraceableBuildJobFactory.newBuildJob(job, configuration, paramValueMap, requestManager);
+                JobTracker.getInstance().registerJob(buildJob);
+                requestManager.runParameterizedBuild(job, configuration, paramValueMap);
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                dispose();
+                try {
+                    get();
+                    runBuildCallback.notifyOnOk(job);
+                } catch (InterruptedException e) {
+                    logger.log(Level.WARN, "Exception occured while...", e);
+                } catch (ExecutionException e) {
+                    runBuildCallback.notifyOnError(job, e);
+                    logger.log(Level.WARN, "Exception occured while trying to invoke build", e);
                 }
 
-                @Override
-                protected void done() {
-                    dispose();
-                    try {
-                        get();
-                        runBuildCallback.notifyOnOk(job);
-                    } catch (InterruptedException e) {
-                        logger.log(Level.WARN, "Exception occured while...", e);
-                    } catch (ExecutionException e) {
-                        runBuildCallback.notifyOnError(job, e);
-                        logger.log(Level.WARN, "Exception occured while trying to invoke build", e);
-                    }
-
-                }
-            }.execute();
+            }
+        }.execute();
     }
 
     private void onCancel() {
