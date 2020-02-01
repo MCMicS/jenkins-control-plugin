@@ -9,6 +9,7 @@ import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.model.View;
 import org.codinjutsu.tools.jenkins.security.JenkinsVersion;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,7 @@ public interface RequestManagerInterface {
 
     List<Job>loadJenkinsView (View view);
 
+    @NotNull
     Build loadBuild(Build build);
 
     List<Build> loadBuilds(Job job);

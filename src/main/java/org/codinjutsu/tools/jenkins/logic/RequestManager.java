@@ -34,6 +34,7 @@ import org.codinjutsu.tools.jenkins.model.View;
 import org.codinjutsu.tools.jenkins.security.JenkinsVersion;
 import org.codinjutsu.tools.jenkins.security.SecurityClient;
 import org.codinjutsu.tools.jenkins.security.SecurityClientFactory;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -101,9 +102,6 @@ public class RequestManager implements RequestManagerInterface {
 
     /**
      * Note! needs to be called after plugin is logged in
-     *
-     * @param configuration
-     * @return
      */
     @Override
     public Map<String, Build> loadJenkinsRssLatestBuilds(JenkinsAppSettings configuration) {
@@ -156,8 +154,9 @@ public class RequestManager implements RequestManagerInterface {
         securityClient.execute(url);
     }
 
+    @NotNull
     private Build loadBuild(String jenkinsBuildUrl) {
-        if (handleNotYetLoggedInState()) return null;
+        if (handleNotYetLoggedInState()) return Build.NULL;
         URL url = urlBuilder.createBuildUrl(jenkinsBuildUrl);
         String jenkinsJobData = securityClient.execute(url);
         return jsonParser.createBuild(jenkinsJobData);
@@ -254,6 +253,7 @@ public class RequestManager implements RequestManagerInterface {
         return loadBuilds(job.getUrl());
     }
 
+    @NotNull
     @Override
     public Build loadBuild(Build build) {
         return loadBuild(build.getUrl());

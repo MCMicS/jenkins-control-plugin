@@ -4,6 +4,9 @@ Version 0.11.0
     * [add] #161: Retry Failed Builds
     * [add] #140: Add View Log and Test Results
     * [add] #162: Add description text in build param dialog
+    * [fix] #143: NullPointer when "Sort by Build Status" is active
+    * [fix] #157: NullPointerException when trying to load builds (IntelliJ Version : 2017.3)
+    * update JSON.simple to 3.1.0
 
 Version 0.10.0
     * [fix] #137: Jenkins 2 compatibility

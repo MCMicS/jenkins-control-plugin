@@ -27,6 +27,8 @@ import java.util.Map;
 
 public class Build {
 
+    public static final Build NULL = new Build();
+
     public static final Map<BuildStatusEnum, Icon> ICON_BY_BUILD_STATUS_MAP = new HashMap<>();
 
     private String url;
