@@ -57,9 +57,6 @@ repositories {
 }
 
 dependencies {
-    implementation ('com.github.cliftonlabs:json-simple:3.1.0') {
-        exclude group: 'junit'
-    }
     implementation('com.offbytwo.jenkins:jenkins-client:0.3.8') {
         exclude group: 'org.slf4j'
         exclude group: 'org.apache.logging.log4j'
