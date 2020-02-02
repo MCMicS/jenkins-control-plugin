@@ -141,8 +141,6 @@ public class JenkinsJsonParser implements JenkinsParser {
         }
 
         Build build = new Build();
-        String buildDate = lastBuildObject.getString(createJsonKey(BUILD_ID));
-        build.setBuildDate(buildDate);
         final boolean building = getBoolean(lastBuildObject.getBoolean(createJsonKey((BUILD_IS_BUILDING))));
         build.setBuilding(building);
         Long number = lastBuildObject.getLong(createJsonKey(BUILD_NUMBER));
@@ -152,7 +150,12 @@ public class JenkinsJsonParser implements JenkinsParser {
         String url = lastBuildObject.getString(createJsonKey(BUILD_URL));
         build.setUrl(url);
         Long timestamp = lastBuildObject.getLong(createJsonKey(BUILD_TIMESTAMP));
-        if (null != timestamp) {
+        if (null == timestamp) {
+            // BUILD_ID
+            //    Die aktuelle Build-ID. In Builds ab Jenkins 1.597 ist dies die Build-Nummer, vorher ein Zeitstempel im Format YYYY-MM-DD_hh-mm-ss.
+            final String buildDate = lastBuildObject.getString(createJsonKey(BUILD_ID));
+            build.setBuildDate(buildDate);
+        } else {
             build.setTimestamp(timestamp);
         }
         Long duration = lastBuildObject.getLong(createJsonKey(BUILD_DURATION));

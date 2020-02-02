@@ -87,7 +87,6 @@ public class RssParser {
 
             if (!BuildStatusEnum.NULL.equals(status)) {
                 buildMap.put(jobName, Build.createBuildFromRss(link, number, status.getStatus(), Boolean.FALSE.toString(), publishedBuild, title));
-
             }
 
         }

@@ -26,6 +26,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.changes.Change;
 import com.intellij.openapi.vcs.changes.ChangeList;
+import com.intellij.openapi.vcs.changes.patch.PatchWriter;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.IdeBorderFactory;
@@ -152,13 +153,14 @@ public class SelectJobDialog extends JDialog {
 
     private boolean createPatch() throws IOException, VcsException {
         FileWriter writer = new FileWriter(FILENAME);
-        ArrayList<Change> changes = new ArrayList<Change>();
+        ArrayList<Change> changes = new ArrayList<>();
         if (changeLists.length > 0) {
             for(ChangeList changeList: changeLists) {
                 changes.addAll(changeList.getChanges());
             }
         }
-        List<FilePatch> patches = IdeaTextPatchBuilder.buildPatch(project, changes, project.getBaseDir().getPresentableUrl(), false);
+        String base = PatchWriter.calculateBaseForWritingPatch(project, changes).getPath();
+        List<FilePatch> patches = IdeaTextPatchBuilder.buildPatch(project, changes, base, false);
         UnifiedDiffWriter.write(project, patches, writer, CodeStyle.getProjectOrDefaultSettings(project).getLineSeparator(), null);
         writer.close();
 
@@ -185,7 +187,7 @@ public class SelectJobDialog extends JDialog {
                         if (selectedJob.hasParameters()) {
                             if (selectedJob.hasParameter(UploadPatchToJob.PARAMETER_NAME)) {
                                 JenkinsAppSettings settings = JenkinsAppSettings.getSafeInstance(project);
-                                Map<String, VirtualFile> files = new HashMap<String, VirtualFile>();
+                                Map<String, VirtualFile> files = new HashMap<>();
                                 VirtualFile virtualFile = UploadPatchToJob.prepareFile(browserPanel, LocalFileSystem.getInstance().refreshAndFindFileByIoFile(new File(FILENAME)), settings, selectedJob);
                                 if (virtualFile != null && virtualFile.exists()) {
                                     files.put(UploadPatchToJob.PARAMETER_NAME, virtualFile);

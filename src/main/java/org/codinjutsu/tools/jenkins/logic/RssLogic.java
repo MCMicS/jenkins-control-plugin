@@ -52,7 +52,7 @@ public class RssLogic implements Disposable {
     private final Project project;
     private final JenkinsAppSettings jenkinsAppSettings;
     private final RequestManager requestManager;
-    private Map<String, Build> currentBuildMap = new HashMap<String, Build>();
+    private Map<String, Build> currentBuildMap = new HashMap<>();
 
     private final Runnable refreshRssBuildsJob;
     private ScheduledFuture<?> refreshRssBuildFutureTask;
@@ -65,12 +65,7 @@ public class RssLogic implements Disposable {
         this.project = project;
         this.jenkinsAppSettings = JenkinsAppSettings.getSafeInstance(project);
         this.requestManager = RequestManager.getInstance(project);
-        refreshRssBuildsJob = new Runnable() {
-            @Override
-            public void run() {
-                GuiUtil.runInSwingThread(new LoadLatestBuildsJob(project, true));
-            }
-        };
+        refreshRssBuildsJob = () -> GuiUtil.runInSwingThread(new LoadLatestBuildsJob(project, true));
     }
 
     public void init() {
@@ -134,14 +129,9 @@ public class RssLogic implements Disposable {
     }
 
     private List<Build> sortByDateDescending(Map<String, Build> finishedBuilds) {
-        final List<Build> buildToSortByDateDescending = new ArrayList<Build>(finishedBuilds.values());
+        final List<Build> buildToSortByDateDescending = new ArrayList<>(finishedBuilds.values());
 
-        Collections.sort(buildToSortByDateDescending, new Comparator<Build>() {
-            @Override
-            public int compare(Build firstBuild, Build secondBuild) {
-                return firstBuild.getBuildDate().compareTo(secondBuild.getBuildDate());
-            }
-        });
+        buildToSortByDateDescending.sort(Comparator.comparing(Build::getBuildDate));
         return buildToSortByDateDescending;
     }
 

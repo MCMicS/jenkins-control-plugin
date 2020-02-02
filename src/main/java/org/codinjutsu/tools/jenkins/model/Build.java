@@ -18,6 +18,7 @@ package org.codinjutsu.tools.jenkins.model;
 
 import org.codinjutsu.tools.jenkins.util.DateUtil;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.text.SimpleDateFormat;
@@ -132,7 +133,11 @@ public class Build {
         this.status = BuildStatusEnum.parseStatus(status);
     }
 
+    @NotNull
     public Date getBuildDate() {
+        if (buildDate == null) {
+            buildDate = getTimestamp();
+        }
         return buildDate;
     }
 
@@ -140,7 +145,11 @@ public class Build {
         this.buildDate = DateUtil.parseDate(buildDate, DateUtil.WORKSPACE_DATE_FORMAT);
     }
 
+    @NotNull
     public Date getTimestamp() {
+        if (timestamp == null) {
+            timestamp = new Date();
+        }
         return timestamp;
     }
 
