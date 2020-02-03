@@ -5,7 +5,7 @@
 * [Changelog](CHANGELOG.txt)
 
 ### Current Build
-* [Idea 2019](snapshot/jenkins-control-plugin-0.11.0-Idea2019.2-eap1.zip)
+* [Idea 2019](snapshot/jenkins-control-plugin-0.11.0-Idea2019.2-eap2.zip)
 
 
 ## Description

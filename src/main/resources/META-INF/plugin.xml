@@ -13,9 +13,11 @@
 <!--    <idea-version since-build="201"/>-->
     <idea-version since-build="192"/>
 
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.vcs</depends>
     <depends>com.intellij.modules.lang</depends>
-<!--    <depends>com.intellij.modules.java</depends>-->
-    <depends>com.intellij.java</depends>
+    <!--    <depends>com.intellij.modules.java</depends>-->
+    <depends optional="true" config-file="JavaSupport.xml">com.intellij.java</depends>
 
     <project-components>
         <component>
@@ -49,6 +51,10 @@
             <add-to-group group-id="ChangesViewPopupMenu" anchor="last"/>
         </action>
     </actions>
+
+    <extensionPoints>
+        <extensionPoint name="viewTestResults" interface="org.codinjutsu.tools.jenkins.view.extension.ViewTestResults" dynamic="true"/>
+    </extensionPoints>
 
     <!--suppress PluginXmlValidity -->
     <change-notes>
