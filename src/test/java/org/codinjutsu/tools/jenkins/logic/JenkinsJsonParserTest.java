@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.mockito.MockitoAnnotations;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -173,6 +174,19 @@ public class JenkinsJsonParserTest {
                 .lastBuild("http://ci.jenkins-ci.org/job/config-provider-model/8/", "8", "SUCCESS", "false", "2012-04-02_16-26-29", 1477640156281l, 4386421l)
                 .health("health-80plus", "0 tests en echec sur un total de 24 tests")
                 .get(), actualJob);
+    }
+
+    @Test
+    public void testLoadJobForJenkins2() throws Exception {
+        Job actualJob = jsonParser.createJob(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadJob_Jenkins2.json")));
+
+        final Job expected = new JobBuilder()
+                .job("Simple Jenkins Test", "yellow", "http://localhost:8080/job/Simple%20Jenkins%20Test/", "false", "true")
+                .lastBuild("http://localhost:8080/job/Simple%20Jenkins%20Test/25/", "25", "UNSTABLE", "false", "2020-02-02_09-21-58", 1580631718719L, 39731L)
+                .health("health-40to59", "Testergebnis: 1 Test von 2 Tests fehlgeschlagen.")
+                .get();
+        expected.getLastBuild().setBuildDate(new Date(1580631718719L));
+        assertReflectionEquals(expected, actualJob);
     }
 
 

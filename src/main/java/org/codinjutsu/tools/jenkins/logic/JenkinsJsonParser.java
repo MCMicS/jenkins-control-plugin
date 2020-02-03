@@ -23,6 +23,7 @@ import com.github.cliftonlabs.json_simple.Jsoner;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.model.*;
+import org.codinjutsu.tools.jenkins.util.DateUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -150,13 +151,17 @@ public class JenkinsJsonParser implements JenkinsParser {
         String url = lastBuildObject.getString(createJsonKey(BUILD_URL));
         build.setUrl(url);
         Long timestamp = lastBuildObject.getLong(createJsonKey(BUILD_TIMESTAMP));
-        if (null == timestamp) {
-            // BUILD_ID
-            //    Die aktuelle Build-ID. In Builds ab Jenkins 1.597 ist dies die Build-Nummer, vorher ein Zeitstempel im Format YYYY-MM-DD_hh-mm-ss.
-            final String buildDate = lastBuildObject.getString(createJsonKey(BUILD_ID));
-            build.setBuildDate(buildDate);
-        } else {
+        if (null != timestamp) {
             build.setTimestamp(timestamp);
+        }
+
+        final String buildDate = lastBuildObject.getString(createJsonKey(BUILD_ID));
+        // BUILD_ID
+        //    Die aktuelle Build-ID. In Builds ab Jenkins 1.597 ist dies die Build-Nummer, vorher ein Zeitstempel im Format YYYY-MM-DD_hh-mm-ss.
+        if (buildDate != null && DateUtil.isValidJenkinsDate(buildDate)) {
+            build.setBuildDate(DateUtil.parseDate(buildDate, DateUtil.WORKSPACE_DATE_FORMAT));
+        } else {
+            build.setBuildDate(build.getBuildDate());
         }
         Long duration = lastBuildObject.getLong(createJsonKey(BUILD_DURATION));
         if (null != duration) {

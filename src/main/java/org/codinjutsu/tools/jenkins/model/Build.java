@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,7 +31,7 @@ public class Build {
 
     public static final Build NULL = new Build();
 
-    public static final Map<BuildStatusEnum, Icon> ICON_BY_BUILD_STATUS_MAP = new HashMap<>();
+    public static final Map<BuildStatusEnum, Icon> ICON_BY_BUILD_STATUS_MAP = new EnumMap<>(BuildStatusEnum.class);
 
     private String url;
     private Date buildDate;
@@ -141,8 +142,8 @@ public class Build {
         return buildDate;
     }
 
-    public void setBuildDate(String buildDate) {
-        this.buildDate = DateUtil.parseDate(buildDate, DateUtil.WORKSPACE_DATE_FORMAT);
+    public void setBuildDate(Date buildDate) {
+        this.buildDate = buildDate;
     }
 
     @NotNull

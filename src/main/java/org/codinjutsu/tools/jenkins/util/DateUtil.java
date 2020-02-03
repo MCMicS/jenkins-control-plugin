@@ -43,6 +43,18 @@ public class DateUtil {
         return date;
     }
 
+    /**
+     * In Builds bis Jenkins 1.597 ein Zeitstempel im Format YYYY-MM-DD_hh-mm-ss.
+     */
+    public static boolean isValidJenkinsDate(String buildDate) {
+        try {
+            WORKSPACE_DATE_FORMAT.parse(buildDate);
+            return true;
+        } catch (ParseException | NumberFormatException e) {
+            return false;
+        }
+    }
+
     public static String formatDateInTime(Date date) {
         return LOG_DATE_IN_HOUR_FORMAT.format(date);
     }

@@ -1,0 +1,28 @@
+{
+  "displayName": "Simple Jenkins Test",
+  "name": "Simple Jenkins Test",
+  "url": "http://localhost:8080/job/Simple%20Jenkins%20Test/",
+  "buildable": true,
+  "color": "yellow",
+  "healthReport": [
+    {
+      "description": "Testergebnis: 1 Test von 2 Tests fehlgeschlagen.",
+      "iconUrl": "health-40to59.png"
+    },
+    {
+      "description": "Build-Stabilität: In letzter Zeit schlug kein Build fehl.",
+      "iconUrl": "health-80plus.png"
+    }
+  ],
+  "inQueue": false,
+  "lastBuild": {
+    "building": false,
+    "duration": 39731,
+    "id": "25",
+    "number": 25,
+    "result": "UNSTABLE",
+    "timestamp": 1580631718719,
+    "url": "http://localhost:8080/job/Simple%20Jenkins%20Test/25/"
+  },
+  "property": []
+}
