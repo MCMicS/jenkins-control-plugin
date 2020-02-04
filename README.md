@@ -1,5 +1,6 @@
 # Jenkins Plugin 0.11.0 for Jetbrains products
 [![Build Status](https://travis-ci.org/MCMicS/jenkins-control-plugin.svg?branch=master)](https://travis-ci.org/MCMicS/jenkins-control-plugin)
+[![Gitter](https://badges.gitter.im/jenkins-control-plugin/community.svg)](https://gitter.im/jenkins-control-plugin/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 * [Jetbrains plugin page](https://plugins.jetbrains.com/idea/plugin/6110)
 * [Changelog](CHANGELOG.txt)
