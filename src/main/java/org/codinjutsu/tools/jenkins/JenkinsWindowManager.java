@@ -18,11 +18,11 @@ package org.codinjutsu.tools.jenkins;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.project.DumbAwareRunnable;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.startup.StartupManager;
-import org.codinjutsu.tools.jenkins.logic.*;
-import org.codinjutsu.tools.jenkins.view.BrowserPanel;
+import org.codinjutsu.tools.jenkins.logic.BrowserPanelAuthenticationHandler;
+import org.codinjutsu.tools.jenkins.logic.ExecutorService;
+import org.codinjutsu.tools.jenkins.logic.LoginService;
+import org.codinjutsu.tools.jenkins.logic.RssAuthenticationActionHandler;
 import org.codinjutsu.tools.jenkins.view.JenkinsWidget;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,18 +39,6 @@ public class JenkinsWindowManager implements Disposable {
 
     public JenkinsWindowManager(Project project) {
         this.project = project;
-    }
-
-    public void register() {
-        final BrowserPanel browserPanel = BrowserPanel.getInstance(project);
-        final RssLogic rssLogic = RssLogic.getInstance(project);
-        StartupManager.getInstance(project).registerPostStartupActivity((DumbAwareRunnable) () -> {
-            RssAuthenticationActionHandler.getInstance(project);
-            BrowserPanelAuthenticationHandler.getInstance(project);
-            browserPanel.init();
-            rssLogic.init();
-            LoginService.getInstance(project).performAuthentication();
-        });
     }
 
     public void reloadConfiguration() {

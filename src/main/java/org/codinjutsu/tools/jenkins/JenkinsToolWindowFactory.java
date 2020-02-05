@@ -29,7 +29,5 @@ public class JenkinsToolWindowFactory implements ToolWindowFactory, DumbAware {
         toolWindow.setType(ToolWindowType.DOCKED, null);
         ContentManager contentManager = toolWindow.getContentManager();
         contentManager.addContent(content);
-
-        JenkinsWindowManager.getInstance(project).ifPresent(JenkinsWindowManager::register);
     }
 }

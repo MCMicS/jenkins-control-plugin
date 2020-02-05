@@ -42,10 +42,14 @@
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.BrowserPanelAuthenticationHandler"/>
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.RssAuthenticationActionHandler"/>
 
+        <!-- since IDEA 192.5118: use backgroundPostStartupActivity -->
+        <postStartupActivity implementation="org.codinjutsu.tools.jenkins.StartupJenkinsService" />
+
         <toolWindow id="Jenkins"
                     anchor="right"
                     canCloseContents="false"
-                    factoryClass="org.codinjutsu.tools.jenkins.JenkinsToolWindowFactory" />
+                    factoryClass="org.codinjutsu.tools.jenkins.JenkinsToolWindowFactory"
+                    icon="/images/jenkins_logo.png" />
         <toolWindow id="Job test results"
                     anchor="bottom"
                     canCloseContents="true"

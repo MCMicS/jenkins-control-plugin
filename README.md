@@ -8,6 +8,9 @@
 ### Current Build
 * [Idea 2019](snapshot/jenkins-control-plugin-0.11.0-Idea2019.2-eap3.zip)
 
+### Use EAP Builds
+* add https://plugins.jetbrains.com/plugins/eap/list as Plugin Repository
+
 
 ## Description
 This plugin allows to view the content of your Jenkins Continous Integration Server.
