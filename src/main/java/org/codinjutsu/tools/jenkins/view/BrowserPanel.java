@@ -38,6 +38,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
+import org.codinjutsu.tools.jenkins.JenkinsToolWindowFactory;
 import org.codinjutsu.tools.jenkins.JenkinsWindowManager;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.logic.*;
@@ -62,7 +63,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
+public class BrowserPanel extends SimpleToolWindowPanel {
 
     private static final Logger logger = Logger.getLogger(BrowserPanel.class);
 
@@ -232,11 +233,6 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
         });
     }
 
-    @Override
-    public void dispose() {
-        ToolWindowManager.getInstance(project).unregisterToolWindow(JenkinsWindowManager.JENKINS_BROWSER);
-    }
-
     private void update() {
         ((DefaultTreeModel) jobTree.getModel()).nodeChanged((TreeNode) jobTree.getSelectionPath().getLastPathComponent());
     }
@@ -311,7 +307,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
 
     public void notifyInfoJenkinsToolWindow(final String htmlLinkMessage) {
         ToolWindowManager.getInstance(project).notifyByBalloon(
-                JenkinsWindowManager.JENKINS_BROWSER,
+                JenkinsToolWindowFactory.JENKINS_BROWSER,
                 MessageType.INFO,
                 htmlLinkMessage,
                 null,
@@ -319,12 +315,8 @@ public class BrowserPanel extends SimpleToolWindowPanel implements Disposable {
     }
 
     public void notifyErrorJenkinsToolWindow(final String message) {
-        GuiUtil.runInSwingThread(new Runnable() {
-            @Override
-            public void run() {
-                ToolWindowManager.getInstance(project).notifyByBalloon(JenkinsWindowManager.JENKINS_BROWSER, MessageType.ERROR, message);
-            }
-        });
+        GuiUtil.runInSwingThread(() -> ToolWindowManager.getInstance(project).notifyByBalloon(
+                JenkinsToolWindowFactory.JENKINS_BROWSER, MessageType.ERROR, message));
     }
 
     private Tree createTree(final List<JenkinsSettings.FavoriteJob> favoriteJobs) {

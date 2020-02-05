@@ -16,13 +16,13 @@
 
 package org.codinjutsu.tools.jenkins.view.action;
 
-import com.intellij.execution.ExecutionManager;
 import com.intellij.execution.executors.DefaultRunExecutor;
 import com.intellij.execution.filters.TextConsoleBuilder;
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.execution.ui.RunContentDescriptor;
+import com.intellij.execution.ui.RunContentManager;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
@@ -84,8 +84,7 @@ public class ShowLogAction extends AnAction implements DumbAware {
 
                     final RunContentDescriptor contentDescriptor = new RunContentDescriptor(consoleView, null, panel, myTitle);
 
-                    ExecutionManager.getInstance(project).getContentManager()
-                            .showRunContent(DefaultRunExecutor.getRunExecutorInstance(), contentDescriptor);
+                    RunContentManager.getInstance(project).showRunContent(DefaultRunExecutor.getRunExecutorInstance(), contentDescriptor);
                 });
 
             }

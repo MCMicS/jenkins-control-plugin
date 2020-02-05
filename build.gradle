@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'org.codinjutsu'
-version '0.11.0-Idea2019.2-eap2'
+version '0.11.0-Idea2019.2-eap3'
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'java'
 

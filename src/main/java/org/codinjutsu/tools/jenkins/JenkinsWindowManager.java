@@ -16,48 +16,34 @@
 
 package org.codinjutsu.tools.jenkins;
 
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.DumbAwareRunnable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupManager;
-import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowAnchor;
-import com.intellij.openapi.wm.ToolWindowManager;
-import com.intellij.ui.content.Content;
-import com.intellij.ui.content.ContentFactory;
-import com.intellij.ui.content.ContentManager;
 import org.codinjutsu.tools.jenkins.logic.*;
-import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.codinjutsu.tools.jenkins.view.JenkinsWidget;
+import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import java.util.Optional;
 
-public class JenkinsWindowManager {
+public class JenkinsWindowManager implements Disposable {
 
-    private static final Icon JENKINS_ICON = GuiUtil.loadIcon("jenkins_logo.png");
-
-    public static final String JENKINS_BROWSER = "Jenkins";
     private final Project project;
 
-    public static JenkinsWindowManager getInstance(Project project) {
-        return ServiceManager.getService(project, JenkinsWindowManager.class);
+    @NotNull
+    public static Optional<JenkinsWindowManager> getInstance(Project project) {
+        return Optional.ofNullable(ServiceManager.getService(project, JenkinsWindowManager.class));
     }
 
-    public JenkinsWindowManager(final Project project) {
+    public JenkinsWindowManager(Project project) {
         this.project = project;
+    }
 
+    public void register() {
         final BrowserPanel browserPanel = BrowserPanel.getInstance(project);
-
-        Content content = ContentFactory.SERVICE.getInstance().createContent(browserPanel, null, false);
-        ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
-        ToolWindow toolWindow = toolWindowManager.registerToolWindow(JENKINS_BROWSER, false, ToolWindowAnchor.RIGHT);
-        toolWindow.setIcon(JENKINS_ICON);
-        ContentManager contentManager = toolWindow.getContentManager();
-        contentManager.addContent(content);
-
         final RssLogic rssLogic = RssLogic.getInstance(project);
-
         StartupManager.getInstance(project).registerPostStartupActivity((DumbAwareRunnable) () -> {
             RssAuthenticationActionHandler.getInstance(project);
             BrowserPanelAuthenticationHandler.getInstance(project);
@@ -67,18 +53,17 @@ public class JenkinsWindowManager {
         });
     }
 
-    public void unregisterMyself() {
+    public void reloadConfiguration() {
+        LoginService.getInstance(project).performAuthentication();
+    }
 
+    @Override
+    public void dispose() {
         RssAuthenticationActionHandler.getInstance(project).dispose();
         BrowserPanelAuthenticationHandler.getInstance(project).dispose();
 
-        BrowserPanel.getInstance(project).dispose();
         JenkinsWidget.getInstance(project).dispose();
 
         ExecutorService.getInstance(project).getExecutor().shutdown();
-    }
-
-    public void reloadConfiguration() {
-        LoginService.getInstance(project).performAuthentication();
     }
 }

@@ -11,7 +11,7 @@
         Michael Suhr
     </vendor>
 <!--    <idea-version since-build="201"/>-->
-    <idea-version since-build="192"/>
+    <idea-version since-build="191.5701.16"/>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.vcs</depends>
@@ -20,9 +20,6 @@
     <depends optional="true" config-file="JavaSupport.xml">com.intellij.java</depends>
 
     <project-components>
-        <component>
-            <implementation-class>org.codinjutsu.tools.jenkins.JenkinsComponent</implementation-class>
-        </component>
         <component>
             <implementation-class>org.codinjutsu.tools.jenkins.ChangesBarProjectComponent</implementation-class>
         </component>
@@ -44,6 +41,15 @@
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.RssLogic"/>
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.BrowserPanelAuthenticationHandler"/>
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.RssAuthenticationActionHandler"/>
+
+        <toolWindow id="Jenkins"
+                    anchor="right"
+                    canCloseContents="false"
+                    factoryClass="org.codinjutsu.tools.jenkins.JenkinsToolWindowFactory" />
+        <toolWindow id="Job test results"
+                    anchor="bottom"
+                    canCloseContents="true"
+                    factoryClass="org.codinjutsu.tools.jenkins.view.action.results.JobTestResultsToolWindowFactory"/>
     </extensions>
 
     <actions>

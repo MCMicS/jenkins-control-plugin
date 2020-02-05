@@ -6,7 +6,7 @@
 * [Changelog](CHANGELOG.txt)
 
 ### Current Build
-* [Idea 2019](snapshot/jenkins-control-plugin-0.11.0-Idea2019.2-eap2.zip)
+* [Idea 2019](snapshot/jenkins-control-plugin-0.11.0-Idea2019.2-eap3.zip)
 
 
 ## Description
@@ -19,7 +19,7 @@ This plugin was built with JDK 1.7 for IDEA 14, 15 and with JDK 8 for IDEA 2016,
 
 ## Installation steps
 Download this plugin from your IDE or [from the plugin website](http://plugins.jetbrains.com/plugin/6110).
-
+BaseComponent.disposeComponent()
 ## Configuration steps
 * Click on the **Jenkins Settings** button located on the upper toolbar (or you can also open IntelliJ Settings Screen and select the Jenkins Control Plugin option).
 * Enter your Jenkins Server URL (e.g: http://ci.jenkins-ci.org).

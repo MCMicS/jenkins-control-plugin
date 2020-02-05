@@ -24,25 +24,24 @@ import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.testframework.TestConsoleProperties;
 import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil;
 import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView;
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComponentContainer;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
 import org.codinjutsu.tools.jenkins.model.Job;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
 import java.io.OutputStream;
+import java.util.Optional;
+
+import static org.codinjutsu.tools.jenkins.view.action.results.JobTestResultsToolWindowFactory.TOOL_WINDOW_ID;
 
 public class JobTestResultsToolWindow {
 
-    private static final String TOOL_WINDOW_ID = "Job test results";
-    private static final Icon ICON = AllIcons.Actions.GroupByTestProduction;
     private final Project project;
     private Job job;
 
@@ -53,14 +52,14 @@ public class JobTestResultsToolWindow {
     }
 
     public void showMavenToolWindow() {
-        ConfigurationType configurationType = UnknownConfigurationType.getInstance();
+        final ConfigurationType configurationType = UnknownConfigurationType.getInstance();
         final ConfigurationFactory configurationFactory = configurationType.getConfigurationFactories()[0];
 
-        RunConfiguration configuration = new UnknownRunConfiguration(configurationFactory, project);
-        Executor executor = new DefaultRunExecutor();
-        ProcessHandler processHandler = new MyProcessHandler();
-        TestConsoleProperties consoleProperties = new JobTestConsoleProperties(job, project, executor, configuration, processHandler);
-        BaseTestsOutputConsoleView consoleView;
+        final RunConfiguration configuration = new UnknownRunConfiguration(configurationFactory, project);
+        final Executor executor = new DefaultRunExecutor();
+        final ProcessHandler processHandler = new MyProcessHandler();
+        final TestConsoleProperties consoleProperties = new JobTestConsoleProperties(job, project, executor, configuration, processHandler);
+        final BaseTestsOutputConsoleView consoleView;
         try {
             consoleView = SMTestRunnerConnectionUtil.createAndAttachConsole(TOOL_WINDOW_ID, processHandler, consoleProperties);
         } catch (ExecutionException e) {
@@ -71,8 +70,13 @@ public class JobTestResultsToolWindow {
     }
 
     private void showInToolWindow(ComponentContainer consoleView, String tabName) {
-        ToolWindow toolWindow = getToolWindow();
+        getToolWindow().ifPresent(toolWindow -> showInToolWindow(toolWindow, consoleView, tabName));
+    }
+
+    private void showInToolWindow(ToolWindow toolWindow, ComponentContainer consoleView, String tabName) {
+        toolWindow.setAvailable(true, null);
         toolWindow.activate(null);
+        toolWindow.show(null);
         ContentManager contentManager = toolWindow.getContentManager();
         Content content = contentManager.getFactory()
                 .createContent(consoleView.getComponent(), tabName, false);
@@ -81,19 +85,10 @@ public class JobTestResultsToolWindow {
         contentManager.setSelectedContent(content);
     }
 
-    private ToolWindow getToolWindow() {
+    @NotNull
+    private Optional<ToolWindow> getToolWindow() {
         ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
-        ToolWindow toolWindow = toolWindowManager.getToolWindow(TOOL_WINDOW_ID);
-        if (toolWindow == null) {
-            toolWindow = createToolWindow(toolWindowManager);
-        }
-        return toolWindow;
-    }
-
-    private ToolWindow createToolWindow(ToolWindowManager toolWindowManager) {
-        ToolWindow toolWindow = toolWindowManager.registerToolWindow(TOOL_WINDOW_ID, true, ToolWindowAnchor.BOTTOM);
-        toolWindow.setIcon(ICON);
-        return toolWindow;
+        return Optional.ofNullable(toolWindowManager.getToolWindow(TOOL_WINDOW_ID));
     }
 
     private static class MyProcessHandler extends ProcessHandler {

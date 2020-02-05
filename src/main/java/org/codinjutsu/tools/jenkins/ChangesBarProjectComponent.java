@@ -42,26 +42,11 @@ public class ChangesBarProjectComponent implements ProjectComponent, ChangeListD
         this.project = project;
     }
 
-    public void initComponent() {
-        // TODO: insert component initialization logic here
-    }
-
-    public void disposeComponent() {
-        // TODO: insert component disposal logic here
-    }
-
     @NotNull
     public String getComponentName() {
         return "org.codinjutsu.tools.jenkins.ChangesBarProjectComponent";
     }
 
-    public void projectOpened() {
-        // called when project is opened
-    }
-
-    public void projectClosed() {
-        // called when project is being closed
-    }
 
     @Override
     public void decorateChangeList(LocalChangeList localChangeList, ColoredTreeCellRenderer coloredTreeCellRenderer, boolean b, boolean b2, boolean b3) {
