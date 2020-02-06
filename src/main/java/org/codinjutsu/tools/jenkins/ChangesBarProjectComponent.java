@@ -34,7 +34,7 @@ import java.util.Map;
  *
  * @author Yuri Novitsky
  */
-public class ChangesBarProjectComponent implements ProjectComponent, ChangeListDecorator {
+public class ChangesBarProjectComponent implements ChangeListDecorator {
 
     private Project project;
 

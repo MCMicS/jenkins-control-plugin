@@ -11,7 +11,7 @@
         Michael Suhr
     </vendor>
 <!--    <idea-version since-build="201"/>-->
-    <idea-version since-build="191.5701.16"/>
+    <idea-version since-build="193.1546"/>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.vcs</depends>
@@ -42,17 +42,18 @@
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.BrowserPanelAuthenticationHandler"/>
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.RssAuthenticationActionHandler"/>
 
-        <!-- since IDEA 192.5118: use backgroundPostStartupActivity -->
-        <postStartupActivity implementation="org.codinjutsu.tools.jenkins.StartupJenkinsService" />
+        <backgroundPostStartupActivity implementation="org.codinjutsu.tools.jenkins.StartupJenkinsService" />
 
         <toolWindow id="Jenkins"
                     anchor="right"
                     canCloseContents="false"
                     factoryClass="org.codinjutsu.tools.jenkins.JenkinsToolWindowFactory"
+                    doNotActivateOnStart="false"
                     icon="/images/jenkins_logo.png" />
         <toolWindow id="Job test results"
                     anchor="bottom"
                     canCloseContents="true"
+                    doNotActivateOnStart="true"
                     factoryClass="org.codinjutsu.tools.jenkins.view.action.results.JobTestResultsToolWindowFactory"/>
     </extensions>
 

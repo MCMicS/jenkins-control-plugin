@@ -106,8 +106,4 @@ public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidg
     public JComponent getComponent() {
         return this;
     }
-
-    public WidgetPresentation getPresentation(@NotNull PlatformType platformType) {
-        return null;
-    }
 }

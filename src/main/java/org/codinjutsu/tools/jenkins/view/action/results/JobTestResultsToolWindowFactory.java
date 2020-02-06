@@ -24,8 +24,4 @@ public class JobTestResultsToolWindowFactory implements ToolWindowFactory {
         return false;
     }
 
-    @Override
-    public boolean isDoNotActivateOnStart() {
-        return true;
-    }
 }

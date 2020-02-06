@@ -85,17 +85,10 @@ class JobTestResultsHandler {
 
     private static class MyTestFailed extends TestFailed {
         private String stacktrace;
-        private String message;
 
         MyTestFailed(TestCase c) {
-            super(c.getName(), null);
+            super(c.getName(), c.getErrorDetails());
             this.stacktrace = c.getErrorStackTrace();
-            this.message = c.getErrorDetails();
-        }
-
-        @Override
-        public String getFailureMessage() {
-            return message;
         }
 
         @Override

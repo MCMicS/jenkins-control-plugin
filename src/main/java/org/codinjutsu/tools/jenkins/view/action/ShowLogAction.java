@@ -28,6 +28,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import org.codinjutsu.tools.jenkins.JenkinsToolWindowFactory;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
@@ -73,7 +74,8 @@ public class ShowLogAction extends AnAction implements DumbAware {
                     JPanel panel = new JPanel(new BorderLayout());
 
                     DefaultActionGroup toolbarActions = new DefaultActionGroup();
-                    ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, toolbarActions, false);
+                    ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar(
+                            ActionPlaces.UNKNOWN, toolbarActions, false);
                     panel.add(actionToolbar.getComponent(), BorderLayout.WEST);
                     panel.add(consoleView.getComponent(), BorderLayout.CENTER);
                     actionToolbar.setTargetComponent(panel);
