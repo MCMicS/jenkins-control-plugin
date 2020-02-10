@@ -94,7 +94,7 @@ public class RequestManagerTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         configuration = new JenkinsAppSettings();
-        //when(project.getService(UrlBuilder.class, true)).thenReturn(urlBuilderMock);
+        when(project.getService(UrlBuilder.class, true)).thenReturn(urlBuilderMock);
         final PicoContainer container = mock(PicoContainer.class);
         when(project.getPicoContainer()).thenReturn(container);
         when(container.getComponentInstance(UrlBuilder.class.getName())).thenReturn(urlBuilderMock);
