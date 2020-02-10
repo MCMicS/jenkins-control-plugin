@@ -11,8 +11,8 @@ apply plugin: 'java'
 sourceCompatibility = JavaVersion.VERSION_1_8
 
 intellij {
-    version 'LATEST-EAP-SNAPSHOT'
-//    version '2019.2'
+//    version 'LATEST-EAP-SNAPSHOT'
+    version '2019.3'
     plugins 'java'
     updateSinceUntilBuild false
     pluginName 'jenkins-control-plugin'
