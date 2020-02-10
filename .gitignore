@@ -3,6 +3,7 @@
 *.iws
 .idea
 build
+snapshot
 .classpath
 .gradle
 .project
