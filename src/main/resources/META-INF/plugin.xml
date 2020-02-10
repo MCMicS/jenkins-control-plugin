@@ -42,7 +42,7 @@
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.BrowserPanelAuthenticationHandler"/>
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.RssAuthenticationActionHandler"/>
 
-        <backgroundPostStartupActivity implementation="org.codinjutsu.tools.jenkins.StartupJenkinsService" />
+        <postStartupActivity implementation="org.codinjutsu.tools.jenkins.StartupJenkinsService" />
 
         <toolWindow id="Jenkins"
                     anchor="right"
