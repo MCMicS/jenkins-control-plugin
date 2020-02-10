@@ -179,9 +179,14 @@ public class SelectViewAction extends DumbAwareAction implements CustomComponent
     }
 
     @NotNull
-    @Override
     public JComponent createCustomComponent(@NotNull Presentation presentation, @NotNull String place) {
         return myPanel;
+    }
+
+    @NotNull
+    @Override
+    public JComponent createCustomComponent(@NotNull Presentation presentation) {
+        return createCustomComponent(presentation, "Jenkins");
     }
 
     @Override

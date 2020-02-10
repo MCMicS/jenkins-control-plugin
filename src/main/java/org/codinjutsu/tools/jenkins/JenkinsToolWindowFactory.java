@@ -30,4 +30,9 @@ public class JenkinsToolWindowFactory implements ToolWindowFactory, DumbAware {
         ContentManager contentManager = toolWindow.getContentManager();
         contentManager.addContent(content);
     }
+
+    @Override
+    public boolean isDoNotActivateOnStart() {
+        return false;
+    }
 }

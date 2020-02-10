@@ -29,6 +29,7 @@ import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
 import org.codinjutsu.tools.jenkins.view.util.BuildStatusIcon;
 import org.codinjutsu.tools.jenkins.view.util.WidgetBorderUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -97,6 +98,12 @@ public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidg
     @NotNull
     public String ID() {
         return JenkinsWidget.class.getName();
+    }
+
+    @Nullable
+    @Override
+    public WidgetPresentation getPresentation(@NotNull PlatformType type) {
+        return null;
     }
 
     public void install(@NotNull StatusBar statusBar) {}

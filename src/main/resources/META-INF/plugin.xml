@@ -11,13 +11,12 @@
         Michael Suhr
     </vendor>
 <!--    <idea-version since-build="201"/>-->
-    <idea-version since-build="193.1546"/>
+    <idea-version since-build="183.3647.12" until-build="193.1546"/>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.vcs</depends>
     <depends>com.intellij.modules.lang</depends>
-    <!--    <depends>com.intellij.modules.java</depends>-->
-    <depends optional="true" config-file="JavaSupport.xml">com.intellij.java</depends>
+    <depends optional="true" config-file="JavaSupport.xml">com.intellij.modules.java</depends>
 
     <project-components>
         <component>
@@ -42,18 +41,16 @@
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.BrowserPanelAuthenticationHandler"/>
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.RssAuthenticationActionHandler"/>
 
-        <backgroundPostStartupActivity implementation="org.codinjutsu.tools.jenkins.StartupJenkinsService" />
+        <postStartupActivity implementation="org.codinjutsu.tools.jenkins.StartupJenkinsService" />
 
         <toolWindow id="Jenkins"
                     anchor="right"
                     canCloseContents="false"
                     factoryClass="org.codinjutsu.tools.jenkins.JenkinsToolWindowFactory"
-                    doNotActivateOnStart="false"
                     icon="/images/jenkins_logo.png" />
         <toolWindow id="Job test results"
                     anchor="bottom"
                     canCloseContents="true"
-                    doNotActivateOnStart="true"
                     factoryClass="org.codinjutsu.tools.jenkins.view.action.results.JobTestResultsToolWindowFactory"/>
     </extensions>
 
