@@ -7,8 +7,9 @@
 * [Jetbrains plugin page](https://plugins.jetbrains.com/idea/plugin/6110)
 * [Changelog](CHANGELOG.txt)
 
-### Current Build
-* [Idea 2019](snapshot/jenkins-control-plugin-0.11.0-Idea2019.2-eap3.zip)
+### Current Release
+* [Idea 2018.3](../../releases/latest/download/jenkins-control-plugin-2018.3.zip)
+* [Idea 2019.3](../../releases/latest/download/jenkins-control-plugin-2019.3.zip)
 
 ### Use EAP Builds
 * add https://plugins.jetbrains.com/plugins/eap/list as Plugin Repository
