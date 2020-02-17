@@ -23,6 +23,7 @@ public class JenkinsToolWindowFactory implements ToolWindowFactory, DumbAware {
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         final BrowserPanel browserPanel = BrowserPanel.getInstance(project);
+        browserPanel.initGui();
 
         final Content content = ContentFactory.SERVICE.getInstance().createContent(browserPanel, null, false);
         toolWindow.setIcon(JENKINS_ICON);

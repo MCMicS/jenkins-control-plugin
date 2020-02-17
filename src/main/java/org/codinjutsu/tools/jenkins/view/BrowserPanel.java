@@ -16,7 +16,6 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.components.ServiceManager;
@@ -39,7 +38,6 @@ import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.JenkinsToolWindowFactory;
-import org.codinjutsu.tools.jenkins.JenkinsWindowManager;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.logic.*;
 import org.codinjutsu.tools.jenkins.model.*;
@@ -89,7 +87,6 @@ public class BrowserPanel extends SimpleToolWindowPanel {
     private View currentSelectedView;
 
     public BrowserPanel(final Project project) {
-
         super(true);
         this.project = project;
 
@@ -320,7 +317,6 @@ public class BrowserPanel extends SimpleToolWindowPanel {
     }
 
     private Tree createTree(final List<JenkinsSettings.FavoriteJob> favoriteJobs) {
-
         SimpleTree tree = new SimpleTree();
         tree.getEmptyText().setText(LOADING);
         tree.setCellRenderer(new JenkinsTreeRenderer(favoriteJobs));
@@ -379,14 +375,7 @@ public class BrowserPanel extends SimpleToolWindowPanel {
         loadView(viewToLoad);
     }
 
-    public void init() {
-        initGui();
-        if (!isConfigured()) { //run when there is not configuration
-            handleEmptyConfiguration();
-        }
-    }
-
-    private void initGui() {
+    public void initGui() {
         installActionsInToolbar();
         installActionsInPopupMenu();
     }
@@ -402,7 +391,6 @@ public class BrowserPanel extends SimpleToolWindowPanel {
         actionGroup.add(new RefreshRssAction());
         actionGroup.addSeparator();
         actionGroup.add(new OpenPluginSettingsAction());
-
 
         GuiUtil.installActionGroupInToolBar(actionGroup, this, ActionManager.getInstance(), "jenkinsBrowserActions");
     }
@@ -538,12 +526,7 @@ public class BrowserPanel extends SimpleToolWindowPanel {
     }
 
     private void setTreeBusy(final boolean isBusy) {
-        GuiUtil.runInSwingThread(new Runnable() {
-            @Override
-            public void run() {
-                jobTree.setPaintBusy(isBusy);
-            }
-        });
+        GuiUtil.runInSwingThread(() -> jobTree.setPaintBusy(isBusy));
 
     }
 
