@@ -40,7 +40,7 @@ public class JenkinsJsonParser implements JenkinsParser {
         return Boolean.TRUE.equals(obj);
     }
 
-    private static JsonObject pasreJson(String jsonData) {
+    private static JsonObject parseJson(String jsonData) {
         return Jsoner.deserialize(jsonData, new JsonObject());
     }
 
@@ -58,7 +58,7 @@ public class JenkinsJsonParser implements JenkinsParser {
     public Jenkins createWorkspace(String jsonData, String serverUrl) {
         checkJsonDataAndThrowExceptionIfNecessary(jsonData);
         Jenkins jenkins = new Jenkins("", serverUrl);
-        final JsonObject jsonObject = pasreJson(jsonData);
+        final JsonObject jsonObject = parseJson(jsonData);
         JsonObject primaryViewObject = (JsonObject) jsonObject.get(PRIMARY_VIEW);
         if (primaryViewObject != null) {
             jenkins.setPrimaryView(getView(primaryViewObject));
@@ -117,20 +117,20 @@ public class JenkinsJsonParser implements JenkinsParser {
     @Override
     public Job createJob(String jsonData) {
         checkJsonDataAndThrowExceptionIfNecessary(jsonData);
-        return getJob(pasreJson(jsonData));
+        return getJob(parseJson(jsonData));
 
     }
 
     @NotNull
     public Build createBuild(String jsonData) {
         checkJsonDataAndThrowExceptionIfNecessary(jsonData);
-        return getBuild(pasreJson(jsonData));
+        return getBuild(parseJson(jsonData));
     }
 
     @Override
     public List<Build> createBuilds(String jsonData) {
         checkJsonDataAndThrowExceptionIfNecessary(jsonData);
-        final JsonObject jsonObject = pasreJson(jsonData);
+        final JsonObject jsonObject = parseJson(jsonData);
         final JsonArray buildsObject = jsonObject.getCollectionOrDefault(createJsonKey(BUILDS, new JsonArray()));
         return Optional.ofNullable(buildsObject).map(this::getBuilds).orElse(new ArrayList<>());
     }
@@ -181,22 +181,54 @@ public class JenkinsJsonParser implements JenkinsParser {
         return builds;
     }
 
+    @NotNull
+    private JobType getJobTypeByJenkinsClass(@NotNull String className, @NotNull JobType defaultValue) {
+        final JobType jobType;
+        if (className.endsWith("WorkflowMultiBranchProject")) {
+            jobType = JobType.MULTI_BRANCH;
+        } else if (className.endsWith("Folder")) {
+            jobType = JobType.FOLDER;
+        } else if (className.endsWith(Job.WORKFLOW_JOB)) {
+            jobType = JobType.JOB;
+        } else {
+            jobType = defaultValue;
+        }
+        return jobType;
+    }
+
+    @NotNull
+    private JobType getJobType(@NotNull JsonObject jobObject) {
+        final JobType jobType;
+        final String jenkinsType = jobObject.getString(createJsonKey(CLASS, Job.WORKFLOW_JOB));
+        final JobType defaultValue;
+        if (jobObject.containsKey(JOBS)) {
+            defaultValue = JobType.FOLDER;
+        } else {
+            defaultValue = JobType.JOB;
+        }
+        jobType = getJobTypeByJenkinsClass(jenkinsType, defaultValue);
+        return jobType;
+    }
+
+    @NotNull
     private Job getJob(JsonObject jsonObject) {
         final String name = jsonObject.getString(createJsonKey(JOB_NAME));
+        final JobType jobType = getJobType(jsonObject);
         final String displayName = jsonObject.getString(createJsonKey(JOB_DISPLAY_NAME));
         final String url = jsonObject.getString(createJsonKey(JOB_URL));
         final String color = jsonObject.getStringOrDefault(createJsonKey(JOB_COLOR, null));
         final boolean buildable = getBoolean(jsonObject.getBoolean(createJsonKey(JOB_IS_BUILDABLE)));
         final boolean inQueue = getBoolean(jsonObject.getBoolean(createJsonKey(JOB_IS_IN_QUEUE)));
-        final Job job = Job.createJob(name, displayName, color, url, inQueue, buildable);
+
         JsonArray healths = (JsonArray) jsonObject.get(JOB_HEALTH);
-        job.setHealth(getHealth(healths));
+        final Job.JobBuilder jobBuilder = Job.builder().name(name).jobType(jobType).displayName(displayName)
+                .color(color).url(url).inQueue(inQueue).buildable(buildable).health(getHealth(healths));
 
         JsonObject lastBuildObject = (JsonObject) jsonObject.get(JOB_LAST_BUILD);
-        Optional.ofNullable(lastBuildObject).map(this::getLastBuild).ifPresent(job::setLastBuild);
+        Optional.ofNullable(lastBuildObject).map(this::getLastBuild).ifPresent(jobBuilder::lastBuild);
         JsonArray parameterProperty = (JsonArray) jsonObject.get(PARAMETER_PROPERTY);
-        job.addParameters(getParameters(parameterProperty));
-        return job;
+        jobBuilder.parameters(getParameters(parameterProperty));
+        return jobBuilder.build();
     }
 
     @NotNull
@@ -264,15 +296,14 @@ public class JenkinsJsonParser implements JenkinsParser {
         return getBuild(lastBuildObject);
     }
 
+    @Nullable
     private Job.Health getHealth(JsonArray healths) {
         if (healths == null || healths.isEmpty()) {
             return null;
         }
 
-        Job.Health health = new Job.Health();
         JsonObject healthObject = (JsonObject) healths.get(0);
         String description = healthObject.getString(createJsonKey(JOB_HEALTH_DESCRIPTION));
-        health.setDescription(description);
         String healthLevel = healthObject.getString(createJsonKey(JOB_HEALTH_ICON));
         if (StringUtils.isNotEmpty(healthLevel)) {
             if (healthLevel.endsWith(".png"))
@@ -283,13 +314,10 @@ public class JenkinsJsonParser implements JenkinsParser {
         } else {
             healthLevel = null;
         }
-
-        health.setLevel(healthLevel);
-
-        if (!StringUtils.isEmpty(health.getLevel())) {
-            return health;
-        } else {
+        if (StringUtils.isEmpty(healthLevel)) {
             return null;
+        } else {
+            return new Job.Health(healthLevel, description);
         }
     }
 
@@ -297,7 +325,7 @@ public class JenkinsJsonParser implements JenkinsParser {
     public List<Job> createViewJobs(String jsonData) {
         checkJsonDataAndThrowExceptionIfNecessary(jsonData);
         List<Job> jobs = new LinkedList<>();
-        final JsonObject jsonObject = pasreJson(jsonData);
+        final JsonObject jsonObject = parseJson(jsonData);
         JsonArray jobObjects = (JsonArray) jsonObject.get(JOBS);
         for (Object object : jobObjects) {
             JsonObject jobObject = (JsonObject) object;
@@ -312,7 +340,7 @@ public class JenkinsJsonParser implements JenkinsParser {
         checkJsonDataAndThrowExceptionIfNecessary(jsonData);
 
         List<Job> jobs = new LinkedList<>();
-        final JsonObject jsonObject = pasreJson(jsonData);
+        final JsonObject jsonObject = parseJson(jsonData);
         JsonArray viewObjs = (JsonArray) jsonObject.get(VIEWS);
         if (viewObjs == null || viewObjs.isEmpty()) {
             return jobs;

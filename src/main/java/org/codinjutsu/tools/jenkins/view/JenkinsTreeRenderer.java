@@ -20,7 +20,6 @@ import com.intellij.ui.ColoredTreeCellRenderer;
 import com.intellij.ui.RowIcon;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.text.DateFormatUtil;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.model.Build;
@@ -60,7 +59,7 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
 
             append(buildLabel(job), getAttribute(job));
 
-            setToolTipText(job.findHealthDescription());
+            setToolTipText(job.getHealthDescription());
             if (isFavoriteJob(job)) {
                 setIcon(new CompositeIcon(job.getStateIcon(), job.getHealthIcon(), FAVORITE_ICON));
             } else {

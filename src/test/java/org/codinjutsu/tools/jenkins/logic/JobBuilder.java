@@ -18,38 +18,43 @@ package org.codinjutsu.tools.jenkins.logic;
 
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.Job;
+import org.codinjutsu.tools.jenkins.model.JobParameter;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public class JobBuilder {
 
-    private Job job;
+    private final Job.JobBuilder jobBuilder = Job.builder();
 
-    public JobBuilder job(String jobName,  String jobColor, String jobUrl, String inQueue, String buildable) {
-        job = Job.createJob(jobName, jobName, jobColor, jobUrl, inQueue, buildable);
-        return this;
-    }
-    public JobBuilder job(String jobName, String displayName, String jobColor, String jobUrl, String inQueue, String buildable) {
-        job = job(jobName, jobColor, jobUrl, inQueue, buildable).get();
-        job.setDisplayName(displayName);
+    public JobBuilder job(String jobName, String jobColor, String jobUrl, boolean inQueue, boolean buildable) {
+        jobBuilder.name(jobName).color(jobColor).url(jobUrl).inQueue(inQueue).buildable(buildable);
         return this;
     }
 
-    public JobBuilder lastBuild(String buildUrl, String number, String status, String isBuilding, String buildingDate, Long timestamp, Long duration) {
-        job.setLastBuild(Build.createBuildFromWorkspace(buildUrl, number, status, isBuilding, buildingDate, timestamp, duration));
+    public JobBuilder job(String jobName, String displayName, String jobColor, String jobUrl, boolean inQueue, boolean buildable) {
+        job(jobName, jobColor, jobUrl, inQueue, buildable);
+        jobBuilder.displayName(displayName);
+        return this;
+    }
+
+    public JobBuilder lastBuild(String buildUrl, String number, String status, boolean isBuilding, String buildingDate, Long timestamp, Long duration) {
+        jobBuilder.lastBuild(Build.createBuildFromWorkspace(buildUrl, number, status, isBuilding, buildingDate, timestamp, duration));
         return this;
     }
 
     public JobBuilder health(String healthLevel, String healthDescription) {
-        job.setHealth(Job.Health.createHealth(healthLevel, healthDescription));
+        jobBuilder.health(new Job.Health(healthLevel, healthDescription));
         return this;
     }
 
     public JobBuilder parameter(String paramName, String paramType, String defaultValue, String... choices) {
-        job.addParameter(paramName, paramType, defaultValue, choices);
+        jobBuilder.parameter(JobParameter.create(paramName, paramType, defaultValue, choices));
         return this;
     }
 
     public Job get() {
-        return job;
+        return jobBuilder.build();
     }
 
 }

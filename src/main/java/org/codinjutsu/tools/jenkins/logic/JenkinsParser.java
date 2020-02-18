@@ -54,6 +54,7 @@ public interface JenkinsParser {
     String PARAMETER_DEFAULT_PARAM = "defaultParameterValue";
     String PARAMETER_DEFAULT_PARAM_VALUE = "value";
     String PARAMETER_CHOICE = "choices";
+    String CLASS = "_class";
 
     Jenkins createWorkspace(String jsonData, String serverUrl);
 

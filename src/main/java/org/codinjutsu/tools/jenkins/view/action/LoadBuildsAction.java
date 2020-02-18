@@ -44,7 +44,6 @@ public class LoadBuildsAction extends AnAction implements DumbAware {
                     progressIndicator.setIndeterminate(true);
                     RequestManager requestManager = browserPanel.getJenkinsManager();
                     job.setLastBuilds(requestManager.loadBuilds(job));
-                    job.setFetchBuild(true);
                 }
             }.queue();
         } catch (Exception ex) {

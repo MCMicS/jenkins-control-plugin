@@ -53,20 +53,15 @@ public class Build {
         ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.FOLDER, GuiUtil.loadIcon("folder.png"));
     }
 
-
-    public static Build createBuildFromWorkspace(String buildUrl, Long number, String status, Boolean isBuilding, String buildDate, Long timestamp, Long duration) {
-        return createBuild(buildUrl, number, status, isBuilding, buildDate, DateUtil.WORKSPACE_DATE_FORMAT, null, timestamp, duration);
+    public static Build createBuildFromWorkspace(String buildUrl, String number, String status, boolean isBuilding, String buildDate, Long timestamp, Long duration) {
+        return createBuild(buildUrl, Long.parseLong(number), status, isBuilding, buildDate, DateUtil.WORKSPACE_DATE_FORMAT, null, timestamp, duration);
     }
 
-    public static Build createBuildFromWorkspace(String buildUrl, String number, String status, String isBuilding, String buildDate, Long timestamp, Long duration) {
-        return createBuild(buildUrl, Long.parseLong(number), status, Boolean.parseBoolean(isBuilding), buildDate, DateUtil.WORKSPACE_DATE_FORMAT, null, timestamp, duration);
+    public static Build createBuildFromRss(String buildUrl, String number, String status, boolean isBuilding, String buildDate, String message) {
+        return createBuild(buildUrl, Long.parseLong(number), status, isBuilding, buildDate, DateUtil.RSS_DATE_FORMAT, message, 0L, 0L);
     }
 
-    public static Build createBuildFromRss(String buildUrl, String number, String status, String isBuilding, String buildDate, String message) {
-        return createBuild(buildUrl, Long.parseLong(number), status, Boolean.parseBoolean(isBuilding), buildDate, DateUtil.RSS_DATE_FORMAT, message, 0L, 0L);
-    }
-
-    private static Build createBuild(String buildUrl, Long number, String status, Boolean isBuilding, String buildDate, SimpleDateFormat simpleDateFormat, String message, Long timestamp, Long duration) {
+    private static Build createBuild(String buildUrl, Long number, String status, boolean isBuilding, String buildDate, SimpleDateFormat simpleDateFormat, String message, Long timestamp, Long duration) {
         BuildStatusEnum buildStatusEnum = BuildStatusEnum.parseStatus(status);
         Date date = DateUtil.parseDate(buildDate, simpleDateFormat);
 
@@ -95,10 +90,9 @@ public class Build {
             return ICON_BY_BUILD_STATUS_MAP.get(BuildStatusEnum.FOLDER);
         }
         BuildStatusEnum[] jobStates = BuildStatusEnum.values();
-        for (BuildStatusEnum jobState : jobStates) {
-            String stateName = jobState.getColor();
-            if (jobColor.startsWith(stateName)) {
-                return ICON_BY_BUILD_STATUS_MAP.get(jobState);
+        for (BuildStatusEnum jobStatus : jobStates) {
+            if (jobStatus.getColor().isForJobColor(jobColor)) {
+                return ICON_BY_BUILD_STATUS_MAP.get(jobStatus);
             }
         }
 

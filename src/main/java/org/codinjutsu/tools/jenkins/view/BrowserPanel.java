@@ -289,6 +289,7 @@ public class BrowserPanel extends SimpleToolWindowPanel {
             Object child = model.getChild(modelRoot, i);
             if (child instanceof DefaultMutableTreeNode) {
                 DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) child;
+                // TODO mcmics: use equals
                 if (childNode.getUserObject() == job) {
                     model.nodeChanged(childNode);
                     fillBuildsTree(job, childNode);
@@ -482,9 +483,7 @@ public class BrowserPanel extends SimpleToolWindowPanel {
 
         for (Job job : jobList) {
             DefaultMutableTreeNode jobNode = new DefaultMutableTreeNode(job);
-            if (job.isFetchBuild()) {
-                fillBuildsTree(job, jobNode);
-            }
+            fillBuildsTree(job, jobNode);
             rootNode.add(jobNode);
             visit(job, buildStatusVisitor);
         }
