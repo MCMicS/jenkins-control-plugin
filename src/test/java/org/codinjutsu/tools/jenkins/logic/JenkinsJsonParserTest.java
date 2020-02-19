@@ -184,6 +184,7 @@ public class JenkinsJsonParserTest {
                 .job("Simple Jenkins Test", "yellow", "http://localhost:8080/job/Simple%20Jenkins%20Test/", false, true)
                 .lastBuild("http://localhost:8080/job/Simple%20Jenkins%20Test/25/", "25", "UNSTABLE", false, "2020-02-02_09-21-58", 1580631718719L, 39731L)
                 .health("health-40to59", "Testergebnis: 1 Test von 2 Tests fehlgeschlagen.")
+                .displayName("Parent -> Simple Jenkins Test")
                 .get();
         expected.getLastBuild().setBuildDate(new Date(1580631718719L));
         assertReflectionEquals(expected, actualJob);
@@ -222,7 +223,8 @@ public class JenkinsJsonParserTest {
 
         List<Job> expectedJobs = Arrays.asList(
                 new JobBuilder()
-                        .job("DummyProject", "Dummy Project", "red", "http://localhost:8484/jenkins/job/DummyProject/", false, true)
+                        .job("DummyProject", "red", "http://localhost:8484/jenkins/job/DummyProject/", false, true)
+                        .displayName("Dummy Project")
                         .lastBuild("http://localhost:8484/jenkins/job/DummyProject/26/", "26", "FAILURE", false, "2011-12-01_16-53-48", 1477640156281l, 4386421l)
                         .health("health-00to19", "Stabilité du build: Tous les builds récents ont échoué.")
                         .parameter("runIntegrationTest", "BooleanParameterDefinition", "true")

@@ -199,7 +199,7 @@ public class JenkinsJsonParser implements JenkinsParser {
     @NotNull
     private JobType getJobType(@NotNull JsonObject jobObject) {
         final JobType jobType;
-        final String jenkinsType = jobObject.getString(createJsonKey(CLASS, Job.WORKFLOW_JOB));
+        final String jenkinsType = jobObject.getStringOrDefault(createJsonKey(CLASS, Job.WORKFLOW_JOB));
         final JobType defaultValue;
         if (jobObject.containsKey(JOBS)) {
             defaultValue = JobType.FOLDER;
@@ -214,7 +214,7 @@ public class JenkinsJsonParser implements JenkinsParser {
     private Job getJob(JsonObject jsonObject) {
         final String name = jsonObject.getString(createJsonKey(JOB_NAME));
         final JobType jobType = getJobType(jsonObject);
-        final String displayName = jsonObject.getString(createJsonKey(JOB_DISPLAY_NAME));
+        final String displayName = getDisplayName(jsonObject);
         final String url = jsonObject.getString(createJsonKey(JOB_URL));
         final String color = jsonObject.getStringOrDefault(createJsonKey(JOB_COLOR, null));
         final boolean buildable = getBoolean(jsonObject.getBoolean(createJsonKey(JOB_IS_BUILDABLE)));
@@ -229,6 +229,13 @@ public class JenkinsJsonParser implements JenkinsParser {
         JsonArray parameterProperty = (JsonArray) jsonObject.get(PARAMETER_PROPERTY);
         jobBuilder.parameters(getParameters(parameterProperty));
         return jobBuilder.build();
+    }
+
+    @Nullable
+    private String getDisplayName(@NotNull JsonObject jsonObject) {
+        final JsonKey preferFullDisplayName = createJsonKey(JOB_FULL_DISPLAY_NAME,
+                jsonObject.getString(createJsonKey(JOB_DISPLAY_NAME)));
+        return jsonObject.getStringOrDefault(preferFullDisplayName);
     }
 
     @NotNull

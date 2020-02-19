@@ -20,9 +20,6 @@ import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
 
-import java.util.LinkedList;
-import java.util.List;
-
 public class JobBuilder {
 
     private final Job.JobBuilder jobBuilder = Job.builder();
@@ -32,8 +29,7 @@ public class JobBuilder {
         return this;
     }
 
-    public JobBuilder job(String jobName, String displayName, String jobColor, String jobUrl, boolean inQueue, boolean buildable) {
-        job(jobName, jobColor, jobUrl, inQueue, buildable);
+    public JobBuilder displayName(String displayName) {
         jobBuilder.displayName(displayName);
         return this;
     }

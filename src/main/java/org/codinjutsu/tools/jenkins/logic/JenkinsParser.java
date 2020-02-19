@@ -26,6 +26,7 @@ public interface JenkinsParser {
     String JOBS = "jobs";
     String JOB_NAME = "name";
     String JOB_DISPLAY_NAME = "displayName";
+    String JOB_FULL_DISPLAY_NAME = "fullDisplayName";
     String JOB_HEALTH = "healthReport";
     String JOB_HEALTH_ICON = "iconUrl";
     String JOB_HEALTH_DESCRIPTION = "description";
