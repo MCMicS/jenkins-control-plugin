@@ -16,15 +16,15 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
+import com.intellij.icons.AllIcons;
+import icons.JenkinsControlIcons;
 import org.codinjutsu.tools.jenkins.util.DateUtil;
-import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Map;
 
 public class Build {
@@ -44,13 +44,13 @@ public class Build {
     private BuildStatusEnum status;
 
     static {
-        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.SUCCESS, GuiUtil.loadIcon("blue.png"));
-        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.STABLE, GuiUtil.loadIcon("blue.png"));
-        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.FAILURE, GuiUtil.loadIcon("red.png"));
-        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.UNSTABLE, GuiUtil.loadIcon("yellow.png"));
-        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.NULL, GuiUtil.loadIcon("grey.png"));
-        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.ABORTED, GuiUtil.loadIcon("grey.png"));
-        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.FOLDER, GuiUtil.loadIcon("folder.png"));
+        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.SUCCESS, JenkinsControlIcons.Job.BLUE);
+        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.STABLE, JenkinsControlIcons.Job.BLUE);
+        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.FAILURE, JenkinsControlIcons.Job.RED);
+        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.UNSTABLE, JenkinsControlIcons.Job.YELLOW);
+        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.NULL, JenkinsControlIcons.Job.GREY);
+        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.ABORTED, JenkinsControlIcons.Job.GREY);
+        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.FOLDER, AllIcons.Nodes.Folder);
     }
 
     public static Build createBuildFromWorkspace(String buildUrl, String number, String status, boolean isBuilding, String buildDate, Long timestamp, Long duration) {
@@ -82,7 +82,7 @@ public class Build {
         this.duration = duration;
     }
 
-
+    @NotNull
     public static Icon getStateIcon(String jobColor) {
         if (jobColor == null) {
             // NB: This assumes the case of rendering a folder.

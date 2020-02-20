@@ -97,6 +97,7 @@ package org.codinjutsu.tools.jenkins.view.action;
 //    }
 //}
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.actionSystem.ex.CustomComponentAction;
@@ -126,7 +127,7 @@ import java.util.List;
  */
 public class SelectViewAction extends DumbAwareAction implements CustomComponentAction {
 
-    private static final Icon ARROWS_ICON = GuiUtil.loadIcon("/ide/", "statusbar_arrows.png");
+    private static final Icon ARROWS_ICON = AllIcons.Ide.Statusbar_arrows;
 
     protected final JLabel myLabel;
     protected final JPanel myPanel;

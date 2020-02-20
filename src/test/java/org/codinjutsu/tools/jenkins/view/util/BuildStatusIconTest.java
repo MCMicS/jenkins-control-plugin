@@ -16,15 +16,14 @@
 
 package org.codinjutsu.tools.jenkins.view.util;
 
+import icons.JenkinsControlIcons;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
-import org.codinjutsu.tools.jenkins.util.GuiUtil;
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import javax.swing.*;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 
 public class BuildStatusIconTest {
@@ -35,7 +34,7 @@ public class BuildStatusIconTest {
         Mockito.when(aggregatorMock.hasNoResults()).thenReturn(true);
 
         BuildStatusIcon statusIcon = (BuildStatusIcon) BuildStatusIcon.createIcon(aggregatorMock);
-        assertIconEquals("grey.png", statusIcon.icon);
+        assertIconEquals("grey.svg", statusIcon.icon);
         assertEquals("No builds", statusIcon.toolTipText);
         assertEquals(0, statusIcon.numberToDisplay);
     }
@@ -48,7 +47,7 @@ public class BuildStatusIconTest {
         Mockito.when(aggregatorMock.getNbUnstableBuilds()).thenReturn(2);
 
         BuildStatusIcon statusIcon = (BuildStatusIcon) BuildStatusIcon.createIcon(aggregatorMock);
-        assertIconEquals("red.png", statusIcon.icon);
+        assertIconEquals("red.svg", statusIcon.icon);
         assertEquals("4 broken builds", statusIcon.toolTipText);
         assertEquals(4, statusIcon.numberToDisplay);
     }
@@ -61,7 +60,7 @@ public class BuildStatusIconTest {
         Mockito.when(aggregatorMock.getNbUnstableBuilds()).thenReturn(2);
 
         BuildStatusIcon statusIcon = (BuildStatusIcon) BuildStatusIcon.createIcon(aggregatorMock);
-        assertIconEquals("yellow.png", statusIcon.icon);
+        assertIconEquals("yellow.svg", statusIcon.icon);
         assertEquals("2 unstable builds", statusIcon.toolTipText);
         assertEquals(2, statusIcon.numberToDisplay);
     }
@@ -74,12 +73,12 @@ public class BuildStatusIconTest {
         Mockito.when(aggregatorMock.getNbUnstableBuilds()).thenReturn(0);
 
         BuildStatusIcon statusIcon = (BuildStatusIcon) BuildStatusIcon.createIcon(aggregatorMock);
-        assertIconEquals("blue.png", statusIcon.icon);
+        assertIconEquals("blue.svg", statusIcon.icon);
         assertEquals("No broken builds", statusIcon.toolTipText);
         assertEquals(0, statusIcon.numberToDisplay);
     }
 
     private void assertIconEquals(String expectedIconFilename, Icon actualIcon) {
-        assertEquals(GuiUtil.loadIcon(expectedIconFilename).toString(), actualIcon.toString());
+        assertEquals(JenkinsControlIcons.getIcon(expectedIconFilename).toString(), actualIcon.toString());
     }
 }

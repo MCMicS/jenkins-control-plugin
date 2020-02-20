@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.view.action;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -50,7 +51,7 @@ public class UploadPatchToJob extends AnAction implements DumbAware {
     private static final Logger LOG = Logger.getInstance(UploadPatchToJob.class.getName());
     private BrowserPanel browserPanel;
 
-    private static final Icon EXECUTE_ICON = GuiUtil.isUnderDarcula() ? GuiUtil.loadIcon("execute_dark.png") : GuiUtil.loadIcon("execute.png");
+    private static final Icon EXECUTE_ICON = AllIcons.Actions.Execute;
 
 
     public UploadPatchToJob(BrowserPanel browserPanel) {

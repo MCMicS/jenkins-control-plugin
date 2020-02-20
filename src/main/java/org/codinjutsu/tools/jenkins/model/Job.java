@@ -16,12 +16,13 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
+import com.intellij.util.ui.EmptyIcon;
+import icons.JenkinsControlIcons;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
 import lombok.Value;
 import org.apache.commons.lang.StringUtils;
-import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,12 +44,12 @@ public class Job {
     public static final String WORKFLOW_JOB = "WorkflowJob";
 
     static {
-        ICON_BY_JOB_HEALTH_MAP.put("health-00to19", GuiUtil.loadIcon("health-00to19.png"));
-        ICON_BY_JOB_HEALTH_MAP.put("health-20to39", GuiUtil.loadIcon("health-20to39.png"));
-        ICON_BY_JOB_HEALTH_MAP.put("health-40to59", GuiUtil.loadIcon("health-40to59.png"));
-        ICON_BY_JOB_HEALTH_MAP.put("health-60to79", GuiUtil.loadIcon("health-60to79.png"));
-        ICON_BY_JOB_HEALTH_MAP.put("health-80plus", GuiUtil.loadIcon("health-80plus.png"));
-        ICON_BY_JOB_HEALTH_MAP.put("null", GuiUtil.loadIcon("null.png"));
+        ICON_BY_JOB_HEALTH_MAP.put("health-00to19", JenkinsControlIcons.Health.HEALTH_00_TO_19);
+        ICON_BY_JOB_HEALTH_MAP.put("health-20to39", JenkinsControlIcons.Health.HEALTH_20_TO_39);
+        ICON_BY_JOB_HEALTH_MAP.put("health-40to59", JenkinsControlIcons.Health.HEALTH_40_TO_59);
+        ICON_BY_JOB_HEALTH_MAP.put("health-60to79", JenkinsControlIcons.Health.HEALTH_60_TO_79);
+        ICON_BY_JOB_HEALTH_MAP.put("health-80plus", JenkinsControlIcons.Health.HEALTH_60_PLUS);
+        ICON_BY_JOB_HEALTH_MAP.put("null", EmptyIcon.ICON_16);
     }
 
     @NotNull
@@ -74,11 +75,6 @@ public class Job {
     @Builder.Default
     @NotNull
     private List<Build> lastBuilds = new LinkedList<>();
-
-    @Nullable
-    public Icon getStateIcon() {
-        return Build.getStateIcon(color);
-    }
 
     @NotNull
     public Icon getHealthIcon() {
@@ -132,6 +128,14 @@ public class Job {
         return "Job{" +
                 "name='" + name + '\'' +
                 '}';
+    }
+
+    @NotNull
+    public Icon getIcon() {
+        if (jobType == JobType.JOB) {
+            return Build.getStateIcon(color);
+        }
+        return jobType.getIcon();
     }
 
     @Value

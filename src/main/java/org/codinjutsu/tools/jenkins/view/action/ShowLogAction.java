@@ -23,6 +23,7 @@ import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.execution.ui.RunContentDescriptor;
 import com.intellij.execution.ui.RunContentManager;
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
@@ -40,7 +41,7 @@ import java.awt.*;
 
 public class ShowLogAction extends AnAction implements DumbAware {
 
-    private static final Icon ICON = GuiUtil.loadIcon("show_log.png");
+    private static final Icon ICON = AllIcons.Actions.ShowHiddens;//AllIcons.Nodes.Console
 
     private final BrowserPanel browserPanel;
 

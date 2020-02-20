@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.view.action;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -38,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 
 public class RunBuildAction extends AnAction implements DumbAware {
 
-    private static final Icon EXECUTE_ICON = GuiUtil.isUnderDarcula() ? GuiUtil.loadIcon("execute_dark.png") : GuiUtil.loadIcon("execute.png");
+    private static final Icon EXECUTE_ICON = AllIcons.Actions.Execute;
     private static final Logger LOG = Logger.getLogger(RunBuildAction.class.getName());
     public static final int BUILD_STATUS_UPDATE_DELAY = 1;
 

@@ -6,21 +6,18 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import icons.JenkinsControlIcons;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
-import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-
 public class LoadBuildsAction extends AnAction implements DumbAware {
-    private static final Icon REFRESH_ICON = GuiUtil.loadIcon("builds.png");
 
     private final BrowserPanel browserPanel;
 
     public LoadBuildsAction(BrowserPanel browserPanel) {
-        super("Load builds", "Load builds", REFRESH_ICON);
+        super("Load builds", "Load builds", JenkinsControlIcons.LOAD_BUILDS);
         this.browserPanel = browserPanel;
     }
 

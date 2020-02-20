@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ShowJobResultsAsJUnitViewAction extends AnAction {
+
     private static final Icon ICON = AllIcons.Actions.GroupByTestProduction;
     @NotNull
     private final BrowserPanel browserPanel;

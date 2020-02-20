@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.SimpleTextAttributes;
@@ -28,8 +29,6 @@ import javax.swing.*;
 import java.awt.*;
 
 public class JenkinsNestedViewComboRenderer extends ColoredListCellRenderer<View> {
-
-    private static final Icon FAVORITE_ICON = GuiUtil.loadIcon("star.png");
 
     @Override
     protected void customizeCellRenderer(@NotNull JList<? extends View> list, View view, int index, boolean selected, boolean hasFocus) {
@@ -48,7 +47,7 @@ public class JenkinsNestedViewComboRenderer extends ColoredListCellRenderer<View
         }
 
         if (view instanceof FavoriteView) {
-            setIcon(FAVORITE_ICON);
+            setIcon(JenkinsTreeRenderer.FAVORITE_ICON);
         }
     }
 }

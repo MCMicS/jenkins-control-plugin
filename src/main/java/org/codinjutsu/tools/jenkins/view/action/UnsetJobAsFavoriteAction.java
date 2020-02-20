@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.view.action;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
@@ -30,7 +31,7 @@ public class UnsetJobAsFavoriteAction extends AnAction implements DumbAware {
     private BrowserPanel browserPanel;
 
     public UnsetJobAsFavoriteAction(BrowserPanel browserPanel) {
-        super("Unset as Favorite", "Unset the selected job as favorite", GuiUtil.loadIcon("star_delete.png"));
+        super("Unset as Favorite", "Unset the selected job as favorite", AllIcons.Nodes.NotFavoriteOnHover);
         this.browserPanel = browserPanel;
     }
 
