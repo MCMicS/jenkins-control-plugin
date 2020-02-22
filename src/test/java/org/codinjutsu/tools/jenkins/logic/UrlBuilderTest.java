@@ -64,19 +64,19 @@ public class UrlBuilderTest {
     @Test
     public void createViewUrlForClassicPlateform() throws Exception {
         URL url = urlBuilder.createViewUrl(JenkinsPlateform.CLASSIC, "http://localhost:8080/jenkins/My%20View");
-        assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/My%20View/api/json?tree=name,url,jobs%5Bname,displayName,fullDisplayName,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Bid,url,building,result,number,timestamp,duration%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,description,choices%5D%5D%5D"));
+        assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/My%20View/api/json?tree=name,url,jobs%5Bname,displayName,fullDisplayName,jobs,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Bid,url,building,result,number,timestamp,duration%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,description,choices%5D%5D%5D"));
     }
 
     @Test
     public void createJobJSONUrl() throws Exception {
         URL url = urlBuilder.createJobUrl("http://localhost:8080/jenkins/my%20Job");
-        assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/my%20Job/api/json?tree=name,displayName,fullDisplayName,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Bid,url,building,result,number,timestamp,duration%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,description,choices%5D%5D"));
+        assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/my%20Job/api/json?tree=name,displayName,fullDisplayName,jobs,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Bid,url,building,result,number,timestamp,duration%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,description,choices%5D%5D"));
     }
 
     @Test
     public void createViewUrlForCloudbeesPlateform() throws Exception {
         URL url = urlBuilder.createViewUrl(JenkinsPlateform.CLOUDBEES, "http://localhost:8080/jenkins/My%20View");
-        assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/My%20View/api/json?tree=name,url,views%5Bjobs%5Bname,displayName,fullDisplayName,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Bid,url,building,result,number,timestamp,duration%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,description,choices%5D%5D%5D%5D"));
+        assertThat(url.toString(), equalTo("http://localhost:8080/jenkins/My%20View/api/json?tree=name,url,views%5Bjobs%5Bname,displayName,fullDisplayName,jobs,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Bid,url,building,result,number,timestamp,duration%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,description,choices%5D%5D%5D%5D"));
     }
 
     @Test

@@ -43,8 +43,8 @@ public class BuildStatusIconTest {
     public void brokenBuildsShouldDisplayRedIcon() {
         BuildStatusAggregator aggregatorMock = Mockito.mock(BuildStatusAggregator.class);
         Mockito.when(aggregatorMock.hasNoResults()).thenReturn(false);
-        Mockito.when(aggregatorMock.getNbBrokenBuilds()).thenReturn(4);
-        Mockito.when(aggregatorMock.getNbUnstableBuilds()).thenReturn(2);
+        Mockito.when(aggregatorMock.getBrokenBuilds()).thenReturn(4);
+        Mockito.when(aggregatorMock.getUnstableBuilds()).thenReturn(2);
 
         BuildStatusIcon statusIcon = (BuildStatusIcon) BuildStatusIcon.createIcon(aggregatorMock);
         assertIconEquals("red.svg", statusIcon.icon);
@@ -56,8 +56,8 @@ public class BuildStatusIconTest {
     public void unstableBuildsShouldDisplayYellowIcon() {
         BuildStatusAggregator aggregatorMock = Mockito.mock(BuildStatusAggregator.class);
         Mockito.when(aggregatorMock.hasNoResults()).thenReturn(false);
-        Mockito.when(aggregatorMock.getNbBrokenBuilds()).thenReturn(0);
-        Mockito.when(aggregatorMock.getNbUnstableBuilds()).thenReturn(2);
+        Mockito.when(aggregatorMock.getBrokenBuilds()).thenReturn(0);
+        Mockito.when(aggregatorMock.getUnstableBuilds()).thenReturn(2);
 
         BuildStatusIcon statusIcon = (BuildStatusIcon) BuildStatusIcon.createIcon(aggregatorMock);
         assertIconEquals("yellow.svg", statusIcon.icon);
@@ -69,8 +69,8 @@ public class BuildStatusIconTest {
     public void noBrokenBuildsShouldDisplayYellowIcon() {
         BuildStatusAggregator aggregatorMock = Mockito.mock(BuildStatusAggregator.class);
         Mockito.when(aggregatorMock.hasNoResults()).thenReturn(false);
-        Mockito.when(aggregatorMock.getNbBrokenBuilds()).thenReturn(0);
-        Mockito.when(aggregatorMock.getNbUnstableBuilds()).thenReturn(0);
+        Mockito.when(aggregatorMock.getBrokenBuilds()).thenReturn(0);
+        Mockito.when(aggregatorMock.getUnstableBuilds()).thenReturn(0);
 
         BuildStatusIcon statusIcon = (BuildStatusIcon) BuildStatusIcon.createIcon(aggregatorMock);
         assertIconEquals("blue.svg", statusIcon.icon);

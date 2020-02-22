@@ -26,6 +26,7 @@ public class JobBuilder {
 
     public JobBuilder job(String jobName, String jobColor, String jobUrl, boolean inQueue, boolean buildable) {
         jobBuilder.name(jobName).color(jobColor).url(jobUrl).inQueue(inQueue).buildable(buildable);
+        jobBuilder.displayName(jobName);
         return this;
     }
 

@@ -48,7 +48,7 @@ public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidg
 
     public JenkinsWidget(Project project) {
         this.project = project;
-        JComponent buildStatusIcon = createStatusIcon(new BuildStatusAggregator(0));
+        JComponent buildStatusIcon = createStatusIcon(new BuildStatusAggregator());
         setLayout(new BorderLayout());
         add(buildStatusIcon, BorderLayout.CENTER);
     }

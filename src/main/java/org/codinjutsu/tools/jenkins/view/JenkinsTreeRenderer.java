@@ -21,11 +21,13 @@ import com.intellij.ui.ColoredTreeCellRenderer;
 import com.intellij.ui.RowIcon;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.text.DateFormatUtil;
+import lombok.experimental.Delegate;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.model.Job;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -43,7 +45,6 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
 
     @Override
     public void customizeCellRenderer(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
 
         Object userObject = node.getUserObject();
@@ -51,14 +52,10 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
             Jenkins jenkins = (Jenkins) userObject;
             append(buildLabel(jenkins), SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
             setToolTipText(jenkins.getServerUrl());
-            // setIcon(JenkinsControlIcons.SERVER_ICON);
             setIcon(AllIcons.Webreferences.Server);
-
         } else if (userObject instanceof Job) {
             Job job = (Job) node.getUserObject();
-
             append(buildLabel(job), getAttribute(job));
-
             setToolTipText(job.getHealthDescription());
             if (isFavoriteJob(job)) {
                 setIcon(new CompositeIcon(job.getIcon(), job.getHealthIcon(), FAVORITE_ICON));
@@ -73,25 +70,18 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
     }
 
     boolean isFavoriteJob(Job job) {
-        for (JenkinsSettings.FavoriteJob favoriteJob : favoriteJobs) {
-            if (favoriteJob.name.equals(job.getName())) {
-                return true;
-            }
-        }
-        return false;
+        return favoriteJobs.stream().anyMatch(favoriteJob -> favoriteJob.name.equals(job.getName()));
     }
 
     public static SimpleTextAttributes getAttribute(Job job) {
         Build build = job.getLastBuild();
-        if (build != null) {
-            if (job.isInQueue() || build.isBuilding()) {
-                return SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES;
-            }
+        if (build != null && (job.isInQueue() || build.isBuilding())) {
+            return SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES;
         }
-
         return SimpleTextAttributes.REGULAR_ATTRIBUTES;
     }
 
+    @NotNull
     public static String buildLabel(Build build) {
         String status = "";
         if (build.isBuilding()) {
@@ -100,9 +90,8 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
         return String.format("#%d (%s) duration: %s %s", build.getNumber(), DateFormatUtil.formatDateTime(build.getTimestamp()), DurationFormatUtils.formatDurationHMS(build.getDuration()), status);
     }
 
-
+    @NotNull
     public static String buildLabel(Job job) {
-
         Build build = job.getLastBuild();
         if (build == null) {
             return job.getName();
@@ -121,14 +110,13 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
         return "Jenkins " + jenkins.getName();
     }
 
-    private static class CompositeIcon extends RowIcon {
+    private static class CompositeIcon implements Icon {
+
+        @Delegate
+        private final Icon rowIcon;
 
         public CompositeIcon(Icon... icons) {
-            super(icons.length);
-            for (int i = 0; i < icons.length; i++) {
-                Icon icon = icons[i];
-                setIcon(icon, i);
-            }
+            this.rowIcon = new RowIcon(icons);
         }
     }
 }

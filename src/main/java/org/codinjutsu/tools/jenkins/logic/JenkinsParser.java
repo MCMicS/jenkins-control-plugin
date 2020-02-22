@@ -65,7 +65,7 @@ public interface JenkinsParser {
 
     List<Build> createBuilds(String jsonData);
 
-    List<Job> createViewJobs(String jsonData);
+    List<Job> createJobs(String jsonData);
 
     List<Job> createCloudbeesViewJobs(String jsonData);
 }

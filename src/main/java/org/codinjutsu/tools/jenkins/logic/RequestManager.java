@@ -59,12 +59,16 @@ public class RequestManager implements RequestManagerInterface {
     private JenkinsParser jsonParser = new JenkinsJsonParser();
     private JenkinsServer jenkinsServer;
 
+    public RequestManager(Project project) {
+        this.urlBuilder = UrlBuilder.getInstance(project);
+    }
+
     public static RequestManager getInstance(Project project) {
         return ServiceManager.getService(project, RequestManager.class);
     }
 
-    public RequestManager(Project project) {
-        this.urlBuilder = UrlBuilder.getInstance(project);
+    private static boolean canContainNestedJobs(@NotNull Job job) {
+        return job.getJobType().containNestedJobs();
     }
 
     @Override
@@ -117,11 +121,38 @@ public class RequestManager implements RequestManagerInterface {
         if (handleNotYetLoggedInState()) return Collections.emptyList();
         URL url = urlBuilder.createViewUrl(jenkinsPlateform, viewUrl);
         String jenkinsViewData = securityClient.execute(url);
+        final List<Job> jobsFromView;
         if (jenkinsPlateform.equals(JenkinsPlateform.CLASSIC)) {
-            return jsonParser.createViewJobs(jenkinsViewData);
+            jobsFromView = jsonParser.createJobs(jenkinsViewData);
         } else {
-            return jsonParser.createCloudbeesViewJobs(jenkinsViewData);
+            jobsFromView = jsonParser.createCloudbeesViewJobs(jenkinsViewData);
         }
+        return withNestedJobs(jobsFromView);
+    }
+
+    @NotNull
+    private List<Job> withNestedJobs(@NotNull List<Job> jobs) {
+        final List<Job> jobWithNested = new ArrayList<>();
+        for (Job job : jobs) {
+            if (canContainNestedJobs(job)) {
+                jobWithNested.add(withNestedJobs(job));
+            } else {
+                jobWithNested.add(job);
+            }
+        }
+        return jobWithNested;
+    }
+
+    @NotNull
+    private Job withNestedJobs(@NotNull Job job) {
+        job.setNestedJobs(withNestedJobs(loadNestedJobs(job.getUrl())));
+        return job;
+    }
+
+    private List<Job> loadNestedJobs(String currentJobUrl) {
+        if (handleNotYetLoggedInState()) return Collections.emptyList();
+        URL url = urlBuilder.createNestedJobUrl(currentJobUrl);
+        return jsonParser.createJobs(securityClient.execute(url));
     }
 
     private boolean handleNotYetLoggedInState() {

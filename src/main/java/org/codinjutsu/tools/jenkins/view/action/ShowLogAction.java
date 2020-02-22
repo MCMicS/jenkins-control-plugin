@@ -54,8 +54,8 @@ public class ShowLogAction extends AnAction implements DumbAware {
     @Override
     public void actionPerformed(AnActionEvent event) {
         final Project project = ActionUtil.getProject(event);
+        final BrowserPanel browserPanel = ActionUtil.getBrowserPanel(event);
 
-        final BrowserPanel browserPanel = BrowserPanel.getInstance(project);
         final Job job = browserPanel.getSelectedJob();
         new Task.Backgroundable(project, job.getName(), false) {
 

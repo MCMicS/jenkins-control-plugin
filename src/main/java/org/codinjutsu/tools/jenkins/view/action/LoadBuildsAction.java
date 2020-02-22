@@ -9,26 +9,27 @@ import com.intellij.openapi.project.Project;
 import icons.JenkinsControlIcons;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
+import org.codinjutsu.tools.jenkins.model.JobType;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.jetbrains.annotations.NotNull;
 
 public class LoadBuildsAction extends AnAction implements DumbAware {
 
-    private final BrowserPanel browserPanel;
+    public static final String ACTION_ID = "Jenkins.LoadBuilds";
 
-    public LoadBuildsAction(BrowserPanel browserPanel) {
+    public LoadBuildsAction() {
         super("Load builds", "Load builds", JenkinsControlIcons.LOAD_BUILDS);
-        this.browserPanel = browserPanel;
     }
 
     @Override
-    public void actionPerformed(AnActionEvent event) {
-        final Project project = ActionUtil.getProject(event);
-        final BrowserPanel browserPanel = BrowserPanel.getInstance(project);
+    public void actionPerformed(@NotNull AnActionEvent event) {
+        loadBuilds(ActionUtil.getProject(event), ActionUtil.getBrowserPanel(event).getSelectedJob());
+    }
 
+    public void loadBuilds(Project project, Job job) {
+        final BrowserPanel browserPanel = BrowserPanel.getInstance(project);
         try {
-            final Job job = browserPanel.getSelectedJob();
-            new Task.Backgroundable(project, "Load builds", false) {
+            new Task.Backgroundable(project, getTemplatePresentation().getText(), false) {
 
                 @Override
                 public void onSuccess() {
@@ -49,8 +50,8 @@ public class LoadBuildsAction extends AnAction implements DumbAware {
     }
 
     @Override
-    public void update(AnActionEvent event) {
-        Job selectedJob = browserPanel.getSelectedJob();
-        event.getPresentation().setVisible(selectedJob != null);
+    public void update(@NotNull AnActionEvent event) {
+        Job selectedJob = ActionUtil.getBrowserPanel(event).getSelectedJob();
+        event.getPresentation().setEnabled(selectedJob != null && selectedJob.getJobType() == JobType.JOB);
     }
 }

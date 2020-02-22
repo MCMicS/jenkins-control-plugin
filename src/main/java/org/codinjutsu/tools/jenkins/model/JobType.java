@@ -24,4 +24,8 @@ public enum JobType {
     public Icon getIcon() {
         return ICON_BY_TYPE.get(this);
     }
+
+    public boolean containNestedJobs() {
+        return this == JobType.FOLDER || this == JobType.MULTI_BRANCH;
+    }
 }

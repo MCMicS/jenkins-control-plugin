@@ -41,6 +41,7 @@ public class UrlBuilder {
     private static final String TEST_CONNECTION_REQUEST = "?tree=nodeName";
     private static final String BASIC_BUILD_INFO = "id,url,building,result,number,timestamp,duration";
     private static final String BASIC_BUILDS_INFO = "builds[" + BASIC_BUILD_INFO + "]";
+    private static final String NESTED_JOBS_INFO = "name,url,displayName,fullDisplayName,jobs[" + BASIC_JOB_INFO + "]";
 
     public static UrlBuilder getInstance(Project project) {
         return ServiceManager.getService(project, UrlBuilder.class);
@@ -163,5 +164,15 @@ public class UrlBuilder {
         } else if (ex instanceof URIException) {
             throw new IllegalArgumentException("Error during URL creation", ex);
         }
+    }
+
+    public URL createNestedJobUrl(String currentJobUrl) {
+        try {
+            return new URL(currentJobUrl + URIUtil.encodePathQuery(API_JSON + TREE_PARAM + NESTED_JOBS_INFO));
+        } catch (Exception ex) {
+            handleException(ex);
+        }
+
+        return null;
     }
 }

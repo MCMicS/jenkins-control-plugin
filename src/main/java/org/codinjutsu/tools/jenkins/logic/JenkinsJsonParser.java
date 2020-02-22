@@ -329,7 +329,7 @@ public class JenkinsJsonParser implements JenkinsParser {
     }
 
     @Override
-    public List<Job> createViewJobs(String jsonData) {
+    public List<Job> createJobs(String jsonData) {
         checkJsonDataAndThrowExceptionIfNecessary(jsonData);
         List<Job> jobs = new LinkedList<>();
         final JsonObject jsonObject = parseJson(jsonData);

@@ -42,7 +42,6 @@ import java.awt.*;
 
 import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.URL;
 
-@SuppressWarnings({"unchecked"})
 public class ConfigurationPanel {
 
     private static final JBColor CONNECTION_TEST_SUCCESSFUL_COLOR = JBColor.GREEN;

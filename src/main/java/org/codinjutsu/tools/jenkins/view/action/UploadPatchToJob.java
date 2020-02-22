@@ -38,6 +38,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.codinjutsu.tools.jenkins.view.BrowserPanel.POPUP_PLACE;
+
 /**
  * Description
  *
@@ -62,9 +64,8 @@ public class UploadPatchToJob extends AnAction implements DumbAware {
     @Override
     public void actionPerformed(AnActionEvent event) {
         Project project = ActionUtil.getProject(event);
-
+        final BrowserPanel browserPanel = ActionUtil.getBrowserPanel(event);
         String message = "";
-        final BrowserPanel browserPanel = BrowserPanel.getInstance(project);
 
         try {
             Job job = browserPanel.getSelectedJob();
@@ -150,7 +151,12 @@ public class UploadPatchToJob extends AnAction implements DumbAware {
     @Override
     public void update(AnActionEvent event) {
         Job selectedJob = browserPanel.getSelectedJob();
-        event.getPresentation().setEnabled(selectedJob != null && selectedJob.hasParameters() && selectedJob.hasParameter(PARAMETER_NAME));
+        final boolean isPatchUploadable = selectedJob != null && selectedJob.hasParameters() && selectedJob.hasParameter(PARAMETER_NAME);
+        if (event.getPlace().equals(POPUP_PLACE)) {
+            event.getPresentation().setVisible(isPatchUploadable);
+        } else {
+            event.getPresentation().setEnabled(isPatchUploadable);
+        }
     }
 
     private void notifyOnGoingMessage(Job job) {

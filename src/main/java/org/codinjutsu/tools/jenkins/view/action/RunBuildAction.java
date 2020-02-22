@@ -35,7 +35,10 @@ import org.codinjutsu.tools.jenkins.view.BuildParamDialog;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+
+import static org.codinjutsu.tools.jenkins.view.BrowserPanel.POPUP_PLACE;
 
 public class RunBuildAction extends AnAction implements DumbAware {
 
@@ -55,8 +58,7 @@ public class RunBuildAction extends AnAction implements DumbAware {
     @Override
     public void actionPerformed(AnActionEvent event) {
         final Project project = ActionUtil.getProject(event);
-
-        final BrowserPanel browserPanel = BrowserPanel.getInstance(project);
+        final BrowserPanel browserPanel = ActionUtil.getBrowserPanel(event);
         try {
             final Job job = browserPanel.getSelectedJob();
             new Task.Backgroundable(project, "Running build", false) {
@@ -67,12 +69,9 @@ public class RunBuildAction extends AnAction implements DumbAware {
                     ExecutorService.getInstance(project).getExecutor().schedule(new Runnable() {
                         @Override
                         public void run() {
-                            GuiUtil.runInSwingThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    final Job newJob = browserPanel.getJob(job.getName());
-                                    browserPanel.loadJob(newJob);
-                                }
+                            GuiUtil.runInSwingThread(() -> {
+                                final Optional<Job> newJob = browserPanel.getJob(job.getName());
+                                newJob.ifPresent(browserPanel::loadJob);
                             });
                         }
                     }, BUILD_STATUS_UPDATE_DELAY, TimeUnit.SECONDS); //FIXME check delay coud be in settings
@@ -113,7 +112,13 @@ public class RunBuildAction extends AnAction implements DumbAware {
     @Override
     public void update(AnActionEvent event) {
         Job selectedJob = browserPanel.getSelectedJob();
-        event.getPresentation().setVisible(selectedJob != null && selectedJob.isBuildable());
+
+        final boolean isBuildable = selectedJob != null && selectedJob.isBuildable();
+        if (event.getPlace().equals(POPUP_PLACE)) {
+            event.getPresentation().setVisible(isBuildable);
+        } else {
+            event.getPresentation().setEnabled(isBuildable);
+        }
     }
 
 

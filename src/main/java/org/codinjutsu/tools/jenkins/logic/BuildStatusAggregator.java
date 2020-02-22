@@ -16,56 +16,55 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class BuildStatusAggregator implements BuildStatusVisitor {
 
-    private int nbBrokenBuilds = 0;
+    private final AtomicInteger brokenBuilds = new AtomicInteger();
 
-    private int nbSucceededBuilds = 0;
+    private final AtomicInteger succeededBuilds = new AtomicInteger();
 
-    private int nbUnstableBuilds = 0;
+    private final AtomicInteger unstableBuilds = new AtomicInteger();
 
-    private int nbAbortedBuilds = 0;
+    private final AtomicInteger abortedBuilds = new AtomicInteger();
 
-    private int nbJobs = 0;
+    private final AtomicInteger unknownBuilds = new AtomicInteger();
 
-    public static BuildStatusAggregator EMPTY = new BuildStatusAggregator(0);
-
-    public BuildStatusAggregator(int nbJobs) {
-        this.nbJobs = nbJobs;
-    }
+    public static final BuildStatusAggregator EMPTY = new BuildStatusAggregator();
 
     public void visitFailed() {
-        nbBrokenBuilds++;
+        brokenBuilds.getAndIncrement();
     }
 
     public void visitSuccess() {
-        nbSucceededBuilds++;
+        succeededBuilds.getAndIncrement();
     }
 
     public void visitUnstable() {
-        nbUnstableBuilds++;
+        unstableBuilds.getAndIncrement();
     }
 
     public void visitUnknown() {
+        unknownBuilds.getAndIncrement();
     }
 
     public void visitAborted() {
-        nbAbortedBuilds++;
+        abortedBuilds.getAndIncrement();
     }
 
-    public int getNbBrokenBuilds() {
-        return nbBrokenBuilds;
+    public int getBrokenBuilds() {
+        return brokenBuilds.get();
     }
 
-    public int getNbUnstableBuilds() {
-        return nbUnstableBuilds;
+    public int getUnstableBuilds() {
+        return unstableBuilds.get();
     }
 
     public boolean hasNoResults() {
-        return nbJobs == 0 || sumAll() == 0;
+        return sumAll() == 0;
     }
 
     public int sumAll() {
-        return nbSucceededBuilds + nbUnstableBuilds + nbBrokenBuilds + nbAbortedBuilds;
+        return succeededBuilds.get() + unstableBuilds.get() + brokenBuilds.get() + abortedBuilds.get() + unknownBuilds.get();
     }
 }

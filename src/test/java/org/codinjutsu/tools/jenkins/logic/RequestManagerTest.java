@@ -20,13 +20,13 @@ import com.intellij.openapi.project.Project;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.security.SecurityClient;
-import org.codinjutsu.tools.jenkins.security.SecurityClientFactory;
 import org.codinjutsu.tools.jenkins.util.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.internal.util.reflection.Whitebox;
 import org.picocontainer.PicoContainer;
 
 import java.net.URL;
@@ -101,5 +101,6 @@ public class RequestManagerTest {
         when(container.getComponentInstance(UrlBuilder.class.getName())).thenReturn(urlBuilderMock);
         requestManager = new RequestManager(project);
         requestManager.setSecurityClient(securityClientMock);
+        Whitebox.setInternalState(requestManager, "urlBuilder", urlBuilderMock);
     }
 }

@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
+import com.intellij.util.ObjectUtils;
 import com.intellij.util.ui.EmptyIcon;
 import icons.JenkinsControlIcons;
 import lombok.Builder;
@@ -75,6 +76,9 @@ public class Job {
     @Builder.Default
     @NotNull
     private List<Build> lastBuilds = new LinkedList<>();
+    @Builder.Default
+    @NotNull
+    private List<Job> nestedJobs = new LinkedList<>();
 
     @NotNull
     public Icon getHealthIcon() {
@@ -89,7 +93,7 @@ public class Job {
         if (health == null) {
             return "";
         }
-        return health.getDescription();
+        return ObjectUtils.notNull(health.getDescription(), "");
     }
 
     public void updateContentWith(Job updatedJob) {
