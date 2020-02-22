@@ -1,6 +1,7 @@
 {
   "displayName": "Simple Jenkins Test",
   "fullDisplayName": "Parent -> Simple Jenkins Test",
+  "fullName": "Parent/Simple Jenkins Test",
   "name": "Simple Jenkins Test",
   "url": "http://localhost:8080/job/Simple%20Jenkins%20Test/",
   "buildable": true,

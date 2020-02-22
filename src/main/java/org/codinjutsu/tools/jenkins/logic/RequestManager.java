@@ -293,7 +293,7 @@ public class RequestManager implements RequestManagerInterface {
     @Override
     public String loadConsoleTextFor(Job job) {
         try {
-            return jenkinsServer.getJob(job.getName()).getLastCompletedBuild().details().getConsoleOutputText();
+            return jenkinsServer.getJob(job.getFullName()).getLastCompletedBuild().details().getConsoleOutputText();
         } catch (IOException e) {
             logger.warn("cannot load log for " + job.getName());
             return null;
@@ -304,7 +304,7 @@ public class RequestManager implements RequestManagerInterface {
     public List<TestResult> loadTestResultsFor(Job job) {
         try {
             List<TestResult> result = new ArrayList<>();
-            com.offbytwo.jenkins.model.Build lastCompletedBuild = jenkinsServer.getJob(job.getName()).getLastCompletedBuild();
+            com.offbytwo.jenkins.model.Build lastCompletedBuild = jenkinsServer.getJob(job.getFullName()).getLastCompletedBuild();
             if (lastCompletedBuild.getTestResult() != null) {
                 result.add(lastCompletedBuild.getTestResult());
             }

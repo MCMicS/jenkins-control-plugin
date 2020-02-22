@@ -62,6 +62,8 @@ public class Job {
     @Nullable
     private final String displayName;
     @NotNull
+    private final String fullName;
+    @NotNull
     private final String url;
     @Singular
     @NotNull

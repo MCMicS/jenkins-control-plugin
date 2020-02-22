@@ -184,6 +184,7 @@ public class JenkinsJsonParserTest {
                 .lastBuild("http://localhost:8080/job/Simple%20Jenkins%20Test/25/", "25", "UNSTABLE", false, "2020-02-02_09-21-58", 1580631718719L, 39731L)
                 .health("health-40to59", "Testergebnis: 1 Test von 2 Tests fehlgeschlagen.")
                 .displayName("Parent -> Simple Jenkins Test")
+                .fullName("Parent/Simple Jenkins Test")
                 .get();
         expected.getLastBuild().setBuildDate(new Date(1580631718719L));
         assertReflectionEquals(expected, actualJob);

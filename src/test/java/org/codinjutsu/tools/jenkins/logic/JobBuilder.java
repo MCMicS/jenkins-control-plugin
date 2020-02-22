@@ -19,6 +19,9 @@ package org.codinjutsu.tools.jenkins.logic;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public class JobBuilder {
 
@@ -27,11 +30,17 @@ public class JobBuilder {
     public JobBuilder job(String jobName, String jobColor, String jobUrl, boolean inQueue, boolean buildable) {
         jobBuilder.name(jobName).color(jobColor).url(jobUrl).inQueue(inQueue).buildable(buildable);
         jobBuilder.displayName(jobName);
+        jobBuilder.fullName(jobName);
         return this;
     }
 
     public JobBuilder displayName(String displayName) {
         jobBuilder.displayName(displayName);
+        return this;
+    }
+
+    public JobBuilder fullName(@NotNull String fullName) {
+        jobBuilder.fullName(fullName);
         return this;
     }
 
@@ -53,5 +62,4 @@ public class JobBuilder {
     public Job get() {
         return jobBuilder.build();
     }
-
 }

@@ -213,6 +213,7 @@ public class JenkinsJsonParser implements JenkinsParser {
     @NotNull
     private Job getJob(JsonObject jsonObject) {
         final String name = jsonObject.getString(createJsonKey(JOB_NAME));
+        final String fullName = jsonObject.getStringOrDefault(createJsonKey(JOB_FULL_NAME, name));
         final JobType jobType = getJobType(jsonObject);
         final String displayName = getDisplayName(jsonObject);
         final String url = jsonObject.getString(createJsonKey(JOB_URL));
@@ -222,7 +223,8 @@ public class JenkinsJsonParser implements JenkinsParser {
 
         JsonArray healths = (JsonArray) jsonObject.get(JOB_HEALTH);
         final Job.JobBuilder jobBuilder = Job.builder().name(name).jobType(jobType).displayName(displayName)
-                .color(color).url(url).inQueue(inQueue).buildable(buildable).health(getHealth(healths));
+                .fullName(fullName).color(color).url(url).inQueue(inQueue).buildable(buildable)
+                .health(getHealth(healths));
 
         JsonObject lastBuildObject = (JsonObject) jsonObject.get(JOB_LAST_BUILD);
         Optional.ofNullable(lastBuildObject).map(this::getLastBuild).ifPresent(jobBuilder::lastBuild);

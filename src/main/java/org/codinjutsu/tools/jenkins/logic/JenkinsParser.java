@@ -25,6 +25,7 @@ import java.util.List;
 public interface JenkinsParser {
     String JOBS = "jobs";
     String JOB_NAME = "name";
+    String JOB_FULL_NAME = "fullName";
     String JOB_DISPLAY_NAME = "displayName";
     String JOB_FULL_DISPLAY_NAME = "fullDisplayName";
     String JOB_HEALTH = "healthReport";
