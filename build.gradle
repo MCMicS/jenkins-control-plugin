@@ -14,8 +14,8 @@ apply plugin: 'idea'
 sourceCompatibility = JavaVersion.VERSION_1_8
 
 intellij {
-//    version 'LATEST-EAP-SNAPSHOT'
-    version '2019.3.3'
+    version 'LATEST-EAP-SNAPSHOT'
+//    version '2019.3.3'
     plugins 'java'
     updateSinceUntilBuild false
     pluginName 'jenkins-control-plugin'
@@ -41,10 +41,6 @@ patchPluginXml {
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
-}
-
-task myJavadocs(type: Javadoc) {
-    source = delombok
 }
 
 configurations {
