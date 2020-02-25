@@ -68,9 +68,6 @@ public class RssLogic implements Disposable {
         refreshRssBuildsJob = () -> GuiUtil.runInSwingThread(new LoadLatestBuildsJob(project, true));
     }
 
-    public void init() {
-    }
-
     public void loadLatestBuilds(boolean shouldDisplayResult) {
         if (jenkinsAppSettings.isServerUrlSet()) {
             new LoadLatestBuildsJob(project, shouldDisplayResult).queue();
@@ -147,12 +144,8 @@ public class RssLogic implements Disposable {
     private void displayErrorMessageInABalloon(String message) {
         BalloonBuilder balloonBuilder = JBPopupFactory.getInstance().createHtmlTextBalloonBuilder(message, MessageType.ERROR, null);
         final Balloon balloon = balloonBuilder.setFadeoutTime(TimeUnit.SECONDS.toMillis(1)).createBalloon();
-        GuiUtil.runInSwingThread(new Runnable() {
-            @Override
-            public void run() {
-                balloon.show(new RelativePoint(JenkinsWidget.getInstance(project).getComponent(), new Point(0, 0)), Balloon.Position.above);
-            }
-        });
+        GuiUtil.runInSwingThread(() -> balloon.show(new RelativePoint(JenkinsWidget.getInstance(project).getComponent(),
+                new Point(0, 0)), Balloon.Position.above));
     }
 
     private Map.Entry<String, Build> getFirstFailedBuild(Map<String, Build> finishedBuilds) {

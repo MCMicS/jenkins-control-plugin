@@ -16,99 +16,17 @@
 
 package org.codinjutsu.tools.jenkins.view.action;
 
-//import com.intellij.icons.AllIcons;
-//import com.intellij.ide.DataManager;
-//import com.intellij.openapi.actionSystem.*;
-//import com.intellij.openapi.actionSystem.ex.CustomComponentAction;
-//import com.intellij.openapi.actionSystem.impl.SimpleDataContext;
-//import com.intellij.openapi.project.DumbAwareAction;
-//import com.intellij.openapi.project.Project;
-//import com.intellij.openapi.ui.popup.JBPopup;
-//import com.intellij.openapi.ui.popup.JBPopupFactory;
-//import com.intellij.openapi.ui.popup.PopupChooserBuilder;
-//import com.intellij.ui.ClickListener;
-//import com.intellij.ui.awt.RelativePoint;
-//import com.intellij.ui.components.JBList;
-//import com.intellij.util.Consumer;
-//import com.intellij.util.ui.UIUtil;
-//import org.codinjutsu.tools.jenkins.logic.BrowserLogic;
-//import org.codinjutsu.tools.jenkins.model.View;
-//import org.codinjutsu.tools.jenkins.view.JenkinsViewComboRenderer;
-//
-//import javax.swing.*;
-//import java.awt.*;
-//import java.awt.event.MouseAdapter;
-//import java.awt.event.MouseEvent;
-//import java.util.List;
-//
-//public class SelectViewAction extends DumbAwareAction implements CustomComponentAction {
-//
-//
-//    private final BrowserLogic browserLogic;
-//
-//    private JPanel myPanel;
-//
-//    private JLabel viewLabel;
-//
-//    public SelectViewAction(BrowserLogic browserLogic) {
-//        this.browserLogic = browserLogic;
-//
-//        myPanel = new JPanel(new BorderLayout());
-//        viewLabel = new JLabel();
-//        myPanel.add(viewLabel, BorderLayout.CENTER);
-//
-//    }
-//
-//    @Override
-//    public void update(AnActionEvent e) {
-//        View currentSelectedView = browserLogic.getCurrentSelectedView();
-//        if (currentSelectedView != null) {
-//            viewLabel.setText(currentSelectedView.getName());
-//        }
-//    }
-//
-//    @Override
-//    public void actionPerformed(AnActionEvent e) {
-//        List<View> views = browserLogic.getJenkins().getViews();
-//        if (views.isEmpty()) {
-//            return;
-//        }
-//
-//        final JBList viewList = new JBList(views);
-//        viewList.setCellRenderer(new JenkinsViewComboRenderer());
-//        new PopupChooserBuilder(viewList)
-//                .setMovable(false)
-//                .setCancelKeyEnabled(true)
-//                .setItemChoosenCallback(new Runnable() {
-//                    public void run() {
-//                        final View view = (View) viewList.getSelectedValue();
-//                        if (view == null) return;
-//
-//                        browserLogic.loadView(view);
-//                    }
-//                })
-//                .createPopup()
-//                .show(JBPopupFactory.getInstance().guessBestPopupLocation(e.getDataContext()));
-//    }
-//
-//    @Override
-//    public JComponent createCustomComponent(Presentation presentation) {
-//        return myPanel;
-//    }
-//}
-
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.actionSystem.ex.CustomComponentAction;
 import com.intellij.openapi.project.DumbAwareAction;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.PopupChooserBuilder;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.components.JBList;
 import org.codinjutsu.tools.jenkins.model.FavoriteView;
 import org.codinjutsu.tools.jenkins.model.View;
-import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.codinjutsu.tools.jenkins.view.JenkinsNestedViewComboRenderer;
 import org.codinjutsu.tools.jenkins.view.JenkinsViewComboRenderer;
@@ -126,7 +44,7 @@ import java.util.List;
  */
 public class SelectViewAction extends DumbAwareAction implements CustomComponentAction {
 
-    private static final Icon ARROWS_ICON = GuiUtil.loadIcon("/ide/", "statusbar_arrows.png");
+    private static final Icon ARROWS_ICON = AllIcons.Ide.Statusbar_arrows;
 
     protected final JLabel myLabel;
     protected final JPanel myPanel;
@@ -138,7 +56,7 @@ public class SelectViewAction extends DumbAwareAction implements CustomComponent
         final BoxLayout layout = new BoxLayout(myPanel, BoxLayout.X_AXIS);
         myPanel.setLayout(layout);
         myLabel = new JLabel();
-        final JLabel show = new JLabel("View:");
+        final JLabel show = new JLabel("View: ");
         show.setBorder(BorderFactory.createEmptyBorder(1, 2, 1, 2));
         myPanel.add(show);
         myPanel.add(myLabel);

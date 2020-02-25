@@ -98,7 +98,7 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="40287" class="javax.swing.JList" binding="changedFilesList">
+              <component id="40287" class="com.intellij.ui.components.JBList" binding="changedFilesList">
                 <constraints/>
                 <properties>
                   <enabled value="false"/>

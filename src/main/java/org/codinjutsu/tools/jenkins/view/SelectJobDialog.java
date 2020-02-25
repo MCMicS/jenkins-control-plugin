@@ -17,7 +17,6 @@
 package org.codinjutsu.tools.jenkins.view;
 
 import com.intellij.application.options.CodeStyle;
-import com.intellij.codeStyle.CodeStyleFacade;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.diff.impl.patch.FilePatch;
 import com.intellij.openapi.diff.impl.patch.IdeaTextPatchBuilder;
@@ -30,12 +29,14 @@ import com.intellij.openapi.vcs.changes.patch.PatchWriter;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.IdeBorderFactory;
+import com.intellij.ui.components.JBList;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.HtmlUtil;
 import org.codinjutsu.tools.jenkins.view.action.UploadPatchToJob;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.event.*;
@@ -46,15 +47,13 @@ import java.util.*;
 
 public class SelectJobDialog extends JDialog {
 
-    private static String FILENAME = "jenkins.diff";
-
     private static final Logger LOG = Logger.getInstance(UploadPatchToJob.class.getName());
-
+    private static String FILENAME = "jenkins.diff";
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
     private JComboBox jobsList;
-    private JList changedFilesList;
+    private JBList changedFilesList;
     private JScrollPane changedFilesPane;
 
     private DefaultComboBoxModel listModel = new DefaultComboBoxModel();
@@ -64,13 +63,10 @@ public class SelectJobDialog extends JDialog {
     private ChangeList[] changeLists;
 
     public SelectJobDialog(ChangeList[] changeLists, List<Job> jobs, Project project) {
-
         this.project = project;
-
         this.changeLists = changeLists;
 
         fillJobList(jobs);
-
         fillChangedFilesList();
 
         setContentPane(contentPane);
@@ -106,13 +102,18 @@ public class SelectJobDialog extends JDialog {
                 JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     }
 
+    public static void main(String[] args) {
+        SelectJobDialog dialog = new SelectJobDialog(new ChangeList[]{}, null, null);
+        dialog.pack();
+        dialog.setVisible(true);
+        System.exit(0);
+    }
+
     private void fillJobList(List<Job> jobs) {
         if (null != jobs) {
-            if (!jobs.isEmpty()) {
-                for(Job job: jobs) {
-                    if (job.hasParameters() && job.hasParameter(UploadPatchToJob.PARAMETER_NAME)) {
-                        listModel.addElement(job.getName());
-                    }
+            for (Job job : jobs) {
+                if (job.hasParameters() && job.hasParameter(UploadPatchToJob.PARAMETER_NAME)) {
+                    listModel.addElement(job.getName());
                 }
             }
         }
@@ -121,20 +122,19 @@ public class SelectJobDialog extends JDialog {
     }
 
     private void fillChangedFilesList() {
-
-        DefaultListModel model = new DefaultListModel();
+        final DefaultListModel<String> model = new DefaultListModel<>();
 
         if (changeLists != null && (changeLists.length > 0)) {
             StringBuilder builder = new StringBuilder();
 
             int count = 1;
-            for(ChangeList changeList: changeLists) {
+            for (ChangeList changeList : changeLists) {
                 builder.append(changeList.getName());
                 if (count < changeLists.length) {
                     builder.append(", ");
                 }
-                if (changeList.getChanges().size() > 0) {
-                    for(Change change: changeList.getChanges()) {
+                if (!changeList.getChanges().isEmpty()) {
+                    for (Change change : changeList.getChanges()) {
                         VirtualFile virtualFile = change.getVirtualFile();
                         if (null != virtualFile) {
                             model.addElement(virtualFile.getPath());
@@ -151,25 +151,25 @@ public class SelectJobDialog extends JDialog {
         changedFilesList.setModel(model);
     }
 
-    private boolean createPatch() throws IOException, VcsException {
-        FileWriter writer = new FileWriter(FILENAME);
-        ArrayList<Change> changes = new ArrayList<>();
-        if (changeLists.length > 0) {
-            for(ChangeList changeList: changeLists) {
-                changes.addAll(changeList.getChanges());
+    @NotNull
+    private String createPatchFile() throws IOException, VcsException {
+        try (FileWriter writer = new FileWriter(FILENAME)) {
+            ArrayList<Change> changes = new ArrayList<>();
+            if (changeLists.length > 0) {
+                for (ChangeList changeList : changeLists) {
+                    changes.addAll(changeList.getChanges());
+                }
             }
+            String base = PatchWriter.calculateBaseForWritingPatch(project, changes).getPath();
+            List<FilePatch> patches = IdeaTextPatchBuilder.buildPatch(project, changes, base, false);
+            UnifiedDiffWriter.write(project, patches, writer, CodeStyle.getProjectOrDefaultSettings(project).getLineSeparator(), null);
         }
-        String base = PatchWriter.calculateBaseForWritingPatch(project, changes).getPath();
-        List<FilePatch> patches = IdeaTextPatchBuilder.buildPatch(project, changes, base, false);
-        UnifiedDiffWriter.write(project, patches, writer, CodeStyle.getProjectOrDefaultSettings(project).getLineSeparator(), null);
-        writer.close();
-
-        return true;
+        return FILENAME;
     }
 
     private void watchJob(BrowserPanel browserPanel, Job job) {
         if (changeLists.length > 0) {
-            for(ChangeList list: changeLists) {
+            for (ChangeList list : changeLists) {
                 browserPanel.addToWatch(list.getName(), job);
             }
         }
@@ -177,68 +177,65 @@ public class SelectJobDialog extends JDialog {
 
     private void onOK() {
         BrowserPanel browserPanel = BrowserPanel.getInstance(project);
+        String patchFileName = null;
         try {
-            if (createPatch()) {
-                RequestManager requestManager = browserPanel.getJenkinsManager();
-                String selectedJobName = (String) jobsList.getSelectedItem();
-                if (selectedJobName != null && !selectedJobName.isEmpty()) {
-                    Job selectedJob = browserPanel.getJob(selectedJobName);
-                    if (selectedJob != null) {
-                        if (selectedJob.hasParameters()) {
-                            if (selectedJob.hasParameter(UploadPatchToJob.PARAMETER_NAME)) {
-                                JenkinsAppSettings settings = JenkinsAppSettings.getSafeInstance(project);
-                                Map<String, VirtualFile> files = new HashMap<>();
-                                VirtualFile virtualFile = UploadPatchToJob.prepareFile(browserPanel, LocalFileSystem.getInstance().refreshAndFindFileByIoFile(new File(FILENAME)), settings, selectedJob);
-                                if (virtualFile != null && virtualFile.exists()) {
-                                    files.put(UploadPatchToJob.PARAMETER_NAME, virtualFile);
-                                    requestManager.runBuild(selectedJob, settings, files);
-                                    //browserPanel.loadSelectedJob();
-                                    browserPanel.notifyInfoJenkinsToolWindow(HtmlUtil.createHtmlLinkMessage(
-                                        selectedJob.getName() + " build is on going",
-                                        selectedJob.getUrl())
-                                    );
-
-                                    watchJob(browserPanel, selectedJob);
-
-                                } else {
-                                    throw new ConfigurationException(String.format("File \"%s\" not found", virtualFile.getPath()));
-                                }
-                            } else {
-                                throw new ConfigurationException(String.format("Job \"%s\" should has parameter with name \"%s\"", selectedJob.getName(), UploadPatchToJob.PARAMETER_NAME));
-                            }
-                        } else {
-                            throw new ConfigurationException(String.format("Job \"%s\" has no parameters", selectedJob.getName()));
-                        }
-                    }
+            patchFileName = createPatchFile();
+            String selectedJobName = (String) jobsList.getSelectedItem();
+            if (selectedJobName != null && !selectedJobName.isEmpty()) {
+                final Job selectedJob = browserPanel.getJob(selectedJobName)
+                        .filter(Job::hasParameters)
+                        .filter(job -> job.hasParameter(UploadPatchToJob.PARAMETER_NAME))
+                        .orElse(null);
+                if (selectedJob != null) {
+                    uploadPatchForJob(selectedJob);
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            String message = String.format("Build cannot be run: " + e.getMessage());
-            LOG.info(message);
+            final String message = String.format("Build cannot be run:  %1$s", e.getMessage());
+            LOG.info(message, e);
             browserPanel.notifyErrorJenkinsToolWindow(message);
         }
-
-        deletePatchFile();
-
+        Optional.ofNullable(patchFileName).ifPresent(this::deletePatchFile);
         dispose();
-
     }
 
-    private void deletePatchFile() {
-        File file = new File(FILENAME);
-        file.delete();
+    private void uploadPatchForJob(@NotNull Job selectedJob) throws IOException {
+        BrowserPanel browserPanel = BrowserPanel.getInstance(project);
+        RequestManager requestManager = browserPanel.getJenkinsManager();
+        if (selectedJob.hasParameters()) {
+            if (selectedJob.hasParameter(UploadPatchToJob.PARAMETER_NAME)) {
+                JenkinsAppSettings settings = JenkinsAppSettings.getSafeInstance(project);
+                Map<String, VirtualFile> files = new HashMap<>();
+                VirtualFile virtualFile = UploadPatchToJob.prepareFile(browserPanel, LocalFileSystem.getInstance().refreshAndFindFileByIoFile(new File(FILENAME)), settings, selectedJob);
+                if (virtualFile != null && virtualFile.exists()) {
+                    files.put(UploadPatchToJob.PARAMETER_NAME, virtualFile);
+                    requestManager.runBuild(selectedJob, settings, files);
+                    browserPanel.notifyInfoJenkinsToolWindow(HtmlUtil.createHtmlLinkMessage(
+                            selectedJob.getName() + " build is on going",
+                            selectedJob.getUrl())
+                    );
+
+                    watchJob(browserPanel, selectedJob);
+
+                } else {
+                    throw new ConfigurationException(String.format("File \"%s\" not found", virtualFile == null ?
+                            "null" : virtualFile.getPath()));
+                }
+            } else {
+                throw new ConfigurationException(String.format("Job \"%s\" should has parameter with name \"%s\"", selectedJob.getName(), UploadPatchToJob.PARAMETER_NAME));
+            }
+        } else {
+            throw new ConfigurationException(String.format("Job \"%s\" has no parameters", selectedJob.getName()));
+        }
+    }
+
+    private boolean deletePatchFile(@NotNull String fileName) {
+        File file = new File(fileName);
+        return file.delete();
     }
 
     private void onCancel() {
         // add your code here if necessary
         dispose();
-    }
-
-    public static void main(String[] args) {
-        SelectJobDialog dialog = new SelectJobDialog(new ChangeList[]{}, null, null);
-        dialog.pack();
-        dialog.setVisible(true);
-        System.exit(0);
     }
 }

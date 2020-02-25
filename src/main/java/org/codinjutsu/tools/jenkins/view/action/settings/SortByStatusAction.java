@@ -16,18 +16,17 @@
 
 package org.codinjutsu.tools.jenkins.view.action.settings;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.DumbAware;
-import com.intellij.openapi.project.Project;
-import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 
 import javax.swing.*;
 
 public class SortByStatusAction extends ToggleAction implements DumbAware {
 
-    private static final Icon SORT_ICON = GuiUtil.loadIcon("arrow_up.png");
+    private static final Icon SORT_ICON = AllIcons.ObjectBrowser.SortByType;
 
     private final BrowserPanel browserPanel;
 

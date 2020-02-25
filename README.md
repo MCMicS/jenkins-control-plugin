@@ -16,21 +16,27 @@
 
 
 ## Description
-This plugin allows to view the content of your Jenkins Continous Integration Server.
+This plugin allows to view the content of your Jenkins Continuous Integration Server.
 
 ![Browser](doc/images/Browser.png?raw=true)
 
 ## Plugin Compatibility
-This plugin was built with JDK 1.7 for IDEA 14, 15 and with JDK 8 for IDEA 2016, 2019 versions. Jenkins CIs of jenkins-ci and apache.org are used for manual and stress testing.
+This plugin was built with JDK 8 for IDEA 2018, 2019 versions. Jenkins CIs of jenkins-ci and apache.org are used for manual and stress testing.
 
 ## Installation steps
 Download this plugin from your IDE or [from the plugin website](http://plugins.jetbrains.com/plugin/6110).
-BaseComponent.disposeComponent()
+
 ## Configuration steps
 * Click on the **Jenkins Settings** button located on the upper toolbar (or you can also open IntelliJ Settings Screen and select the Jenkins Control Plugin option).
 * Enter your Jenkins Server URL (e.g: http://ci.jenkins-ci.org).
 * If Security is enabled on the server, you have to provide credentials. Enter your username and the password. The password will be stored in Intellij Password Manager. It could ask you a Master password.
 * If Cross Site Request Forgery Prevention is enabled on the server, then you have to provide your crumb data. To get the value, you will have to open the following URL in your browser *_jenkins_url_/crumbIssuer/api/xml?tree=crumb*. Just copy and paste the crumb value in the field. please note for the authentication case, you have to run the crumb URL after login.
+  * Since Jenkins 2.176 the CSRF handling was improved. The crumb not work anymore with different sessions.
+It is recommended to use an API token for authenticate the plugin:
+   To do this do following:
+     1. Go to user setting: http://<jenkinsUrl>:8080/user/<user>/configure
+     2. Add New API Token for Jenkins Plugin
+     3. Use this API Token as your Password
 * To make sure that all parameters are correct, you can click on the **Test Connection** button. A feedback message will appear.
 
 ![Connection succeeded](doc/images/Configuration-Success.png?raw=true)
@@ -103,7 +109,7 @@ Create a Gradle Run configuration with task `runIdea` and just run it.
 
 ## Limitations
 * This software is written under Apache License 2.0.
-* if Jenkins is behing an HTTPS web server, set a **trusted** certificate.
+* if Jenkins is behind an HTTPS web server, set a **trusted** certificate.
 
 ## Thanks
 I would like to thank:

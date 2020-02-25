@@ -10,16 +10,15 @@ import org.codinjutsu.tools.jenkins.model.Jenkins;
 
 public class RssAuthenticationActionHandler implements AuthenticationNotifier, Disposable {
     private final Project project;
-    private MessageBusConnection connection;
+    private final MessageBusConnection connection;
 
     public RssAuthenticationActionHandler(final Project project) {
         this.project = project;
-        init();
-    }
-
-    private void init() {
         final MessageBus myBus = ApplicationManager.getApplication().getMessageBus();
         connection = myBus.connect();
+    }
+
+    public void subscribe() {
         connection.subscribe(AuthenticationNotifier.USER_LOGGED_IN, this);
     }
 
@@ -29,7 +28,7 @@ public class RssAuthenticationActionHandler implements AuthenticationNotifier, D
 
     @Override
     public void emptyConfiguration() {
-
+        // nothing to do
     }
 
     @Override

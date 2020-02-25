@@ -118,7 +118,7 @@ class DefaultSecurityClient implements SecurityClient {
 
             int statusCode = httpClient.executeMethod(post);
             final String responseBody;
-            try(InputStream inputStream = post.getResponseBodyAsStream();) {
+            try(InputStream inputStream = post.getResponseBodyAsStream()) {
                 responseBody = IOUtils.toString(inputStream, post.getResponseCharSet());
             }
             checkResponse(statusCode, responseBody);
