@@ -34,11 +34,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.Arrays;
 import java.util.Map;
 
 import static org.codinjutsu.tools.jenkins.model.JobParameter.JobParameterType.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 @Ignore("make Test to run headless")
@@ -54,7 +54,7 @@ public class BuildParamDialogTest {
 
     private static final Job JOB_WITH_GOOD_PARAMS =
             new JobBuilder()
-                    .job("myJob", "blue", "http://dummyserver/jobs/myJob", "false", "true")
+                    .job("myJob", "blue", "http://dummyserver/jobs/myJob", false, true)
                     .health("health-80plus", "0 tests en échec sur un total de 24 tests")
                     .parameter("integrationTest", BooleanParameterDefinition.name(), "true")
                     .parameter("environment", ChoiceParameterDefinition.name(), "development",
@@ -64,14 +64,14 @@ public class BuildParamDialogTest {
 
     private static final Job JOB_WITH_UNSUPPORTED_PARAMS =
             new JobBuilder()
-                    .job("myJob", "blue", "http://dummyserver/jobs/myJob", "false", "true")
+                    .job("myJob", "blue", "http://dummyserver/jobs/myJob", false, true)
                     .health("health-80plus", "0 tests en échec sur un total de 24 tests")
                     .parameter("run", RunParameterDefinition.name(), "blah")
                     .get();
 
     private static final Job JOB_WITH_UNKNOWN_PARAMS =
             new JobBuilder()
-                    .job("myJob", "blue", "http://dummyserver/jobs/myJob", "false", "true")
+                    .job("myJob", "blue", "http://dummyserver/jobs/myJob", false, true)
                     .health("health-80plus", "0 tests en échec sur un total de 24 tests")
                     .parameter("run", null, "blah")
                     .get();

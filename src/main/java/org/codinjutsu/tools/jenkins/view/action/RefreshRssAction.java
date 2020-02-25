@@ -20,14 +20,15 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import icons.JenkinsControlIcons;
 import org.codinjutsu.tools.jenkins.logic.RssLogic;
-import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
 public class RefreshRssAction extends AnAction implements DumbAware {
 
 
     public RefreshRssAction() {
-        super("Refresh last completed builds", "Refresh last completed builds from Jenkins server", GuiUtil.loadIcon("rss.png"));
+        super("Refresh last completed builds", "Refresh last completed builds from Jenkins server",
+                JenkinsControlIcons.RSS);
     }
 
 

@@ -1,12 +1,15 @@
 plugins {
     id 'java'
     id 'org.jetbrains.intellij' version '0.4.15'
+    id "io.freefair.lombok" version "4.1.6" //"5.0.0-rc2"
+    id 'idea'
 }
 
 group 'org.codinjutsu'
-version '0.11.1-Idea2019.3-eap1'
+version '0.12.0-2019.3-eap1'
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'java'
+apply plugin: 'idea'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 
@@ -16,6 +19,18 @@ intellij {
     plugins 'java'
     updateSinceUntilBuild false
     pluginName 'jenkins-control-plugin'
+}
+
+lombok {
+    version = "1.18.12"
+    generateLombokConfig.enabled = false
+}
+
+idea {
+    module {
+        downloadJavadoc = false
+        downloadSources = true
+    }
 }
 
 patchPluginXml {

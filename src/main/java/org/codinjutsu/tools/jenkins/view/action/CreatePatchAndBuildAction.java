@@ -55,7 +55,7 @@ public class CreatePatchAndBuildAction extends AnAction {
             public void run() {
                 final BrowserPanel browserPanel = BrowserPanel.getInstance(project);
 
-                SelectJobDialog dialog = new SelectJobDialog(selectedChangeLists, browserPanel.getJobs(), project);
+                SelectJobDialog dialog = new SelectJobDialog(selectedChangeLists, browserPanel.getAllJobs(), project);
                 dialog.setLocationRelativeTo(null);
                 dialog.setMaximumSize(new Dimension(300, 200));
                 dialog.pack();

@@ -20,8 +20,8 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
 import org.codinjutsu.tools.jenkins.model.Job;
-import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
+import org.codinjutsu.tools.jenkins.view.JenkinsTreeRenderer;
 
 import java.util.List;
 
@@ -30,7 +30,7 @@ public class SetJobAsFavoriteAction extends AnAction implements DumbAware {
     private BrowserPanel browserPanel;
 
     public SetJobAsFavoriteAction(BrowserPanel browserPanel) {
-        super("Set as Favorite", "Set the selected job as favorite", GuiUtil.loadIcon("star_add.png"));
+        super("Set as Favorite", "Set the selected job as favorite", JenkinsTreeRenderer.FAVORITE_ICON);
         this.browserPanel = browserPanel;
     }
 

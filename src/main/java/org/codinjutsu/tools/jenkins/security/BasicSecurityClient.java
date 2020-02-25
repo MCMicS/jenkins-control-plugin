@@ -68,7 +68,7 @@ class BasicSecurityClient extends DefaultSecurityClient {
             post.setDoAuthentication(true);
             int responseCode = httpClient.executeMethod(post);
             final String responseBody;
-            try(InputStream inputStream = post.getResponseBodyAsStream();) {
+            try(InputStream inputStream = post.getResponseBodyAsStream()) {
                 responseBody = IOUtils.toString(inputStream, post.getResponseCharSet());
             }
             if (responseCode != HttpURLConnection.HTTP_OK) {

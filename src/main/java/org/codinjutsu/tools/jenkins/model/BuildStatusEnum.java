@@ -16,35 +16,38 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Currently missing color: nobuilt
+ *
  * @see <a href="https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/hudson/model/BallColor.java">Jenkins Color</a>
  * @see <a href="https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/hudson/model/StatusIcon.java>Jenkins Status</a>
  */
+@RequiredArgsConstructor
 public enum BuildStatusEnum {
 
-    FAILURE("Failure", "red"),
-    UNSTABLE("Unstable", "yellow"),
-    ABORTED("Aborted", "aborted"),
-    SUCCESS("Success", "blue"),
-    STABLE("Stable", "blue"),
-    NULL("Null", "disabled"),
+    FAILURE("Failure", Color.RED),
+    UNSTABLE("Unstable", Color.YELLOW),
+    ABORTED("Aborted", Color.ABORTED),
+    SUCCESS("Success", Color.BLUE),
+    STABLE("Stable", Color.BLUE),
+    NULL("Null"),
     // TODO: handle the folder-case explicitly. @mcmics: use better Folder Detection
     // instead of simply making it a BuildStatusEnum so that the icon renders
-    FOLDER("Folder", "disabled");
+    FOLDER("Folder");
 
 
     private static final Logger log = Logger.getLogger(BuildStatusEnum.class);
 
     private final String status;
-    private final String color;
+    private final Color color;
 
 
-    BuildStatusEnum(String status, String color) {
-        this.status = status;
-        this.color = color;
+    BuildStatusEnum(String status) {
+        this(status, Color.DISABLED);
     }
 
     public static BuildStatusEnum parseStatus(String status) {
@@ -54,7 +57,6 @@ public enum BuildStatusEnum {
                 status = "NULL";
             }
             buildStatusEnum = valueOf(status.toUpperCase());
-
         } catch (IllegalArgumentException ex) {
             log.info("Unsupported status : " + status, ex);
             buildStatusEnum = NULL;
@@ -71,8 +73,7 @@ public enum BuildStatusEnum {
         }
         BuildStatusEnum[] jobStates = values();
         for (BuildStatusEnum jobStatus : jobStates) {
-            String stateName = jobStatus.getColor();
-            if (jobColor.startsWith(stateName)) {
+            if (jobStatus.getColor().isForJobColor(jobColor)) {
                 return jobStatus;
             }
         }
@@ -85,10 +86,8 @@ public enum BuildStatusEnum {
         return status;
     }
 
-
-    public String getColor() {
+    @NotNull
+    public Color getColor() {
         return color;
     }
-
-
 }

@@ -42,12 +42,12 @@ public class BuildStatusIcon extends JComponent {
             return new BuildStatusIcon(Build.ICON_BY_BUILD_STATUS_MAP.get(BuildStatusEnum.NULL), "No builds", 0);
         }
 
-        int nbBrokenBuilds = aggregator.getNbBrokenBuilds();
+        int nbBrokenBuilds = aggregator.getBrokenBuilds();
         if (nbBrokenBuilds > 0) {
             return new BuildStatusIcon(Build.ICON_BY_BUILD_STATUS_MAP.get(BuildStatusEnum.FAILURE), String.format("%d broken builds", nbBrokenBuilds), nbBrokenBuilds);
         }
 
-        int nbUnstableBuilds = aggregator.getNbUnstableBuilds();
+        int nbUnstableBuilds = aggregator.getUnstableBuilds();
         if (nbUnstableBuilds > 0) {
             return new BuildStatusIcon(Build.ICON_BY_BUILD_STATUS_MAP.get(BuildStatusEnum.UNSTABLE), String.format("%d unstable builds", nbUnstableBuilds), nbUnstableBuilds);
         }

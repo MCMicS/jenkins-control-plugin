@@ -86,7 +86,7 @@ public class RssParser {
             String link = linkElement.getAttributeValue(RSS_LINK_HREF);
 
             if (!BuildStatusEnum.NULL.equals(status)) {
-                buildMap.put(jobName, Build.createBuildFromRss(link, number, status.getStatus(), Boolean.FALSE.toString(), publishedBuild, title));
+                buildMap.put(jobName, Build.createBuildFromRss(link, number, status.getStatus(), false, publishedBuild, title));
             }
 
         }

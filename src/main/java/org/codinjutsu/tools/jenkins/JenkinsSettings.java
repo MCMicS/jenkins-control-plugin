@@ -43,6 +43,7 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
     private static final Logger LOG = Logger.getInstance(JenkinsSettings.class.getName());
 
     public static final String JENKINS_SETTINGS_PASSWORD_KEY = "JENKINS_SETTINGS_PASSWORD_KEY";
+    public static final String PLUGIN_ID = "Jenkins Control Plugin";
 
     private State myState = new State();
 
