@@ -59,8 +59,9 @@ public class Job {
     @NotNull
     private final JobType jobType = JobType.JOB;
     private final boolean buildable;
+    @Builder.Default
     @Nullable
-    private final String displayName;
+    private final String displayName = null;
     @NotNull
     private final String fullName;
     @NotNull
@@ -69,12 +70,15 @@ public class Job {
     @NotNull
     private final List<JobParameter> parameters;
     private boolean inQueue;
+    @Builder.Default
     @Nullable
-    private String color;
+    private String color = null;
+    @Builder.Default
     @Nullable
-    private Health health;
+    private Health health = null;
+    @Builder.Default
     @Nullable
-    private Build lastBuild;
+    private Build lastBuild = null;
     @Builder.Default
     @NotNull
     private List<Build> lastBuilds = new LinkedList<>();

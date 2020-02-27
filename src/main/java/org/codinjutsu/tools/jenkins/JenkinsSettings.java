@@ -24,9 +24,11 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.Attribute;
 import com.intellij.util.xmlb.annotations.Tag;
+import lombok.*;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.security.JenkinsVersion;
+import org.codinjutsu.tools.jenkins.util.JobUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedList;
@@ -40,11 +42,9 @@ import java.util.List;
 )
 public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings.State> {
 
-    private static final Logger LOG = Logger.getInstance(JenkinsSettings.class.getName());
-
     public static final String JENKINS_SETTINGS_PASSWORD_KEY = "JENKINS_SETTINGS_PASSWORD_KEY";
     public static final String PLUGIN_ID = "Jenkins Control Plugin";
-
+    private static final Logger LOG = Logger.getInstance(JenkinsSettings.class.getName());
     private State myState = new State();
 
     public static JenkinsSettings getSafeInstance(Project project) {
@@ -94,31 +94,23 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
                 JenkinsAppSettings.class);
     }
 
-    public void addFavorite(List<Job> jobs) {
-        for (Job job : jobs) {
-            FavoriteJob favoriteJob = new FavoriteJob();
-            favoriteJob.name = job.getName();
-            favoriteJob.url = job.getUrl();
-            myState.favoriteJobs.add(favoriteJob);
-
-        }
+    public void addFavorite(@NotNull List<Job> jobs) {
+        jobs.stream().map(job -> new FavoriteJob(JobUtil.createNameForFavorite(job), job.getUrl()))
+                .forEach(myState.favoriteJobs::add);
     }
 
-    public boolean isAFavoriteJob(String jobName) {
-        for (FavoriteJob favoriteJob : myState.favoriteJobs) {
-            if (StringUtils.equals(jobName, favoriteJob.name)) {
-                return true;
-            }
-        }
-        return false;
+    public boolean isFavoriteJob(@NotNull Job job) {
+        return myState.favoriteJobs.stream().anyMatch(favoriteJob -> JobUtil.isFavoriteJob(job, favoriteJob));
     }
 
-    public void removeFavorite(List<Job> selectedJobs) {//TODO need to refactor
-        for (Job selectedJob : selectedJobs) {
-            myState.favoriteJobs.removeIf(favoriteJob -> StringUtils.equals(selectedJob.getName(), favoriteJob.name));
-        }
+    public void removeFavorite(@NotNull List<Job> selectedJobs) {
+        selectedJobs.stream().map(JobUtil::createNameForFavorite).forEach(
+                favoriteJobName -> myState.favoriteJobs.removeIf(favoriteJob -> StringUtils.equals(favoriteJobName,
+                        favoriteJob.getName()))
+        );
     }
 
+    @NotNull
     public List<FavoriteJob> getFavoriteJobs() {
         return myState.favoriteJobs;
     }
@@ -127,12 +119,12 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
         return myState.favoriteJobs.isEmpty();
     }
 
-    public void setLastSelectedView(String viewName) {
-        myState.lastSelectedView = viewName;
-    }
-
     public String getLastSelectedView() {
         return myState.lastSelectedView;
+    }
+
+    public void setLastSelectedView(String viewName) {
+        myState.lastSelectedView = viewName;
     }
 
     public boolean isSecurityMode() {
@@ -145,6 +137,14 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
 
     public void setVersion(JenkinsVersion jenkinsVersion) {
         this.myState.jenkinsVersion = jenkinsVersion;
+    }
+
+    public void clearFavoriteJobs() {
+        myState.favoriteJobs.clear();
+    }
+
+    public boolean hasFavoriteJobs() {
+        return !myState.favoriteJobs.isEmpty();
     }
 
     public static class State {
@@ -163,13 +163,18 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
 
     }
 
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Data
     @Tag("favorite")
     public static class FavoriteJob {
 
+        @Setter(value = AccessLevel.NONE)
         @Attribute("name")
-        public String name;
+        private String name;
 
+        @Setter(value = AccessLevel.NONE)
         @Attribute("url")
-        public String url;
+        private String url;
     }
 }

@@ -44,6 +44,6 @@ public class UnsetJobAsFavoriteAction extends AnAction implements DumbAware {
     @Override
     public void update(AnActionEvent event) {
         Job selectedJob = browserPanel.getSelectedJob();
-        event.getPresentation().setVisible(selectedJob != null && browserPanel.isAFavoriteJob(selectedJob.getName()));
+        event.getPresentation().setVisible(selectedJob != null && browserPanel.isAFavoriteJob(selectedJob));
     }
 }

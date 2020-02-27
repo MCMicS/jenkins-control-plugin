@@ -199,7 +199,7 @@ public class ConfigurationPanel {
         formValidator.validate();
 
         if (!StringUtils.equals(jenkinsAppSettings.getServerUrl(), serverUrl.getText())) {
-            jenkinsSettings.getFavoriteJobs().clear();
+            jenkinsSettings.clearFavoriteJobs();
             jenkinsSettings.setLastSelectedView(null);
         }
 

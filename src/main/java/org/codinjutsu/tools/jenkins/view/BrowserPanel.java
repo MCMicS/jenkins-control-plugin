@@ -78,6 +78,7 @@ public class BrowserPanel extends SimpleToolWindowPanel {
     private final Runnable refreshViewJob;
     private final Project project;
     private final JenkinsAppSettings jenkinsAppSettings;
+    @NotNull
     private final JenkinsSettings jenkinsSettings;
     private final RequestManager requestManager;
     private final Jenkins jenkins;
@@ -101,7 +102,7 @@ public class BrowserPanel extends SimpleToolWindowPanel {
         setProvideQuickActions(false);
 
         jenkins = Jenkins.byDefault();
-        jobTree = createTree(jenkinsSettings.getFavoriteJobs());
+        jobTree = createTree();
 
 
         jobPanel.setLayout(new BorderLayout());
@@ -327,7 +328,7 @@ public class BrowserPanel extends SimpleToolWindowPanel {
     }
 
     public boolean hasFavoriteJobs() {
-        return !jenkinsSettings.getFavoriteJobs().isEmpty();
+        return jenkinsSettings.hasFavoriteJobs();
     }
 
     public void notifyInfoJenkinsToolWindow(final String htmlLinkMessage) {
@@ -344,10 +345,10 @@ public class BrowserPanel extends SimpleToolWindowPanel {
                 JenkinsToolWindowFactory.JENKINS_BROWSER, MessageType.ERROR, message));
     }
 
-    private Tree createTree(final List<JenkinsSettings.FavoriteJob> favoriteJobs) {
+    private Tree createTree() {
         SimpleTree tree = new SimpleTree();
         tree.getEmptyText().setText(LOADING);
-        tree.setCellRenderer(new JenkinsTreeRenderer(favoriteJobs));
+        tree.setCellRenderer(new JenkinsTreeRenderer(jenkinsSettings::isFavoriteJob));
         tree.setName("jobTree");
         tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode(jenkins), false));
         //final JobTreeHandler jobTreeHandler = new JobTreeHandler(project);
@@ -384,7 +385,7 @@ public class BrowserPanel extends SimpleToolWindowPanel {
     }
 
     public void postAuthenticationInitialization() {
-        if (!jenkinsSettings.getFavoriteJobs().isEmpty()) {
+        if (hasFavoriteJobs()) {
             createFavoriteViewIfNecessary();
         }
 
@@ -523,8 +524,8 @@ public class BrowserPanel extends SimpleToolWindowPanel {
         }
     }
 
-    public boolean isAFavoriteJob(final String jobName) {
-        return jenkinsSettings.isAFavoriteJob(jobName);
+    public boolean isAFavoriteJob(@NotNull Job job) {
+        return jenkinsSettings.isFavoriteJob(job);
     }
 
     private void createFavoriteViewIfNecessary() {
