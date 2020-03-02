@@ -257,11 +257,11 @@ public class RequestManager implements RequestManagerInterface {
     @Override
     public List<Job> loadFavoriteJobs(List<JenkinsSettings.FavoriteJob> favoriteJobs) {
         if (handleNotYetLoggedInState()) return Collections.emptyList();
-        List<Job> jobs = new LinkedList<>();
+        final List<Job> jobs = new LinkedList<>();
         for (JenkinsSettings.FavoriteJob favoriteJob : favoriteJobs) {
-            jobs.add(loadJob(favoriteJob.url));
+            jobs.add(loadJob(favoriteJob.getUrl()));
         }
-        return jobs;
+        return withNestedJobs(jobs);
     }
 
     @Override
