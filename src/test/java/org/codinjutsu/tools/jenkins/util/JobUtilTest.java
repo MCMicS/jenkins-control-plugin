@@ -32,6 +32,12 @@ public class JobUtilTest {
         assertThat(JobUtil.isFavoriteJob(createDefaultJob().fullName(FAVORITE_NAME).build(), FAVORITE_JOB)).isTrue();
     }
 
+    @Test
+    public void createFavoriteJob() {
+        assertThat(JobUtil.createFavoriteJob(createDefaultJob().build()))
+                .isEqualTo(new JenkinsSettings.FavoriteJob("FullName", "http://url-to-test.com"));
+    }
+
 
     @Test
     public void isFavoriteJobWithSameUrl() {

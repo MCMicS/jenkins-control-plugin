@@ -9,12 +9,17 @@ import org.jetbrains.annotations.NotNull;
 @UtilityClass
 public class JobUtil {
 
+    @NotNull
+    public JenkinsSettings.FavoriteJob createFavoriteJob(@NotNull Job job) {
+        return new JenkinsSettings.FavoriteJob(createNameForFavorite(job), job.getUrl());
+    }
+
     public boolean isFavoriteJob(@NotNull Job job, @NotNull JenkinsSettings.FavoriteJob favoriteJob) {
         return isFavoriteJobName(createNameForFavorite(job), favoriteJob) || isFavoriteJobUrl(job.getUrl(), favoriteJob);
     }
 
     @NotNull
-    public String createNameForFavorite(@NotNull Job job) {
+    String createNameForFavorite(@NotNull Job job) {
         return job.getFullName();
     }
 

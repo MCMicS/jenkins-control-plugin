@@ -95,8 +95,7 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
     }
 
     public void addFavorite(@NotNull List<Job> jobs) {
-        jobs.stream().map(job -> new FavoriteJob(JobUtil.createNameForFavorite(job), job.getUrl()))
-                .forEach(myState.favoriteJobs::add);
+        jobs.stream().map(JobUtil::createFavoriteJob).forEach(myState.favoriteJobs::add);
     }
 
     public boolean isFavoriteJob(@NotNull Job job) {
@@ -104,9 +103,8 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
     }
 
     public void removeFavorite(@NotNull List<Job> selectedJobs) {
-        selectedJobs.stream().map(JobUtil::createNameForFavorite).forEach(
-                favoriteJobName -> myState.favoriteJobs.removeIf(favoriteJob -> StringUtils.equals(favoriteJobName,
-                        favoriteJob.getName()))
+        selectedJobs.forEach(jobToRemove -> myState.favoriteJobs.removeIf(
+                favoriteJob -> JobUtil.isFavoriteJob(jobToRemove, favoriteJob))
         );
     }
 
