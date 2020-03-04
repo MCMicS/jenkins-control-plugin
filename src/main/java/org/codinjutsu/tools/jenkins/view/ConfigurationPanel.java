@@ -77,6 +77,7 @@ public class ConfigurationPanel {
     private JTextField replaceWithSuffix;
     private JRadioButton version1RadioButton;
     private JRadioButton version2RadioButton;
+    private JCheckBox useGreenColor;
 
     private final FormValidator<JTextField> formValidator;
 
@@ -184,13 +185,16 @@ public class ConfigurationPanel {
                 || unstableOrFailCheckBox.isSelected() != jenkinsAppSettings.shouldDisplayFailOrUnstable()
                 || abortedCheckBox.isSelected() != jenkinsAppSettings.shouldDisplayAborted();
 
+        boolean successfulUseGreenColorModfied = isUseGreenColor() != jenkinsAppSettings.isUseGreenColor();
+
         return !jenkinsAppSettings.getServerUrl().equals(serverUrl.getText())
-                || !(jenkinsAppSettings.getBuildDelay() == getBuildDelay())
-                || !(jenkinsAppSettings.getJobRefreshPeriod() == getJobRefreshPeriod())
-                || !(jenkinsAppSettings.getRssRefreshPeriod() == getRssRefreshPeriod())
-                || !(jenkinsAppSettings.getNumBuildRetries() == getNumBuildRetries())
+                || jenkinsAppSettings.getBuildDelay() != getBuildDelay()
+                || jenkinsAppSettings.getJobRefreshPeriod() != getJobRefreshPeriod()
+                || jenkinsAppSettings.getRssRefreshPeriod() != getRssRefreshPeriod()
+                || jenkinsAppSettings.getNumBuildRetries() != getNumBuildRetries()
                 || !(jenkinsSettings.getCrumbData().equals(crumbDataField.getText()))
                 || credentialModified
+                || successfulUseGreenColorModfied
                 || statusToIgnoreModified || (!jenkinsAppSettings.getSuffix().equals(replaceWithSuffix.getText()));
     }
 
@@ -214,6 +218,7 @@ public class ConfigurationPanel {
         jenkinsAppSettings.setDisplayUnstableOrFail(unstableOrFailCheckBox.isSelected());
         jenkinsAppSettings.setDisplayAborted(abortedCheckBox.isSelected());
         jenkinsAppSettings.setSuffix(getSuffix());
+        jenkinsAppSettings.setUseGreenColor(isUseGreenColor());
 
         if (StringUtils.isNotBlank(username.getText())) {
             jenkinsSettings.setUsername(username.getText());
@@ -230,6 +235,14 @@ public class ConfigurationPanel {
         } else {
             jenkinsSettings.setVersion(JenkinsVersion.VERSION_2);
         }
+    }
+
+    private boolean isUseGreenColor() {
+        return useGreenColor.isSelected();
+    }
+
+    private void setUseGreenColor(boolean useGreenColor) {
+        this.useGreenColor.setSelected(useGreenColor);
     }
 
     public void loadConfigurationData(JenkinsAppSettings jenkinsAppSettings, JenkinsSettings jenkinsSettings) {
@@ -254,6 +267,7 @@ public class ConfigurationPanel {
         abortedCheckBox.setSelected(jenkinsAppSettings.shouldDisplayAborted());
 
         replaceWithSuffix.setText(String.valueOf(jenkinsAppSettings.getSuffix()));
+        setUseGreenColor(jenkinsAppSettings.isUseGreenColor());
 
         if (jenkinsSettings.getVersion().equals(JenkinsVersion.VERSION_1)) {
             version1RadioButton.setSelected(true);

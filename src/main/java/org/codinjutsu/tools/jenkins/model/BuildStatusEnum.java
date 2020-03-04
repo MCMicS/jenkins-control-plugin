@@ -67,7 +67,7 @@ public enum BuildStatusEnum {
     /**
      * Parse status from color
      */
-    public static BuildStatusEnum getStatus(String jobColor) {
+    public static BuildStatusEnum getStatusByColor(String jobColor) {
         if (null == jobColor) {
             return NULL;
         }

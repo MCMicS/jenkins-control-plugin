@@ -1,5 +1,4 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
-
     <style type="text/css">
         .status {stroke: none;}
         .blue {fill: #389FD6;}
@@ -14,6 +13,8 @@
         .dark-grey.dark {fill: #c3c5c7;}
         .light-grey {fill: #cccccc;}
         .light-grey.dark {fill: #edf0f2;}
+        .green {fill: #59A869;}
+        .green.dark {fill: #499C54;}
     </style>
     <circle class="status blue" cx="8" cy="8" r="7" />
 </svg>

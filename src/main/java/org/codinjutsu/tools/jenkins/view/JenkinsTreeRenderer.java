@@ -25,10 +25,7 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Delegate;
 import org.apache.commons.lang.time.DurationFormatUtils;
-import org.codinjutsu.tools.jenkins.model.Build;
-import org.codinjutsu.tools.jenkins.model.Jenkins;
-import org.codinjutsu.tools.jenkins.model.Job;
-import org.codinjutsu.tools.jenkins.util.JobUtil;
+import org.codinjutsu.tools.jenkins.model.*;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -42,6 +39,9 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
 
     @NotNull
     private final FavoriteJobDetector favoriteJobDetector;
+
+    @NotNull
+    private final BuildStatusRenderer buildStatusRenderer;
 
     @Override
     public void customizeCellRenderer(@NotNull JTree tree, Object value, boolean selected, boolean expanded,
@@ -59,15 +59,29 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
             append(buildLabel(job), getAttribute(job));
             setToolTipText(job.getHealthDescription());
             if (favoriteJobDetector.isFavoriteJob(job)) {
-                setIcon(new CompositeIcon(job.getIcon(), job.getHealthIcon(), FAVORITE_ICON));
+                setIcon(new CompositeIcon(getBuildStatusColor(job), job.getHealthIcon(), FAVORITE_ICON));
             } else {
-                setIcon(new CompositeIcon(job.getIcon(), job.getHealthIcon()));
+                setIcon(new CompositeIcon(getBuildStatusColor(job), job.getHealthIcon()));
             }
         } else if (userObject instanceof Build) {
             Build build = (Build) node.getUserObject();
             append(buildLabel(build), SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
-            setIcon(new CompositeIcon(build.getStateIcon()));
+            setIcon(new CompositeIcon(getBuildStatusColor(build)));
         }
+    }
+
+    @NotNull
+    private Icon getBuildStatusColor(Job job) {
+        final JobType jobType = job.getJobType();
+        if (jobType == JobType.JOB) {
+            return buildStatusRenderer.renderBuildStatus(BuildStatusEnum.getStatusByColor(job.getColor()));
+        }
+        return jobType.getIcon();
+    }
+
+    @NotNull
+    private Icon getBuildStatusColor(Build build) {
+        return buildStatusRenderer.renderBuildStatus(build.getStatus());
     }
 
     public static SimpleTextAttributes getAttribute(Job job) {
@@ -122,4 +136,5 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
 
         boolean isFavoriteJob(@NotNull Job job);
     }
+
 }

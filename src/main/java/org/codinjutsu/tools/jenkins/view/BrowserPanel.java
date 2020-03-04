@@ -113,7 +113,7 @@ public class BrowserPanel extends SimpleToolWindowPanel {
 
     @NotNull
     private static BuildStatusEnum toBuildStatus(Job job) {
-        return BuildStatusEnum.getStatus(job.getColor());
+        return BuildStatusEnum.getStatusByColor(job.getColor());
     }
 
     public static BrowserPanel getInstance(Project project) {
@@ -348,7 +348,8 @@ public class BrowserPanel extends SimpleToolWindowPanel {
     private Tree createTree() {
         SimpleTree tree = new SimpleTree();
         tree.getEmptyText().setText(LOADING);
-        tree.setCellRenderer(new JenkinsTreeRenderer(jenkinsSettings::isFavoriteJob));
+        tree.setCellRenderer(new JenkinsTreeRenderer(jenkinsSettings::isFavoriteJob,
+                BuildStatusEnumRenderer.getInstance(project)));
         tree.setName("jobTree");
         tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode(jenkins), false));
         //final JobTreeHandler jobTreeHandler = new JobTreeHandler(project);

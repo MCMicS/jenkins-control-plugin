@@ -17,5 +17,5 @@
         .green {fill: #59A869;}
         .green.dark {fill: #499C54;}
     </style>
-    <circle class="status red dark" cx="8" cy="8" r="7" />
+    <circle class="status green dark" cx="8" cy="8" r="7" />
 </svg>

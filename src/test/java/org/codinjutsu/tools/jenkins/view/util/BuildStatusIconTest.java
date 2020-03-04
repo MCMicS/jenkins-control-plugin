@@ -18,6 +18,8 @@ package org.codinjutsu.tools.jenkins.view.util;
 
 import icons.JenkinsControlIcons;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
+import org.codinjutsu.tools.jenkins.view.BuildStatusRenderer;
+import org.codinjutsu.tools.jenkins.view.DefaultBuildStatusEnumRenderer;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -28,12 +30,14 @@ import static org.junit.Assert.assertEquals;
 
 public class BuildStatusIconTest {
 
+    private final BuildStatusAggregator aggregatorMock = Mockito.mock(BuildStatusAggregator.class);
+    private final BuildStatusRenderer buildStatusRenderer = new DefaultBuildStatusEnumRenderer();
+
     @Test
     public void noBuildsShouldDisplayGreyIcon() {
-        BuildStatusAggregator aggregatorMock = Mockito.mock(BuildStatusAggregator.class);
         Mockito.when(aggregatorMock.hasNoResults()).thenReturn(true);
 
-        BuildStatusIcon statusIcon = (BuildStatusIcon) BuildStatusIcon.createIcon(aggregatorMock);
+        BuildStatusIcon statusIcon = (BuildStatusIcon) BuildStatusIcon.createIcon(aggregatorMock, buildStatusRenderer);
         assertIconEquals("grey.svg", statusIcon.icon);
         assertEquals("No builds", statusIcon.toolTipText);
         assertEquals(0, statusIcon.numberToDisplay);
@@ -41,12 +45,11 @@ public class BuildStatusIconTest {
 
     @Test
     public void brokenBuildsShouldDisplayRedIcon() {
-        BuildStatusAggregator aggregatorMock = Mockito.mock(BuildStatusAggregator.class);
         Mockito.when(aggregatorMock.hasNoResults()).thenReturn(false);
         Mockito.when(aggregatorMock.getBrokenBuilds()).thenReturn(4);
         Mockito.when(aggregatorMock.getUnstableBuilds()).thenReturn(2);
 
-        BuildStatusIcon statusIcon = (BuildStatusIcon) BuildStatusIcon.createIcon(aggregatorMock);
+        BuildStatusIcon statusIcon = (BuildStatusIcon) BuildStatusIcon.createIcon(aggregatorMock, buildStatusRenderer);
         assertIconEquals("red.svg", statusIcon.icon);
         assertEquals("4 broken builds", statusIcon.toolTipText);
         assertEquals(4, statusIcon.numberToDisplay);
@@ -54,12 +57,11 @@ public class BuildStatusIconTest {
 
     @Test
     public void unstableBuildsShouldDisplayYellowIcon() {
-        BuildStatusAggregator aggregatorMock = Mockito.mock(BuildStatusAggregator.class);
         Mockito.when(aggregatorMock.hasNoResults()).thenReturn(false);
         Mockito.when(aggregatorMock.getBrokenBuilds()).thenReturn(0);
         Mockito.when(aggregatorMock.getUnstableBuilds()).thenReturn(2);
 
-        BuildStatusIcon statusIcon = (BuildStatusIcon) BuildStatusIcon.createIcon(aggregatorMock);
+        BuildStatusIcon statusIcon = (BuildStatusIcon) BuildStatusIcon.createIcon(aggregatorMock, buildStatusRenderer);
         assertIconEquals("yellow.svg", statusIcon.icon);
         assertEquals("2 unstable builds", statusIcon.toolTipText);
         assertEquals(2, statusIcon.numberToDisplay);
@@ -67,12 +69,11 @@ public class BuildStatusIconTest {
 
     @Test
     public void noBrokenBuildsShouldDisplayYellowIcon() {
-        BuildStatusAggregator aggregatorMock = Mockito.mock(BuildStatusAggregator.class);
         Mockito.when(aggregatorMock.hasNoResults()).thenReturn(false);
         Mockito.when(aggregatorMock.getBrokenBuilds()).thenReturn(0);
         Mockito.when(aggregatorMock.getUnstableBuilds()).thenReturn(0);
 
-        BuildStatusIcon statusIcon = (BuildStatusIcon) BuildStatusIcon.createIcon(aggregatorMock);
+        BuildStatusIcon statusIcon = (BuildStatusIcon) BuildStatusIcon.createIcon(aggregatorMock, buildStatusRenderer);
         assertIconEquals("blue.svg", statusIcon.icon);
         assertEquals("No broken builds", statusIcon.toolTipText);
         assertEquals(0, statusIcon.numberToDisplay);
