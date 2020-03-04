@@ -140,14 +140,6 @@ public class Job {
                 '}';
     }
 
-    @NotNull
-    public Icon getIcon() {
-        if (jobType == JobType.JOB) {
-            return Build.getStateIcon(color);
-        }
-        return jobType.getIcon();
-    }
-
     @Value
     public static class Health {
 

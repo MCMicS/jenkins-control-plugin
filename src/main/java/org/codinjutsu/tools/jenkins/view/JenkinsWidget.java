@@ -66,7 +66,7 @@ public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidg
     }
 
     private JComponent createStatusIcon(BuildStatusAggregator aggregator) {
-        JComponent statusIcon = BuildStatusIcon.createIcon(aggregator);
+        JComponent statusIcon = BuildStatusIcon.createIcon(aggregator, BuildStatusEnumRenderer.getInstance(project));
         statusIcon.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {

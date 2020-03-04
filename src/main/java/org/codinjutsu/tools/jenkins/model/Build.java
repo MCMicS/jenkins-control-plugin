@@ -16,22 +16,15 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
-import com.intellij.icons.AllIcons;
-import icons.JenkinsControlIcons;
 import org.codinjutsu.tools.jenkins.util.DateUtil;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.EnumMap;
-import java.util.Map;
 
 public class Build {
 
     public static final Build NULL = new Build();
-
-    public static final Map<BuildStatusEnum, Icon> ICON_BY_BUILD_STATUS_MAP = new EnumMap<>(BuildStatusEnum.class);
 
     private String url;
     private Date buildDate;
@@ -42,16 +35,6 @@ public class Build {
     private Long duration;
 
     private BuildStatusEnum status;
-
-    static {
-        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.SUCCESS, JenkinsControlIcons.Job.BLUE);
-        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.STABLE, JenkinsControlIcons.Job.BLUE);
-        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.FAILURE, JenkinsControlIcons.Job.RED);
-        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.UNSTABLE, JenkinsControlIcons.Job.YELLOW);
-        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.NULL, JenkinsControlIcons.Job.GREY);
-        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.ABORTED, JenkinsControlIcons.Job.GREY);
-        ICON_BY_BUILD_STATUS_MAP.put(BuildStatusEnum.FOLDER, AllIcons.Nodes.Folder);
-    }
 
     public static Build createBuildFromWorkspace(String buildUrl, String number, String status, boolean isBuilding, String buildDate, Long timestamp, Long duration) {
         return createBuild(buildUrl, Long.parseLong(number), status, isBuilding, buildDate, DateUtil.WORKSPACE_DATE_FORMAT, null, timestamp, duration);
@@ -81,28 +64,6 @@ public class Build {
         setTimestamp(timestamp);
         this.duration = duration;
     }
-
-    @NotNull
-    public static Icon getStateIcon(String jobColor) {
-        if (jobColor == null) {
-            // NB: This assumes the case of rendering a folder.
-            // TODO: handle the folder-case explicitly
-            return ICON_BY_BUILD_STATUS_MAP.get(BuildStatusEnum.FOLDER);
-        }
-        BuildStatusEnum[] jobStates = BuildStatusEnum.values();
-        for (BuildStatusEnum jobStatus : jobStates) {
-            if (jobStatus.getColor().isForJobColor(jobColor)) {
-                return ICON_BY_BUILD_STATUS_MAP.get(jobStatus);
-            }
-        }
-
-        return ICON_BY_BUILD_STATUS_MAP.get(BuildStatusEnum.NULL);
-    }
-
-    public Icon getStateIcon() {
-        return ICON_BY_BUILD_STATUS_MAP.get(status);
-    }
-
 
     public String getUrl() {
         return url;

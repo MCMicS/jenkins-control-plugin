@@ -18,9 +18,6 @@ package org.codinjutsu.tools.jenkins.model;
 
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.codinjutsu.tools.jenkins.model.BuildStatusEnum.SUCCESS;
