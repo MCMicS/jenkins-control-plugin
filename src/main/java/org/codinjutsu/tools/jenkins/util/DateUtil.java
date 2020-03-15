@@ -41,6 +41,9 @@ public class DateUtil {
         } catch (ParseException | NumberFormatException e) {
             LOG.debug("invalid date format: " + buildDate + " with formater '" + dateFormat.toPattern() + "'");
             date = new Date();
+        } catch (Exception e) {
+            LOG.error("Error while parsing data: " + buildDate, e);
+            date = new Date();
         }
         return date;
     }
