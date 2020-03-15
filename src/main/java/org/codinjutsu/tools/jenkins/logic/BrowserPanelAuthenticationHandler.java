@@ -47,7 +47,8 @@ public class BrowserPanelAuthenticationHandler implements AuthenticationNotifier
 
     @Override
     public void loginFailed(Exception ex) {
-        browser.notifyErrorJenkinsToolWindow(ex.getLocalizedMessage());
+        final String message = ex.getLocalizedMessage() == null ? "Unknown error" : ex.getLocalizedMessage();
+        browser.notifyErrorJenkinsToolWindow(message);
     }
 
     @Override

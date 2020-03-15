@@ -331,7 +331,7 @@ public class BrowserPanel extends SimpleToolWindowPanel {
         return jenkinsSettings.hasFavoriteJobs();
     }
 
-    public void notifyInfoJenkinsToolWindow(final String htmlLinkMessage) {
+    public void notifyInfoJenkinsToolWindow(@NotNull String htmlLinkMessage) {
         ToolWindowManager.getInstance(project).notifyByBalloon(
                 JenkinsToolWindowFactory.JENKINS_BROWSER,
                 MessageType.INFO,
@@ -340,7 +340,7 @@ public class BrowserPanel extends SimpleToolWindowPanel {
                 new BrowserHyperlinkListener());
     }
 
-    public void notifyErrorJenkinsToolWindow(final String message) {
+    public void notifyErrorJenkinsToolWindow(@NotNull String message) {
         GuiUtil.runInSwingThread(() -> ToolWindowManager.getInstance(project).notifyByBalloon(
                 JenkinsToolWindowFactory.JENKINS_BROWSER, MessageType.ERROR, message));
     }

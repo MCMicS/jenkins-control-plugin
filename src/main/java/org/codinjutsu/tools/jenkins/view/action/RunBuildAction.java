@@ -104,8 +104,9 @@ public class RunBuildAction extends AnAction implements DumbAware {
             }.queue();
 
         } catch (Exception ex) {
-            LOG.error(ex.getMessage(), ex);
-            browserPanel.notifyErrorJenkinsToolWindow("Build cannot be run: " + ex.getMessage());
+            final String message = ex.getMessage() == null ? "Unknown error" : ex.getMessage();
+            LOG.error(message, ex);
+            browserPanel.notifyErrorJenkinsToolWindow("Build cannot be run: " + message);
         }
     }
 
