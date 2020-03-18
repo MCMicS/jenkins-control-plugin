@@ -128,7 +128,7 @@ public class BuildParamDialogTest {
     public void testLaunchBuild() throws Exception {
         createDialog(JOB_WITH_GOOD_PARAMS);
 
-        dialogFixture.checkBox("integrationTest").deselect();
+        dialogFixture.checkBox("integrationTest").uncheck();
         dialogFixture.comboBox("environment").selectItem("acceptance");
 
         dialogFixture.button(JButtonMatcher.withText("OK")).click();
