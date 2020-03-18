@@ -16,83 +16,83 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.ui.ColoredTreeCellRenderer;
 import com.intellij.ui.RowIcon;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.text.DateFormatUtil;
-import org.apache.commons.lang.StringUtils;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Delegate;
 import org.apache.commons.lang.time.DurationFormatUtils;
-import org.codinjutsu.tools.jenkins.JenkinsSettings;
-import org.codinjutsu.tools.jenkins.model.Build;
-import org.codinjutsu.tools.jenkins.model.Jenkins;
-import org.codinjutsu.tools.jenkins.model.Job;
-import org.codinjutsu.tools.jenkins.util.GuiUtil;
+import org.codinjutsu.tools.jenkins.model.*;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
-import java.util.List;
 
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
 
-    public static final Icon FAVORITE_ICON = GuiUtil.loadIcon("star_tn.png");
-    public static final Icon SERVER_ICON = GuiUtil.loadIcon("server_wrench.png");
+    public static final Icon FAVORITE_ICON = AllIcons.Nodes.Favorite;
 
-    private final List<JenkinsSettings.FavoriteJob> favoriteJobs;
+    @NotNull
+    private final FavoriteJobDetector favoriteJobDetector;
 
-    public JenkinsTreeRenderer(List<JenkinsSettings.FavoriteJob> favoriteJobs) {
-        this.favoriteJobs = favoriteJobs;
-    }
+    @NotNull
+    private final BuildStatusRenderer buildStatusRenderer;
 
     @Override
-    public void customizeCellRenderer(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-
+    public void customizeCellRenderer(@NotNull JTree tree, Object value, boolean selected, boolean expanded,
+                                      boolean leaf, int row, boolean hasFocus) {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
 
-        Object userObject = node.getUserObject();
+        final Object userObject = node.getUserObject();
         if (userObject instanceof Jenkins) {
             Jenkins jenkins = (Jenkins) userObject;
             append(buildLabel(jenkins), SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
             setToolTipText(jenkins.getServerUrl());
-            setIcon(SERVER_ICON);
-
+            setIcon(AllIcons.Webreferences.Server);
         } else if (userObject instanceof Job) {
             Job job = (Job) node.getUserObject();
-
             append(buildLabel(job), getAttribute(job));
-
-            setToolTipText(job.findHealthDescription());
-            if (isFavoriteJob(job)) {
-                setIcon(new CompositeIcon(job.getStateIcon(), job.getHealthIcon(), FAVORITE_ICON));
+            setToolTipText(job.getHealthDescription());
+            if (favoriteJobDetector.isFavoriteJob(job)) {
+                setIcon(new CompositeIcon(getBuildStatusColor(job), job.getHealthIcon(), FAVORITE_ICON));
             } else {
-                setIcon(new CompositeIcon(job.getStateIcon(), job.getHealthIcon()));
+                setIcon(new CompositeIcon(getBuildStatusColor(job), job.getHealthIcon()));
             }
         } else if (userObject instanceof Build) {
             Build build = (Build) node.getUserObject();
             append(buildLabel(build), SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
-            setIcon(new CompositeIcon(build.getStateIcon()));
+            setIcon(new CompositeIcon(getBuildStatusColor(build)));
         }
     }
 
-    boolean isFavoriteJob(Job job) {
-        for (JenkinsSettings.FavoriteJob favoriteJob : favoriteJobs) {
-            if (favoriteJob.name.equals(job.getName())) {
-                return true;
-            }
+    @NotNull
+    private Icon getBuildStatusColor(Job job) {
+        final JobType jobType = job.getJobType();
+        if (jobType == JobType.JOB) {
+            return buildStatusRenderer.renderBuildStatus(BuildStatusEnum.getStatusByColor(job.getColor()));
         }
-        return false;
+        return jobType.getIcon();
+    }
+
+    @NotNull
+    private Icon getBuildStatusColor(Build build) {
+        return buildStatusRenderer.renderBuildStatus(build.getStatus());
     }
 
     public static SimpleTextAttributes getAttribute(Job job) {
         Build build = job.getLastBuild();
-        if (build != null) {
-            if (job.isInQueue() || build.isBuilding()) {
-                return SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES;
-            }
+        if (build != null && (job.isInQueue() || build.isBuilding())) {
+            return SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES;
         }
-
         return SimpleTextAttributes.REGULAR_ATTRIBUTES;
     }
 
+    @NotNull
     public static String buildLabel(Build build) {
         String status = "";
         if (build.isBuilding()) {
@@ -101,9 +101,8 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
         return String.format("#%d (%s) duration: %s %s", build.getNumber(), DateFormatUtil.formatDateTime(build.getTimestamp()), DurationFormatUtils.formatDurationHMS(build.getDuration()), status);
     }
 
-
+    @NotNull
     public static String buildLabel(Job job) {
-
         Build build = job.getLastBuild();
         if (build == null) {
             return job.getName();
@@ -122,14 +121,20 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
         return "Jenkins " + jenkins.getName();
     }
 
-    private static class CompositeIcon extends RowIcon {
+    private static class CompositeIcon implements Icon {
+
+        @Delegate
+        private final Icon rowIcon;
 
         public CompositeIcon(Icon... icons) {
-            super(icons.length);
-            for (int i = 0; i < icons.length; i++) {
-                Icon icon = icons[i];
-                setIcon(icon, i);
-            }
+            this.rowIcon = new RowIcon(icons);
         }
     }
+
+    @FunctionalInterface
+    public interface FavoriteJobDetector {
+
+        boolean isFavoriteJob(@NotNull Job job);
+    }
+
 }

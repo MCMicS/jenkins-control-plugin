@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+
+    <style type="text/css">
+        .status {stroke: none;}
+        .blue {fill: #389FD6;}
+        .blue.dark {fill: #3592C4;}
+        .red {fill: #DB5860;}
+        .red.dark {fill: #C75450;}
+        .yellow {fill: #EDA200;}
+        .yellow.dark {fill: #F0A732;}
+        .grey {fill: #6E6E6E;}
+        .grey.dark {fill: #AFB1B3;}
+        .dark-grey {fill: #595959;}
+        .dark-grey.dark {fill: #c3c5c7;}
+        .light-grey {fill: #cccccc;}
+        .light-grey.dark {fill: #edf0f2;}
+        .green {fill: #59A869;}
+        .green.dark {fill: #499C54;}
+    </style>
+    <circle class="status yellow dark" cx="8" cy="8" r="7" />
+</svg>

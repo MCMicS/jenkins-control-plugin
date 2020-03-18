@@ -16,8 +16,16 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
+import com.intellij.util.ObjectUtils;
+import com.intellij.util.ui.EmptyIcon;
+import icons.JenkinsControlIcons;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Singular;
+import lombok.Value;
 import org.apache.commons.lang.StringUtils;
-import org.codinjutsu.tools.jenkins.util.GuiUtil;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.util.HashMap;
@@ -25,72 +33,74 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * TODO mcmics: use {@link Value}
+ */
+@Builder
+//@Value
+@Data
 public class Job {
 
     private static final Map<String, Icon> ICON_BY_JOB_HEALTH_MAP = new HashMap<>();
-    private String name;
-
-    private String displayName;
-    private String url;
-
-    private String color;
-    private boolean inQueue;
-    private boolean buildable;
-    private boolean fetchBuild = false;
-
-    private Health health;
-
-    private Build lastBuild;
-
-    private List<Build> lastBuilds = new LinkedList<>();
-
-    private final List<JobParameter> parameters = new LinkedList<>();
+    public static final String WORKFLOW_JOB = "WorkflowJob";
 
     static {
-        ICON_BY_JOB_HEALTH_MAP.put("health-00to19", GuiUtil.loadIcon("health-00to19.png"));
-        ICON_BY_JOB_HEALTH_MAP.put("health-20to39", GuiUtil.loadIcon("health-20to39.png"));
-        ICON_BY_JOB_HEALTH_MAP.put("health-40to59", GuiUtil.loadIcon("health-40to59.png"));
-        ICON_BY_JOB_HEALTH_MAP.put("health-60to79", GuiUtil.loadIcon("health-60to79.png"));
-        ICON_BY_JOB_HEALTH_MAP.put("health-80plus", GuiUtil.loadIcon("health-80plus.png"));
-        ICON_BY_JOB_HEALTH_MAP.put("null", GuiUtil.loadIcon("null.png"));
+        ICON_BY_JOB_HEALTH_MAP.put("health-00to19", JenkinsControlIcons.Health.HEALTH_00_TO_19);
+        ICON_BY_JOB_HEALTH_MAP.put("health-20to39", JenkinsControlIcons.Health.HEALTH_20_TO_39);
+        ICON_BY_JOB_HEALTH_MAP.put("health-40to59", JenkinsControlIcons.Health.HEALTH_40_TO_59);
+        ICON_BY_JOB_HEALTH_MAP.put("health-60to79", JenkinsControlIcons.Health.HEALTH_60_TO_79);
+        ICON_BY_JOB_HEALTH_MAP.put("health-80plus", JenkinsControlIcons.Health.HEALTH_60_PLUS);
+        ICON_BY_JOB_HEALTH_MAP.put("null", EmptyIcon.ICON_16);
     }
 
-    private Job(String name, String displayName, String color, String url, boolean inQueue, boolean buildable) {
-        this.name = name;
-        this.displayName = displayName;
-        this.color = color;
-        this.url = url;
-        this.inQueue = inQueue;
-        this.buildable = buildable;
-    }
+    @NotNull
+    private final String name;
+    @Builder.Default
+    @NotNull
+    private final JobType jobType = JobType.JOB;
+    private final boolean buildable;
+    @Builder.Default
+    @Nullable
+    private final String displayName = null;
+    @NotNull
+    private final String fullName;
+    @NotNull
+    private final String url;
+    @Singular
+    @NotNull
+    private final List<JobParameter> parameters;
+    private boolean inQueue;
+    @Builder.Default
+    @Nullable
+    private String color = null;
+    @Builder.Default
+    @Nullable
+    private Health health = null;
+    @Builder.Default
+    @Nullable
+    private Build lastBuild = null;
+    @Builder.Default
+    @NotNull
+    private List<Build> lastBuilds = new LinkedList<>();
+    @Builder.Default
+    @NotNull
+    private List<Job> nestedJobs = new LinkedList<>();
 
-    public static Job createJob(String jobName, String displayName,  String jobColor, String jobUrl, boolean inQueue, boolean buildable) {
-        return new Job(jobName, displayName, jobColor, jobUrl, inQueue, buildable);
-    }
-
-    public static Job createJob(String jobName, String displayName,  String jobColor, String jobUrl, String inQueue, String buildable) {
-        return createJob(jobName, displayName, jobColor, jobUrl, Boolean.parseBoolean(inQueue), Boolean.parseBoolean(buildable));
-    }
-
-
-    public Icon getStateIcon() {
-        return Build.getStateIcon(color);
-    }
-
+    @NotNull
     public Icon getHealthIcon() {
         if (health == null) {
             return ICON_BY_JOB_HEALTH_MAP.get("null");
         }
-        return ICON_BY_JOB_HEALTH_MAP.get(health.getLevel());
+        return ICON_BY_JOB_HEALTH_MAP.getOrDefault(health.getLevel(), ICON_BY_JOB_HEALTH_MAP.get("null"));
     }
 
-    public String findHealthDescription() {
+    @NotNull
+    public String getHealthDescription() {
         if (health == null) {
             return "";
         }
-        return health.getDescription();
+        return ObjectUtils.notNull(health.getDescription(), "");
     }
-
 
     public void updateContentWith(Job updatedJob) {
         this.color = updatedJob.getColor();
@@ -100,15 +110,7 @@ public class Job {
         this.lastBuilds = updatedJob.getLastBuilds();
     }
 
-
-    public void addParameter(String paramName, String paramType, String defaultValue, String... choices) {
-        parameters.add(JobParameter.create(paramName, paramType, defaultValue, choices));
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
+    @NotNull
     public String getName() {
         if (StringUtils.isEmpty(displayName)) {
             return name;
@@ -116,82 +118,13 @@ public class Job {
         return displayName;
     }
 
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
-
-    public String getColor() {
-        return color;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public boolean isInQueue() {
-        return inQueue;
-    }
-
-    public void setInQueue(boolean inQueue) {
-        this.inQueue = inQueue;
-    }
-
-    public boolean isBuildable() {
-        return buildable;
-    }
-
-    public void setBuildable(boolean buildable) {
-        this.buildable = buildable;
-    }
-
-    public Build getLastBuild() {
-        return lastBuild;
-    }
-
-    public void setLastBuild(Build lastBuild) {
-        this.lastBuild = lastBuild;
-    }
-
-    public List<Build> getLastBuilds() {
-        return lastBuilds;
-    }
-
-    public void setLastBuilds(List<Build> builds) {
-        lastBuilds = builds;
-    }
-
-    Health getHealth() {
-        return health;
-    }
-
-    public void setHealth(Health health) {
-        this.health = health;
-    }
-
     public boolean hasParameters() {
         return !parameters.isEmpty();
     }
 
-    public void setFetchBuild(boolean fetchBuild) {
-        this.fetchBuild = fetchBuild;
-    }
-
-    public boolean isFetchBuild() {
-        return fetchBuild;
-    }
-
-
-    public List<JobParameter> getParameters() {
-        return parameters;
-    }
-
     public boolean hasParameter(String name) {
         if (hasParameters()) {
-            for(JobParameter parameter: parameters) {
+            for (JobParameter parameter : parameters) {
                 if (parameter.getName().equals(name)) {
                     return true;
                 }
@@ -200,58 +133,19 @@ public class Job {
         return false;
     }
 
-    public void setParameter(JobParameter jobParameter) {
-        if (parameters.size() > 0) {
-            for(JobParameter parameter: parameters) {
-                if (parameter.getName().equals(jobParameter.getName())) {
-                    parameters.set(parameters.indexOf(parameter), jobParameter);
-                }
-            }
-        }
-    }
-
-    public void addParameters(List<JobParameter> jobParameters) {
-        parameters.addAll(jobParameters);
-    }
-
-    public static class Health {
-
-        private String healthLevel;
-        private String description;
-
-        public Health() {
-        }
-
-        private Health(String healthLevel, String description) {
-            this.healthLevel = healthLevel;
-            this.description = description;
-        }
-
-        public String getLevel() {
-            return healthLevel;
-        }
-
-        public void setLevel(String healthLevel) {
-            this.healthLevel = healthLevel;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public void setDescription(String description) {
-            this.description = description;
-        }
-
-        public static Health createHealth(String healthLevel, String healthDescription) {
-            return new Health(healthLevel, healthDescription);
-        }
-    }
-
     @Override
     public String toString() {
         return "Job{" +
                 "name='" + name + '\'' +
                 '}';
+    }
+
+    @Value
+    public static class Health {
+
+        @NotNull
+        private String level;
+        @Nullable
+        private String description;
     }
 }

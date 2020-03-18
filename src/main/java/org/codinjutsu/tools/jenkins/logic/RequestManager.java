@@ -59,12 +59,16 @@ public class RequestManager implements RequestManagerInterface {
     private JenkinsParser jsonParser = new JenkinsJsonParser();
     private JenkinsServer jenkinsServer;
 
+    public RequestManager(Project project) {
+        this.urlBuilder = UrlBuilder.getInstance(project);
+    }
+
     public static RequestManager getInstance(Project project) {
         return ServiceManager.getService(project, RequestManager.class);
     }
 
-    public RequestManager(Project project) {
-        this.urlBuilder = UrlBuilder.getInstance(project);
+    private static boolean canContainNestedJobs(@NotNull Job job) {
+        return job.getJobType().containNestedJobs();
     }
 
     @Override
@@ -117,11 +121,38 @@ public class RequestManager implements RequestManagerInterface {
         if (handleNotYetLoggedInState()) return Collections.emptyList();
         URL url = urlBuilder.createViewUrl(jenkinsPlateform, viewUrl);
         String jenkinsViewData = securityClient.execute(url);
+        final List<Job> jobsFromView;
         if (jenkinsPlateform.equals(JenkinsPlateform.CLASSIC)) {
-            return jsonParser.createViewJobs(jenkinsViewData);
+            jobsFromView = jsonParser.createJobs(jenkinsViewData);
         } else {
-            return jsonParser.createCloudbeesViewJobs(jenkinsViewData);
+            jobsFromView = jsonParser.createCloudbeesViewJobs(jenkinsViewData);
         }
+        return withNestedJobs(jobsFromView);
+    }
+
+    @NotNull
+    private List<Job> withNestedJobs(@NotNull List<Job> jobs) {
+        final List<Job> jobWithNested = new ArrayList<>();
+        for (Job job : jobs) {
+            if (canContainNestedJobs(job)) {
+                jobWithNested.add(withNestedJobs(job));
+            } else {
+                jobWithNested.add(job);
+            }
+        }
+        return jobWithNested;
+    }
+
+    @NotNull
+    private Job withNestedJobs(@NotNull Job job) {
+        job.setNestedJobs(withNestedJobs(loadNestedJobs(job.getUrl())));
+        return job;
+    }
+
+    private List<Job> loadNestedJobs(String currentJobUrl) {
+        if (handleNotYetLoggedInState()) return Collections.emptyList();
+        URL url = urlBuilder.createNestedJobUrl(currentJobUrl);
+        return jsonParser.createJobs(securityClient.execute(url));
     }
 
     private boolean handleNotYetLoggedInState() {
@@ -226,11 +257,11 @@ public class RequestManager implements RequestManagerInterface {
     @Override
     public List<Job> loadFavoriteJobs(List<JenkinsSettings.FavoriteJob> favoriteJobs) {
         if (handleNotYetLoggedInState()) return Collections.emptyList();
-        List<Job> jobs = new LinkedList<>();
+        final List<Job> jobs = new LinkedList<>();
         for (JenkinsSettings.FavoriteJob favoriteJob : favoriteJobs) {
-            jobs.add(loadJob(favoriteJob.url));
+            jobs.add(loadJob(favoriteJob.getUrl()));
         }
-        return jobs;
+        return withNestedJobs(jobs);
     }
 
     @Override
@@ -262,7 +293,7 @@ public class RequestManager implements RequestManagerInterface {
     @Override
     public String loadConsoleTextFor(Job job) {
         try {
-            return jenkinsServer.getJob(job.getName()).getLastCompletedBuild().details().getConsoleOutputText();
+            return jenkinsServer.getJob(job.getFullName()).getLastCompletedBuild().details().getConsoleOutputText();
         } catch (IOException e) {
             logger.warn("cannot load log for " + job.getName());
             return null;
@@ -273,7 +304,7 @@ public class RequestManager implements RequestManagerInterface {
     public List<TestResult> loadTestResultsFor(Job job) {
         try {
             List<TestResult> result = new ArrayList<>();
-            com.offbytwo.jenkins.model.Build lastCompletedBuild = jenkinsServer.getJob(job.getName()).getLastCompletedBuild();
+            com.offbytwo.jenkins.model.Build lastCompletedBuild = jenkinsServer.getJob(job.getFullName()).getLastCompletedBuild();
             if (lastCompletedBuild.getTestResult() != null) {
                 result.add(lastCompletedBuild.getTestResult());
             }

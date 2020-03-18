@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.ui.ComboBox;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
@@ -41,7 +42,14 @@ import java.util.concurrent.ExecutionException;
 public class BuildParamDialog extends JDialog {
     private static final Logger logger = Logger.getLogger(BuildParamDialog.class);
     private static final String MISSING_NAME_LABEL = "<Missing Name>";
-    private static final Icon ERROR_ICON = GuiUtil.loadIcon("error.png");
+    private static final Icon ERROR_ICON = AllIcons.General.BalloonError;
+    /**
+     * com.intellij.icons.AllIcons.General#NotificationError
+     * com.intellij.icons.AllIcons.RunConfigurations#ToolbarError
+     * com.intellij.icons.AllIcons.General#BalloonError
+     * AllIcons.RunConfigurations.ToolbarError
+     */
+    private static final Icon WARNING_ICON = AllIcons.General.BalloonWarning;
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
@@ -53,7 +61,7 @@ public class BuildParamDialog extends JDialog {
     private final JenkinsAppSettings configuration;
     private final RequestManager requestManager;
     private final RunBuildCallback runBuildCallback;
-    private final Map<JobParameter, JComponent> inputFieldByParameterMap = new HashMap<JobParameter, JComponent>();
+    private final Map<JobParameter, JComponent> inputFieldByParameterMap = new HashMap<>();
 
 // UNSUPPORTED PARAMETERS
 //        FileParameterDefinition
@@ -194,7 +202,7 @@ public class BuildParamDialog extends JDialog {
         if (jobParameterType != null) {
             text = jobParameterType.name() + " is unsupported.";
         } else {
-            text = "Unkown parameter";
+            text = "Unknown parameter";
         }
         JLabel label = new JLabel(text);
         label.setIcon(ERROR_ICON);

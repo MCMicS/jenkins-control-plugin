@@ -22,27 +22,10 @@ import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
-import com.intellij.openapi.util.IconLoader;
 
 import javax.swing.*;
-import java.net.URL;
 
 public class GuiUtil {
-
-    private static final String ICON_FOLDER = "/images/";
-
-    private GuiUtil() {
-    }
-
-
-    public static Icon loadIcon(String iconFilename) {
-        return IconLoader.findIcon(ICON_FOLDER + iconFilename);
-    }
-
-
-    public static Icon loadIcon(String parentPath, String iconFilename) {
-        return IconLoader.findIcon(parentPath + iconFilename);
-    }
 
     public static void runInSwingThread(Runnable runnable) {
         Application application = ApplicationManager.getApplication();
@@ -72,14 +55,6 @@ public class GuiUtil {
         JComponent actionToolbar = ActionManager.getInstance()
                 .createActionToolbar(toolBarName, actionGroup, true).getComponent();
         toolWindowPanel.setToolbar(actionToolbar);
-    }
-
-    public static boolean isUnderDarcula() {//keep it for backward compatibility
-        return UIManager.getLookAndFeel().getName().contains("Darcula");
-    }
-
-    public static URL getIconResource(String iconFilename) {
-        return GuiUtil.class.getResource(ICON_FOLDER + iconFilename);
     }
 
     private static class TaskRunner implements Runnable{

@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.view.action;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
@@ -26,7 +27,7 @@ import javax.swing.*;
 
 public class RefreshNodeAction extends AnAction implements DumbAware {
 
-    private static final Icon REFRESH_ICON = GuiUtil.isUnderDarcula() ? GuiUtil.loadIcon("refresh_dark.png") : GuiUtil.loadIcon("refresh.png");
+    private static final Icon REFRESH_ICON = AllIcons.Actions.Refresh;
     private final BrowserPanel browserPanel;
 
 

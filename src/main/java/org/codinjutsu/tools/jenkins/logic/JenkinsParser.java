@@ -25,7 +25,9 @@ import java.util.List;
 public interface JenkinsParser {
     String JOBS = "jobs";
     String JOB_NAME = "name";
+    String JOB_FULL_NAME = "fullName";
     String JOB_DISPLAY_NAME = "displayName";
+    String JOB_FULL_DISPLAY_NAME = "fullDisplayName";
     String JOB_HEALTH = "healthReport";
     String JOB_HEALTH_ICON = "iconUrl";
     String JOB_HEALTH_DESCRIPTION = "description";
@@ -54,6 +56,7 @@ public interface JenkinsParser {
     String PARAMETER_DEFAULT_PARAM = "defaultParameterValue";
     String PARAMETER_DEFAULT_PARAM_VALUE = "value";
     String PARAMETER_CHOICE = "choices";
+    String CLASS = "_class";
 
     Jenkins createWorkspace(String jsonData, String serverUrl);
 
@@ -63,7 +66,7 @@ public interface JenkinsParser {
 
     List<Build> createBuilds(String jsonData);
 
-    List<Job> createViewJobs(String jsonData);
+    List<Job> createJobs(String jsonData);
 
     List<Job> createCloudbeesViewJobs(String jsonData);
 }

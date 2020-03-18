@@ -20,21 +20,18 @@ import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import org.codinjutsu.tools.jenkins.model.FavoriteView;
 import org.codinjutsu.tools.jenkins.model.View;
-import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
 public class JenkinsViewComboRenderer extends ColoredListCellRenderer<View> {
 
-    private static final Icon FAVORITE_ICON = GuiUtil.loadIcon("star.png");
-
     @Override
     protected void customizeCellRenderer(@NotNull JList<? extends View> list, View view, int index, boolean selected, boolean hasFocus) {
         append(view.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
 
         if (view instanceof FavoriteView) {
-            setIcon(FAVORITE_ICON);
+            setIcon(JenkinsTreeRenderer.FAVORITE_ICON);
         }
 
     }

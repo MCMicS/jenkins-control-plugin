@@ -47,10 +47,11 @@
                     anchor="right"
                     canCloseContents="false"
                     factoryClass="org.codinjutsu.tools.jenkins.JenkinsToolWindowFactory"
-                    icon="/images/jenkins_logo.png" />
+                    icon="JenkinsControlIcons.JENKINS_TOOLWINDOW_ICON" />
         <toolWindow id="Job test results"
                     anchor="bottom"
                     canCloseContents="true"
+                    icon="JenkinsControlIcons.TOOLWINDOW_TEST_RESULTS"
                     factoryClass="org.codinjutsu.tools.jenkins.view.action.results.JobTestResultsToolWindowFactory"/>
     </extensions>
 

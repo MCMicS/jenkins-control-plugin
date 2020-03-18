@@ -16,10 +16,10 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -32,32 +32,31 @@ import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.TreeSpeedSearch;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.ui.treeStructure.Tree;
-import com.intellij.util.containers.Convertor;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.JenkinsToolWindowFactory;
-import org.codinjutsu.tools.jenkins.JenkinsWindowManager;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.logic.*;
 import org.codinjutsu.tools.jenkins.model.*;
+import org.codinjutsu.tools.jenkins.util.CollectionUtil;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.action.*;
 import org.codinjutsu.tools.jenkins.view.action.settings.SortByStatusAction;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
-import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -65,10 +64,12 @@ import java.util.concurrent.TimeUnit;
 
 public class BrowserPanel extends SimpleToolWindowPanel {
 
+    @NonNls
+    public static final String POPUP_PLACE = "POPUP";
+    @NonNls
+    public static final String JENKINS_PANEL_PLACE = "jenkinsBrowserActions";
     private static final Logger logger = Logger.getLogger(BrowserPanel.class);
-
     private static final String UNAVAILABLE = "No Jenkins server available";
-
     private static final String LOADING = "Loading...";
     private static final JobNameComparator JOB_NAME_COMPARATOR = new JobNameComparator();
     private static final Comparator<Job> sortByStatusComparator = Comparator.comparing(BrowserPanel::toBuildStatus);
@@ -77,6 +78,7 @@ public class BrowserPanel extends SimpleToolWindowPanel {
     private final Runnable refreshViewJob;
     private final Project project;
     private final JenkinsAppSettings jenkinsAppSettings;
+    @NotNull
     private final JenkinsSettings jenkinsSettings;
     private final RequestManager requestManager;
     private final Jenkins jenkins;
@@ -89,7 +91,6 @@ public class BrowserPanel extends SimpleToolWindowPanel {
     private View currentSelectedView;
 
     public BrowserPanel(final Project project) {
-
         super(true);
         this.project = project;
 
@@ -101,7 +102,7 @@ public class BrowserPanel extends SimpleToolWindowPanel {
         setProvideQuickActions(false);
 
         jenkins = Jenkins.byDefault();
-        jobTree = createTree(jenkinsSettings.getFavoriteJobs());
+        jobTree = createTree();
 
 
         jobPanel.setLayout(new BorderLayout());
@@ -112,7 +113,7 @@ public class BrowserPanel extends SimpleToolWindowPanel {
 
     @NotNull
     private static BuildStatusEnum toBuildStatus(Job job) {
-        return BuildStatusEnum.getStatus(job.getColor());
+        return BuildStatusEnum.getStatusByColor(job.getColor());
     }
 
     public static BrowserPanel getInstance(Project project) {
@@ -161,6 +162,33 @@ public class BrowserPanel extends SimpleToolWindowPanel {
         };
     }
 
+    @NotNull
+    private static DefaultMutableTreeNode createNode(Build build) {
+        return new DefaultMutableTreeNode(build, false);
+    }
+
+    @NotNull
+    private static DefaultMutableTreeNode createNode(Job job) {
+        boolean allowsChildren = true;
+        return new DefaultMutableTreeNode(job, allowsChildren);
+    }
+
+    @NotNull
+    private static DefaultMutableTreeNode createJobTree(Job job) {
+        return fillJobTree(job, createNode(job));
+    }
+
+    @NotNull
+    private static DefaultMutableTreeNode fillJobTree(@NotNull Job job, @NotNull DefaultMutableTreeNode jobNode) {
+        jobNode.removeAllChildren();
+        if (job.getJobType().containNestedJobs()) {
+            job.getNestedJobs().stream().map(BrowserPanel::createJobTree).forEach(jobNode::add);
+        } else {
+            job.getLastBuilds().stream().map(BrowserPanel::createNode).forEach(jobNode::add);
+        }
+        return jobNode;
+    }
+
     /*whole method could be moved inside of ExecutorProvider (executor would expose interface that would allow to schedule
       new task previously cancelling previous ones) */
     public void initScheduledJobs() {
@@ -200,20 +228,14 @@ public class BrowserPanel extends SimpleToolWindowPanel {
         return TreeUtil.collectSelectedObjectsOfType(jobTree, Job.class);
     }
 
-    public List<Job> getJobs() {
-        return jenkins.getJobs();
+    @NotNull
+    public List<Job> getAllJobs() {
+        return CollectionUtil.flattenedJobs(jenkins.getJobs());
     }
 
-    public Job getJob(String name) {
-        List<Job> jobs = jenkins.getJobs();
-        if (jobs.size() > 0) {
-            for (Job job : jobs) {
-                if (job.getName().equals(name)) {
-                    return job;
-                }
-            }
-        }
-        return null;
+    @NotNull
+    public Optional<Job> getJob(String name) {
+        return getAllJobs().stream().filter(job -> job.getName().equals(name)).findFirst();
     }
 
     public void setSortedByStatus(boolean sortedByBuildStatus) {
@@ -225,12 +247,7 @@ public class BrowserPanel extends SimpleToolWindowPanel {
             TreeUtil.sort(model, wrapJobSorter(sortByNameComparator));
         }
 
-        GuiUtil.runInSwingThread(new Runnable() {
-            @Override
-            public void run() {
-                model.nodeStructureChanged((TreeNode) model.getRoot());
-            }
-        });
+        GuiUtil.runInSwingThread(() -> model.nodeStructureChanged((TreeNode) model.getRoot()));
     }
 
     private void update() {
@@ -285,27 +302,36 @@ public class BrowserPanel extends SimpleToolWindowPanel {
     }
 
     private void updateJobNode(Job job) {
+        findNode(job).ifPresent(jobNode -> {
+            final DefaultTreeModel model = (DefaultTreeModel) jobTree.getModel();
+            fillJobTree(job, jobNode);
+            model.nodeChanged(jobNode);
+            model.nodeStructureChanged(jobNode);
+        });
+    }
+
+    @NotNull
+    private Optional<DefaultMutableTreeNode> findNode(@NotNull Job job) {
         final DefaultTreeModel model = (DefaultTreeModel) jobTree.getModel();
-        final Object modelRoot = model.getRoot();
-        final int childCount = model.getChildCount(modelRoot);
-        for (int i = 0; i < childCount; ++i) {
-            Object child = model.getChild(modelRoot, i);
-            if (child instanceof DefaultMutableTreeNode) {
-                DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) child;
-                if (childNode.getUserObject() == job) {
-                    model.nodeChanged(childNode);
-                    fillBuildsTree(job, childNode);
-                    break;
-                }
+        final DefaultMutableTreeNode modelRoot = (DefaultMutableTreeNode) model.getRoot();
+        final Enumeration<TreeNode> allNodes = modelRoot.depthFirstEnumeration();
+
+        DefaultMutableTreeNode jobNode = null;
+        while (allNodes.hasMoreElements() && jobNode == null) {
+            final DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) allNodes.nextElement();
+            // TODO mcmics: use equals
+            if (childNode.getUserObject() == job) {
+                jobNode = childNode;
             }
         }
+        return Optional.ofNullable(jobNode);
     }
 
     public boolean hasFavoriteJobs() {
-        return !jenkinsSettings.getFavoriteJobs().isEmpty();
+        return jenkinsSettings.hasFavoriteJobs();
     }
 
-    public void notifyInfoJenkinsToolWindow(final String htmlLinkMessage) {
+    public void notifyInfoJenkinsToolWindow(@NotNull String htmlLinkMessage) {
         ToolWindowManager.getInstance(project).notifyByBalloon(
                 JenkinsToolWindowFactory.JENKINS_BROWSER,
                 MessageType.INFO,
@@ -314,35 +340,32 @@ public class BrowserPanel extends SimpleToolWindowPanel {
                 new BrowserHyperlinkListener());
     }
 
-    public void notifyErrorJenkinsToolWindow(final String message) {
+    public void notifyErrorJenkinsToolWindow(@NotNull String message) {
         GuiUtil.runInSwingThread(() -> ToolWindowManager.getInstance(project).notifyByBalloon(
                 JenkinsToolWindowFactory.JENKINS_BROWSER, MessageType.ERROR, message));
     }
 
-    private Tree createTree(final List<JenkinsSettings.FavoriteJob> favoriteJobs) {
-
+    private Tree createTree() {
         SimpleTree tree = new SimpleTree();
         tree.getEmptyText().setText(LOADING);
-        tree.setCellRenderer(new JenkinsTreeRenderer(favoriteJobs));
+        tree.setCellRenderer(new JenkinsTreeRenderer(jenkinsSettings::isFavoriteJob,
+                BuildStatusEnumRenderer.getInstance(project)));
         tree.setName("jobTree");
-        tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode(jenkins)));
+        tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode(jenkins), false));
+        //final JobTreeHandler jobTreeHandler = new JobTreeHandler(project);
+        //tree.addTreeWillExpandListener(jobTreeHandler);
 
-        new TreeSpeedSearch(tree, new Convertor<TreePath, String>() {
-
-            @Override
-            public String convert(TreePath treePath) {
-                final DefaultMutableTreeNode node = (DefaultMutableTreeNode) treePath.getLastPathComponent();
-                final Object userObject = node.getUserObject();
-                if (userObject instanceof Job) {
-                    return ((Job) userObject).getName();
-                }
-                return "<empty>";
+        new TreeSpeedSearch(tree, treePath -> {
+            final DefaultMutableTreeNode node = (DefaultMutableTreeNode) treePath.getLastPathComponent();
+            final Object userObject = node.getUserObject();
+            if (userObject instanceof Job) {
+                return ((Job) userObject).getName();
             }
+            return "<empty>";
         });
 
         return tree;
     }
-
 
     public void handleEmptyConfiguration() {
         JenkinsWidget.getInstance(project).updateStatusIcon(BuildStatusAggregator.EMPTY); //FIXME could be handled elsehwere
@@ -363,7 +386,7 @@ public class BrowserPanel extends SimpleToolWindowPanel {
     }
 
     public void postAuthenticationInitialization() {
-        if (!jenkinsSettings.getFavoriteJobs().isEmpty()) {
+        if (hasFavoriteJobs()) {
             createFavoriteViewIfNecessary();
         }
 
@@ -379,14 +402,7 @@ public class BrowserPanel extends SimpleToolWindowPanel {
         loadView(viewToLoad);
     }
 
-    public void init() {
-        initGui();
-        if (!isConfigured()) { //run when there is not configuration
-            handleEmptyConfiguration();
-        }
-    }
-
-    private void initGui() {
+    public void initGui() {
         installActionsInToolbar();
         installActionsInPopupMenu();
     }
@@ -395,7 +411,9 @@ public class BrowserPanel extends SimpleToolWindowPanel {
         DefaultActionGroup actionGroup = new DefaultActionGroup("JenkinsToolbarGroup", false);
         actionGroup.add(new SelectViewAction(this));
         actionGroup.add(new RefreshNodeAction(this));
-        actionGroup.add(new LoadBuildsAction(this));
+        final LoadBuildsAction loadBuildsAction = new LoadBuildsAction();
+        ActionManager.getInstance().registerAction(LoadBuildsAction.ACTION_ID, loadBuildsAction, PluginId.getId(JenkinsSettings.PLUGIN_ID));
+        actionGroup.add(loadBuildsAction);
         actionGroup.add(new RunBuildAction(this));
         actionGroup.add(new StopBuildAction(this));
         actionGroup.add(new SortByStatusAction(this));
@@ -403,8 +421,7 @@ public class BrowserPanel extends SimpleToolWindowPanel {
         actionGroup.addSeparator();
         actionGroup.add(new OpenPluginSettingsAction());
 
-
-        GuiUtil.installActionGroupInToolBar(actionGroup, this, ActionManager.getInstance(), "jenkinsBrowserActions");
+        GuiUtil.installActionGroupInToolBar(actionGroup, this, ActionManager.getInstance(), JENKINS_PANEL_PLACE);
     }
 
     private void installActionsInPopupMenu() {
@@ -426,7 +443,7 @@ public class BrowserPanel extends SimpleToolWindowPanel {
         popupGroup.addSeparator();
         popupGroup.add(new UploadPatchToJob(this));
 
-        PopupHandler.installPopupHandler(jobTree, popupGroup, "POPUP", ActionManager.getInstance());
+        PopupHandler.installPopupHandler(jobTree, popupGroup, POPUP_PLACE, ActionManager.getInstance());
     }
 
     public void loadView(final View view) {
@@ -473,38 +490,19 @@ public class BrowserPanel extends SimpleToolWindowPanel {
         return null;
     }
 
-    private void fillBuildsTree(Job job, DefaultMutableTreeNode jobNode) {
-        if (!job.getLastBuilds().isEmpty()) {
-            for (Build build : job.getLastBuilds()) {
-                DefaultMutableTreeNode buildNode = new DefaultMutableTreeNode(build);
-                jobNode.add(buildNode);
-            }
-        }
-    }
-
     private void fillJobTree(final BuildStatusVisitor buildStatusVisitor) {
         final List<Job> jobList = jenkins.getJobs();
         if (jobList.isEmpty()) {
             return;
         }
 
-        DefaultTreeModel model = (DefaultTreeModel) jobTree.getModel();
+        final TreeModel model = jobTree.getModel();
         final DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) model.getRoot();
         rootNode.removeAllChildren();
-
-        for (Job job : jobList) {
-            DefaultMutableTreeNode jobNode = new DefaultMutableTreeNode(job);
-            if (job.isFetchBuild()) {
-                fillBuildsTree(job, jobNode);
-            }
-            rootNode.add(jobNode);
-            visit(job, buildStatusVisitor);
-        }
-
+        jobList.stream().map(BrowserPanel::createJobTree).forEach(rootNode::add);
+        CollectionUtil.flattenedJobs(jobList).forEach(job -> visit(job, buildStatusVisitor));
         watch();
-
         setSortedByStatus(sortedByBuildStatus);
-
         jobTree.setRootVisible(true);
     }
 
@@ -527,8 +525,8 @@ public class BrowserPanel extends SimpleToolWindowPanel {
         }
     }
 
-    public boolean isAFavoriteJob(final String jobName) {
-        return jenkinsSettings.isAFavoriteJob(jobName);
+    public boolean isAFavoriteJob(@NotNull Job job) {
+        return jenkinsSettings.isFavoriteJob(job);
     }
 
     private void createFavoriteViewIfNecessary() {
@@ -538,12 +536,7 @@ public class BrowserPanel extends SimpleToolWindowPanel {
     }
 
     private void setTreeBusy(final boolean isBusy) {
-        GuiUtil.runInSwingThread(new Runnable() {
-            @Override
-            public void run() {
-                jobTree.setPaintBusy(isBusy);
-            }
-        });
+        GuiUtil.runInSwingThread(() -> jobTree.setPaintBusy(isBusy));
 
     }
 
@@ -613,7 +606,6 @@ public class BrowserPanel extends SimpleToolWindowPanel {
                 }
                 currentSelectedView = viewToLoad;
                 loadJobs();
-
             } catch (ConfigurationException ex) {
                 notifyErrorJenkinsToolWindow(ex.getMessage());
             } finally {
@@ -623,14 +615,11 @@ public class BrowserPanel extends SimpleToolWindowPanel {
 
         @Override
         public void onSuccess() {
-            final BuildStatusAggregator buildStatusAggregator = new BuildStatusAggregator(jenkins.getJobs().size());
+            final BuildStatusAggregator buildStatusAggregator = new BuildStatusAggregator();
 
-            GuiUtil.runInSwingThread(new Runnable() {
-                @Override
-                public void run() {
-                    fillJobTree(buildStatusAggregator);
-                    JenkinsWidget.getInstance(project).updateStatusIcon(buildStatusAggregator);
-                }
+            GuiUtil.runInSwingThread(() -> {
+                fillJobTree(buildStatusAggregator);
+                JenkinsWidget.getInstance(project).updateStatusIcon(buildStatusAggregator);
             });
 
         }

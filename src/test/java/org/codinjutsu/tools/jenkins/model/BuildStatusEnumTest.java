@@ -25,21 +25,21 @@ public class BuildStatusEnumTest {
 
     @Test
     public void getStatus() {
-        assertThat(BuildStatusEnum.getStatus("red")).isEqualTo(BuildStatusEnum.FAILURE);
-        assertThat(BuildStatusEnum.getStatus("red_anime")).isEqualTo(BuildStatusEnum.FAILURE);
-        assertThat(BuildStatusEnum.getStatus("yellow")).isEqualTo(BuildStatusEnum.UNSTABLE);
-        assertThat(BuildStatusEnum.getStatus("yellow_anime")).isEqualTo(BuildStatusEnum.UNSTABLE);
-        assertThat(BuildStatusEnum.getStatus("aborted")).isEqualTo(BuildStatusEnum.ABORTED);
-        assertThat(BuildStatusEnum.getStatus("aborted_anime")).isEqualTo(BuildStatusEnum.ABORTED);
-        assertThat(BuildStatusEnum.getStatus("blue")).isEqualTo(BuildStatusEnum.SUCCESS);
-        assertThat(BuildStatusEnum.getStatus("blue_anime")).isEqualTo(BuildStatusEnum.SUCCESS);
-        assertThat(BuildStatusEnum.getStatus("disabled")).isEqualTo(BuildStatusEnum.NULL);
-        assertThat(BuildStatusEnum.getStatus("disabled_anime")).isEqualTo(BuildStatusEnum.NULL);
-        assertThat(BuildStatusEnum.getStatus("nobuilt")).isEqualTo(BuildStatusEnum.NULL);
-        assertThat(BuildStatusEnum.getStatus("nobuilt_anime")).isEqualTo(BuildStatusEnum.NULL);
+        assertThat(BuildStatusEnum.getStatusByColor("red")).isEqualTo(BuildStatusEnum.FAILURE);
+        assertThat(BuildStatusEnum.getStatusByColor("red_anime")).isEqualTo(BuildStatusEnum.FAILURE);
+        assertThat(BuildStatusEnum.getStatusByColor("yellow")).isEqualTo(BuildStatusEnum.UNSTABLE);
+        assertThat(BuildStatusEnum.getStatusByColor("yellow_anime")).isEqualTo(BuildStatusEnum.UNSTABLE);
+        assertThat(BuildStatusEnum.getStatusByColor("aborted")).isEqualTo(BuildStatusEnum.ABORTED);
+        assertThat(BuildStatusEnum.getStatusByColor("aborted_anime")).isEqualTo(BuildStatusEnum.ABORTED);
+        assertThat(BuildStatusEnum.getStatusByColor("blue")).isEqualTo(BuildStatusEnum.SUCCESS);
+        assertThat(BuildStatusEnum.getStatusByColor("blue_anime")).isEqualTo(BuildStatusEnum.SUCCESS);
+        assertThat(BuildStatusEnum.getStatusByColor("disabled")).isEqualTo(BuildStatusEnum.NULL);
+        assertThat(BuildStatusEnum.getStatusByColor("disabled_anime")).isEqualTo(BuildStatusEnum.NULL);
+        assertThat(BuildStatusEnum.getStatusByColor("nobuilt")).isEqualTo(BuildStatusEnum.NULL);
+        assertThat(BuildStatusEnum.getStatusByColor("nobuilt_anime")).isEqualTo(BuildStatusEnum.NULL);
 
-        assertThat(BuildStatusEnum.getStatus("null")).isEqualTo(BuildStatusEnum.NULL);
-        assertThat(BuildStatusEnum.getStatus(null)).isEqualTo(BuildStatusEnum.NULL);
-        assertThat(BuildStatusEnum.getStatus("undefined")).isEqualTo(BuildStatusEnum.NULL);
+        assertThat(BuildStatusEnum.getStatusByColor("null")).isEqualTo(BuildStatusEnum.NULL);
+        assertThat(BuildStatusEnum.getStatusByColor(null)).isEqualTo(BuildStatusEnum.NULL);
+        assertThat(BuildStatusEnum.getStatusByColor("undefined")).isEqualTo(BuildStatusEnum.NULL);
     }
 }

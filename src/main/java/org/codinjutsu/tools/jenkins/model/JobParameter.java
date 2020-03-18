@@ -24,7 +24,7 @@ import java.util.List;
 
 public class JobParameter {
 
-    public static enum JobParameterType {
+    public enum JobParameterType {
         ChoiceParameterDefinition,
         BooleanParameterDefinition,
         StringParameterDefinition,

@@ -18,6 +18,7 @@ package org.codinjutsu.tools.jenkins.logic;
 
 
 public interface BuildStatusVisitor {
+
     void visitFailed();
 
     void visitSuccess();
@@ -28,21 +29,4 @@ public interface BuildStatusVisitor {
 
     void visitAborted();
 
-    public BuildStatusVisitor NULL = new BuildStatusVisitor() {
-
-        public void visitFailed() {
-        }
-
-        public void visitSuccess() {
-        }
-
-        public void visitUnstable() {
-        }
-
-        public void visitUnknown() {
-        }
-
-        public void visitAborted() {
-        }
-    };
 }

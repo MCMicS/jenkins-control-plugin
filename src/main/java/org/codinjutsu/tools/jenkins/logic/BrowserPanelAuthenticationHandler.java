@@ -12,16 +12,15 @@ import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 public class BrowserPanelAuthenticationHandler implements AuthenticationNotifier, Disposable {
 
     private final BrowserPanel browser;
-    private MessageBusConnection connection;
+    private final MessageBusConnection connection;
 
     public BrowserPanelAuthenticationHandler(final Project project ) {
         browser = BrowserPanel.getInstance(project);
-        init();
-    }
-
-    private void init() {
         final MessageBus myBus = ApplicationManager.getApplication().getMessageBus();
         connection = myBus.connect();
+    }
+
+    public void subscribe() {
         connection.subscribe(AuthenticationNotifier.USER_LOGGED_IN, this);
     }
 
@@ -48,7 +47,8 @@ public class BrowserPanelAuthenticationHandler implements AuthenticationNotifier
 
     @Override
     public void loginFailed(Exception ex) {
-        browser.notifyErrorJenkinsToolWindow(ex.getLocalizedMessage());
+        final String message = ex.getLocalizedMessage() == null ? "Unknown error" : ex.getLocalizedMessage();
+        browser.notifyErrorJenkinsToolWindow(message);
     }
 
     @Override
