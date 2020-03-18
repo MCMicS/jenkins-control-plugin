@@ -1,3 +1,11 @@
+Version 0.12.0
+    * #141: Multibranch pipeline builds not shown
+    * new Icons: Reuse Idea Icons and use Idea guideline for status color
+    * #183: Feature Request: Offer option to use green balls instead of blue ones
+    * #185: Error while parsing last Build Date for some Build
+    * #110: org.json.simple.JSONObject cannot be cast to java.lang.String
+    * #127: Argument for @NotNull parameter 'htmlBody'
+
 Version 0.11.0
     * IDEA 2019.2+ Support
     * [fix] #163: spelling error in config form
