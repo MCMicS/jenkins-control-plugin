@@ -4,13 +4,16 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.project.Project;
 import icons.JenkinsControlIcons;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
+import org.codinjutsu.tools.jenkins.logic.UrlBuilder;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.internal.util.reflection.Whitebox;
+import org.picocontainer.PicoContainer;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class BuildStatusEnumRendererTest {
 
@@ -20,7 +23,7 @@ public class BuildStatusEnumRendererTest {
     private final Project project = mock(Project.class);
     private final JenkinsAppSettings jenkinsAppSettings = new JenkinsAppSettings();
 
-    private final BuildStatusEnumRenderer buildStatusEnumRenderer = BuildStatusEnumRenderer.getInstance(project);
+    private BuildStatusEnumRenderer buildStatusEnumRenderer;
 
     @Test
     public void renderBuildStatusWithGreenSuccessfulColor() {
@@ -56,6 +59,10 @@ public class BuildStatusEnumRendererTest {
 
     @Before
     public void setUp() {
+        final PicoContainer container = mock(PicoContainer.class);
+        when(project.getPicoContainer()).thenReturn(container);
+        when(container.getComponentInstance(BuildStatusEnumRenderer.class.getName())).thenReturn(buildStatusEnumRenderer);
+        buildStatusEnumRenderer = BuildStatusEnumRenderer.getInstance(project);
         Whitebox.setInternalState(buildStatusEnumRenderer, "jenkinsAppSettings", jenkinsAppSettings);
     }
 }

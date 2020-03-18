@@ -1,7 +1,6 @@
 package org.codinjutsu.tools.jenkins.view;
 
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.components.Service;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import icons.JenkinsControlIcons;
@@ -14,7 +13,7 @@ import javax.swing.*;
 import java.util.EnumMap;
 import java.util.Map;
 
-@Service
+//@Service
 public final class BuildStatusEnumRenderer implements BuildStatusRenderer {
 
     private final Map<BuildStatusEnum, Icon> iconByBuildStatus = new EnumMap<>(BuildStatusEnum.class);
