@@ -14,6 +14,8 @@
         .dark-grey.dark {fill: #c3c5c7;}
         .light-grey {fill: #cccccc;}
         .light-grey.dark {fill: #edf0f2;}
+        .green {fill: #59A869;}
+        .green.dark {fill: #499C54;}
     </style>
     <circle class="status yellow" cx="8" cy="8" r="7" />
 </svg>

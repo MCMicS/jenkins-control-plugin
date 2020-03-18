@@ -16,6 +16,10 @@
 
 package org.codinjutsu.tools.jenkins.exception;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
+
 /**
  *
  */
@@ -27,5 +31,12 @@ public class ConfigurationException extends RuntimeException {
 
     public ConfigurationException(String s, Throwable throwable) {
         super(s, throwable);
+    }
+
+    @NotNull
+    @Override
+    public String getMessage() {
+        final String message = super.getMessage();
+        return message == null ? "Unknow Error" : message;
     }
 }

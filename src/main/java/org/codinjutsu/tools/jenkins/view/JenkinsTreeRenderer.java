@@ -21,33 +21,34 @@ import com.intellij.ui.ColoredTreeCellRenderer;
 import com.intellij.ui.RowIcon;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.text.DateFormatUtil;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Delegate;
 import org.apache.commons.lang.time.DurationFormatUtils;
-import org.codinjutsu.tools.jenkins.JenkinsSettings;
-import org.codinjutsu.tools.jenkins.model.Build;
-import org.codinjutsu.tools.jenkins.model.Jenkins;
-import org.codinjutsu.tools.jenkins.model.Job;
+import org.codinjutsu.tools.jenkins.model.*;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
-import java.util.List;
 
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
 
     public static final Icon FAVORITE_ICON = AllIcons.Nodes.Favorite;
 
-    private final List<JenkinsSettings.FavoriteJob> favoriteJobs;
+    @NotNull
+    private final FavoriteJobDetector favoriteJobDetector;
 
-    public JenkinsTreeRenderer(List<JenkinsSettings.FavoriteJob> favoriteJobs) {
-        this.favoriteJobs = favoriteJobs;
-    }
+    @NotNull
+    private final BuildStatusRenderer buildStatusRenderer;
 
     @Override
-    public void customizeCellRenderer(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+    public void customizeCellRenderer(@NotNull JTree tree, Object value, boolean selected, boolean expanded,
+                                      boolean leaf, int row, boolean hasFocus) {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
 
-        Object userObject = node.getUserObject();
+        final Object userObject = node.getUserObject();
         if (userObject instanceof Jenkins) {
             Jenkins jenkins = (Jenkins) userObject;
             append(buildLabel(jenkins), SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
@@ -57,20 +58,30 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
             Job job = (Job) node.getUserObject();
             append(buildLabel(job), getAttribute(job));
             setToolTipText(job.getHealthDescription());
-            if (isFavoriteJob(job)) {
-                setIcon(new CompositeIcon(job.getIcon(), job.getHealthIcon(), FAVORITE_ICON));
+            if (favoriteJobDetector.isFavoriteJob(job)) {
+                setIcon(new CompositeIcon(getBuildStatusColor(job), job.getHealthIcon(), FAVORITE_ICON));
             } else {
-                setIcon(new CompositeIcon(job.getIcon(), job.getHealthIcon()));
+                setIcon(new CompositeIcon(getBuildStatusColor(job), job.getHealthIcon()));
             }
         } else if (userObject instanceof Build) {
             Build build = (Build) node.getUserObject();
             append(buildLabel(build), SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
-            setIcon(new CompositeIcon(build.getStateIcon()));
+            setIcon(new CompositeIcon(getBuildStatusColor(build)));
         }
     }
 
-    boolean isFavoriteJob(Job job) {
-        return favoriteJobs.stream().anyMatch(favoriteJob -> favoriteJob.name.equals(job.getName()));
+    @NotNull
+    private Icon getBuildStatusColor(Job job) {
+        final JobType jobType = job.getJobType();
+        if (jobType == JobType.JOB) {
+            return buildStatusRenderer.renderBuildStatus(BuildStatusEnum.getStatusByColor(job.getColor()));
+        }
+        return jobType.getIcon();
+    }
+
+    @NotNull
+    private Icon getBuildStatusColor(Build build) {
+        return buildStatusRenderer.renderBuildStatus(build.getStatus());
     }
 
     public static SimpleTextAttributes getAttribute(Job job) {
@@ -119,4 +130,11 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
             this.rowIcon = new RowIcon(icons);
         }
     }
+
+    @FunctionalInterface
+    public interface FavoriteJobDetector {
+
+        boolean isFavoriteJob(@NotNull Job job);
+    }
+
 }

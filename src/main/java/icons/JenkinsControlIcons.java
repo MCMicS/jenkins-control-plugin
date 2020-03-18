@@ -32,5 +32,6 @@ public class JenkinsControlIcons {
         public static final Icon YELLOW = getIcon("yellow.svg");
         public static final Icon RED = getIcon("red.svg");
         public static final Icon GREY = getIcon("grey.svg");
+        public static final Icon GREEN = getIcon("green.svg");
     }
 }

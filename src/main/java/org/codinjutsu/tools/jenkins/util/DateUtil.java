@@ -16,18 +16,20 @@
 
 package org.codinjutsu.tools.jenkins.util;
 
+import com.intellij.openapi.diagnostic.Logger;
+import org.jetbrains.annotations.Nullable;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 public class DateUtil {
+
+    private static final Logger LOG = Logger.getInstance(DateUtil.class.getName());
 
     public static final SimpleDateFormat WORKSPACE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
     public static final SimpleDateFormat RSS_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-
-    private static final SimpleDateFormat LOG_DATE_IN_HOUR_FORMAT = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
 
     private DateUtil() {
     }
@@ -37,7 +39,10 @@ public class DateUtil {
         try {
             date = dateFormat.parse(buildDate);
         } catch (ParseException | NumberFormatException e) {
-            System.out.println("invalid date format: " + buildDate + " with formater '" + dateFormat.toPattern() + "'");
+            LOG.debug("invalid date format: " + buildDate + " with formater '" + dateFormat.toPattern() + "'");
+            date = new Date();
+        } catch (Exception e) {
+            LOG.error("Error while parsing data: " + buildDate, e);
             date = new Date();
         }
         return date;
@@ -46,16 +51,19 @@ public class DateUtil {
     /**
      * In Builds bis Jenkins 1.597 ein Zeitstempel im Format YYYY-MM-DD_hh-mm-ss.
      */
-    public static boolean isValidJenkinsDate(String buildDate) {
+    public static boolean isValidJenkinsDate(@Nullable String buildDate) {
         try {
-            WORKSPACE_DATE_FORMAT.parse(buildDate);
-            return true;
+            Date parsedDate = null;
+            if (buildDate != null && buildDate.length() > 10) {
+                parsedDate = WORKSPACE_DATE_FORMAT.parse(buildDate);
+            }
+            return parsedDate != null;
         } catch (ParseException | NumberFormatException e) {
+            return false;
+        } catch (Exception e) {
+            LOG.error("Error while parsing data: " + buildDate, e);
             return false;
         }
     }
 
-    public static String formatDateInTime(Date date) {
-        return LOG_DATE_IN_HOUR_FORMAT.format(date);
-    }
 }

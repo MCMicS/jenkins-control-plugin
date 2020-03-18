@@ -16,10 +16,12 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
+import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.logic.JobBuilder;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
+import org.fest.swing.core.BasicRobot;
 import org.fest.swing.core.matcher.JButtonMatcher;
 import org.fest.swing.core.matcher.JLabelMatcher;
 import org.fest.swing.core.matcher.JTextComponentMatcher;
@@ -95,8 +97,7 @@ public class BuildParamDialogTest {
                 return new BuildParamDialog(job, configuration, requestManager, callbackRun);
             }
         });
-
-        dialogFixture = new DialogFixture(buildParamDialog);
+        dialogFixture = new DialogFixture(BasicRobot.robotWithCurrentAwtHierarchy(), buildParamDialog);
         dialogFixture.show();
     }
 
@@ -127,7 +128,7 @@ public class BuildParamDialogTest {
     public void testLaunchBuild() throws Exception {
         createDialog(JOB_WITH_GOOD_PARAMS);
 
-        dialogFixture.checkBox("integrationTest").uncheck();
+        dialogFixture.checkBox("integrationTest").deselect();
         dialogFixture.comboBox("environment").selectItem("acceptance");
 
         dialogFixture.button(JButtonMatcher.withText("OK")).click();

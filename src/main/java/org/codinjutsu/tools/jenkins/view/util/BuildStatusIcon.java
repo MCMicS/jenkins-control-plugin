@@ -18,8 +18,8 @@ package org.codinjutsu.tools.jenkins.view.util;
 
 import com.intellij.util.ui.UIUtil;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
-import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
+import org.codinjutsu.tools.jenkins.view.BuildStatusRenderer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -37,22 +37,26 @@ public class BuildStatusIcon extends JComponent {
     final int numberToDisplay;
     private final int numberWith;
 
-    public static JComponent createIcon(BuildStatusAggregator aggregator) {
+    public static JComponent createIcon(BuildStatusAggregator aggregator, BuildStatusRenderer buildStatusRenderer) {
         if (aggregator.hasNoResults()) {
-            return new BuildStatusIcon(Build.ICON_BY_BUILD_STATUS_MAP.get(BuildStatusEnum.NULL), "No builds", 0);
+            return new BuildStatusIcon(buildStatusRenderer.renderBuildStatus(BuildStatusEnum.NULL),
+                    "No builds", 0);
         }
 
         int nbBrokenBuilds = aggregator.getBrokenBuilds();
         if (nbBrokenBuilds > 0) {
-            return new BuildStatusIcon(Build.ICON_BY_BUILD_STATUS_MAP.get(BuildStatusEnum.FAILURE), String.format("%d broken builds", nbBrokenBuilds), nbBrokenBuilds);
+            return new BuildStatusIcon(buildStatusRenderer.renderBuildStatus(BuildStatusEnum.FAILURE),
+                    String.format("%d broken builds", nbBrokenBuilds), nbBrokenBuilds);
         }
 
         int nbUnstableBuilds = aggregator.getUnstableBuilds();
         if (nbUnstableBuilds > 0) {
-            return new BuildStatusIcon(Build.ICON_BY_BUILD_STATUS_MAP.get(BuildStatusEnum.UNSTABLE), String.format("%d unstable builds", nbUnstableBuilds), nbUnstableBuilds);
+            return new BuildStatusIcon(buildStatusRenderer.renderBuildStatus(BuildStatusEnum.UNSTABLE),
+                    String.format("%d unstable builds", nbUnstableBuilds), nbUnstableBuilds);
         }
 
-        return new BuildStatusIcon(Build.ICON_BY_BUILD_STATUS_MAP.get(BuildStatusEnum.SUCCESS), "No broken builds", 0);
+        return new BuildStatusIcon(buildStatusRenderer.renderBuildStatus(BuildStatusEnum.SUCCESS),
+                "No broken builds", 0);
     }
 
     private BuildStatusIcon(Icon icon, String toolTipText, int numberToDisplay) {

@@ -16,9 +16,13 @@
 
 package org.codinjutsu.tools.jenkins;
 
-import com.intellij.openapi.components.*;
+import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import lombok.Data;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
@@ -54,71 +58,76 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
     }
 
     public String getServerUrl() {
-        return myState.serverUrl;
+        return myState.getServerUrl();
     }
 
     public void setServerUrl(String serverUrl) {
-        myState.serverUrl = serverUrl;
+        myState.setServerUrl(serverUrl);
     }
 
     public boolean isServerUrlSet() {
-        return StringUtils.isNotEmpty(myState.serverUrl) && !DUMMY_JENKINS_SERVER_URL.equals(myState.serverUrl);
+        final String serverUrl = myState.getServerUrl();
+        return StringUtils.isNotEmpty(serverUrl) && !DUMMY_JENKINS_SERVER_URL.equals(serverUrl);
     }
 
     public int getBuildDelay() {
-        return myState.delay;
+        return myState.getDelay();
     }
 
     public void setDelay(int delay) {
-        myState.delay = delay;
+        myState.setDelay(delay);
     }
 
     public int getJobRefreshPeriod() {
-        return myState.jobRefreshPeriod;
+        return myState.getJobRefreshPeriod();
     }
 
     public void setJobRefreshPeriod(int jobRefreshPeriod) {
-        myState.jobRefreshPeriod = jobRefreshPeriod;
+        myState.setJobRefreshPeriod(jobRefreshPeriod);
     }
 
     public int getRssRefreshPeriod() {
-        return myState.rssRefreshPeriod;
+        return myState.getRssRefreshPeriod();
     }
 
     public void setRssRefreshPeriod(int rssRefreshPeriod) {
-        myState.rssRefreshPeriod = rssRefreshPeriod;
+        myState.setRssRefreshPeriod(rssRefreshPeriod);
     }
 
     public String getSuffix() {
-        return myState.suffix;
+        return myState.getSuffix();
     }
 
     public void setSuffix(String suffix) {
-        myState.suffix = suffix;
+        myState.setSuffix(suffix);
+    }
+
+    private RssSettings getRssSettings() {
+        return myState.getRssSettings();
     }
 
     public boolean shouldDisplaySuccessOrStable() {
-        return myState.rssSettings.displaySuccessOrStable;
+        return getRssSettings().isDisplaySuccessOrStable();
     }
 
     public boolean shouldDisplayFailOrUnstable() {
-        return myState.rssSettings.displayUnstableOrFail;
+        return getRssSettings().isDisplayUnstableOrFail();
     }
 
     public boolean shouldDisplayAborted() {
-        return myState.rssSettings.displayAborted;
+        return getRssSettings().isDisplayAborted();
     }
 
     public void setIgnoreSuccessOrStable(boolean ignoreSucessOrStable) {
-        myState.rssSettings.displaySuccessOrStable = ignoreSucessOrStable;
+        getRssSettings().setDisplaySuccessOrStable(ignoreSucessOrStable);
     }
 
     public void setDisplayUnstableOrFail(boolean displayUnstableOrFail) {
-        myState.rssSettings.displayUnstableOrFail = displayUnstableOrFail;
+        getRssSettings().setDisplayUnstableOrFail(displayUnstableOrFail);
     }
 
     public void setDisplayAborted(boolean displayAborted) {
-        myState.rssSettings.displayAborted = displayAborted;
+        getRssSettings().setDisplayAborted(displayAborted);
     }
 
     public boolean shouldDisplayOnLogEvent(Build build) {
@@ -137,28 +146,39 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
     }
 
     public int getNumBuildRetries() {
-        return myState.numBuildRetries;
+        return myState.getNumBuildRetries();
     }
 
     public void setNumBuildRetries(int numBuildRetries) {
-        myState.numBuildRetries = numBuildRetries;
+        myState.setNumBuildRetries(numBuildRetries);
     }
 
+    public boolean isUseGreenColor() {
+        return myState.isUseGreenColor();
+    }
+
+    public void setUseGreenColor(boolean useGreenColor) {
+        myState.setUseGreenColor(useGreenColor);
+    }
+
+    @Data
     public static class State {
 
-        public String serverUrl = DUMMY_JENKINS_SERVER_URL;
-        public int delay = DEFAULT_BUILD_DELAY;
-        public int jobRefreshPeriod = RESET_PERIOD_VALUE;
-        public int rssRefreshPeriod = RESET_PERIOD_VALUE;
-        public String suffix = "";
+        private String serverUrl = DUMMY_JENKINS_SERVER_URL;
+        private int delay = DEFAULT_BUILD_DELAY;
+        private int jobRefreshPeriod = RESET_PERIOD_VALUE;
+        private int rssRefreshPeriod = RESET_PERIOD_VALUE;
+        private String suffix = "";
 
-        public int numBuildRetries = DEFAULT_BUILD_RETRY;
-        public RssSettings rssSettings = new RssSettings();
+        private int numBuildRetries = DEFAULT_BUILD_RETRY;
+        private RssSettings rssSettings = new RssSettings();
+        private boolean useGreenColor = false;
     }
 
+    @Data
     public static class RssSettings {
-        public boolean displaySuccessOrStable = true;
-        public boolean displayUnstableOrFail = true;
-        public boolean displayAborted = true;
+        private boolean displaySuccessOrStable = true;
+        private boolean displayUnstableOrFail = true;
+        private boolean displayAborted = true;
     }
 }

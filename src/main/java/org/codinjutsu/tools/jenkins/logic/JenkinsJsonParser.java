@@ -295,7 +295,7 @@ public class JenkinsJsonParser implements JenkinsParser {
             return choices;
         }
         for (Object choiceObj : choiceObjs) {
-            choices.add((String) choiceObj);
+            choices.add(String.valueOf(choiceObj));
         }
         return choices;
     }
