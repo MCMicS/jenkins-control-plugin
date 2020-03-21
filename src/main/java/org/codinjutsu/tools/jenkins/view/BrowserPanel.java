@@ -550,9 +550,16 @@ public class BrowserPanel extends SimpleToolWindowPanel {
 
     public void addToWatch(String changeListName, Job job) {
         JenkinsAppSettings settings = JenkinsAppSettings.getSafeInstance(project);
-        Build build = job.getLastBuild();
-        build.setNumber(build.getNumber() + 1);
-        build.setUrl(settings.getServerUrl() + String.format("/job/%s/%d/", job.getName(), build.getNumber()));
+
+        final Build lastBuild = job.getLastBuild();
+        if (lastBuild != null) {
+            final int nextBuildNumber = lastBuild.getNumber() + 1;
+            final Build nextBuild = lastBuild.toBuilder()
+                    .number(nextBuildNumber)
+                    .url(settings.getServerUrl() + String.format("/job/%s/%d/", job.getName(), nextBuildNumber))
+                    .build();
+            job.setLastBuild(nextBuild);
+        }
         watchedJobs.put(changeListName, job);
     }
 

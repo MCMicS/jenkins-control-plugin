@@ -16,9 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
-import org.codinjutsu.tools.jenkins.model.Jenkins;
-import org.codinjutsu.tools.jenkins.model.Job;
-import org.codinjutsu.tools.jenkins.model.View;
+import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.util.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,14 +27,29 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.*;
 import static org.codinjutsu.tools.jenkins.model.BuildStatusEnum.FAILURE;
 import static org.codinjutsu.tools.jenkins.model.BuildStatusEnum.SUCCESS;
-import static org.unitils.reflectionassert.ReflectionAssert.assertReflectionEquals;
 
 public class JenkinsJsonParserTest {
 
     private JenkinsParser jsonParser;
+
+    private static View createView(String viewName, String viewUrl) {
+        return createView(viewName, viewUrl, false);
+    }
+
+    private static View createView(String viewName, String viewUrl, boolean isNested) {
+        return View.builder()
+                .name(viewName)
+                .url(viewUrl)
+                .isNested(isNested)
+                .build();
+    }
+
+    private static View createNestedView(String viewName, String viewUrl) {
+        return createView(viewName, viewUrl, true);
+    }
 
     @Test
     public void loadJenkinsWorkSpace() throws Exception {
@@ -44,13 +57,11 @@ public class JenkinsJsonParserTest {
 
         List<View> actualViews = jenkins.getViews();
 
-        assertReflectionEquals(
-                asList(View.createView("Framework", "http://myjenkins/view/Framework/"),
-                        View.createView("Tools", "http://myjenkins/view/Tools/"),
-                        View.createView("Tous", "http://myjenkins/")),
-                actualViews);
-
-        assertReflectionEquals(View.createView("Tous", "http://myjenkins"), jenkins.getPrimaryView());
+        assertThat(actualViews).containsExactly(createView("Framework", "http://myjenkins/view/Framework/"),
+                createView("Tools", "http://myjenkins/view/Tools/"),
+                createView("Tous", "http://myjenkins/"));
+        assertThat(jenkins.getPrimaryView()).isEqualTo(createView("Tous", "http://myjenkins"));
+        //assertThat(jenkins.getPrimaryView()).isEqualToComparingFieldByField(View.createView("Tous", "http://myjenkins"));
     }
 
     @Test
@@ -60,18 +71,20 @@ public class JenkinsJsonParserTest {
         List<View> actualViews = jenkins.getViews();
 
         List<View> expectedViews = new LinkedList<>();
-        expectedViews.add(View.createView("Framework", "http://myjenkins/view/Framework/"));
-        View nestedView = View.createView("NestedView", "http://myjenkins/view/NestedView/");
-
-        nestedView.addSubView(View.createNestedView("FirstSubView", "http://myjenkins/view/NestedView/view/FirstSubView/"));
-        nestedView.addSubView(View.createNestedView("SecondSubView", "http://myjenkins/view/NestedView/view/SecondSubView/"));
+        expectedViews.add(createView("Framework", "http://myjenkins/view/Framework/"));
+        View nestedView = View.builder()
+                .name("NestedView")
+                .url("http://myjenkins/view/NestedView/")
+                .isNested(false)
+                .subView(createNestedView("FirstSubView", "http://myjenkins/view/NestedView/view/FirstSubView/"))
+                .subView(createNestedView("SecondSubView", "http://myjenkins/view/NestedView/view/SecondSubView/"))
+                .build();
         expectedViews.add(nestedView);
 
-        expectedViews.add(View.createView("Tous", "http://myjenkins/"));
+        expectedViews.add(createView("Tous", "http://myjenkins/"));
 
-        assertReflectionEquals(expectedViews, actualViews);
-
-        assertReflectionEquals(View.createView("Tous", "http://myjenkins"), jenkins.getPrimaryView());
+        assertThat(actualViews).containsAll(expectedViews);
+        assertThat(jenkins.getPrimaryView()).isEqualTo(createView("Tous", "http://myjenkins"));
     }
 
     @Test
@@ -95,7 +108,7 @@ public class JenkinsJsonParserTest {
                 .parameter("dummyParam", null, null)
                 .get());
 
-        assertReflectionEquals(expectedJobs, actualJobs);
+        assertThat(actualJobs).containsAll(expectedJobs);
     }
 
     @Test
@@ -109,7 +122,7 @@ public class JenkinsJsonParserTest {
                 .parameter("dummyParam", null, null)
                 .get());
 
-        assertReflectionEquals(expectedJobs, actualJobs);
+        assertThat(actualJobs).containsAll(expectedJobs);
     }
 
     @Test
@@ -123,7 +136,7 @@ public class JenkinsJsonParserTest {
                 .parameter("dummyParam", null, null)
                 .get());*/
 
-//        assertReflectionEquals(expectedJobs, actualJobs); TODO create real object for assertions
+//        assertThat(actualJobs).containsAll(expectedJobs);; TODO create real object for assertions
     }
 
     @Test
@@ -137,7 +150,7 @@ public class JenkinsJsonParserTest {
                 .parameter("dummyParam", null, null)
                 .get());*/
 
-//        assertReflectionEquals(expectedJobs, actualJobs); TODO create real object for assertions
+//        assertThat(actualJobs).containsAll(expectedJobs);; TODO create real object for assertions
     }
 
     @Test
@@ -161,35 +174,41 @@ public class JenkinsJsonParserTest {
                         .parameter("dummyParam", null, null)
                         .get());
 
-        assertReflectionEquals(expectedJobs, actualJobs);
+        assertThat(actualJobs).containsAll(expectedJobs);
     }
 
     @Test
     public void testLoadJob() throws Exception {
         Job actualJob = jsonParser.createJob(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadJob.json")));
-
-        assertReflectionEquals(new JobBuilder()
+        final Job expectedJob = new JobBuilder()
                 .job("config-provider-model", "blue", "http://ci.jenkins-ci.org/job/config-provider-model/", false, true)
                 .lastBuild("http://ci.jenkins-ci.org/job/config-provider-model/8/", "8", "SUCCESS", false, "2012-04-02_16-26-29", 1477640156281l, 4386421l)
                 .health("health-80plus", "0 tests en echec sur un total de 24 tests")
-                .get(), actualJob);
+                .get();
+        assertThat(actualJob).isEqualTo(expectedJob);
     }
 
     @Test
     public void testLoadJobForJenkins2() throws Exception {
         Job actualJob = jsonParser.createJob(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadJob_Jenkins2.json")));
-
+        final Build lastBuild = Build.builder()
+                .url("http://localhost:8080/job/Simple%20Jenkins%20Test/25/")
+                .number(25)
+                .buildDate(new Date(1580631718719L))
+                .status(BuildStatusEnum.UNSTABLE)
+                .building(false)
+                .timestamp(new Date(1580631718719L))
+                .duration(39731L)
+                .build();
         final Job expected = new JobBuilder()
                 .job("Simple Jenkins Test", "yellow", "http://localhost:8080/job/Simple%20Jenkins%20Test/", false, true)
-                .lastBuild("http://localhost:8080/job/Simple%20Jenkins%20Test/25/", "25", "UNSTABLE", false, "2020-02-02_09-21-58", 1580631718719L, 39731L)
+                .lastBuild(lastBuild)
                 .health("health-40to59", "Testergebnis: 1 Test von 2 Tests fehlgeschlagen.")
                 .displayName("Parent -> Simple Jenkins Test")
                 .fullName("Parent/Simple Jenkins Test")
                 .get();
-        expected.getLastBuild().setBuildDate(new Date(1580631718719L));
-        assertReflectionEquals(expected, actualJob);
+        assertThat(actualJob).isEqualTo(expected);
     }
-
 
     @Test
     public void testBugWithNullLastBuildAndEmptyHealthReport() throws Exception {
@@ -213,13 +232,12 @@ public class JenkinsJsonParserTest {
 
         );
 
-        assertReflectionEquals(expectedJobs, actualJobs);
+        assertThat(actualJobs).containsAll(expectedJobs);
     }
 
     @Test
     public void testBugWithManyParameters() throws Exception {
         List<Job> actualJobs = jsonParser.createJobs(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadJobManyParameters.json"), "utf-8"));
-
 
         List<Job> expectedJobs = Arrays.asList(
                 new JobBuilder()
@@ -238,9 +256,8 @@ public class JenkinsJsonParserTest {
                         .get()
 
         );
-        assertReflectionEquals(expectedJobs, actualJobs);
+        assertThat(actualJobs).containsAll(expectedJobs);
     }
-
 
     @Before
     public void setUp() {

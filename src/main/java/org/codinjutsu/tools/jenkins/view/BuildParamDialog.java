@@ -28,7 +28,6 @@ import org.codinjutsu.tools.jenkins.TraceableBuildJobFactory;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
-import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.util.SpringUtilities;
 
 import javax.swing.*;
@@ -87,7 +86,7 @@ public class BuildParamDialog extends JDialog {
     }
 
     public static void showDialog(final Job job, final JenkinsAppSettings configuration, final RequestManager requestManager,
-            final RunBuildCallback runBuildCallback) {
+                                  final RunBuildCallback runBuildCallback) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 BuildParamDialog dialog = new BuildParamDialog(job, configuration, requestManager, runBuildCallback);
@@ -266,8 +265,9 @@ public class BuildParamDialog extends JDialog {
         return checkBox;
     }
 
-    private JComboBox createComboBox(JobParameter jobParameter, String defaultValue) {
-        ComboBox comboBox = new ComboBox(jobParameter.getValues().toArray());
+    private JComboBox<String> createComboBox(JobParameter jobParameter, String defaultValue) {
+        final String[] choices = jobParameter.getChoices().toArray(new String[0]);
+        ComboBox<String> comboBox = new ComboBox<>(choices);
         if (StringUtils.isNotEmpty(defaultValue)) {
             comboBox.setSelectedItem(defaultValue);
         }

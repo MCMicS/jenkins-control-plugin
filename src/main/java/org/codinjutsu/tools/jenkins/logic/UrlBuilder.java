@@ -47,7 +47,6 @@ public class UrlBuilder {
         return ServiceManager.getService(project, UrlBuilder.class);
     }
 
-
     public URL createRunJobUrl(String jobBuildUrl, JenkinsAppSettings configuration) {
         try {
             String s = jobBuildUrl + URIUtil.encodePathQuery(String.format("%s?delay=%dsec", BUILD, configuration.getBuildDelay()));

@@ -132,20 +132,13 @@ public class Job {
         }
         return false;
     }
-
-    @Override
-    public String toString() {
-        return "Job{" +
-                "name='" + name + '\'' +
-                '}';
-    }
-
+    
     @Value
     public static class Health {
 
         @NotNull
-        private String level;
+        private final String level;
         @Nullable
-        private String description;
+        private final String description;
     }
 }

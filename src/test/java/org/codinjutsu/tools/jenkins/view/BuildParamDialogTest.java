@@ -158,7 +158,7 @@ public class BuildParamDialogTest {
         createDialog(JOB_WITH_UNKNOWN_PARAMS);
 
         dialogFixture.label(JLabelMatcher.withName("run"))
-                .requireText("Unkown parameter");
+                .requireText("Unknown parameter");
 
         dialogFixture.button(JButtonMatcher.withText("OK")).requireDisabled();
     }

@@ -17,12 +17,31 @@
 package org.codinjutsu.tools.jenkins.model;
 
 import com.intellij.openapi.vfs.VirtualFile;
+import lombok.Builder;
+import lombok.Singular;
+import lombok.Value;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
+@Value
+@Builder
 public class JobParameter {
+
+    @NotNull
+    private final String name;
+    @Nullable
+    private final String description;
+    @Nullable
+    private final JobParameterType jobParameterType;
+    @Nullable
+    private final String defaultValue;
+    @Nullable
+    private final VirtualFile virtualFile;
+    @NotNull
+    @Singular
+    private final List<String> choices;
 
     public enum JobParameterType {
         ChoiceParameterDefinition,
@@ -32,101 +51,16 @@ public class JobParameter {
         FileParameterDefinition,
         TextParameterDefinition,
         RunParameterDefinition,
-        ListSubversionTagsParameterDefinition
-    }
+        ListSubversionTagsParameterDefinition;
 
-    private String name;
-    private String description;
-
-    private JobParameterType jobParameterType;
-
-    private String defaultValue;
-
-    private VirtualFile virtualFile;
-
-    private final List<String> values = new LinkedList<String>();
-
-    public JobParameter() {
-    }
-
-    private JobParameter(String name) {
-        this.name = name;
-    }
-
-    public static JobParameter create(String paramName, String paramType, String defaultValue, String... choices) {
-        JobParameter jobParameter = new JobParameter(paramName);
-        jobParameter.setType(paramType);
-        jobParameter.setDefaultValue(defaultValue);
-        jobParameter.setChoices(choices);
-        return jobParameter;
-    }
-
-    public static JobParameter create(String paramName, String paramType, VirtualFile virtualFile) {
-        JobParameter parameter = create(paramName, paramType, "", "");
-        parameter.setVirtualFile(virtualFile);
-        return parameter;
-    }
-
-
-    public void setChoices(String... choices) {
-        Collections.addAll(values, choices);
-    }
-
-    public void setChoices(List<String> choices) {
-        values.addAll(choices);
-    }
-
-
-    public void setDefaultValue(String defaultValue) {
-        this.defaultValue = defaultValue;
-    }
-
-    public void setVirtualFile(VirtualFile virtualFile) {
-        this.virtualFile = virtualFile;
-    }
-
-    public VirtualFile getVirtualFile() {
-        return virtualFile;
-    }
-
-    public void setType(String paramType) {
-        jobParameterType = evaluate(paramType);
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public JobParameterType getJobParameterType() {
-        return jobParameterType;
-    }
-
-    public String getDefaultValue() {
-        return defaultValue;
-    }
-
-    public List<String> getValues() {
-        return values;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    private static JobParameterType evaluate(String paramTypeToEvaluate) {
-        for (JobParameterType parameterType : JobParameterType.values()) {
-            if (parameterType.name().equals(paramTypeToEvaluate)) {
-                return parameterType;
+        @Nullable
+        public static JobParameterType getType(String paramTypeToEvaluate) {
+            for (JobParameterType parameterType : JobParameterType.values()) {
+                if (parameterType.name().equals(paramTypeToEvaluate)) {
+                    return parameterType;
+                }
             }
+            return null;
         }
-        return null;
     }
 }
