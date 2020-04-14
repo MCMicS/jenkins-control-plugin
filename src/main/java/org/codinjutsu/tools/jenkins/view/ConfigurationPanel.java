@@ -84,7 +84,6 @@ public class ConfigurationPanel {
     private boolean myPasswordModified = false;
 
     public ConfigurationPanel(final Project project) {
-
         serverUrl.setName("serverUrl");
         buildDelay.setName("buildDelay");
         jobRefreshPeriod.setName("jobRefreshPeriod");
