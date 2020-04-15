@@ -16,16 +16,19 @@
 
 package org.codinjutsu.tools.jenkins.exception;
 
+import org.codinjutsu.tools.jenkins.model.Job;
 import org.jetbrains.annotations.NotNull;
 
-public class ConfigurationException extends RuntimeException {
+import java.text.MessageFormat;
 
-    public ConfigurationException(String message) {
-        super(message);
+public class NoJobFoundException extends RuntimeException {
+
+    public NoJobFoundException(@NotNull Job job) {
+        super(createMessage(job));
     }
 
-    public ConfigurationException(String s, Throwable throwable) {
-        super(s, throwable);
+    public NoJobFoundException(@NotNull Job job, Throwable throwable) {
+        super(createMessage(job), throwable);
     }
 
     @NotNull
@@ -33,5 +36,10 @@ public class ConfigurationException extends RuntimeException {
     public String getMessage() {
         final String message = super.getMessage();
         return message == null ? "Unknown Error" : message;
+    }
+
+    @NotNull
+    private static String createMessage(@NotNull Job job) {
+        return MessageFormat.format("Could not find Job data for: {0} [{1}]", job.getName(), job.getUrl());
     }
 }
