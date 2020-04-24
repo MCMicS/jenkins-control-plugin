@@ -16,18 +16,19 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
-import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory;
+import org.assertj.swing.core.BasicRobot;
+import org.assertj.swing.core.matcher.JButtonMatcher;
+import org.assertj.swing.core.matcher.JLabelMatcher;
+import org.assertj.swing.core.matcher.JTextComponentMatcher;
+import org.assertj.swing.edt.GuiActionRunner;
+import org.assertj.swing.edt.GuiQuery;
+import org.assertj.swing.fixture.DialogFixture;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.logic.JobBuilder;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
+import org.codinjutsu.tools.jenkins.model.BuildInJobParameter;
 import org.codinjutsu.tools.jenkins.model.Job;
-import org.fest.swing.core.BasicRobot;
-import org.fest.swing.core.matcher.JButtonMatcher;
-import org.fest.swing.core.matcher.JLabelMatcher;
-import org.fest.swing.core.matcher.JTextComponentMatcher;
-import org.fest.swing.edt.GuiActionRunner;
-import org.fest.swing.edt.GuiQuery;
-import org.fest.swing.fixture.DialogFixture;
+import org.jetbrains.annotations.NonNls;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -38,7 +39,6 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.Map;
 
-import static org.codinjutsu.tools.jenkins.model.JobParameter.JobParameterType.*;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
@@ -58,24 +58,27 @@ public class BuildParamDialogTest {
             new JobBuilder()
                     .job("myJob", "blue", "http://dummyserver/jobs/myJob", false, true)
                     .health("health-80plus", "0 tests en échec sur un total de 24 tests")
-                    .parameter("integrationTest", BooleanParameterDefinition.name(), "true")
-                    .parameter("environment", ChoiceParameterDefinition.name(), "development",
+                    .parameter("integrationTest", BuildInJobParameter.BooleanParameterDefinition.getName(),
+                            "true")
+                    .parameter("environment", BuildInJobParameter.ChoiceParameterDefinition.getName(), "development",
                             "development", "integration", "acceptance", "production")
-                    .parameter("message", StringParameterDefinition.name(), "")
+                    .parameter("message", BuildInJobParameter.StringParameterDefinition.getName(), "")
                     .get();
 
     private static final Job JOB_WITH_UNSUPPORTED_PARAMS =
             new JobBuilder()
                     .job("myJob", "blue", "http://dummyserver/jobs/myJob", false, true)
                     .health("health-80plus", "0 tests en échec sur un total de 24 tests")
-                    .parameter("run", RunParameterDefinition.name(), "blah")
+                    .parameter("run", BuildInJobParameter.RunParameterDefinition.getName(), "blah")
                     .get();
 
+    @NonNls
+    private static final String TESTPARAMETER_TYPE = "TestParameter";
     private static final Job JOB_WITH_UNKNOWN_PARAMS =
             new JobBuilder()
                     .job("myJob", "blue", "http://dummyserver/jobs/myJob", false, true)
                     .health("health-80plus", "0 tests en échec sur un total de 24 tests")
-                    .parameter("run", null, "blah")
+                    .parameter("run", TESTPARAMETER_TYPE, "blah")
                     .get();
 
     private DialogFixture dialogFixture;
@@ -128,7 +131,7 @@ public class BuildParamDialogTest {
     public void testLaunchBuild() throws Exception {
         createDialog(JOB_WITH_GOOD_PARAMS);
 
-        dialogFixture.checkBox("integrationTest").deselect();
+        dialogFixture.checkBox("integrationTest").uncheck();
         dialogFixture.comboBox("environment").selectItem("acceptance");
 
         dialogFixture.button(JButtonMatcher.withText("OK")).click();

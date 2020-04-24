@@ -275,8 +275,9 @@ public class JenkinsJsonParser implements JenkinsParser {
             jobParameterBuilder.description(description);
         }
 
-        String type = parameterObj.getString(createJsonKey(PARAMETER_TYPE));
-        jobParameterBuilder.jobParameterType(JobParameter.JobParameterType.getType(type));
+        String type = parameterObj.getStringOrDefault(createJsonKey(PARAMETER_TYPE, StringUtils.EMPTY));
+        String parameterClass = parameterObj.getString(createJsonKey(CLASS));
+        jobParameterBuilder.jobParameterType(JobParameterType.getType(type, parameterClass));
         JsonArray choices = (JsonArray) parameterObj.get(PARAMETER_CHOICE);
         jobParameterBuilder.choices(getChoices(choices));
         return jobParameterBuilder.build();

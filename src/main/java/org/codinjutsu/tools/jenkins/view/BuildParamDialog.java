@@ -17,7 +17,6 @@
 package org.codinjutsu.tools.jenkins.view;
 
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.ui.ComboBox;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -28,20 +27,23 @@ import org.codinjutsu.tools.jenkins.TraceableBuildJobFactory;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
+import org.codinjutsu.tools.jenkins.view.extension.JobParameterRenderer;
+import org.codinjutsu.tools.jenkins.view.extension.JobParameterRenderers;
+import org.codinjutsu.tools.jenkins.view.parameter.JobParameterComponent;
 import org.codinjutsu.tools.jenkins.view.util.SpringUtilities;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 public class BuildParamDialog extends JDialog {
     private static final Logger logger = Logger.getLogger(BuildParamDialog.class);
-    private static final String MISSING_NAME_LABEL = "<Missing Name>";
-    private static final Icon ERROR_ICON = AllIcons.General.BalloonError;
     /**
      * com.intellij.icons.AllIcons.General#NotificationError
      * com.intellij.icons.AllIcons.RunConfigurations#ToolbarError
@@ -49,24 +51,23 @@ public class BuildParamDialog extends JDialog {
      * AllIcons.RunConfigurations.ToolbarError
      */
     private static final Icon WARNING_ICON = AllIcons.General.BalloonWarning;
+    private final Job job;
+    private final JenkinsAppSettings configuration;
+    private final RequestManager requestManager;
+    private final RunBuildCallback runBuildCallback;
+    private final Collection<JLabel> labels = new LinkedHashSet<>();
+    private final Collection<JobParameterComponent> inputFields = new LinkedHashSet<>();
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
     private JPanel contentPanel;
 
-    private boolean hasError = false;
-
-    private final Job job;
-    private final JenkinsAppSettings configuration;
-    private final RequestManager requestManager;
-    private final RunBuildCallback runBuildCallback;
-    private final Map<JobParameter, JComponent> inputFieldByParameterMap = new HashMap<>();
-
 // UNSUPPORTED PARAMETERS
 //        FileParameterDefinition
 //        TextParameterDefinition
 //        RunParameterDefinition
-//        ListSubversionTagsParameterDefinition
+//        public static final JobParameterType ListSubversionTagsParameterDefinition = new JobParameterType("ListSubversionTagsParameterDefinition",
+//        "hudson.scm.listtagsparameter.ListSubversionTagsParameterDefinition");
 
     BuildParamDialog(Job job, JenkinsAppSettings configuration, RequestManager requestManager, RunBuildCallback runBuildCallback) {
         this.job = job;
@@ -99,53 +100,76 @@ public class BuildParamDialog extends JDialog {
         });
     }
 
+    @NotNull
+    private static JLabel appendColonIfMissing(@NotNull JLabel label) {
+        if (!label.getText().endsWith(":")) {
+            label.setText(label.getText() + ":");
+        }
+        return label;
+    }
+
+    @NotNull
+    private static JLabel setJLabelStyles(@NotNull JLabel label) {
+        label.setHorizontalAlignment(SwingConstants.TRAILING);
+        //label.setVerticalAlignment(SwingConstants.TOP);
+        return label;
+    }
+
+    @NotNull
+    private static Function<JLabel, JLabel> setJLabelStyles(@NotNull JobParameterComponent jobParameterComponent) {
+        return label -> {
+            label.setLabelFor(jobParameterComponent.getViewElement());
+            setJLabelStyles(label);
+            return label;
+        };
+    }
+
     private void addParameterInputs() {
         contentPanel.setLayout(new SpringLayout());
         List<JobParameter> parameters = job.getParameters();
 
-        int rows = parameters.size();
+        final AtomicInteger rows = new AtomicInteger(parameters.size());
         for (JobParameter jobParameter : parameters) {
-            JComponent inputField = createInputField(jobParameter);
+            final JobParameterRenderer jobParameterRenderer = JobParameterRenderer.findRenderer(jobParameter)
+                    .orElseGet(ErrorRenderer::new);
+            //final JobParameterComponent jobParameterComponent = createInputField(jobParameter);
+            final JobParameterComponent jobParameterComponent = jobParameterRenderer.render(jobParameter);
+            jobParameterComponent.getViewElement().setName(jobParameter.getName());
 
-            String name = jobParameter.getName();
-            inputField.setName(name);
-
-            JLabel label = new JLabel();
-            label.setHorizontalAlignment(JLabel.TRAILING);
-            label.setLabelFor(inputField);
-
-            if (StringUtils.isEmpty(name)) {
-                name = MISSING_NAME_LABEL;
-                label.setIcon(ERROR_ICON);
-                hasError = true;
-            }
-            label.setText(name + ":");
-
+            final JLabel label = jobParameterRenderer.createLabel(jobParameter)
+                    .map(setJLabelStyles(jobParameterComponent))
+                    .map(BuildParamDialog::appendColonIfMissing)
+                    .orElseGet(JLabel::new);
             contentPanel.add(label);
-            contentPanel.add(inputField);
+            contentPanel.add(jobParameterComponent.getViewElement());
 
-            String description = jobParameter.getDescription();
+            final String description = jobParameter.getDescription();
             if (StringUtils.isNotEmpty(description)) {
-                JLabel placeHolder = new JLabel("", JLabel.CENTER);
-                JTextPane descText = new JTextPane();
-                descText.setText(description);
-
+                JLabel placeHolder = new JLabel("", SwingConstants.CENTER);
                 contentPanel.add(placeHolder);
-                contentPanel.add(descText);
-                rows++;
+                contentPanel.add(new JLabel(description));
+                rows.incrementAndGet();
             }
 
-            inputFieldByParameterMap.put(jobParameter, inputField);
+            labels.add(label);
+            inputFields.add(jobParameterComponent);
         }
 
+        final int columns = 2;
+        final int initial = 6;
+        final int padding = 6;
         SpringUtilities.makeCompactGrid(contentPanel,
-                rows, 2,
-                6, 6,        //initX, initY
-                6, 6);       //xPad, yPad
+                rows.get(), columns,
+                initial, initial,
+                padding, padding);
 
-        if (hasError) {
+        if (hasError()) {
             buttonOK.setEnabled(false);
         }
+    }
+
+    private boolean hasError() {
+        return inputFields.stream().map(JobParameterComponent::hasError).anyMatch(Boolean.TRUE::equals);
     }
 
     private void registerListeners() {
@@ -175,45 +199,12 @@ public class BuildParamDialog extends JDialog {
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     }
 
-    private JComponent createInputField(JobParameter jobParameter) {//TODO add wrapper
-
-        JobParameter.JobParameterType jobParameterType = jobParameter.getJobParameterType();
-        String defaultValue = jobParameter.getDefaultValue();
-        JComponent inputField;
-
-        if (JobParameter.JobParameterType.ChoiceParameterDefinition.equals(jobParameterType)) {
-            inputField = createComboBox(jobParameter, defaultValue);
-        } else if (JobParameter.JobParameterType.BooleanParameterDefinition.equals(jobParameterType)) {
-            inputField = createCheckBox(defaultValue);
-        } else if (JobParameter.JobParameterType.StringParameterDefinition.equals(jobParameterType)) {
-            inputField = createTextField(defaultValue);
-        } else if (JobParameter.JobParameterType.PasswordParameterDefinition.equals(jobParameterType)) {
-            inputField = createPasswordField(defaultValue);
-        } else {
-            inputField = createErrorLabel(jobParameterType);
-            hasError = true;
-        }
-        return inputField;
-    }
-
-    private JLabel createErrorLabel(JobParameter.JobParameterType jobParameterType) {
-        String text;
-        if (jobParameterType != null) {
-            text = jobParameterType.name() + " is unsupported.";
-        } else {
-            text = "Unknown parameter";
-        }
-        JLabel label = new JLabel(text);
-        label.setIcon(ERROR_ICON);
-        return label;
-    }
-
     private void onOK() {
         final Map<String, String> paramValueMap = getParamValueMap();
 
         new SwingWorker<Void, Void>() { //FIXME don't use swing worker
-            @Override
-            protected Void doInBackground() throws Exception {
+                @Override
+                protected Void doInBackground() throws Exception {
                 TraceableBuildJob buildJob = TraceableBuildJobFactory.newBuildJob(job, configuration, paramValueMap, requestManager);
                 JobTracker.getInstance().registerJob(buildJob);
                 requestManager.runParameterizedBuild(job, configuration, paramValueMap);
@@ -241,58 +232,12 @@ public class BuildParamDialog extends JDialog {
         dispose();
     }
 
-    private JPasswordField createPasswordField(String defaultValue) {
-        JPasswordField passwordField = new JPasswordField();
-        if (StringUtils.isNotEmpty(defaultValue)) {
-            passwordField.setText(defaultValue);
-        }
-        return passwordField;
-    }
-
-    private JTextField createTextField(String defaultValue) {
-        JTextField textField = new JTextField();
-        if (StringUtils.isNotEmpty(defaultValue)) {
-            textField.setText(defaultValue);
-        }
-        return textField;
-    }
-
-    private JCheckBox createCheckBox(String defaultValue) {
-        JCheckBox checkBox = new JCheckBox();
-        if (Boolean.TRUE.equals(Boolean.valueOf(defaultValue))) {
-            checkBox.setSelected(true);
-        }
-        return checkBox;
-    }
-
-    private JComboBox<String> createComboBox(JobParameter jobParameter, String defaultValue) {
-        final String[] choices = jobParameter.getChoices().toArray(new String[0]);
-        ComboBox<String> comboBox = new ComboBox<>(choices);
-        if (StringUtils.isNotEmpty(defaultValue)) {
-            comboBox.setSelectedItem(defaultValue);
-        }
-        return comboBox;
-    }
-
-    private Map<String, String> getParamValueMap() {//TODO transformer en visiteur
-        HashMap<String, String> valueByNameMap = new HashMap<String, String>();
-        for (Map.Entry<JobParameter, JComponent> inputFieldByParameter : inputFieldByParameterMap.entrySet()) {
-            JobParameter jobParameter = inputFieldByParameter.getKey();
-            String name = jobParameter.getName();
-            JobParameter.JobParameterType jobParameterType = jobParameter.getJobParameterType();
-
-            JComponent inputField = inputFieldByParameter.getValue();
-
-            if (JobParameter.JobParameterType.ChoiceParameterDefinition.equals(jobParameterType)) {
-                JComboBox comboBox = (JComboBox) inputField;
-                valueByNameMap.put(name, String.valueOf(comboBox.getSelectedItem()));
-            } else if (JobParameter.JobParameterType.BooleanParameterDefinition.equals(jobParameterType)) {
-                JCheckBox checkBox = (JCheckBox) inputField;
-                valueByNameMap.put(name, Boolean.toString(checkBox.isSelected()));
-            } else if (JobParameter.JobParameterType.StringParameterDefinition.equals(jobParameterType)) {
-                JTextField textField = (JTextField) inputField;
-                valueByNameMap.put(name, textField.getText());
-            }
+    @NotNull
+    private Map<String, String> getParamValueMap() {
+        final HashMap<String, String> valueByNameMap = new HashMap<>();
+        for (JobParameterComponent jobParameterComponent : inputFields) {
+            final JobParameter jobParameter = jobParameterComponent.getJobParameter();
+            jobParameterComponent.ifHasValue(value -> valueByNameMap.put(jobParameter.getName(), value));
         }
         return valueByNameMap;
     }
@@ -302,5 +247,19 @@ public class BuildParamDialog extends JDialog {
         void notifyOnOk(Job job);
 
         void notifyOnError(Job job, Exception ex);
+    }
+
+    public class ErrorRenderer implements JobParameterRenderer {
+
+        @NotNull
+        @Override
+        public JobParameterComponent render(@NotNull JobParameter jobParameter) {
+            return JobParameterRenderers.createErrorLabel(jobParameter);
+        }
+
+        @Override
+        public boolean isForJobParameter(@NotNull JobParameter jobParameter) {
+            return true;
+        }
     }
 }

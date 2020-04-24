@@ -105,7 +105,7 @@ public class JenkinsJsonParserTest {
         expectedJobs.add(new JobBuilder().job("swing-utils", "disabled", "http://myjenkins/job/swing-utils/", true, false)
                 .lastBuild("http://myjenkins/job/swing-utils/5/", "5", FAILURE.getStatus(), false, "2012-04-02_10-26-29", 1477640156281l, 4386421l)
                 .health("health20to39", "0 tests en echec sur un total de 24 tests")
-                .parameter("dummyParam", null, null)
+                .parameter("dummyParam", "DummyParameterDefinition", null)
                 .get());
 
         assertThat(actualJobs).containsAll(expectedJobs);
@@ -119,7 +119,7 @@ public class JenkinsJsonParserTest {
         expectedJobs.add(new JobBuilder().job("swing-utils", "disabled", "http://myjenkins/job/swing-utils/", false, false)
                 .lastBuild("http://myjenkins/job/swing-utils/5/", "5", FAILURE.getStatus(), false, "2012-04-02_10-26-29", 1477640156281l, 4386421l)
                 .health("health20to39", "0 tests en echec sur un total de 24 tests")
-                .parameter("dummyParam", null, null)
+                .parameter("dummyParam", "DummyParameterDefinition", null)
                 .get());
 
         assertThat(actualJobs).containsAll(expectedJobs);
@@ -171,7 +171,7 @@ public class JenkinsJsonParserTest {
                 new JobBuilder().job("swing-utils", "disabled", "http://myjenkins/job/swing-utils/", true, false)
                         .lastBuild("http://myjenkins/job/swing-utils/5/", "5", FAILURE.getStatus(), false, "2012-04-02_10-26-29", 1477640156281l, 4386421l)
                         .health("health20to39", "0 tests en echec sur un total de 24 tests")
-                        .parameter("dummyParam", null, null)
+                        .parameter("dummyParam", "DummyParameterDefinition", null)
                         .get());
 
         assertThat(actualJobs).containsAll(expectedJobs);

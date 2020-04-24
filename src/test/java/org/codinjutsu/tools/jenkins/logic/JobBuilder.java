@@ -19,10 +19,10 @@ package org.codinjutsu.tools.jenkins.logic;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
+import org.codinjutsu.tools.jenkins.model.JobParameterType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
-import java.util.List;
 
 public class JobBuilder {
 
@@ -62,7 +62,7 @@ public class JobBuilder {
     public JobBuilder parameter(String paramName, String paramType, String defaultValue, String... choices) {
         final JobParameter parameter = JobParameter.builder()
                 .name(paramName)
-                .jobParameterType(JobParameter.JobParameterType.getType(paramType))
+                .jobParameterType(JobParameterType.getType(paramType, null))
                 .defaultValue(defaultValue)
                 .choices(Arrays.asList(choices))
                 .build();

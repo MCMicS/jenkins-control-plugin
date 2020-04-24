@@ -43,24 +43,4 @@ public class JobParameter {
     @Singular
     private final List<String> choices;
 
-    public enum JobParameterType {
-        ChoiceParameterDefinition,
-        BooleanParameterDefinition,
-        StringParameterDefinition,
-        PasswordParameterDefinition,
-        FileParameterDefinition,
-        TextParameterDefinition,
-        RunParameterDefinition,
-        ListSubversionTagsParameterDefinition;
-
-        @Nullable
-        public static JobParameterType getType(String paramTypeToEvaluate) {
-            for (JobParameterType parameterType : JobParameterType.values()) {
-                if (parameterType.name().equals(paramTypeToEvaluate)) {
-                    return parameterType;
-                }
-            }
-            return null;
-        }
-    }
 }
