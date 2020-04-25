@@ -24,6 +24,7 @@ import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.components.panels.NonOpaquePanel;
+import org.codinjutsu.tools.jenkins.BuildStatusSummaryFactory;
 import org.codinjutsu.tools.jenkins.JenkinsToolWindowFactory;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
 import org.codinjutsu.tools.jenkins.view.util.BuildStatusIcon;
@@ -97,7 +98,7 @@ public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidg
 
     @NotNull
     public String ID() {
-        return JenkinsWidget.class.getName();
+        return BuildStatusSummaryFactory.BUILD_STATUS_SUMMARY_ID;
     }
 
     @Nullable

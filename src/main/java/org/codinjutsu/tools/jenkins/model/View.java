@@ -16,71 +16,33 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
+import lombok.Builder;
+import lombok.Singular;
+import lombok.Value;
+import lombok.experimental.NonFinal;
+import lombok.experimental.SuperBuilder;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.LinkedList;
 import java.util.List;
 
+@SuperBuilder
+@Value
+@NonFinal
 public class View {
 
-    public static String FAVORITE = "My Favorites";
-
-    private String name;
+    @NotNull
+    private final String name;
     //TODO URL shoud be changed to object representing URL
-    private String url;
-
-    private boolean isNested;
-
-    private final List<View> subViews = new LinkedList<View>();
-
-    public View() {
-    }
-
-    protected View(String name, String url, boolean isNested) {
-        this.name = name;
-        this.url = url;
-        this.isNested = isNested;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public boolean isNested() {
-        return isNested;
-    }
+    @Nullable
+    private final String url;
+    private final boolean isNested;
+    @NotNull
+    @Singular
+    private final List<View> subViews;
 
     public boolean hasNestedView() {
         return !subViews.isEmpty();
-    }
-
-    public List<View> getSubViews() {
-        return subViews;
-    }
-
-    public void addSubView(View subView) {
-        this.subViews.add(subView);
-    }
-
-    public static View createView(String viewName, String viewUrl) {
-        return new View(viewName, viewUrl, false);
-    }
-
-    public static View createNestedView(String viewName, String viewUrl) {
-        return new View(viewName, viewUrl, true);
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public void setNested(boolean nested) {
-        isNested = nested;
     }
 }

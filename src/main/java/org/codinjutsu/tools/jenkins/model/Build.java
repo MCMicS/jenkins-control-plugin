@@ -16,124 +16,78 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
+import lombok.Builder;
+import lombok.Value;
 import org.codinjutsu.tools.jenkins.util.DateUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+@Value
+@Builder(toBuilder = true)
 public class Build {
 
-    public static final Build NULL = new Build();
+    public static final Build NULL = createNullBuild();
 
-    private String url;
-    private Date buildDate;
-    private int number;
-    private boolean building;
-    private String message;
-    private Date timestamp;
-    private Long duration;
+    @NotNull
+    private final String url;
+    @NotNull
+    @Builder.Default
+    private final Date buildDate = new Date();
+    private final int number;
+    private final boolean building;
+    @Nullable
+    @Builder.Default
+    private final String message = null;
+    @Builder.Default
+    private final Date timestamp = new Date();
+    @Nullable
+    @Builder.Default
+    private final Long duration = null;
+    @NotNull
+    @Builder.Default
+    private final BuildStatusEnum status = BuildStatusEnum.NULL;
 
-    private BuildStatusEnum status;
-
+    @NotNull
     public static Build createBuildFromWorkspace(String buildUrl, String number, String status, boolean isBuilding, String buildDate, Long timestamp, Long duration) {
         return createBuild(buildUrl, Long.parseLong(number), status, isBuilding, buildDate, DateUtil.WORKSPACE_DATE_FORMAT, null, timestamp, duration);
     }
 
+    @NotNull
     public static Build createBuildFromRss(String buildUrl, String number, String status, boolean isBuilding, String buildDate, String message) {
         return createBuild(buildUrl, Long.parseLong(number), status, isBuilding, buildDate, DateUtil.RSS_DATE_FORMAT, message, 0L, 0L);
     }
 
+    @NotNull
     private static Build createBuild(String buildUrl, Long number, String status, boolean isBuilding, String buildDate, SimpleDateFormat simpleDateFormat, String message, Long timestamp, Long duration) {
-        BuildStatusEnum buildStatusEnum = BuildStatusEnum.parseStatus(status);
-        Date date = DateUtil.parseDate(buildDate, simpleDateFormat);
-
-        return new Build(buildUrl, number.intValue(), date, buildStatusEnum, isBuilding, message, timestamp, duration);
-    }
-
-    public Build() {
-    }
-
-    private Build(String url, int number, Date buildDate, BuildStatusEnum status, boolean isBuilding, String message, Long timestamp, Long duration) {
-        this.url = url;
-        this.number = number;
-        this.buildDate = buildDate;
-        this.status = status;
-        this.building = isBuilding;
-        this.message = message;
-        setTimestamp(timestamp);
-        this.duration = duration;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public int getNumber() {
-        return number;
-    }
-
-    public void setNumber(int number) {
-        this.number = number;
-    }
-
-    public BuildStatusEnum getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = BuildStatusEnum.parseStatus(status);
+        return Build.builder()
+                .url(buildUrl)
+                .number(number.intValue())
+                .buildDate(DateUtil.parseDate(buildDate, simpleDateFormat))
+                .status(BuildStatusEnum.parseStatus(status))
+                .building(isBuilding)
+                .message(message)
+                .timestamp(new Date(timestamp))
+                .duration(duration)
+                .build();
     }
 
     @NotNull
-    public Date getBuildDate() {
-        if (buildDate == null) {
-            buildDate = getTimestamp();
-        }
-        return buildDate;
-    }
-
-    public void setBuildDate(Date buildDate) {
-        this.buildDate = buildDate;
-    }
-
-    @NotNull
-    public Date getTimestamp() {
-        if (timestamp == null) {
-            timestamp = new Date();
-        }
-        return timestamp;
-    }
-
-    public void setTimestamp(Long timestamp) {
-        this.timestamp = new Date(timestamp);
-    }
-
-    public Long getDuration() {
-        return duration;
-    }
-
-    public void setDuration(Long duration) {
-        this.duration = duration;
-    }
-
-    public boolean isBuilding() {
-        return building;
-    }
-
-    public void setBuilding(boolean building) {
-        this.building = building;
+    private static Build createNullBuild() {
+        final Date defaultDate = new Date();
+        return Build.builder()
+                .url("http://dev.null")
+                .number(0)
+                .buildDate(defaultDate)
+                .building(false)
+                .message("")
+                .timestamp(defaultDate)
+                .build();
     }
 
     public boolean isAfter(Build aBuild) {
         return this.getNumber() > aBuild.getNumber();
-    }
-
-    public String getMessage() {
-        return message;
     }
 }

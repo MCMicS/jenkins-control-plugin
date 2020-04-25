@@ -26,8 +26,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.picocontainer.PicoContainer;
+import org.powermock.reflect.Whitebox;
 
 import java.net.URL;
 
@@ -100,6 +100,6 @@ public class RequestManagerTest {
         when(container.getComponentInstance(UrlBuilder.class.getName())).thenReturn(urlBuilderMock);
         requestManager = new RequestManager(project);
         requestManager.setSecurityClient(securityClientMock);
-        Whitebox.setInternalState(requestManager, "urlBuilder", urlBuilderMock);
+        Whitebox.setInternalState(requestManager, urlBuilderMock);
     }
 }

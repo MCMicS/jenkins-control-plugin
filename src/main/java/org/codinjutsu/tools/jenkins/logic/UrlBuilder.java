@@ -21,6 +21,7 @@ import com.intellij.openapi.project.Project;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
+import org.jetbrains.annotations.NotNull;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -47,6 +48,10 @@ public class UrlBuilder {
         return ServiceManager.getService(project, UrlBuilder.class);
     }
 
+    @NotNull
+    static String getBaseUrl(@NotNull String url) {
+        return url.replaceAll("\\b/job\\b/.+|/\\bview\\b/.+", "");
+    }
 
     public URL createRunJobUrl(String jobBuildUrl, JenkinsAppSettings configuration) {
         try {
@@ -150,7 +155,7 @@ public class UrlBuilder {
 
     public URI createServerUrl(String serverUrl) {
         try {
-            return new URL(serverUrl).toURI();
+            return new URL(getBaseUrl(serverUrl)).toURI();
         } catch (Exception ex) {
             handleException(ex);
         }

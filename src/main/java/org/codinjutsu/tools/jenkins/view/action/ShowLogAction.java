@@ -29,7 +29,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
-import org.codinjutsu.tools.jenkins.JenkinsToolWindowFactory;
+import org.codinjutsu.tools.jenkins.exception.NoJobFoundException;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
@@ -54,9 +54,9 @@ public class ShowLogAction extends AnAction implements DumbAware {
     @Override
     public void actionPerformed(AnActionEvent event) {
         final Project project = ActionUtil.getProject(event);
-        final BrowserPanel browserPanel = ActionUtil.getBrowserPanel(event);
+        final BrowserPanel browserPanelForAction = ActionUtil.getBrowserPanel(event);
 
-        final Job job = browserPanel.getSelectedJob();
+        final Job job = browserPanelForAction.getSelectedJob();
         new Task.Backgroundable(project, job.getName(), false) {
 
             String consoleContent;
@@ -82,7 +82,7 @@ public class ShowLogAction extends AnAction implements DumbAware {
                     actionToolbar.setTargetComponent(panel);
 
                     toolbarActions.addAll(consoleView.createConsoleActions());
-                    toolbarActions.addAction(new ShowJobResultsAsJUnitViewAction(browserPanel));
+                    toolbarActions.addAction(new ShowJobResultsAsJUnitViewAction(browserPanelForAction));
                     panel.updateUI();
 
                     final RunContentDescriptor contentDescriptor = new RunContentDescriptor(consoleView, null, panel, myTitle);
@@ -94,9 +94,13 @@ public class ShowLogAction extends AnAction implements DumbAware {
 
             @Override
             public void run(@NotNull ProgressIndicator progressIndicator) {
-                RequestManager requestManager = browserPanel.getJenkinsManager();
+                RequestManager requestManager = browserPanelForAction.getJenkinsManager();
                 progressIndicator.setIndeterminate(true);
-                consoleContent = requestManager.loadConsoleTextFor(job);
+                try {
+                    consoleContent = requestManager.loadConsoleTextFor(job);
+                } catch (NoJobFoundException e) {
+                    browserPanelForAction.notifyErrorJenkinsToolWindow(e.getMessage());
+                }
             }
         }.queue();
 

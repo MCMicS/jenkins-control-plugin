@@ -42,6 +42,8 @@ import static org.codinjutsu.tools.jenkins.view.BrowserPanel.POPUP_PLACE;
 
 public class RunBuildAction extends AnAction implements DumbAware {
 
+    public static final String ACTION_ID = "Jenkins.RunBuild";
+
     private static final Icon EXECUTE_ICON = AllIcons.Actions.Execute;
     private static final Logger LOG = Logger.getLogger(RunBuildAction.class.getName());
     public static final int BUILD_STATUS_UPDATE_DELAY = 1;

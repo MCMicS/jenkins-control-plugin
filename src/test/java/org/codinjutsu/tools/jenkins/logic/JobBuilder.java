@@ -19,9 +19,10 @@ package org.codinjutsu.tools.jenkins.logic;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
+import org.codinjutsu.tools.jenkins.model.JobParameterType;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
+import java.util.Arrays;
 
 public class JobBuilder {
 
@@ -45,7 +46,11 @@ public class JobBuilder {
     }
 
     public JobBuilder lastBuild(String buildUrl, String number, String status, boolean isBuilding, String buildingDate, Long timestamp, Long duration) {
-        jobBuilder.lastBuild(Build.createBuildFromWorkspace(buildUrl, number, status, isBuilding, buildingDate, timestamp, duration));
+        return lastBuild(Build.createBuildFromWorkspace(buildUrl, number, status, isBuilding, buildingDate, timestamp, duration));
+    }
+
+    public JobBuilder lastBuild(Build lastBuild) {
+        jobBuilder.lastBuild(lastBuild);
         return this;
     }
 
@@ -55,7 +60,13 @@ public class JobBuilder {
     }
 
     public JobBuilder parameter(String paramName, String paramType, String defaultValue, String... choices) {
-        jobBuilder.parameter(JobParameter.create(paramName, paramType, defaultValue, choices));
+        final JobParameter parameter = JobParameter.builder()
+                .name(paramName)
+                .jobParameterType(JobParameterType.getType(paramType, null))
+                .defaultValue(defaultValue)
+                .choices(Arrays.asList(choices))
+                .build();
+        jobBuilder.parameter(parameter);
         return this;
     }
 

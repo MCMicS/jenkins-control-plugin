@@ -27,10 +27,7 @@ import org.codinjutsu.tools.jenkins.util.DateUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class JenkinsJsonParser implements JenkinsParser {
 
@@ -82,36 +79,31 @@ public class JenkinsJsonParser implements JenkinsParser {
     }
 
     private View getView(JsonObject viewObject) {
-        View view = new View();
-        view.setNested(false);
-        String name = viewObject.getString(createJsonKey(VIEW_NAME));
-        if (name != null) {
-            view.setName(name);
-        }
-
+        final View.ViewBuilder<?, ?> viewBuilder = View.builder();
+        viewBuilder.isNested(false);
+        final String unknownViewName = "Unknown";
+        viewBuilder.name(viewObject.getStringOrDefault(createJsonKey(VIEW_NAME, unknownViewName)));
         String url = viewObject.getString(createJsonKey(VIEW_URL));
-        if (name != null) {
-            view.setUrl(url);
-        }
+        viewBuilder.url(url);
 
         JsonArray subViewObjs = (JsonArray) viewObject.get(VIEWS);
         if (subViewObjs != null) {
             for (Object obj : subViewObjs) {
                 JsonObject subviewObj = (JsonObject) obj;
 
-                View nestedView = new View();
-                nestedView.setNested(true);
+                final View.ViewBuilder<?, ?> nestedViewBuilder = View.builder();
+                nestedViewBuilder.isNested(true);
 
-                String currentName = subviewObj.getString(createJsonKey(VIEW_NAME));
-                nestedView.setName(currentName);
+                String currentName = subviewObj.getStringOrDefault(createJsonKey(VIEW_NAME, unknownViewName));
+                nestedViewBuilder.name(currentName);
 
                 String subViewUrl = subviewObj.getString(createJsonKey(VIEW_URL));
-                nestedView.setUrl(subViewUrl);
+                nestedViewBuilder.url(subViewUrl);
 
-                view.addSubView(nestedView);
+                viewBuilder.subView(nestedViewBuilder.build());
             }
         }
-        return view;
+        return viewBuilder.build();
     }
 
     @Override
@@ -141,34 +133,37 @@ public class JenkinsJsonParser implements JenkinsParser {
             return Build.NULL;
         }
 
-        Build build = new Build();
-        final boolean building = getBoolean(lastBuildObject.getBoolean(createJsonKey((BUILD_IS_BUILDING))));
-        build.setBuilding(building);
-        Long number = lastBuildObject.getLong(createJsonKey(BUILD_NUMBER));
-        build.setNumber(number.intValue());
-        String status = lastBuildObject.getStringOrDefault(createJsonKey(BUILD_RESULT, BuildStatusEnum.NULL.getStatus()));
-        build.setStatus(status);
-        String url = lastBuildObject.getString(createJsonKey(BUILD_URL));
-        build.setUrl(url);
-        Long timestamp = lastBuildObject.getLong(createJsonKey(BUILD_TIMESTAMP));
-        if (null != timestamp) {
-            build.setTimestamp(timestamp);
+        final Build.BuildBuilder builder = Build.builder();
+        builder.building(getBoolean(lastBuildObject.getBoolean(createJsonKey((BUILD_IS_BUILDING)))));
+        final OptionalInt number = OptionalInt.of(lastBuildObject.getInteger(createJsonKey(BUILD_NUMBER)));
+        builder.number(number.orElse(0));
+        final String status = lastBuildObject.getStringOrDefault(createJsonKey(BUILD_RESULT, BuildStatusEnum.NULL.getStatus()));
+        builder.status(BuildStatusEnum.parseStatus(status));
+        final String url = lastBuildObject.getString(createJsonKey(BUILD_URL));
+        builder.url(url);
+        final Long timestampMillis = lastBuildObject.getLong(createJsonKey(BUILD_TIMESTAMP));
+        final Date timestamp;
+        if (timestampMillis == null) {
+            timestamp = new Date();
+        } else {
+            timestamp = new Date(timestampMillis);
         }
+        builder.timestamp(timestamp);
 
         final String buildDate = lastBuildObject.getString(createJsonKey(BUILD_ID));
         // BUILD_ID
         //    Die aktuelle Build-ID. In Builds ab Jenkins 1.597 ist dies die Build-Nummer, vorher ein Zeitstempel im Format YYYY-MM-DD_hh-mm-ss.
         if (buildDate != null && DateUtil.isValidJenkinsDate(buildDate)) {
-            build.setBuildDate(DateUtil.parseDate(buildDate, DateUtil.WORKSPACE_DATE_FORMAT));
+            builder.buildDate(DateUtil.parseDate(buildDate, DateUtil.WORKSPACE_DATE_FORMAT));
         } else {
-            build.setBuildDate(build.getBuildDate());
+            builder.buildDate(timestamp);
         }
         Long duration = lastBuildObject.getLong(createJsonKey(BUILD_DURATION));
-        if (null != duration) {
-            build.setDuration(duration);
+        if (duration != null) {
+            builder.duration(duration);
         }
 
-        return build;
+        return builder.build();
     }
 
     @NotNull
@@ -265,28 +260,27 @@ public class JenkinsJsonParser implements JenkinsParser {
 
     @NotNull
     private JobParameter getJobParameter(JsonObject parameterObj) {
-        JobParameter jobParameter = new JobParameter();
+        final JobParameter.JobParameterBuilder jobParameterBuilder = JobParameter.builder();
+        String name = parameterObj.getString(createJsonKey(PARAMETER_NAME));
+        jobParameterBuilder.name(name);
         JsonObject defaultParamObj = (JsonObject) parameterObj.get(PARAMETER_DEFAULT_PARAM);
         if (defaultParamObj != null && !defaultParamObj.isEmpty()) {
-            Object defaultValue = defaultParamObj.get(PARAMETER_DEFAULT_PARAM_VALUE);
-            if (defaultValue != null) {
-                jobParameter.setDefaultValue(defaultValue.toString());
-            }
+            Optional<String> defaultValue = Optional.ofNullable(defaultParamObj.get(PARAMETER_DEFAULT_PARAM_VALUE))
+                    .map(Object::toString);
+            defaultValue.ifPresent(jobParameterBuilder::defaultValue);
         }
-
-        String name = parameterObj.getString(createJsonKey(PARAMETER_NAME));
-        jobParameter.setName(name);
 
         String description = parameterObj.getString(createJsonKey(PARAMETER_DESCRIPTION));
         if (description != null && !description.isEmpty()) {
-            jobParameter.setDescription(description);
+            jobParameterBuilder.description(description);
         }
 
-        String type = parameterObj.getString(createJsonKey(PARAMETER_TYPE));
-        jobParameter.setType(type);
+        String type = parameterObj.getStringOrDefault(createJsonKey(PARAMETER_TYPE, StringUtils.EMPTY));
+        String parameterClass = parameterObj.getString(createJsonKey(CLASS));
+        jobParameterBuilder.jobParameterType(JobParameterType.getType(type, parameterClass));
         JsonArray choices = (JsonArray) parameterObj.get(PARAMETER_CHOICE);
-        jobParameter.setChoices(getChoices(choices));
-        return jobParameter;
+        jobParameterBuilder.choices(getChoices(choices));
+        return jobParameterBuilder.build();
     }
 
     private List<String> getChoices(JsonArray choiceObjs) {

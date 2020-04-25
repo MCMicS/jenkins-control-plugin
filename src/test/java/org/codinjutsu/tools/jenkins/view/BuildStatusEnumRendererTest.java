@@ -8,8 +8,9 @@ import org.codinjutsu.tools.jenkins.logic.UrlBuilder;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.picocontainer.PicoContainer;
+import org.powermock.core.classloader.annotations.SuppressStaticInitializationFor;
+import org.powermock.reflect.Whitebox;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -63,6 +64,6 @@ public class BuildStatusEnumRendererTest {
         when(project.getPicoContainer()).thenReturn(container);
         when(container.getComponentInstance(BuildStatusEnumRenderer.class.getName())).thenReturn(buildStatusEnumRenderer);
         buildStatusEnumRenderer = BuildStatusEnumRenderer.getInstance(project);
-        Whitebox.setInternalState(buildStatusEnumRenderer, "jenkinsAppSettings", jenkinsAppSettings);
+        Whitebox.setInternalState(buildStatusEnumRenderer, jenkinsAppSettings);
     }
 }
