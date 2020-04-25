@@ -20,6 +20,7 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.offbytwo.jenkins.JenkinsServer;
+import com.offbytwo.jenkins.model.JobWithDetails;
 import com.offbytwo.jenkins.model.TestChildReport;
 import com.offbytwo.jenkins.model.TestResult;
 import org.apache.commons.lang.StringUtils;
@@ -27,6 +28,7 @@ import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
+import org.codinjutsu.tools.jenkins.exception.NoJobFoundException;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.model.Job;
@@ -194,7 +196,7 @@ public class RequestManager implements RequestManagerInterface {
     }
 
     private List<Build> loadBuilds(String jenkinsBuildUrl) {
-        if (handleNotYetLoggedInState()) return null;
+        if (handleNotYetLoggedInState()) return Collections.emptyList();
         URL url = urlBuilder.createBuildsUrl(jenkinsBuildUrl);
         String jenkinsJobData = securityClient.execute(url);
         return jsonParser.createBuilds(jenkinsJobData);
@@ -203,15 +205,13 @@ public class RequestManager implements RequestManagerInterface {
     @Override
     public void runBuild(Job job, JenkinsAppSettings configuration, Map<String, VirtualFile> files) {
         if (handleNotYetLoggedInState()) return;
-        if (job.hasParameters()) {
-            if (files.size() > 0) {
-                for (String key : files.keySet()) {
-                    if (!job.hasParameter(key)) {
-                        files.remove(files.get(key));
-                    }
+        if (job.hasParameters() && files.size() > 0) {
+            for (String key : files.keySet()) {
+                if (!job.hasParameter(key)) {
+                    files.remove(files.get(key));
                 }
-                securityClient.setFiles(files);
             }
+            securityClient.setFiles(files);
         }
         runBuild(job, configuration);
     }
@@ -293,7 +293,7 @@ public class RequestManager implements RequestManagerInterface {
     @Override
     public String loadConsoleTextFor(Job job) {
         try {
-            return jenkinsServer.getJob(job.getFullName()).getLastCompletedBuild().details().getConsoleOutputText();
+            return getJob(job).getLastCompletedBuild().details().getConsoleOutputText();
         } catch (IOException e) {
             logger.warn("cannot load log for " + job.getName());
             return null;
@@ -304,7 +304,7 @@ public class RequestManager implements RequestManagerInterface {
     public List<TestResult> loadTestResultsFor(Job job) {
         try {
             List<TestResult> result = new ArrayList<>();
-            com.offbytwo.jenkins.model.Build lastCompletedBuild = jenkinsServer.getJob(job.getFullName()).getLastCompletedBuild();
+            com.offbytwo.jenkins.model.Build lastCompletedBuild = getJob(job).getLastCompletedBuild();
             if (lastCompletedBuild.getTestResult() != null) {
                 result.add(lastCompletedBuild.getTestResult());
             }
@@ -318,6 +318,18 @@ public class RequestManager implements RequestManagerInterface {
             logger.warn("cannot load test results for " + job.getName());
             return Collections.emptyList();
         }
+    }
+
+    @NotNull
+    private JobWithDetails getJob(@NotNull Job job) {
+        Optional<JobWithDetails> jobWithDetails = Optional.empty();
+        try {
+            // maybe refactor and use job url
+            jobWithDetails = Optional.ofNullable(jenkinsServer.getJob(job.getFullName()));
+        } catch (IOException e) {
+            throw new NoJobFoundException(job, e);
+        }
+        return jobWithDetails.orElseThrow(() -> new NoJobFoundException(job));
     }
 
     void setSecurityClient(SecurityClient securityClient) {

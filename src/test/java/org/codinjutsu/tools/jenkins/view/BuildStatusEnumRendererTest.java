@@ -7,7 +7,7 @@ import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.internal.util.reflection.Whitebox;
+import org.powermock.reflect.Whitebox;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -56,6 +56,6 @@ public class BuildStatusEnumRendererTest {
 
     @Before
     public void setUp() {
-        Whitebox.setInternalState(buildStatusEnumRenderer, "jenkinsAppSettings", jenkinsAppSettings);
+        Whitebox.setInternalState(buildStatusEnumRenderer, jenkinsAppSettings);
     }
 }

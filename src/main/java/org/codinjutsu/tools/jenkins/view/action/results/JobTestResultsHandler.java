@@ -13,8 +13,10 @@ import com.offbytwo.jenkins.model.TestCase;
 import com.offbytwo.jenkins.model.TestResult;
 import com.offbytwo.jenkins.model.TestSuites;
 import jetbrains.buildServer.messages.serviceMessages.TestFailed;
+import org.codinjutsu.tools.jenkins.exception.NoJobFoundException;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
+import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -50,8 +52,13 @@ class JobTestResultsHandler {
     }
 
     void handle() {
-        List<TestResult> testResults = RequestManager.getInstance(project).loadTestResultsFor(job);
-        testResults.forEach(this::handleTestResult);
+        final BrowserPanel browserPanel = BrowserPanel.getInstance(project);
+        try {
+            List<TestResult> testResults = RequestManager.getInstance(project).loadTestResultsFor(job);
+            testResults.forEach(this::handleTestResult);
+        } catch (NoJobFoundException e) {
+            browserPanel.notifyErrorJenkinsToolWindow(e.getMessage());
+        }
         testEventsProcessor.onFinishTesting();
     }
 

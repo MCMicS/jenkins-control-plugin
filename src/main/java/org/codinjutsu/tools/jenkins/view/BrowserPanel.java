@@ -354,6 +354,7 @@ public class BrowserPanel extends SimpleToolWindowPanel {
         tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode(jenkins), false));
         //final JobTreeHandler jobTreeHandler = new JobTreeHandler(project);
         //tree.addTreeWillExpandListener(jobTreeHandler);
+        tree.addMouseListener(new JobClickHandler());
 
         new TreeSpeedSearch(tree, treePath -> {
             final DefaultMutableTreeNode node = (DefaultMutableTreeNode) treePath.getLastPathComponent();
@@ -414,7 +415,9 @@ public class BrowserPanel extends SimpleToolWindowPanel {
         final LoadBuildsAction loadBuildsAction = new LoadBuildsAction();
         ActionManager.getInstance().registerAction(LoadBuildsAction.ACTION_ID, loadBuildsAction, PluginId.getId(JenkinsSettings.PLUGIN_ID));
         actionGroup.add(loadBuildsAction);
-        actionGroup.add(new RunBuildAction(this));
+        final RunBuildAction runBuildAction = new RunBuildAction(this);
+        actionGroup.add(runBuildAction);
+        ActionManager.getInstance().registerAction(RunBuildAction.ACTION_ID, runBuildAction, PluginId.getId(JenkinsSettings.PLUGIN_ID));
         actionGroup.add(new StopBuildAction(this));
         actionGroup.add(new SortByStatusAction(this));
         actionGroup.add(new RefreshRssAction());
@@ -550,9 +553,16 @@ public class BrowserPanel extends SimpleToolWindowPanel {
 
     public void addToWatch(String changeListName, Job job) {
         JenkinsAppSettings settings = JenkinsAppSettings.getSafeInstance(project);
-        Build build = job.getLastBuild();
-        build.setNumber(build.getNumber() + 1);
-        build.setUrl(settings.getServerUrl() + String.format("/job/%s/%d/", job.getName(), build.getNumber()));
+
+        final Build lastBuild = job.getLastBuild();
+        if (lastBuild != null) {
+            final int nextBuildNumber = lastBuild.getNumber() + 1;
+            final Build nextBuild = lastBuild.toBuilder()
+                    .number(nextBuildNumber)
+                    .url(settings.getServerUrl() + String.format("/job/%s/%d/", job.getName(), nextBuildNumber))
+                    .build();
+            job.setLastBuild(nextBuild);
+        }
         watchedJobs.put(changeListName, job);
     }
 

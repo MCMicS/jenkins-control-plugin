@@ -1,12 +1,12 @@
 plugins {
     id 'java'
-    id 'org.jetbrains.intellij' version '0.4.15'
-    id "io.freefair.lombok" version "4.1.6" //"5.0.0-rc2"
+    id 'org.jetbrains.intellij' version '0.4.18'
+    id "io.freefair.lombok" version "5.0.0"
     id 'idea'
 }
 
 group 'org.codinjutsu'
-version '0.12.0-2019.3'
+version '0.13.0-2019.3'
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'java'
 apply plugin: 'idea'
@@ -14,7 +14,6 @@ apply plugin: 'idea'
 sourceCompatibility = JavaVersion.VERSION_1_8
 
 intellij {
-//    version 'LATEST-EAP-SNAPSHOT'
     version '2019.3'
     plugins 'java'
     updateSinceUntilBuild false
@@ -72,7 +71,7 @@ repositories {
 }
 
 dependencies {
-    implementation ('com.github.cliftonlabs:json-simple:3.1.0') {
+    implementation ('com.github.cliftonlabs:json-simple:3.1.1') {
         exclude group: 'junit'
     }
     implementation('com.offbytwo.jenkins:jenkins-client:0.3.8') {
@@ -82,11 +81,11 @@ dependencies {
 
     testImplementation(
             'junit:junit:4.13',
-            'org.mockito:mockito-all:1.8.5',
-            'org.easytesting:fest-swing:1.2',
-            'org.easytesting:fest-util:1.1.3',
-            'org.unitils:unitils-core:3.3',
-            'org.assertj:assertj-core:3.15.0'
+            'org.mockito:mockito-core:3.3.3',
+            'org.powermock:powermock-api-mockito2:2.0.5',
+            'org.powermock:powermock-core:2.0.5',
+            'org.assertj:assertj-core:3.15.0',
+            'org.assertj:assertj-swing-junit:3.9.2'
     )
 }
 
@@ -119,10 +118,4 @@ prepareSandbox {
     from (['README.md', 'CHANGELOG.txt', 'LICENSE.txt']) {
         into "${intellij.pluginName}/"
     }
-//    from (configurations.runtimeClasspath) {
-//        exclude 'commons-lang:commons-lang'
-//        exclude 'com.intellij:forms_rt'
-//        exclude 'com.intellij:idea'
-//        exclude 'com.intellij:openapi'
-//    }
 }

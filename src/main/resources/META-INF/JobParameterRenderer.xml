@@ -1,0 +1,9 @@
+<idea-plugin>
+
+    <extensions defaultExtensionNs="Jenkins Control Plugin">
+        <buildParameterRenderer implementation="org.codinjutsu.tools.jenkins.view.parameter.BuiltInJobParameterRenderer"
+                                order="first"
+                                id="BUILT_IN_RENDERER" />
+        <buildParameterRenderer implementation="org.codinjutsu.tools.jenkins.view.parameter.SeparatorRenderer" />
+    </extensions>
+</idea-plugin>

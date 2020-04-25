@@ -7,11 +7,13 @@ import org.codinjutsu.tools.jenkins.view.JenkinsWidget;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class StatusBarProvider implements StatusBarWidgetProvider {
+public class BuildStatusSummaryFactory implements StatusBarWidgetProvider {
+
+    public static final String BUILD_STATUS_SUMMARY_ID = "BuildStatusSummary";
 
     @Nullable
     @Override
-    public StatusBarWidget getWidget(@NotNull final Project project) {
+    public StatusBarWidget getWidget(@NotNull Project project) {
         return JenkinsWidget.getInstance(project);
     }
 }

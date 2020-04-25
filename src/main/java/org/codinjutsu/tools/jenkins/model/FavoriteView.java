@@ -16,15 +16,16 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
+import lombok.experimental.SuperBuilder;
+import org.jetbrains.annotations.NotNull;
 
+@SuperBuilder
 public class FavoriteView extends View {
 
+    private static final String FAVORITE_NAME = "My Favorites";
 
-    private FavoriteView() {
-        super(FAVORITE, null, false);
-    }
-
+    @NotNull
     public static FavoriteView create() {
-        return new FavoriteView();
+        return FavoriteView.builder().name(FAVORITE_NAME).isNested(false).build();
     }
 }
