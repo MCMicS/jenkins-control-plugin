@@ -34,7 +34,6 @@
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.JenkinsAppSettings"/>
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.JenkinsSettings"/>
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.JenkinsWindowManager"/>
-        <statusBarWidgetProvider implementation="org.codinjutsu.tools.jenkins.StatusBarProvider"/>
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.view.JenkinsWidget"/>
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.RequestManager"/>
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.UrlBuilder"/>
@@ -57,6 +56,7 @@
                     doNotActivateOnStart="true"
                     icon="JenkinsControlIcons.TOOLWINDOW_TEST_RESULTS"
                     factoryClass="org.codinjutsu.tools.jenkins.view.action.results.JobTestResultsToolWindowFactory"/>
+        <statusBarWidgetFactory implementation="org.codinjutsu.tools.jenkins.BuildStatusSummaryFactory" />
     </extensions>
 
     <actions>

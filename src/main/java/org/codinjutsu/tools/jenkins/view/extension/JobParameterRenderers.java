@@ -16,7 +16,7 @@ import java.util.Arrays;
 import java.util.function.Function;
 
 @UtilityClass
-public class JobParameterRenderers {
+public final class JobParameterRenderers {
 
     public static final Icon ERROR_ICON = AllIcons.General.BalloonError;
     public static final String MISSING_NAME_LABEL = "<Missing Name>";
@@ -109,7 +109,7 @@ public class JobParameterRenderers {
         return c -> String.valueOf(provider.apply(c));
     }
 
-    public class ErrorLabel extends JLabel {
+    public static class ErrorLabel extends JLabel {
 
         public ErrorLabel(@Nullable String text) {
             setText(text);
