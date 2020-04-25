@@ -6,12 +6,12 @@ plugins {
 }
 
 group 'org.codinjutsu'
-version '0.12.1-2019.3'
+version '0.13.0-2020.1'
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'java'
 apply plugin: 'idea'
 
-sourceCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_11
 
 intellij {
     version 'LATEST-EAP-SNAPSHOT'

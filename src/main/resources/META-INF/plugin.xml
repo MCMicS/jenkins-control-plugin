@@ -11,7 +11,7 @@
         Michael Suhr
     </vendor>
 <!--    <idea-version since-build="201"/>-->
-    <idea-version since-build="193.1546"/>
+    <idea-version since-build="201.6487.11"/>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.vcs</depends>
