@@ -1,8 +1,12 @@
 # Jenkins Plugin 0.13.0 for Jetbrains products
 [![Build Status](https://travis-ci.com/MCMicS/jenkins-control-plugin.svg?branch=master)](https://travis-ci.com/MCMicS/jenkins-control-plugin)
 [![Gitter](https://badges.gitter.im/jenkins-control-plugin/community.svg)](https://gitter.im/jenkins-control-plugin/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
+![GitHub Release Date](https://img.shields.io/github/release-date/MCMicS/jenkins-control-plugin)
 [![Version](https://img.shields.io/jetbrains/plugin/v/6110?label=version)](https://plugins.jetbrains.com/plugin/6110-jenkins-control-plugin)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/6110-jenkins-control-plugin)](https://plugins.jetbrains.com/plugin/6110-jenkins-control-plugin)
+![JetBrains IntelliJ Plugins](https://img.shields.io/jetbrains/plugin/r/rating/6110)
+![GitHub](https://img.shields.io/github/license/MCMicS/jenkins-control-plugin)
 
 * [Jetbrains plugin page](https://plugins.jetbrains.com/idea/plugin/6110)
 * [Changelog](CHANGELOG.txt)
