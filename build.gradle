@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.intellij' version '0.4.18'
     id "io.freefair.lombok" version "5.0.0"
     id 'idea'
+    id "org.sonarqube" version "2.8"
 }
 
 group 'org.codinjutsu'
@@ -125,4 +126,11 @@ prepareSandbox {
 //        exclude 'com.intellij:idea'
 //        exclude 'com.intellij:openapi'
 //    }
+}
+
+sonarqube {
+    properties {
+        //property "sonar.host.url", "https://sonarcloud.io"
+        property "sonar.projectKey", "MCMicS_jenkins-control-plugin"
+    }
 }
