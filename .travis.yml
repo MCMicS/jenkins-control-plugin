@@ -9,7 +9,8 @@ jobs:
     - stage: SonarCloud
       if: branch = master
       script: ./gradlew sonarqube
-
+git:
+  depth: false
 cache:
   directories:
   - "~/.gradle"
