@@ -19,26 +19,37 @@ package org.codinjutsu.tools.jenkins.view.action;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ModalityState;
+import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
+import org.codinjutsu.tools.jenkins.logic.ExecutorService;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.util.HtmlUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static org.codinjutsu.tools.jenkins.view.BrowserPanel.POPUP_PLACE;
+import static org.codinjutsu.tools.jenkins.view.action.RunBuildAction.BUILD_STATUS_UPDATE_DELAY;
 
 /**
  * Description
@@ -69,34 +80,17 @@ public class UploadPatchToJob extends AnAction implements DumbAware {
 
         try {
             Job job = browserPanel.getSelectedJob();
-
-            RequestManager requestManager = browserPanel.getJenkinsManager();
-
             if (job.hasParameters()) {
                 if (job.hasParameter(PARAMETER_NAME)) {
-
-                    JenkinsAppSettings settings = JenkinsAppSettings.getSafeInstance(project);
-
-                    final VirtualFile virtualFile = prepareFile(
-                            browserPanel,
-                            FileChooser.chooseFile(new FileChooserDescriptor(true, false, false, false, false, false), browserPanel, project, null),
-                            settings,
-                            job);
-
-                    if ((null != virtualFile)) {
-                        if (virtualFile.exists()) {
-                            Map<String, VirtualFile> files = new HashMap<>();
-                            files.put(PARAMETER_NAME, virtualFile);
-                            requestManager.runBuild(job, settings, files);
-                            notifyOnGoingMessage(job);
-                            browserPanel.loadSelectedJob();
-                        } else {
-                            message = String.format("File \"%s\" not exists", virtualFile.getPath());
-                        }
+                    final VirtualFile selectedFile = FileChooser.chooseFile(new FileChooserDescriptor(true,
+                            false, false, false, false,
+                            false), browserPanel, project, null);
+                    if (selectedFile != null) {
+                        ApplicationManager.getApplication().invokeLater(() -> runBuild(selectedFile, project, job),
+                                ModalityState.NON_MODAL);
                     }
                 } else {
                     message = String.format("Job \"%s\" should has parameter with name \"%s\"", job.getName(), PARAMETER_NAME);
-
                 }
             } else {
                 message = String.format("Job \"%s\" has no parameters", job.getName());
@@ -111,41 +105,73 @@ public class UploadPatchToJob extends AnAction implements DumbAware {
             LOG.info(message);
             browserPanel.notifyErrorJenkinsToolWindow(message);
         }
-
     }
 
-    public static VirtualFile prepareFile(BrowserPanel browserPanel, VirtualFile file, JenkinsAppSettings settings, Job job) throws IOException {
-        if ((null != file) && file.exists()) {
-            InputStream stream = file.getInputStream();
-            InputStreamReader streamReader = new InputStreamReader(stream);
-            BufferedReader bufferReader = new BufferedReader(streamReader);
-            String line;
-            String suffix = settings.getSuffix();
-            suffix = suffix.replace(SUFFIX_JOB_NAME_MACROS, job.getName());
-            StringBuilder builder = new StringBuilder();
-            while ((line = bufferReader.readLine()) != null) {
-                if (line.startsWith("Index: ") && !line.startsWith("Index: " + suffix)) {
-                    line = line.replaceFirst("^(Index: )(.+)", "$1" + suffix + "$2");
-                }
-                if (line.startsWith("--- ") && !line.startsWith("--- " + suffix)) {
-                    line = line.replaceFirst("^(--- )(.+)", "$1" + suffix + "$2");
-                }
-                if (line.startsWith("+++ ") && !line.startsWith("+++ " + suffix)) {
-                    line = line.replaceFirst("^(\\+\\+\\+ )(.+)", "$1" + suffix + "$2");
-                }
-                builder.append(line);
-                builder.append("\r\n");
+    private void runBuild(@NotNull VirtualFile patchFile, @NotNull Project project, @NotNull Job job) {
+        try {
+            final JenkinsAppSettings settings = JenkinsAppSettings.getSafeInstance(project);
+            final VirtualFile preparedFile = prepareFile(browserPanel, patchFile, settings, job);
+            if (preparedFile.exists()) {
+                runPatchFile(project, job, preparedFile);
+            } else {
+                final String message = String.format("File \"%s\" not exists", preparedFile.getPath());
+                LOG.info(message);
+                browserPanel.notifyErrorJenkinsToolWindow(message);
             }
-            bufferReader.close();
-            streamReader.close();
-            stream.close();
+        } catch (IOException e) {
+            final String message = String.format("Build cannot be run: %1$s", e.getMessage());
+            LOG.error(message, e);
+            browserPanel.notifyErrorJenkinsToolWindow(message);
+        }
+    }
 
-            OutputStream outputStream = file.getOutputStream(browserPanel);
-            outputStream.write(builder.toString().getBytes(StandardCharsets.UTF_8));
-            outputStream.close();
+    public static void runPatchFile(@NotNull Project project, @NotNull Job job,
+                                    @NotNull VirtualFile preparedFilePatchFile) {
+        new RunPatchFile(project, job, preparedFilePatchFile).queue();
+    }
+
+    @NotNull
+    public static VirtualFile prepareFile(BrowserPanel browserPanel, @NotNull VirtualFile file,
+                                          JenkinsAppSettings settings, Job job) throws IOException {
+        if (file.exists()) {
+            final String suffix = settings.getSuffix().replace(SUFFIX_JOB_NAME_MACROS, job.getName());
+            final String preparedContent = prepareFileContent(file, suffix);
+
+            WriteAction.run(() -> {
+                OutputStream outputStream = file.getOutputStream(browserPanel);
+                outputStream.write(preparedContent.getBytes(StandardCharsets.UTF_8));
+                outputStream.close();
+            });
+            return file;
+        }
+        return file;
+    }
+
+    @NotNull
+    static String prepareFileContent(@NotNull VirtualFile file, @NotNull String suffix) throws IOException {
+        final StringBuilder builder = new StringBuilder();
+        if (file.exists()) {
+            String line;
+            try (InputStream stream = file.getInputStream();
+                 InputStreamReader streamReader = new InputStreamReader(stream);
+                 BufferedReader bufferReader = new BufferedReader(streamReader)) {
+                while ((line = bufferReader.readLine()) != null) {
+                    if (line.startsWith("Index: ") && !line.startsWith("Index: " + suffix)) {
+                        line = line.replaceFirst("^(Index: )(.+)", "$1" + suffix + "$2");
+                    }
+                    if (line.startsWith("--- ") && !line.startsWith("--- " + suffix)) {
+                        line = line.replaceFirst("^(--- )(.+)", "$1" + suffix + "$2");
+                    }
+                    if (line.startsWith("+++ ") && !line.startsWith("+++ " + suffix)) {
+                        line = line.replaceFirst("^(\\+\\+\\+ )(.+)", "$1" + suffix + "$2");
+                    }
+                    builder.append(line);
+                    builder.append("\r\n");
+                }
+            }
         }
 
-        return file;
+        return builder.toString();
     }
 
     @Override
@@ -159,9 +185,53 @@ public class UploadPatchToJob extends AnAction implements DumbAware {
         }
     }
 
-    private void notifyOnGoingMessage(Job job) {
-        browserPanel.notifyInfoJenkinsToolWindow(HtmlUtil.createHtmlLinkMessage(
-                job.getName() + " build is on going",
-                job.getUrl()));
+    private static class RunPatchFile extends Task.Backgroundable {
+
+        @NotNull
+        private final VirtualFile patchFile;
+        @NotNull
+        private final BrowserPanel browserPanel;
+        @NotNull
+        private final Project project;
+        @NotNull
+        private final Job job;
+
+        public RunPatchFile(@NotNull Project project, @NotNull Job job, @NotNull VirtualFile patchFile) {
+            super(project, "Running build with Patch file", false);
+            this.patchFile = patchFile;
+            this.browserPanel = BrowserPanel.getInstance(project);
+            this.project = project;
+            this.job = job;
+        }
+
+        @Override
+        public void onSuccess() {
+            notifyOnGoingMessage(job);
+        }
+
+        @Override
+        public void onThrowable(@NotNull Throwable error) {
+            super.onThrowable(error);
+            final String message = String.format("Build cannot be run: %1$s", error.getMessage());
+            LOG.error(message, error);
+            browserPanel.notifyErrorJenkinsToolWindow(message);
+        }
+
+        @Override
+        public void run(@NotNull ProgressIndicator progressIndicator) {
+            progressIndicator.setIndeterminate(true);
+            RequestManager requestManager = browserPanel.getJenkinsManager();
+
+            final JenkinsAppSettings settings = JenkinsAppSettings.getSafeInstance(project);
+            final Map<String, VirtualFile> files = new HashMap<>(Collections.singletonMap(PARAMETER_NAME, patchFile));
+            requestManager.runBuild(job, settings, files);
+            //browserPanel.loadJob(job);
+            browserPanel.refreshCurrentView();
+        }
+
+        private void notifyOnGoingMessage(Job job) {
+            browserPanel.notifyInfoJenkinsToolWindow(HtmlUtil.createHtmlLinkMessage(
+                    job.getName() + " build is on going", job.getUrl()));
+        }
     }
 }

@@ -7,7 +7,7 @@ plugins {
 }
 
 group 'org.codinjutsu'
-version '0.13.0-2020.1'
+version '0.13.1-2020.1-eap1'
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'java'
 apply plugin: 'idea'
@@ -16,7 +16,7 @@ sourceCompatibility = JavaVersion.VERSION_11
 
 intellij {
     version 'LATEST-EAP-SNAPSHOT'
-//    version '2019.3.3'
+//    version '2020.1'
     plugins 'java'
     updateSinceUntilBuild false
     pluginName 'jenkins-control-plugin'
@@ -120,12 +120,6 @@ prepareSandbox {
     from (['README.md', 'CHANGELOG.txt', 'LICENSE.txt']) {
         into "${intellij.pluginName}/"
     }
-//    from (configurations.runtimeClasspath) {
-//        exclude 'commons-lang:commons-lang'
-//        exclude 'com.intellij:forms_rt'
-//        exclude 'com.intellij:idea'
-//        exclude 'com.intellij:openapi'
-//    }
 }
 
 sonarqube {
