@@ -266,15 +266,6 @@ public class BrowserPanel extends SimpleToolWindowPanel {
         return requestManager;
     }
 
-    public void loadSelectedJob() {
-        if (SwingUtilities.isEventDispatchThread()) {
-            logger.warn("BrowserPanel.loadSelectedJob called from EDT");
-        }
-        final Job job = getSelectedJob();
-        loadJob(job);
-
-    }
-
     public void loadJob(final Job job) {
         if (!SwingUtilities.isEventDispatchThread()) {
             logger.warn("BrowserPanel.loadJob called from outside of EDT");

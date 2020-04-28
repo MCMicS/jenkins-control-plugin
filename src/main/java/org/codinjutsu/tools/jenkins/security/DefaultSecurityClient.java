@@ -49,7 +49,7 @@ class DefaultSecurityClient implements SecurityClient {
     protected JenkinsVersion jenkinsVersion = JenkinsVersion.VERSION_1;
 
     protected final HttpClient httpClient;
-    protected Map<String, VirtualFile> files = new HashMap<String, VirtualFile>();
+    protected Map<String, VirtualFile> files = new HashMap<>();
 
     DefaultSecurityClient(String crumbData) {
         this.httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());

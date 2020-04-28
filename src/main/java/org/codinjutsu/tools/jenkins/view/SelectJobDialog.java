@@ -22,6 +22,8 @@ import com.intellij.openapi.diff.impl.patch.FilePatch;
 import com.intellij.openapi.diff.impl.patch.IdeaTextPatchBuilder;
 import com.intellij.openapi.diff.impl.patch.UnifiedDiffWriter;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.changes.Change;
 import com.intellij.openapi.vcs.changes.ChangeList;
@@ -43,12 +45,14 @@ import java.awt.event.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.*;
 
 public class SelectJobDialog extends JDialog {
 
     private static final Logger LOG = Logger.getInstance(UploadPatchToJob.class.getName());
-    private static String FILENAME = "jenkins.diff";
+    private static String FILENAME_PREFIX = "jenkins";
+    private static String FILENAME_SUFFIX = ".diff";
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
@@ -77,17 +81,9 @@ public class SelectJobDialog extends JDialog {
 
         getRootPane().setDefaultButton(buttonOK);
 
-        buttonOK.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent event) {
-                onOK();
-            }
-        });
+        buttonOK.addActionListener(event -> onOK());
 
-        buttonCancel.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onCancel();
-            }
-        });
+        buttonCancel.addActionListener(e -> onCancel());
 
         // call onCancel() when cross is clicked
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -152,19 +148,20 @@ public class SelectJobDialog extends JDialog {
     }
 
     @NotNull
-    private String createPatchFile() throws IOException, VcsException {
-        try (FileWriter writer = new FileWriter(FILENAME)) {
-            ArrayList<Change> changes = new ArrayList<>();
+    private File createPatchFile() throws IOException, VcsException {
+        final File patchFile = FileUtil.createTempFile(FILENAME_PREFIX, FILENAME_SUFFIX);
+        try (FileWriter writer = new FileWriter(patchFile)) {
+            final ArrayList<Change> changes = new ArrayList<>();
             if (changeLists.length > 0) {
                 for (ChangeList changeList : changeLists) {
                     changes.addAll(changeList.getChanges());
                 }
             }
-            String base = PatchWriter.calculateBaseForWritingPatch(project, changes).getPath();
-            List<FilePatch> patches = IdeaTextPatchBuilder.buildPatch(project, changes, base, false);
+            final String base = PatchWriter.calculateBaseForWritingPatch(project, changes).getPath();
+            final List<FilePatch> patches = IdeaTextPatchBuilder.buildPatch(project, changes, base, false);
             UnifiedDiffWriter.write(project, patches, writer, CodeStyle.getProjectOrDefaultSettings(project).getLineSeparator(), null);
         }
-        return FILENAME;
+        return patchFile;
     }
 
     private void watchJob(BrowserPanel browserPanel, Job job) {
@@ -177,9 +174,9 @@ public class SelectJobDialog extends JDialog {
 
     private void onOK() {
         BrowserPanel browserPanel = BrowserPanel.getInstance(project);
-        String patchFileName = null;
+        Optional<File> patchFile = Optional.empty();
         try {
-            patchFileName = createPatchFile();
+            patchFile = Optional.of(createPatchFile());
             String selectedJobName = (String) jobsList.getSelectedItem();
             if (selectedJobName != null && !selectedJobName.isEmpty()) {
                 final Job selectedJob = browserPanel.getJob(selectedJobName)
@@ -187,36 +184,29 @@ public class SelectJobDialog extends JDialog {
                         .filter(job -> job.hasParameter(UploadPatchToJob.PARAMETER_NAME))
                         .orElse(null);
                 if (selectedJob != null) {
-                    uploadPatchForJob(selectedJob);
+                    uploadPatchForJob(selectedJob, patchFile.get());
                 }
             }
         } catch (Exception e) {
-            final String message = String.format("Build cannot be run:  %1$s", e.getMessage());
+            final String message = String.format("Build from patch cannot be run: %1$s", e.getMessage());
             LOG.info(message, e);
             browserPanel.notifyErrorJenkinsToolWindow(message);
+        } finally {
+            patchFile.ifPresent(FileUtil::delete);
         }
-        Optional.ofNullable(patchFileName).ifPresent(this::deletePatchFile);
         dispose();
     }
 
-    private void uploadPatchForJob(@NotNull Job selectedJob) throws IOException {
+    private void uploadPatchForJob(@NotNull Job selectedJob, @NotNull File patchFile) throws IOException {
         BrowserPanel browserPanel = BrowserPanel.getInstance(project);
-        RequestManager requestManager = browserPanel.getJenkinsManager();
         if (selectedJob.hasParameters()) {
             if (selectedJob.hasParameter(UploadPatchToJob.PARAMETER_NAME)) {
                 JenkinsAppSettings settings = JenkinsAppSettings.getSafeInstance(project);
-                Map<String, VirtualFile> files = new HashMap<>();
-                VirtualFile virtualFile = UploadPatchToJob.prepareFile(browserPanel, LocalFileSystem.getInstance().refreshAndFindFileByIoFile(new File(FILENAME)), settings, selectedJob);
-                if (virtualFile != null && virtualFile.exists()) {
-                    files.put(UploadPatchToJob.PARAMETER_NAME, virtualFile);
-                    requestManager.runBuild(selectedJob, settings, files);
-                    browserPanel.notifyInfoJenkinsToolWindow(HtmlUtil.createHtmlLinkMessage(
-                            selectedJob.getName() + " build is on going",
-                            selectedJob.getUrl())
-                    );
-
+                final VirtualFile virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(patchFile);
+                final VirtualFile preparedFile = UploadPatchToJob.prepareFile(browserPanel, virtualFile, settings, selectedJob);
+                if (preparedFile.exists()) {
+                    UploadPatchToJob.runPatchFile(project, selectedJob, preparedFile);
                     watchJob(browserPanel, selectedJob);
-
                 } else {
                     throw new ConfigurationException(String.format("File \"%s\" not found", virtualFile == null ?
                             "null" : virtualFile.getPath()));
@@ -227,11 +217,6 @@ public class SelectJobDialog extends JDialog {
         } else {
             throw new ConfigurationException(String.format("Job \"%s\" has no parameters", selectedJob.getName()));
         }
-    }
-
-    private boolean deletePatchFile(@NotNull String fileName) {
-        File file = new File(fileName);
-        return file.delete();
     }
 
     private void onCancel() {
