@@ -18,6 +18,7 @@ package org.codinjutsu.tools.jenkins.view.action;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
+import org.jetbrains.annotations.NotNull;
 
 public class GotoJobPageAction extends AbstractGotoWebPageAction {
 
@@ -26,6 +27,7 @@ public class GotoJobPageAction extends AbstractGotoWebPageAction {
     }
 
 
+    @NotNull
     @Override
     protected String getUrl() {
         return browserPanel.getSelectedJob().getUrl();
