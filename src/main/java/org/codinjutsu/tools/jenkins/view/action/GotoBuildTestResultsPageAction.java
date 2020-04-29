@@ -2,6 +2,7 @@ package org.codinjutsu.tools.jenkins.view.action;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
+import org.jetbrains.annotations.NotNull;
 
 public class GotoBuildTestResultsPageAction extends AbstractGotoWebPageAction {
 
@@ -10,6 +11,7 @@ public class GotoBuildTestResultsPageAction extends AbstractGotoWebPageAction {
     }
 
 
+    @NotNull
     @Override
     protected String getUrl() {
         return browserPanel.getSelectedBuild().getUrl() + "/testReport";

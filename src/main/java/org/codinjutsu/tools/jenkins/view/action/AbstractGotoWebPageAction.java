@@ -21,6 +21,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
+import org.jetbrains.annotations.NotNull;
 
 abstract class AbstractGotoWebPageAction extends AnAction implements DumbAware {
     final BrowserPanel browserPanel;
@@ -33,7 +34,7 @@ abstract class AbstractGotoWebPageAction extends AnAction implements DumbAware {
         this.browserPanel = browserPanel;
     }
 
-
+    @NotNull
     protected abstract String getUrl();
 
 
