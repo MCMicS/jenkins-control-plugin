@@ -7,6 +7,7 @@ import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
 import org.codinjutsu.tools.jenkins.model.JobParameterType;
 import org.codinjutsu.tools.jenkins.view.parameter.JobParameterComponent;
+import org.codinjutsu.tools.jenkins.view.parameter.PasswordComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,11 +24,12 @@ public final class JobParameterRenderers {
 
     @NotNull
     public static JobParameterComponent createPasswordField(JobParameter jobParameter, String defaultValue) {
-        final JPasswordField passwordField = new JPasswordField();
+        final PasswordComponent passwordComponent = PasswordComponent.create();
+        passwordComponent.init();
         if (StringUtils.isNotEmpty(defaultValue)) {
-            passwordField.setText(defaultValue);
+            passwordComponent.setValue(defaultValue);
         }
-        return new JobParameterComponent(jobParameter, passwordField, readPassword());
+        return new JobParameterComponent(jobParameter, passwordComponent.asComponent(), c -> passwordComponent.getValue());
     }
 
     @NotNull
@@ -92,16 +94,6 @@ public final class JobParameterRenderers {
     @NotNull
     public static JobParameterComponent createErrorLabel(@NotNull JobParameter jobParameter, String defaultValue) {
         return createErrorLabel(jobParameter);
-    }
-
-    @NotNull
-    private static Function<JPasswordField, String> readPassword() {
-        return passwordField -> {
-            final char[] password = passwordField.getPassword();
-            final String result = new String(password);
-            Arrays.fill(password, '\0');
-            return result;
-        };
     }
 
     @NotNull
