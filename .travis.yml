@@ -7,7 +7,7 @@ jobs:
   include:
     - stage: test
     - stage: SonarCloud
-      if: branch = master
+      if: branch = master OR branch =~ ^release\/.*$
       script: ./gradlew jacocoTestReport sonarqube
 git:
   depth: false
