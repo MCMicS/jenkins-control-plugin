@@ -213,6 +213,7 @@ public class BrowserPanel extends SimpleToolWindowPanel {
         return null;
     }
 
+    @Nullable
     public Job getSelectedJob() {
         DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) jobTree.getLastSelectedPathComponent();
         if (treeNode != null) {
@@ -264,15 +265,6 @@ public class BrowserPanel extends SimpleToolWindowPanel {
 
     public RequestManager getJenkinsManager() {
         return requestManager;
-    }
-
-    public void loadSelectedJob() {
-        if (SwingUtilities.isEventDispatchThread()) {
-            logger.warn("BrowserPanel.loadSelectedJob called from EDT");
-        }
-        final Job job = getSelectedJob();
-        loadJob(job);
-
     }
 
     public void loadJob(final Job job) {
@@ -444,7 +436,7 @@ public class BrowserPanel extends SimpleToolWindowPanel {
         popupGroup.add(new GotoBuildTestResultsPageAction(this));
         popupGroup.add(new GotoLastBuildPageAction(this));
         popupGroup.addSeparator();
-        popupGroup.add(new UploadPatchToJob(this));
+        popupGroup.add(new UploadPatchToJobAction(this));
 
         PopupHandler.installPopupHandler(jobTree, popupGroup, POPUP_PLACE, ActionManager.getInstance());
     }
@@ -581,9 +573,16 @@ public class BrowserPanel extends SimpleToolWindowPanel {
                     @Override
                     public void onSuccess() {
                         if (lastBuild.isBuilding() && !build.isBuilding()) {
-                            notifyInfoJenkinsToolWindow(String.format("Status of build for Changelist \"%s\" is %s", entry, build.getStatus().getStatus()));
+                            notifyInfoJenkinsToolWindow(String.format("Status of build for Changelist \"%s\" is %s",
+                                    entry.getKey(), build.getStatus().getStatus()));
                         }
                         job.setLastBuild(build);
+                    }
+
+                    @Override
+                    public void onThrowable(@NotNull Throwable error) {
+                        notifyErrorJenkinsToolWindow(String.format("Error while watch for Changelist \"%s\" is %s",
+                                entry.getKey(), error.getMessage()));
                     }
 
                     @Override

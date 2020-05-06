@@ -3,10 +3,12 @@ plugins {
     id 'org.jetbrains.intellij' version '0.4.18'
     id "io.freefair.lombok" version "5.0.0"
     id 'idea'
+    id "org.sonarqube" version "2.8"
+    id 'jacoco'
 }
 
 group 'org.codinjutsu'
-version '0.13.0-2018.3'
+version '0.13.1-2018.3'
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'java'
 apply plugin: 'idea'
@@ -117,10 +119,18 @@ prepareSandbox {
     from (['README.md', 'CHANGELOG.txt', 'LICENSE.txt']) {
         into "${intellij.pluginName}/"
     }
-//    from (configurations.runtimeClasspath) {
-//        exclude 'commons-lang:commons-lang'
-//        exclude 'com.intellij:forms_rt'
-//        exclude 'com.intellij:idea'
-//        exclude 'com.intellij:openapi'
-//    }
+}
+
+sonarqube {
+    properties {
+        //property "sonar.host.url", "https://sonarcloud.io"
+        property "sonar.projectKey", "MCMicS_jenkins-control-plugin"
+    }
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.enabled true
+    }
 }

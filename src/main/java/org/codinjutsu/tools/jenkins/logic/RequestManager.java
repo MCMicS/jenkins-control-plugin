@@ -42,6 +42,7 @@ import javax.swing.*;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class RequestManager implements RequestManagerInterface {
@@ -206,11 +207,7 @@ public class RequestManager implements RequestManagerInterface {
     public void runBuild(Job job, JenkinsAppSettings configuration, Map<String, VirtualFile> files) {
         if (handleNotYetLoggedInState()) return;
         if (job.hasParameters() && files.size() > 0) {
-            for (String key : files.keySet()) {
-                if (!job.hasParameter(key)) {
-                    files.remove(files.get(key));
-                }
-            }
+            files.keySet().removeIf(key -> !job.hasParameter(key));
             securityClient.setFiles(files);
         }
         runBuild(job, configuration);

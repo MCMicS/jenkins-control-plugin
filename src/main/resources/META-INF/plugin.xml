@@ -44,6 +44,7 @@
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.RssAuthenticationActionHandler"/>
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.view.DefaultBuildStatusEnumRenderer"/>
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.view.BuildStatusEnumRenderer"/>
+        <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.RunBuildWithPatch"/>
 
         <postStartupActivity implementation="org.codinjutsu.tools.jenkins.StartupJenkinsService" />
 

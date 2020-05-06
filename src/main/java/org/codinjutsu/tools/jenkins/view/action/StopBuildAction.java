@@ -52,7 +52,7 @@ public class StopBuildAction extends AnAction implements DumbAware {
         } catch (Exception ex) {
             final String message = ex.getMessage() == null ? "Unknown error" : ex.getMessage();
             LOG.error(message, ex);
-            browserPanel.notifyErrorJenkinsToolWindow("Build cannot be run: " + message);
+            browserPanel.notifyErrorJenkinsToolWindow("Build cannot be stopped: " + message);
         }
     }
 
