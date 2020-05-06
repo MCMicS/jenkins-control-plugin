@@ -7,6 +7,7 @@ import org.codinjutsu.tools.jenkins.model.JobParameterType;
 import org.codinjutsu.tools.jenkins.view.extension.JobParameterRenderers;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import javax.swing.*;
 
@@ -56,8 +57,9 @@ public class BuiltInJobParameterRendererTest {
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JCheckBox.class);
         jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.StringParameterDefinition));
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JTextField.class);
+        final PasswordComponent passwordComponent = PasswordComponent.create();
         jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.PasswordParameterDefinition));
-        assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JPasswordField.class);
+        assertThat(jobParameterComponent.getViewElement()).isInstanceOf(passwordComponent.asComponent().getClass());
         jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.CredentialsParameterDefinition));
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JobParameterRenderers.ErrorLabel.class);
         jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.FileParameterDefinition));
