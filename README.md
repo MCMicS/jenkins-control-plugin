@@ -1,8 +1,14 @@
-# Jenkins Plugin 0.12.0 for Jetbrains products
+# Jenkins Plugin 0.13.1 for Jetbrains products
 [![Build Status](https://travis-ci.com/MCMicS/jenkins-control-plugin.svg?branch=master)](https://travis-ci.com/MCMicS/jenkins-control-plugin)
 [![Gitter](https://badges.gitter.im/jenkins-control-plugin/community.svg)](https://gitter.im/jenkins-control-plugin/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=MCMicS_jenkins-control-plugin&metric=alert_status)](https://sonarcloud.io/dashboard?id=MCMicS_jenkins-control-plugin)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=MCMicS_jenkins-control-plugin&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=MCMicS_jenkins-control-plugin)
+
+![GitHub Release Date](https://img.shields.io/github/release-date/MCMicS/jenkins-control-plugin)
 [![Version](https://img.shields.io/jetbrains/plugin/v/6110?label=version)](https://plugins.jetbrains.com/plugin/6110-jenkins-control-plugin)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/6110-jenkins-control-plugin)](https://plugins.jetbrains.com/plugin/6110-jenkins-control-plugin)
+![JetBrains IntelliJ Plugins](https://img.shields.io/jetbrains/plugin/r/rating/6110)
+![GitHub](https://img.shields.io/github/license/MCMicS/jenkins-control-plugin)
 
 * [Jetbrains plugin page](https://plugins.jetbrains.com/idea/plugin/6110)
 * [Changelog](CHANGELOG.txt)
@@ -10,6 +16,7 @@
 ### Current Release
 * [Idea 2018.3](../../releases/latest/download/jenkins-control-plugin-2018.3.zip)
 * [Idea 2019.3](../../releases/latest/download/jenkins-control-plugin-2019.3.zip)
+* [Idea 2020.1](../../releases/latest/download/jenkins-control-plugin-2020.1.zip)
 
 ### Use EAP Builds
 * add https://plugins.jetbrains.com/plugins/eap/list as Plugin Repository

@@ -1,13 +1,21 @@
 language: java
-sudo: false
-matrix:
+os: linux
+jdk: openjdk8
+script: ./gradlew verifyPlugin test
+
+jobs:
   include:
-    - os: linux
-      jdk: openjdk8
-
-script:
-  - ./gradlew verifyPlugin test
-
+    - stage: test
+    - stage: SonarCloud
+      if: branch = master
+      script: ./gradlew jacocoTestReport sonarqube
+git:
+  depth: false
 cache:
   directories:
-    - ~/.gradle
+  - "~/.gradle"
+addons:
+  sonarcloud:
+    organization: "mcmics-github"
+    token:
+      secure: "RO55Kv63Me2lDHEYS3vOkdLmOFow9ELfL1L943OO34DpUmqv1Lcq38aFeiFELKlWjPbjQWcNtlUM8J3QktWoATUM57VEwzFBHPm0X75n7LeP1PdMf5gEaibLVtAZ/J35ISXIvkRMZg1qgDXkakV9tFgEcLqVR5a172cSZuJJDsSOWaQVyb4R5o5KwumlOa2S358pKcTyMMzO3VNGaYctNSRkH4jb/T6NcDD1EL1jOD2aQ70UPxLqRZI1/LtaXhazgYcYED8WXFa0ZwSyQdouqEa+P+4/HfPyHn3Ao8zwAm2QZ3VaFPC4If9Lx4sFAjrJdTWjEyGRbXhorn71bnFrro5UlKwtfBgUBs65+RrSbxptNyam9zETuGdxaOEgsYNKIGW/lWKLbKZKI0jB9/c0jcfDfjUA9mb0zy6SLgBKTTwLA4MV5OM/p60+INqefkl7gBzsHtArDliIizEKOx2LDEK4dDzkkiip3yZUPgQGFIyiAnhX/8MXGNx7qebfnSNaCDn198nsuACbgh46CbZGW+D0y12L8HR+52PJmYZA5Tww/W0T76CsUYvFAskqJWHf7Jks99YiF/hBwO3Q/ZutIQ9OpJVNoqI3RHxsc3PHjmxtdhBM50w64aLusxA9xu4v8zSKmKhoSft4LGaVh124u9i+OT/a88jx690lP71hzw8="
