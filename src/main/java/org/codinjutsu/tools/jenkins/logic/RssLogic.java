@@ -52,7 +52,7 @@ public class RssLogic implements Disposable {
     private final Project project;
     private final JenkinsAppSettings jenkinsAppSettings;
     private final RequestManager requestManager;
-    private Map<String, Build> currentBuildMap = new HashMap<>();
+    private final Map<String, Build> currentBuildMap = new HashMap<>();
 
     private final Runnable refreshRssBuildsJob;
     private ScheduledFuture<?> refreshRssBuildFutureTask;
@@ -170,7 +170,7 @@ public class RssLogic implements Disposable {
 
     @Override
     public void dispose() {
-        currentBuildMap = null;
+        currentBuildMap.clear();
     }
 
     private class LoadLatestBuildsJob extends Task.Backgroundable {

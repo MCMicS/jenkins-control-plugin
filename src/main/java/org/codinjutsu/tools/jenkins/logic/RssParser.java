@@ -17,6 +17,7 @@
 package org.codinjutsu.tools.jenkins.logic;
 
 //import org.apache.commons.io.IOUtils;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.model.Build;
@@ -27,6 +28,8 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.input.sax.XMLReaders;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -48,12 +51,14 @@ public class RssParser {
     public RssParser() {
     }
 
+    @NotNull
     public Map<String, Build> loadJenkinsRssLatestBuilds(String rssData) {
         Document doc = buildDocument(rssData);
         return createLatestBuildList(doc);
     }
 
-    private Document buildDocument(String xmlData) {
+    @NotNull
+    private Document buildDocument(@Nullable String xmlData) {
         if (StringUtils.isEmpty(xmlData)) {
             LOG.error("Empty XML data");
             throw new IllegalStateException("Empty XML data");
@@ -70,7 +75,8 @@ public class RssParser {
         }
     }
 
-    private Map<String, Build> createLatestBuildList(Document doc) {
+    @NotNull
+    private Map<String, Build> createLatestBuildList(@NotNull Document doc) {
 
         Map<String, Build> buildMap = new LinkedHashMap<>();
         Element rootElement = doc.getRootElement();
