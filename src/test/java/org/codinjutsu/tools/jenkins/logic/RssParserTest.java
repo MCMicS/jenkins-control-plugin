@@ -108,18 +108,18 @@ public class RssParserTest {
                 .timestamp(new Date(0L))
                 .duration(0L)
                 .building(false)
-                .message("TESTING-HUDSON-7434 #2 (broken for a long time)")
+                .message("Version Number » VersionNumber #3 (2 tests are still failing)")
                 .build();
         final Build customVersionNumber = Build.builder()
                 .url("http://localhost:8080/job/Version%20Number/job/With%20Build%20Display/5/")
                 .number(5)
                 .status(BuildStatusEnum.SUCCESS)
-                .buildDate(DateUtil.RSS_DATE_FORMAT.parse("22020-05-07T18:18:38Z"))
+                .buildDate(DateUtil.RSS_DATE_FORMAT.parse("2020-05-07T18:18:38Z"))
                 .building(false)
                 .timestamp(new Date(0L))
                 .duration(0L)
                 .building(false)
-                .message("infra_jenkins-ci.org_webcontents #2 (back to normal)")
+                .message("Version Number » With Build Display 1.1.1 (stable)")
                 .build();
         assertThat(entries).hasSize(2);
         assertThat(entries.values()).contains(normalVersionNumber, customVersionNumber);

@@ -37,6 +37,7 @@ import java.io.StringReader;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class RssParser {
 
@@ -53,8 +54,7 @@ public class RssParser {
 
     @NotNull
     public Map<String, Build> loadJenkinsRssLatestBuilds(String rssData) {
-        Document doc = buildDocument(rssData);
-        return createLatestBuildList(doc);
+        return createLatestBuildList(buildDocument(rssData));
     }
 
     @NotNull
@@ -77,24 +77,25 @@ public class RssParser {
 
     @NotNull
     private Map<String, Build> createLatestBuildList(@NotNull Document doc) {
+        final Map<String, Build> buildMap = new LinkedHashMap<>();
+        final Element rootElement = doc.getRootElement();
 
-        Map<String, Build> buildMap = new LinkedHashMap<>();
-        Element rootElement = doc.getRootElement();
-
-        List<Element> elements = rootElement.getChildren(RSS_ENTRY, rootElement.getNamespace());
+        final List<Element> elements = rootElement.getChildren(RSS_ENTRY, rootElement.getNamespace());
         for (Element element : elements) {
-            String title = element.getChildText(RSS_TITLE, rootElement.getNamespace());
-            String publishedBuild = element.getChildText(RSS_PUBLISHED, rootElement.getNamespace());
-            String jobName = RssUtil.extractBuildJob(title);
-            String number = RssUtil.extractBuildNumber(title);
-            BuildStatusEnum status = RssUtil.extractStatus(title);
-            Element linkElement = element.getChild(RSS_LINK, rootElement.getNamespace());
-            String link = linkElement.getAttributeValue(RSS_LINK_HREF);
+            final String title = Optional.ofNullable(element.getChildText(RSS_TITLE, rootElement.getNamespace()))
+                    .orElse(StringUtils.EMPTY);
+            final String publishedBuild = element.getChildText(RSS_PUBLISHED, rootElement.getNamespace());
+            final Element buildUrlElement = element.getChild(RSS_LINK, rootElement.getNamespace());
+            final Optional<String> buildUrl = Optional.ofNullable(buildUrlElement.getAttributeValue(RSS_LINK_HREF));
+            // maybe load build from jenkins with needed info
+            final String jobName = RssUtil.extractBuildJob(title);
+            final int number = buildUrl.map(RssUtil::extractBuildNumber).orElse(-1);
+            final BuildStatusEnum status = RssUtil.extractStatus(title);
 
             if (!BuildStatusEnum.NULL.equals(status)) {
-                buildMap.put(jobName, Build.createBuildFromRss(link, number, status.getStatus(), false, publishedBuild, title));
+                buildMap.put(jobName, Build.createBuildFromRss(buildUrl.orElse(StringUtils.EMPTY), number,
+                        status.getStatus(), false, publishedBuild, title));
             }
-
         }
 
         return buildMap;

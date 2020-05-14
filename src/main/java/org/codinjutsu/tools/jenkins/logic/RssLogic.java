@@ -88,8 +88,8 @@ public class RssLogic implements Disposable {
     }
 
     private Map<String, Build> loadAndReturnNewLatestBuilds() {
-        Map<String, Build> latestBuildMap = requestManager.loadJenkinsRssLatestBuilds(jenkinsAppSettings);
-        Map<String, Build> newBuildMap = new HashMap<>();
+        final Map<String, Build> latestBuildMap = requestManager.loadJenkinsRssLatestBuilds(jenkinsAppSettings);
+        final Map<String, Build> newBuildMap = new HashMap<>();
         for (Map.Entry<String, Build> entry : latestBuildMap.entrySet()) {
             String jobName = entry.getKey();
             Build newBuild = entry.getValue();

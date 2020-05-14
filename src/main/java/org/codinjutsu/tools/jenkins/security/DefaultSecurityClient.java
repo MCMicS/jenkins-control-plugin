@@ -17,6 +17,7 @@
 package org.codinjutsu.tools.jenkins.security;
 
 import com.intellij.openapi.vfs.VirtualFile;
+import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
@@ -26,6 +27,7 @@ import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.methods.multipart.StringPart;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpHeaders;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.model.VirtualFilePartSource;
 import org.codinjutsu.tools.jenkins.util.IOUtils;
@@ -103,9 +105,9 @@ class DefaultSecurityClient implements SecurityClient {
         if (isCrumbDataSet()) {
             post.addRequestHeader(jenkinsVersion.getCrumbName(), crumbData);
         }
+        post.addRequestHeader(HttpHeaders.ACCEPT_LANGUAGE, "en-US,en;q=0.5");
 
         post = addFiles(post);
-
 
         try {
             if (files.isEmpty()) {

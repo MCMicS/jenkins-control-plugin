@@ -16,16 +16,24 @@
 
 package org.codinjutsu.tools.jenkins.util;
 
+import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.util.Url;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusVisitor;
 import org.codinjutsu.tools.jenkins.logic.RssBuildStatusVisitor;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RssUtil {
 
-    private static final Pattern BUILD_NUMBER_MATCHER = Pattern.compile("#[0-9]+");
+    private static final Pattern JOBNAME_FROM_TITLE = Pattern.compile("^(.*) (\\S+) \\((.+)\\)$");
+    private static final int JOB_NAME_GROUP = 1;
+    private static final int DISPLAY_NUMBER_GROUP = 2;
+    private static final int STATUS_GROUP = 3;
 
     private static final Pattern SUCCESS_MATCHER = Pattern.compile("normal|stable");
 
@@ -35,33 +43,32 @@ public class RssUtil {
 
     private static final Pattern ABORTED_MATCHER = Pattern.compile("aborted");
 
-    private RssUtil() {
-    }
+    private static final Logger LOG = Logger.getInstance(DateUtil.class.getName());
 
-
-    public static BuildStatusEnum extractStatus(String rssEntryTitle) {
+    @NotNull
+    public static BuildStatusEnum extractStatus(@NotNull String rssEntryTitle) {
         RssBuildStatusVisitor statusVisitor = new RssBuildStatusVisitor();
         visit(statusVisitor, rssEntryTitle);
         return statusVisitor.getStatus();
     }
 
-    public static String extractBuildNumber(String rssEntryTitle) {
-        Matcher matcher = BUILD_NUMBER_MATCHER.matcher(rssEntryTitle);
-        if (matcher.find()) {
-            String foundBuildNumber = matcher.group();
-            return foundBuildNumber.substring(1);
+    public static int extractBuildNumber(@NotNull String buildUrl) {
+        try {
+            final String buildNumber = buildUrl.replaceFirst(".*/([^/?]+).*", "$1");
+            return Integer.parseInt(buildNumber);
+        } catch (NumberFormatException e) {
+            LOG.debug(e);
         }
-        return null;
-
+        return -1;
     }
 
-
-    public static String extractBuildJob(String rssEntryTitle) {
-        String[] splitStrings = BUILD_NUMBER_MATCHER.split(rssEntryTitle);
-        if (splitStrings.length > 1) {
-            return splitStrings[0].trim();
+    @NotNull
+    public static String extractBuildJob(@NotNull String rssEntryTitle) {
+        final Matcher matcher = JOBNAME_FROM_TITLE.matcher(rssEntryTitle);
+        if (matcher.matches()) {
+            return matcher.group(JOB_NAME_GROUP);
         }
-        return null;
+        return rssEntryTitle;
     }
 
 
