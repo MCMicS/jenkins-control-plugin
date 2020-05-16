@@ -36,11 +36,11 @@ public class UrlBuilder {
     private static final String RSS_LATEST = "/rssLatest";
     private static final String TREE_PARAM = "?tree=";
     private static final String BASIC_JENKINS_INFO = "nodeName,nodeDescription,primaryView[name,url],views[name,url,views[name,url]]";
-    private static final String BASIC_JOB_INFO = "name,fullName,displayName,fullDisplayName,jobs,url,color,buildable,inQueue,healthReport[description,iconUrl],lastBuild[id,url,building,result,number,timestamp,duration],property[parameterDefinitions[name,type,defaultParameterValue[value],description,choices]]";
+    private static final String BASIC_BUILD_INFO = "id,url,building,result,number,displayName,fullDisplayName,timestamp,duration";
+    private static final String BASIC_JOB_INFO = "name,fullName,displayName,fullDisplayName,jobs,url,color,buildable,inQueue,healthReport[description,iconUrl],lastBuild[" + BASIC_BUILD_INFO + "],property[parameterDefinitions[name,type,defaultParameterValue[value],description,choices]]";
     private static final String BASIC_VIEW_INFO = "name,url,jobs[" + BASIC_JOB_INFO + "]";
     private static final String CLOUDBEES_VIEW_INFO = "name,url,views[jobs[" + BASIC_JOB_INFO + "]]";
     private static final String TEST_CONNECTION_REQUEST = "?tree=nodeName";
-    private static final String BASIC_BUILD_INFO = "id,url,building,result,number,timestamp,duration";
     private static final String BASIC_BUILDS_INFO = "builds[" + BASIC_BUILD_INFO + "]";
     private static final String NESTED_JOBS_INFO = "name,url,displayName,fullDisplayName,jobs[" + BASIC_JOB_INFO + "]";
 

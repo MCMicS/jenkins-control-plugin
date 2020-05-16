@@ -24,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Optional;
 
 @Value
 @Builder(toBuilder = true)
@@ -41,6 +42,12 @@ public class Build {
     @Nullable
     @Builder.Default
     private final String message = null;
+    @Builder.Default
+    @Nullable
+    private final String displayName = null;
+    @Builder.Default
+    @Nullable
+    private final String fullDisplayName = null;
     @Builder.Default
     private final Date timestamp = new Date();
     @Nullable
@@ -85,6 +92,11 @@ public class Build {
                 .message("")
                 .timestamp(defaultDate)
                 .build();
+    }
+
+    @NotNull
+    public String getDisplayNumber() {
+        return Optional.ofNullable(getDisplayName()).orElseGet(() -> "#" + getNumber());
     }
 
     public boolean isAfter(Build aBuild) {

@@ -134,9 +134,10 @@ public class RssLogic implements Disposable {
 
     private void displayTheFirstFailedBuildInABalloon(Map.Entry<String, Build> firstFailedBuild) {
         if (firstFailedBuild != null) {
-            String jobName = firstFailedBuild.getKey();
-            Build build = firstFailedBuild.getValue();
-            String message = jobName + "#" + build.getNumber() + ": FAILED";
+            final String jobName = firstFailedBuild.getKey();
+            final Build build = firstFailedBuild.getValue();
+            final String message = Optional.ofNullable(build.getFullDisplayName())
+                    .orElseGet(() -> jobName + build.getDisplayNumber()) + ": FAILED";
             displayErrorMessageInABalloon(message);
         }
     }

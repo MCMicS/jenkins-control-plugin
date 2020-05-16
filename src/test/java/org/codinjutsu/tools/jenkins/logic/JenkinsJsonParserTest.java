@@ -199,6 +199,8 @@ public class JenkinsJsonParserTest {
                 .building(false)
                 .timestamp(new Date(1580631718719L))
                 .duration(39731L)
+                .displayName("#25")
+                .fullDisplayName("Parent -> Simple Jenkins Test #25")
                 .build();
         final Job expected = new JobBuilder()
                 .job("Simple Jenkins Test", "yellow", "http://localhost:8080/job/Simple%20Jenkins%20Test/", false, true)
