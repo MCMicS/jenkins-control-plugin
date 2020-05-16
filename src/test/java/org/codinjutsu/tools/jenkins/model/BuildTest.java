@@ -27,9 +27,9 @@ import static org.junit.Assert.*;
 public class BuildTest {
 
     @Test
-    public void isAfter() throws Exception {
-        Build aBuild = build("815");
-        Build anotherBuild = build("814");
+    public void isAfter() {
+        Build aBuild = build(815);
+        Build anotherBuild = build(814);
 
         assertThat(aBuild.isAfter(anotherBuild), equalTo(TRUE));
         assertThat(anotherBuild.isAfter(aBuild), equalTo(FALSE));
@@ -38,18 +38,18 @@ public class BuildTest {
 
 
     @Test
-    public void isDisplayable() throws Exception {
-        Build currentBuild = build("815");
-        Build newBuild = build("815");
+    public void isDisplayable() {
+        Build currentBuild = build(815);
+        Build newBuild = build(815);
         assertFalse(newBuild.isAfter(currentBuild));
 
-        newBuild = build("816");
+        newBuild = build(816);
         assertTrue(newBuild.isAfter(currentBuild));
 
     }
 
 
-    private static Build build(String buildNumber) {
+    private static Build build(int buildNumber) {
         return Build.createBuildFromRss("http://jenkinsserver/agf-sql/815",
                 buildNumber,
                 SUCCESS.getStatus(), true, "2011-03-16T14:28:59Z", "a message");

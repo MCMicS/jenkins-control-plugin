@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>Jenkins:All (latest builds)</title>
+    <link rel="alternate" type="text/html" href="http://localhost:8080/job/Version%20Number/"></link>
+    <updated>2020-05-07T18:18:13Z</updated>
+    <author>
+        <name>Jenkins Server</name>
+    </author>
+    <id>urn:uuid:903deee0-7bfa-11db-9fe1-0800200c9a66</id>
+    <entry>
+        <title>Version Number » VersionNumber #3 (2 tests are still failing)</title>
+        <link rel="alternate" type="text/html"
+              href="http://localhost:8080/job/Version%20Number/job/VersionNumber/3/"></link>
+        <id>tag:hudson.dev.java.net,2008:http://localhost:8080/job/Version%20Number/job/VersionNumber/</id>
+        <published>2020-05-07T18:18:13Z</published>
+        <updated>2020-05-07T18:18:13Z</updated>
+    </entry>
+    <entry>
+        <title>Version Number » With Build Display 1.1.1 (stable)</title>
+        <link rel="alternate" type="text/html"
+              href="http://localhost:8080/job/Version%20Number/job/With%20Build%20Display/5/"></link>
+        <id>tag:hudson.dev.java.net,2008:http://localhost:8080/job/Version%20Number/job/With%20Build%20Display/</id>
+        <published>2020-05-07T18:18:38Z</published>
+        <updated>2020-05-07T18:18:38Z</updated>
+    </entry>
+</feed>
