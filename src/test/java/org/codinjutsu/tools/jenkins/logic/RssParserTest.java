@@ -49,7 +49,7 @@ public class RssParserTest {
 
     @Test
     public void loadJenkinsRssLatestBuilds() throws IOException, ParseException {
-        final String rss = ResourceUtil.loadText(getClass().getResourceAsStream("JenkinsRss.xml"));
+        final String rss = ResourceUtil.loadText(getClass().getResource("JenkinsRss.xml"));
         final Map<String, Build> entries = rssParser.loadJenkinsRssLatestBuilds(rss);
         final Build longBrokenBuild = Build.builder()
                 .url("http://ci.jenkins-ci.org/job/TESTING-HUDSON-7434/2/")
@@ -94,7 +94,7 @@ public class RssParserTest {
 
     @Test
     public void loadJenkinsRssLatestBuildsDifferentVersionSchema() throws IOException, ParseException {
-        final String rss = ResourceUtil.loadText(getClass().getResourceAsStream("RssWithVersionNumbering.xml"));
+        final String rss = ResourceUtil.loadText(getClass().getResource("RssWithVersionNumbering.xml"));
 
         final Map<String, Build> entries = rssParser.loadJenkinsRssLatestBuilds(rss);
         final Build normalVersionNumber = Build.builder()
