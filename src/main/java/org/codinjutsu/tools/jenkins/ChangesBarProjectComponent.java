@@ -27,6 +27,7 @@ import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * org.codinjutsu.tools.jenkins.ChangesBarProjectComponent
@@ -58,7 +59,8 @@ public class ChangesBarProjectComponent implements ChangeListDecorator {
             if (build.isBuilding()) {
                 status = "Running";
             }
-            coloredTreeCellRenderer.append(String.format(" - last build #%d: %s", build.getNumber(), status), SimpleTextAttributes.GRAYED_ATTRIBUTES);
+            coloredTreeCellRenderer.append(String.format(" - last build %s: %s", build.getDisplayNumber(), status),
+                    SimpleTextAttributes.GRAYED_ATTRIBUTES);
             coloredTreeCellRenderer.repaint();
         }
     }

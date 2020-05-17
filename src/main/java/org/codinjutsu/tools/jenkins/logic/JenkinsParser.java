@@ -46,6 +46,8 @@ public interface JenkinsParser {
     String BUILD_RESULT = "result";
     String BUILD_URL = "url";
     String BUILD_NUMBER = "number";
+    String BUILD_DISPLAY_NAME = "displayName";
+    String BUILD_FULL_DISPLAY_NAME = "fullDisplayName";
     String BUILD_TIMESTAMP = "timestamp";
     String BUILD_DURATION = "duration";
     String PARAMETER_PROPERTY = "property";

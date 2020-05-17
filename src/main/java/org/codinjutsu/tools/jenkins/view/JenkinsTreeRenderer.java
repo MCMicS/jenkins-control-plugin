@@ -30,6 +30,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
+import java.util.Optional;
+import java.util.OptionalLong;
 
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -98,7 +100,12 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
         if (build.isBuilding()) {
             status = " (running)";
         }
-        return String.format("#%d (%s) duration: %s %s", build.getNumber(), DateFormatUtil.formatDateTime(build.getTimestamp()), DurationFormatUtils.formatDurationHMS(build.getDuration()), status);
+
+        final String buildNumberDisplay = build.getDisplayNumber();
+        final Optional<Long> duration = Optional.ofNullable(build.getDuration());
+        return String.format("%s (%s) duration: %s %s", buildNumberDisplay,
+                DateFormatUtil.formatDateTime(build.getTimestamp()),
+                DurationFormatUtils.formatDurationHMS(duration.orElse(0L)), status);
     }
 
     @NotNull
@@ -113,7 +120,9 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
         } else if (build.isBuilding()) {
             status = " (running)";
         }
-        return String.format("%s #%s%s", job.getName(), build.getNumber(), status);
+        final String buildName = Optional.ofNullable(build.getFullDisplayName())
+                .orElseGet(() -> String.format("%s %s", job.getName(), build.getDisplayNumber()));
+        return String.format("%s%s", buildName, status);
     }
 
 

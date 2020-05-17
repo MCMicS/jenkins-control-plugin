@@ -149,6 +149,8 @@ public class JenkinsJsonParser implements JenkinsParser {
             timestamp = new Date(timestampMillis);
         }
         builder.timestamp(timestamp);
+        builder.displayName(lastBuildObject.getString(createJsonKey(BUILD_DISPLAY_NAME)));
+        builder.fullDisplayName(lastBuildObject.getString(createJsonKey(BUILD_FULL_DISPLAY_NAME)));
 
         final String buildDate = lastBuildObject.getString(createJsonKey(BUILD_ID));
         // BUILD_ID

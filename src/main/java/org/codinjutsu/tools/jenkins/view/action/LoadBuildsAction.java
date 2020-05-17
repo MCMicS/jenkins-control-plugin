@@ -17,10 +17,6 @@ public class LoadBuildsAction extends AnAction implements DumbAware {
 
     public static final String ACTION_ID = "Jenkins.LoadBuilds";
 
-    public LoadBuildsAction() {
-        super("Load builds", "Load builds", JenkinsControlIcons.LOAD_BUILDS);
-    }
-
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
         loadBuilds(ActionUtil.getProject(event), ActionUtil.getBrowserPanel(event).getSelectedJob());
