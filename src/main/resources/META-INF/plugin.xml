@@ -65,6 +65,16 @@
                 text="Create Patch and Build on Jenkins">
             <add-to-group group-id="ChangesViewPopupMenu" anchor="last"/>
         </action>
+        <action id="Jenkins.LoadBuilds" class="org.codinjutsu.tools.jenkins.view.action.LoadBuildsAction"
+                text="Load Builds"
+                description="Load builds for selected Job"
+                icon="JenkinsControlIcons.LOAD_BUILDS"
+        />
+        <action id="Jenkins.RunBuild" class="org.codinjutsu.tools.jenkins.view.action.RunBuildAction"
+                text="Build on Jenkins"
+                description="Run a build on Jenkins Server"
+                icon="AllIcons.Actions.Execute"
+        />
     </actions>
 
     <extensionPoints>

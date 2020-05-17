@@ -52,7 +52,7 @@ public class RssLogic implements Disposable {
     private final Project project;
     private final JenkinsAppSettings jenkinsAppSettings;
     private final RequestManager requestManager;
-    private Map<String, Build> currentBuildMap = new HashMap<>();
+    private final Map<String, Build> currentBuildMap = new HashMap<>();
 
     private final Runnable refreshRssBuildsJob;
     private ScheduledFuture<?> refreshRssBuildFutureTask;
@@ -88,8 +88,8 @@ public class RssLogic implements Disposable {
     }
 
     private Map<String, Build> loadAndReturnNewLatestBuilds() {
-        Map<String, Build> latestBuildMap = requestManager.loadJenkinsRssLatestBuilds(jenkinsAppSettings);
-        Map<String, Build> newBuildMap = new HashMap<>();
+        final Map<String, Build> latestBuildMap = requestManager.loadJenkinsRssLatestBuilds(jenkinsAppSettings);
+        final Map<String, Build> newBuildMap = new HashMap<>();
         for (Map.Entry<String, Build> entry : latestBuildMap.entrySet()) {
             String jobName = entry.getKey();
             Build newBuild = entry.getValue();
@@ -134,9 +134,10 @@ public class RssLogic implements Disposable {
 
     private void displayTheFirstFailedBuildInABalloon(Map.Entry<String, Build> firstFailedBuild) {
         if (firstFailedBuild != null) {
-            String jobName = firstFailedBuild.getKey();
-            Build build = firstFailedBuild.getValue();
-            String message = jobName + "#" + build.getNumber() + ": FAILED";
+            final String jobName = firstFailedBuild.getKey();
+            final Build build = firstFailedBuild.getValue();
+            final String message = Optional.ofNullable(build.getFullDisplayName())
+                    .orElseGet(() -> jobName + build.getDisplayNumber()) + ": FAILED";
             displayErrorMessageInABalloon(message);
         }
     }
@@ -170,7 +171,7 @@ public class RssLogic implements Disposable {
 
     @Override
     public void dispose() {
-        currentBuildMap = null;
+        currentBuildMap.clear();
     }
 
     private class LoadLatestBuildsJob extends Task.Backgroundable {

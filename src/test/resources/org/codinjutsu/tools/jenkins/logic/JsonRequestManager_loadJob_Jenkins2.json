@@ -22,6 +22,8 @@
     "duration": 39731,
     "id": "25",
     "number": 25,
+    "displayName": "#25",
+    "fullDisplayName": "Parent -> Simple Jenkins Test #25",
     "result": "UNSTABLE",
     "timestamp": 1580631718719,
     "url": "http://localhost:8080/job/Simple%20Jenkins%20Test/25/"

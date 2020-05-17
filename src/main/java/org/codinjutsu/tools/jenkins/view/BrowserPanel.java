@@ -404,12 +404,8 @@ public class BrowserPanel extends SimpleToolWindowPanel {
         DefaultActionGroup actionGroup = new DefaultActionGroup("JenkinsToolbarGroup", false);
         actionGroup.add(new SelectViewAction(this));
         actionGroup.add(new RefreshNodeAction(this));
-        final LoadBuildsAction loadBuildsAction = new LoadBuildsAction();
-        ActionManager.getInstance().registerAction(LoadBuildsAction.ACTION_ID, loadBuildsAction, PluginId.getId(JenkinsSettings.PLUGIN_ID));
-        actionGroup.add(loadBuildsAction);
-        final RunBuildAction runBuildAction = new RunBuildAction(this);
-        actionGroup.add(runBuildAction);
-        ActionManager.getInstance().registerAction(RunBuildAction.ACTION_ID, runBuildAction, PluginId.getId(JenkinsSettings.PLUGIN_ID));
+        actionGroup.add(ActionManager.getInstance().getAction(LoadBuildsAction.ACTION_ID));
+        actionGroup.add(ActionManager.getInstance().getAction(RunBuildAction.ACTION_ID));
         actionGroup.add(new StopBuildAction(this));
         actionGroup.add(new SortByStatusAction(this));
         actionGroup.add(new RefreshRssAction());
@@ -422,7 +418,7 @@ public class BrowserPanel extends SimpleToolWindowPanel {
     private void installActionsInPopupMenu() {
         DefaultActionGroup popupGroup = new DefaultActionGroup("JenkinsPopupAction", true);
 
-        popupGroup.add(new RunBuildAction(this));
+        popupGroup.add(ActionManager.getInstance().getAction(RunBuildAction.ACTION_ID));
         popupGroup.add(new StopBuildAction(this));
         popupGroup.add(new ShowLogAction(this));
         popupGroup.addSeparator();
