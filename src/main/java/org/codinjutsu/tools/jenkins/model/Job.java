@@ -36,7 +36,7 @@ import java.util.Map;
 /**
  * TODO mcmics: use {@link Value}
  */
-@Builder
+@Builder(toBuilder = true)
 //@Value
 @Data
 public class Job {

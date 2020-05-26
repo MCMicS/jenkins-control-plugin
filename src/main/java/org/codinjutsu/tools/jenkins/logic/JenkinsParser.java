@@ -17,8 +17,10 @@
 package org.codinjutsu.tools.jenkins.logic;
 
 import org.codinjutsu.tools.jenkins.model.Build;
+import org.codinjutsu.tools.jenkins.model.Computer;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.model.Job;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -59,6 +61,7 @@ public interface JenkinsParser {
     String PARAMETER_DEFAULT_PARAM_VALUE = "value";
     String PARAMETER_CHOICE = "choices";
     String CLASS = "_class";
+    String COMPUTER = "computer";
 
     Jenkins createWorkspace(String jsonData, String serverUrl);
 
@@ -71,4 +74,10 @@ public interface JenkinsParser {
     List<Job> createJobs(String jsonData);
 
     List<Job> createCloudbeesViewJobs(String jsonData);
+
+    @NotNull
+    List<Computer> createComputers(String computerJsonArray);
+
+    @NotNull
+    Computer createComputer(String computerJson);
 }

@@ -16,31 +16,27 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
-import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Builder;
-import lombok.Singular;
-import lombok.Value;
+import lombok.Data;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
+import java.util.LinkedList;
 import java.util.List;
 
-@Value
-@Builder(toBuilder = true)
-public class JobParameter {
+/**
+ * Computer aka Nodes
+ */
+@Builder
+@Data
+public class Computer {
 
     @NotNull
-    private final String name;
-    @Nullable
+    private final String displayName;
+    @NotNull
     private final String description;
-    @Nullable
-    private final JobParameterType jobParameterType;
-    @Nullable
-    private final String defaultValue;
-    @Nullable
-    private final VirtualFile virtualFile;
+    @Builder.Default
     @NotNull
-    @Singular
-    private final List<String> choices;
+    private final List<String> labels = new LinkedList<>();
 
+    private final boolean offline;
 }

@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
+import com.google.common.base.Suppliers;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -29,20 +30,19 @@ import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.exception.NoJobFoundException;
-import org.codinjutsu.tools.jenkins.model.Build;
-import org.codinjutsu.tools.jenkins.model.Jenkins;
-import org.codinjutsu.tools.jenkins.model.Job;
-import org.codinjutsu.tools.jenkins.model.View;
+import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.security.JenkinsVersion;
 import org.codinjutsu.tools.jenkins.security.SecurityClient;
 import org.codinjutsu.tools.jenkins.security.SecurityClientFactory;
+import org.codinjutsu.tools.jenkins.view.parameter.NodeParameterRenderer;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
-import java.util.function.Predicate;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class RequestManager implements RequestManagerInterface {
@@ -50,6 +50,8 @@ public class RequestManager implements RequestManagerInterface {
     private static final Logger logger = Logger.getLogger(RequestManager.class);
 
     private static final String BUILDHIVE_CLOUDBEES = "buildhive";
+
+    private final Project project;
 
     private final UrlBuilder urlBuilder;
 
@@ -63,6 +65,7 @@ public class RequestManager implements RequestManagerInterface {
     private JenkinsServer jenkinsServer;
 
     public RequestManager(Project project) {
+        this.project = project;
         this.urlBuilder = UrlBuilder.getInstance(project);
     }
 
@@ -143,7 +146,54 @@ public class RequestManager implements RequestManagerInterface {
                 jobWithNested.add(job);
             }
         }
-        return jobWithNested;
+        return withNodeParameterFix(jobWithNested);
+    }
+
+    /**
+     * FIXME: 2020-05-26 remove if NodeParameter implement choices API
+     */
+    @Deprecated
+    @NotNull
+    private List<Job> withNodeParameterFix(@NotNull List<Job> jobs) {
+        final AtomicReference<List<Computer>> computers = new AtomicReference<>();
+        final Supplier<Collection<Computer>> getOrLoad = () -> {
+            List<Computer> cachedComputers = computers.get();
+            if (cachedComputers == null) {
+                cachedComputers = loadComputer(JenkinsAppSettings.getSafeInstance(project));
+                computers.set(cachedComputers);
+            }
+            return cachedComputers;
+        };
+        // Suppliers.memoize(() currently mot working
+        return jobs.stream().map(job -> withNodeParameterFix(job, getOrLoad)).collect(Collectors.toList());
+    }
+
+    /**
+     * FIXME: 2020-05-26 remove if NodeParameter implement choices API
+     */
+    @Deprecated
+    @NotNull
+    private Job withNodeParameterFix(@NotNull Job job, @NotNull Supplier<Collection<Computer>> computers) {
+        final boolean fixJob = job.getParameters().stream().map(JobParameter::getJobParameterType)
+                .anyMatch(NodeParameterRenderer.NODE_PARAMETER::equals);
+        if (fixJob) {
+            final Job.JobBuilder fixedJob = job.toBuilder();
+            fixedJob.clearParameters();
+            for (JobParameter jobParameter : job.getParameters()) {
+                if (jobParameter.getJobParameterType().equals(NodeParameterRenderer.NODE_PARAMETER)) {
+                    final JobParameter.JobParameterBuilder fixedJobParameter = jobParameter.toBuilder();
+                    final List<String> computerNames = computers.get().stream().map(Computer::getDisplayName)
+                            .collect(Collectors.toList());
+                    fixedJobParameter.choices(computerNames);
+                    fixedJob.parameter(fixedJobParameter.build());
+                } else {
+                    fixedJob.parameter(jobParameter);
+                }
+            }
+            return fixedJob.build();
+        }
+
+        return job;
     }
 
     @NotNull
@@ -268,7 +318,7 @@ public class RequestManager implements RequestManagerInterface {
 
     @Override
     public Job loadJob(Job job) {
-        return loadJob(job.getUrl());
+        return withNodeParameterFix(loadJob(job.getUrl()), () -> loadComputer(JenkinsAppSettings.getSafeInstance(project)));
     }
 
     @Override
@@ -315,6 +365,16 @@ public class RequestManager implements RequestManagerInterface {
             logger.warn("cannot load test results for " + job.getName());
             return Collections.emptyList();
         }
+    }
+
+    @NotNull
+    @Override
+    public List<Computer> loadComputer(JenkinsAppSettings settings) {
+        if (handleNotYetLoggedInState()) {
+            return Collections.emptyList();
+        }
+        final URL url = urlBuilder.createComputerUrl(settings.getServerUrl());
+        return jsonParser.createComputers(securityClient.execute(url));
     }
 
     @NotNull

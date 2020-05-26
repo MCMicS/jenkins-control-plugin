@@ -178,6 +178,36 @@ public class JenkinsJsonParserTest {
     }
 
     @Test
+    public void parseAllComputer() throws Exception {
+        final List<Computer> actualComputer = jsonParser.createComputers(IOUtils.toString(getClass().getResourceAsStream(
+                "JsonRequestManager_computer.json")));
+
+        final List<Computer> expectedComputer = new LinkedList<>();
+        expectedComputer.add(Computer.builder().displayName("master").description("Jenkins Master-Node")
+                .labels(List.of("Jenkins", "master", "windows"))
+                .offline(false).build());
+        expectedComputer.add(Computer.builder().displayName("Test").description("Simple Test Agent")
+                .labels(List.of("Test", "remote"))
+                .offline(true).build());
+
+        assertThat(actualComputer).containsExactlyInAnyOrderElementsOf(expectedComputer);
+    }
+
+    @Test
+    public void parseComputer() throws Exception {
+        final Computer actualComputer = jsonParser.createComputer("{\n" +
+                "            \"_class\": \"hudson.model.Hudson$MasterComputer\",\n" +
+                "            \"description\": \"Jenkins Master\",\n" +
+                "            \"displayName\": \"master\",\n" +
+                "            \"offline\": false\n" +
+                "        }");
+
+        final Computer expectedComputer = Computer.builder().displayName("master").description("Jenkins Master")
+                .offline(false).build();
+        assertThat(actualComputer).isEqualTo(expectedComputer);
+    }
+
+    @Test
     public void testLoadJob() throws Exception {
         Job actualJob = jsonParser.createJob(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadJob.json")));
         final Job expectedJob = new JobBuilder()

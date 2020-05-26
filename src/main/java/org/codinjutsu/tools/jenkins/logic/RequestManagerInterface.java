@@ -4,10 +4,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.offbytwo.jenkins.model.TestResult;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
-import org.codinjutsu.tools.jenkins.model.Build;
-import org.codinjutsu.tools.jenkins.model.Jenkins;
-import org.codinjutsu.tools.jenkins.model.Job;
-import org.codinjutsu.tools.jenkins.model.View;
+import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.security.JenkinsVersion;
 import org.jetbrains.annotations.NotNull;
 
@@ -45,4 +42,7 @@ public interface RequestManagerInterface {
     String loadConsoleTextFor(Job job);
 
     List<TestResult> loadTestResultsFor(Job job);
+
+    @NotNull
+    List<Computer> loadComputer(JenkinsAppSettings settings);
 }
