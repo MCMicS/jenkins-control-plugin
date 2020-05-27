@@ -19,6 +19,7 @@ package org.codinjutsu.tools.jenkins.view;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.JBColor;
+import com.intellij.ui.JBIntSpinner;
 import com.intellij.ui.NumberDocument;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
@@ -31,6 +32,7 @@ import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.annotation.FormValidator;
 import org.codinjutsu.tools.jenkins.view.annotation.GuiField;
 import org.codinjutsu.tools.jenkins.view.validator.NotNullValidator;
+import org.codinjutsu.tools.jenkins.view.validator.PositiveIntegerValidator;
 import org.codinjutsu.tools.jenkins.view.validator.UrlValidator;
 
 import javax.swing.*;
@@ -40,6 +42,7 @@ import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 import java.awt.*;
 
+import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.POSITIVE_INTEGER;
 import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.URL;
 
 public class ConfigurationPanel {
@@ -78,6 +81,8 @@ public class ConfigurationPanel {
     private JRadioButton version1RadioButton;
     private JRadioButton version2RadioButton;
     private JCheckBox useGreenColor;
+    @GuiField(validators = POSITIVE_INTEGER)
+    private JBIntSpinner timeout;
 
     private final FormValidator<JTextField> formValidator;
 
@@ -152,6 +157,7 @@ public class ConfigurationPanel {
 
             new NotNullValidator().validate(serverUrl);
             new UrlValidator().validate(serverUrl);
+            new PositiveIntegerValidator().validate(timeout);
 
             JenkinsSettings jenkinsSettings = JenkinsSettings.getSafeInstance(project);
 
@@ -159,19 +165,19 @@ public class ConfigurationPanel {
 
             JenkinsVersion version = version1RadioButton.isSelected() ? JenkinsVersion.VERSION_1 : JenkinsVersion.VERSION_2;
 
-            RequestManager.getInstance(project).authenticate(serverUrl.getText(), username.getText(), password, crumbDataField.getText(), version);
+            RequestManager.getInstance(project).testAuthenticate(serverUrl.getText(), username.getText(), password,
+                    crumbDataField.getText(), version, getConnectionTimeout());
             setConnectionFeedbackLabel(CONNECTION_TEST_SUCCESSFUL_COLOR, "Successful");
             setPassword(password);
+        } catch (AuthenticationException authenticationException) {
+            setConnectionFeedbackLabel(CONNECTION_TEST_FAILED_COLOR, "[Fail] " + authenticationException.getMessage());
+            String responseBody = authenticationException.getResponseBody();
+            if (StringUtils.isNotBlank(responseBody)) {
+                debugPanel.setVisible(true);
+                debugTextPane.setText(responseBody);
+            }
         } catch (Exception ex) {
             setConnectionFeedbackLabel(CONNECTION_TEST_FAILED_COLOR, "[Fail] " + ex.getMessage());
-            if (ex instanceof AuthenticationException) {
-                AuthenticationException authenticationException = (AuthenticationException) ex;
-                String responseBody = authenticationException.getResponseBody();
-                if (StringUtils.isNotBlank(responseBody)) {
-                    debugPanel.setVisible(true);
-                    debugTextPane.setText(responseBody);
-                }
-            }
         }
     }
 
@@ -184,7 +190,7 @@ public class ConfigurationPanel {
                 || unstableOrFailCheckBox.isSelected() != jenkinsAppSettings.shouldDisplayFailOrUnstable()
                 || abortedCheckBox.isSelected() != jenkinsAppSettings.shouldDisplayAborted();
 
-        boolean successfulUseGreenColorModfied = isUseGreenColor() != jenkinsAppSettings.isUseGreenColor();
+        boolean isUseGreenColor = isUseGreenColor() != jenkinsAppSettings.isUseGreenColor();
 
         return !jenkinsAppSettings.getServerUrl().equals(serverUrl.getText())
                 || jenkinsAppSettings.getBuildDelay() != getBuildDelay()
@@ -193,7 +199,8 @@ public class ConfigurationPanel {
                 || jenkinsAppSettings.getNumBuildRetries() != getNumBuildRetries()
                 || !(jenkinsSettings.getCrumbData().equals(crumbDataField.getText()))
                 || credentialModified
-                || successfulUseGreenColorModfied
+                || isUseGreenColor
+                || jenkinsSettings.getConnectionTimeout() != getConnectionTimeout()
                 || statusToIgnoreModified || (!jenkinsAppSettings.getSuffix().equals(replaceWithSuffix.getText()));
     }
 
@@ -218,6 +225,7 @@ public class ConfigurationPanel {
         jenkinsAppSettings.setDisplayAborted(abortedCheckBox.isSelected());
         jenkinsAppSettings.setSuffix(getSuffix());
         jenkinsAppSettings.setUseGreenColor(isUseGreenColor());
+        jenkinsSettings.setConnectionTimeout(getConnectionTimeout());
 
         if (StringUtils.isNotBlank(username.getText())) {
             jenkinsSettings.setUsername(username.getText());
@@ -267,6 +275,7 @@ public class ConfigurationPanel {
 
         replaceWithSuffix.setText(String.valueOf(jenkinsAppSettings.getSuffix()));
         setUseGreenColor(jenkinsAppSettings.isUseGreenColor());
+        timeout.setNumber(jenkinsSettings.getConnectionTimeout());
 
         if (jenkinsSettings.getVersion().equals(JenkinsVersion.VERSION_1)) {
             version1RadioButton.setSelected(true);
@@ -320,6 +329,10 @@ public class ConfigurationPanel {
         return 1;
     }
 
+    private int getConnectionTimeout() {
+        return timeout.getNumber();
+    }
+
     private int getJobRefreshPeriod() {
         String period = jobRefreshPeriod.getText();
         if (StringUtils.isNotBlank(period)) {
@@ -349,5 +362,10 @@ public class ConfigurationPanel {
             connectionStatusLabel.setForeground(labelColor);
             connectionStatusLabel.setText(labelText);
         });
+    }
+
+    @SuppressWarnings("java:S1144")
+    private void createUIComponents() {
+        timeout = new JBIntSpinner(10, 5, 120);
     }
 }

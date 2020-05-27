@@ -151,7 +151,7 @@ public class RequestManager implements RequestManagerInterface {
     /**
      * @deprecated 2020-05-26 remove if NodeParameter implement choices API
      */
-    @Deprecated
+    @Deprecated(since = "0.13.3")
     @NotNull
     private List<Job> withNodeParameterFix(@NotNull List<Job> jobs) {
         final AtomicReference<List<Computer>> computers = new AtomicReference<>();
@@ -170,7 +170,7 @@ public class RequestManager implements RequestManagerInterface {
     /**
      * @deprecated 2020-05-26 remove if NodeParameter implement choices API
      */
-    @Deprecated
+    @Deprecated(since = "0.13.3")
     @NotNull
     private Job withNodeParameterFix(@NotNull Job job, @NotNull Supplier<Collection<Computer>> computers) {
         final boolean fixJob = job.getParameters().stream().map(JobParameter::getJobParameterType)
@@ -286,10 +286,12 @@ public class RequestManager implements RequestManagerInterface {
     @Override
     public void authenticate(JenkinsAppSettings jenkinsAppSettings, JenkinsSettings jenkinsSettings) {
         SecurityClientFactory.setVersion(jenkinsSettings.getVersion());
+        final int connectionTimout = getConnectionTimout(jenkinsSettings.getConnectionTimeout());
         if (jenkinsSettings.isSecurityMode()) {
-            securityClient = SecurityClientFactory.basic(jenkinsSettings.getUsername(), jenkinsSettings.getPassword(), jenkinsSettings.getCrumbData());
+            securityClient = SecurityClientFactory.basic(jenkinsSettings.getUsername(), jenkinsSettings.getPassword(),
+                    jenkinsSettings.getCrumbData(), connectionTimout);
         } else {
-            securityClient = SecurityClientFactory.none(jenkinsSettings.getCrumbData());
+            securityClient = SecurityClientFactory.none(jenkinsSettings.getCrumbData(), connectionTimout);
         }
         securityClient.connect(urlBuilder.createAuthenticationUrl(jenkinsAppSettings.getServerUrl()));
 
@@ -297,14 +299,17 @@ public class RequestManager implements RequestManagerInterface {
     }
 
     @Override
-    public void authenticate(String serverUrl, String username, String password, String crumbData, JenkinsVersion version) {
+    public void testAuthenticate(String serverUrl, String username, String password, String crumbData, JenkinsVersion version,
+                                 int connectionTimoutInSeconds) {
         SecurityClientFactory.setVersion(version);
+        final int connectionTimout = getConnectionTimout(connectionTimoutInSeconds);
+        final SecurityClient securityClientForTest;
         if (StringUtils.isNotBlank(username)) {
-            securityClient = SecurityClientFactory.basic(username, password, crumbData);
+            securityClientForTest = SecurityClientFactory.basic(username, password, crumbData, connectionTimout);
         } else {
-            securityClient = SecurityClientFactory.none(crumbData);
+            securityClientForTest = SecurityClientFactory.none(crumbData, connectionTimout);
         }
-        securityClient.connect(urlBuilder.createAuthenticationUrl(serverUrl));
+        securityClientForTest.connect(urlBuilder.createAuthenticationUrl(serverUrl));
     }
 
     @Override
@@ -393,6 +398,10 @@ public class RequestManager implements RequestManagerInterface {
             throw new NoJobFoundException(job, e);
         }
         return jobWithDetails.orElseThrow(() -> new NoJobFoundException(job));
+    }
+
+    private int getConnectionTimout(int connectionTimoutInSeconds) {
+        return connectionTimoutInSeconds * 1000;
     }
 
     void setSecurityClient(SecurityClient securityClient) {

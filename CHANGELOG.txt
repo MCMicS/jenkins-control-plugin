@@ -1,6 +1,7 @@
 Version 0.13.3
     * add GoTo Allure report
     * #213 NodeParameterDefinition is unsupported
+    * #215 Read timed out: Add socket and connection timeout to Configuration (default 10 sec.)
 
 Version 0.13.2
     * #64: NumberFormatException on start of IntelliJ

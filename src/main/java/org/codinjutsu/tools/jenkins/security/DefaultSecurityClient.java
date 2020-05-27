@@ -17,7 +17,6 @@
 package org.codinjutsu.tools.jenkins.security;
 
 import com.intellij.openapi.vfs.VirtualFile;
-import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
@@ -44,18 +43,18 @@ import java.util.Map;
 class DefaultSecurityClient implements SecurityClient {
 
     private static final String BAD_CRUMB_DATA = "No valid crumb was included in the request";
-    private static final int DEFAULT_SOCKET_TIMEOUT = 10000;
-    private static final int DEFAULT_CONNECTION_TIMEOUT = 10000;
 
     protected String crumbData;
     protected JenkinsVersion jenkinsVersion = JenkinsVersion.VERSION_1;
+    private final int connectionTimout;
 
     protected final HttpClient httpClient;
     protected Map<String, VirtualFile> files = new HashMap<>();
 
-    DefaultSecurityClient(String crumbData) {
+    DefaultSecurityClient(String crumbData, int connectionTimout) {
         this.httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
         this.crumbData = crumbData;
+        this.connectionTimout = connectionTimout;
     }
 
     @Override
@@ -83,10 +82,11 @@ class DefaultSecurityClient implements SecurityClient {
 
     private PostMethod addFiles(PostMethod post) {
         if (files.size() > 0) {
-            ArrayList<Part> parts = new ArrayList<Part>();
+            ArrayList<Part> parts = new ArrayList<>();
             int i = 0;
-            for(String key: files.keySet()) {
-                VirtualFile virtualFile = files.get(key);
+            for(Map.Entry<String, VirtualFile> entry: files.entrySet()) {
+                VirtualFile virtualFile = entry.getValue();
+                final String key = entry.getKey();
                 parts.add(new StringPart("name", key));
                 parts.add(new StringPart("json", "{\"parameter\":{\"name\":\"" + key + "\",\"file\":\""+ String.format("file%d", i) +"\"}}"));
                 parts.add(new FilePart(String.format("file%d", i), new VirtualFilePartSource(virtualFile)));
@@ -111,8 +111,8 @@ class DefaultSecurityClient implements SecurityClient {
 
         try {
             if (files.isEmpty()) {
-                httpClient.getParams().setParameter("http.socket.timeout", DEFAULT_SOCKET_TIMEOUT);
-                httpClient.getParams().setParameter("http.connection.timeout", DEFAULT_CONNECTION_TIMEOUT);
+                httpClient.getParams().setParameter("http.socket.timeout", connectionTimout);
+                httpClient.getParams().setParameter("http.connection.timeout", connectionTimout);
             } else {
                 httpClient.getParams().setParameter("http.socket.timeout", 0);
                 httpClient.getParams().setParameter("http.connection.timeout", 0);
