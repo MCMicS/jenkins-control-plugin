@@ -1,3 +1,26 @@
+Version 0.13.3
+    * add GoTo Allure report
+    * #213 NodeParameterDefinition is unsupported
+
+Version 0.13.2
+    * #64: NumberFormatException on start of IntelliJ
+    * #207: NumberFormatException from Build.createBuildFromRss #207
+    * #208: Jenkins.LoadBuilds already registered Exception
+
+Version 0.13.1
+    #202: Upload Patch not work for 2019.3.4+
+    #201: Error reading jenkins.diff file
+    #204: Password Parameter default value ignored
+
+Version 0.13.0
+    * 2020.1 API Compatibility
+    * require JBR11 for version 2020.1+
+    * #195: NullPointerException when "Show log" is clicked and Job Url is used as Server Address
+    * #145: parameter separator plugin problems
+    * #80: Support text parameters in builds
+    * #190: Trigger Build on Double click
+    * new Icons: Reuse Idea Icons and use Idea guideline for status color
+
 Version 0.12.0
     * #141: Multibranch pipeline builds not shown
     * new Icons: Reuse Idea Icons and use Idea guideline for status color
