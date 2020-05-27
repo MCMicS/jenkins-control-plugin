@@ -16,7 +16,6 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
-import com.google.common.base.Suppliers;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -150,7 +149,7 @@ public class RequestManager implements RequestManagerInterface {
     }
 
     /**
-     * FIXME: 2020-05-26 remove if NodeParameter implement choices API
+     * @deprecated 2020-05-26 remove if NodeParameter implement choices API
      */
     @Deprecated
     @NotNull
@@ -169,7 +168,7 @@ public class RequestManager implements RequestManagerInterface {
     }
 
     /**
-     * FIXME: 2020-05-26 remove if NodeParameter implement choices API
+     * @deprecated 2020-05-26 remove if NodeParameter implement choices API
      */
     @Deprecated
     @NotNull
@@ -225,11 +224,18 @@ public class RequestManager implements RequestManagerInterface {
         return result;
     }
 
+    @NotNull
     private Job loadJob(String jenkinsJobUrl) {
-        if (handleNotYetLoggedInState()) return null;
+        if (handleNotYetLoggedInState()) return createEmptyJob(jenkinsJobUrl);
         URL url = urlBuilder.createJobUrl(jenkinsJobUrl);
         String jenkinsJobData = securityClient.execute(url);
         return jsonParser.createJob(jenkinsJobData);
+    }
+
+    @NotNull
+    private Job createEmptyJob(String jenkinsJobUrl) {
+        return Job.builder().name("").buildable(false).fullName("").url(jenkinsJobUrl)
+                .parameters(Collections.emptyList()).inQueue(false).build();
     }
 
     private void stopBuild(String jenkinsBuildUrl) {
@@ -317,7 +323,7 @@ public class RequestManager implements RequestManagerInterface {
     }
 
     @Override
-    public Job loadJob(Job job) {
+    public @NotNull Job loadJob(Job job) {
         return withNodeParameterFix(loadJob(job.getUrl()), () -> loadComputer(JenkinsAppSettings.getSafeInstance(project)));
     }
 

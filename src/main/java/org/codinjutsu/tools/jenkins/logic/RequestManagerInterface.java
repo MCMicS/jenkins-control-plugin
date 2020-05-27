@@ -30,6 +30,7 @@ public interface RequestManagerInterface {
 
     void stopBuild(Build build);
 
+    @NotNull
     Job loadJob(Job job);
 
     List<Job>loadJenkinsView (View view);
