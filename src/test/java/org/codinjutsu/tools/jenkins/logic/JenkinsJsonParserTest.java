@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
+import org.assertj.core.util.Lists;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.util.IOUtils;
 import org.junit.Before;
@@ -184,10 +185,10 @@ public class JenkinsJsonParserTest {
 
         final List<Computer> expectedComputer = new LinkedList<>();
         expectedComputer.add(Computer.builder().displayName("master").description("Jenkins Master-Node")
-                .labels(List.of("Jenkins", "master", "windows"))
+                .labels(Lists.newArrayList("Jenkins", "master", "windows"))
                 .offline(false).build());
         expectedComputer.add(Computer.builder().displayName("Test").description("Simple Test Agent")
-                .labels(List.of("Test", "remote"))
+                .labels(Lists.newArrayList("Test", "remote"))
                 .offline(true).build());
 
         assertThat(actualComputer).containsExactlyInAnyOrderElementsOf(expectedComputer);
