@@ -151,7 +151,7 @@ public class RequestManager implements RequestManagerInterface {
     /**
      * @deprecated 2020-05-26 remove if NodeParameter implement choices API
      */
-    @Deprecated(since = "0.13.3")
+    @Deprecated
     @NotNull
     private List<Job> withNodeParameterFix(@NotNull List<Job> jobs) {
         final AtomicReference<List<Computer>> computers = new AtomicReference<>();
@@ -170,7 +170,7 @@ public class RequestManager implements RequestManagerInterface {
     /**
      * @deprecated 2020-05-26 remove if NodeParameter implement choices API
      */
-    @Deprecated(since = "0.13.3")
+    @Deprecated
     @NotNull
     private Job withNodeParameterFix(@NotNull Job job, @NotNull Supplier<Collection<Computer>> computers) {
         final boolean fixJob = job.getParameters().stream().map(JobParameter::getJobParameterType)
