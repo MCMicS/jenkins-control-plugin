@@ -90,6 +90,12 @@ public class UrlBuilderTest {
         assertThat(url.toString()).isEqualTo("http://localhost:8080/jenkins/api/json?tree=nodeName");
     }
 
+    @Test
+    public void createComputerJSONUrl() {
+        URL url = urlBuilder.createComputerUrl("http://localhost:8080/jenkins");
+        assertThat(url.toString()).isEqualTo("http://localhost:8080/jenkins/computer/api/json?tree=computer%5BdisplayName,description,offline,assignedLabels%5Bname%5D%5D");
+    }
+
     @Before
     public void setUp() {
         configuration = new JenkinsAppSettings();

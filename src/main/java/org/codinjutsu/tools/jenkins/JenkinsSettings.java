@@ -33,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Predicate;
 
 @State(
         name = "Jenkins.Settings",
@@ -64,19 +65,19 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
     }
 
     public String getUsername() {
-        return myState.username;
+        return myState.getUsername();
     }
 
     public void setUsername(String username) {
-        myState.username = username;
+        myState.setUsername(username);
     }
 
     public String getCrumbData() {
-        return myState.crumbData;
+        return myState.getCrumbData();
     }
 
     public void setCrumbData(String crumbData) {
-        myState.crumbData = crumbData;
+        myState.setCrumbData(crumbData);
     }
 
     public String getPassword() {
@@ -95,34 +96,34 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
     }
 
     public void addFavorite(@NotNull List<Job> jobs) {
-        jobs.stream().map(JobUtil::createFavoriteJob).forEach(myState.favoriteJobs::add);
+        jobs.stream().map(JobUtil::createFavoriteJob).forEach(myState::addFavoriteJobs);
     }
 
     public boolean isFavoriteJob(@NotNull Job job) {
-        return myState.favoriteJobs.stream().anyMatch(favoriteJob -> JobUtil.isFavoriteJob(job, favoriteJob));
+        return myState.getFavoriteJobs().stream().anyMatch(favoriteJob -> JobUtil.isFavoriteJob(job, favoriteJob));
     }
 
     public void removeFavorite(@NotNull List<Job> selectedJobs) {
-        selectedJobs.forEach(jobToRemove -> myState.favoriteJobs.removeIf(
+        selectedJobs.forEach(jobToRemove -> myState.removeFavoriteJob(
                 favoriteJob -> JobUtil.isFavoriteJob(jobToRemove, favoriteJob))
         );
     }
 
     @NotNull
     public List<FavoriteJob> getFavoriteJobs() {
-        return myState.favoriteJobs;
+        return myState.getFavoriteJobs();
     }
 
     public boolean isFavoriteViewEmpty() {
-        return myState.favoriteJobs.isEmpty();
+        return myState.getFavoriteJobs().isEmpty();
     }
 
     public String getLastSelectedView() {
-        return myState.lastSelectedView;
+        return myState.getLastSelectedView();
     }
 
     public void setLastSelectedView(String viewName) {
-        myState.lastSelectedView = viewName;
+        myState.setLastSelectedView(viewName);
     }
 
     public boolean isSecurityMode() {
@@ -130,35 +131,58 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
     }
 
     public JenkinsVersion getVersion() {
-        return this.myState.jenkinsVersion;
+        return this.myState.getJenkinsVersion();
     }
 
     public void setVersion(JenkinsVersion jenkinsVersion) {
-        this.myState.jenkinsVersion = jenkinsVersion;
+        this.myState.setJenkinsVersion(jenkinsVersion);
     }
 
     public void clearFavoriteJobs() {
-        myState.favoriteJobs.clear();
+        myState.clearFavoriteJobs();
     }
 
     public boolean hasFavoriteJobs() {
-        return !myState.favoriteJobs.isEmpty();
+        return !myState.getFavoriteJobs().isEmpty();
     }
 
-    public static class State {
+    public int getConnectionTimeout() {
+        return myState.getConnectionTimeout();
+    }
 
+    public void setConnectionTimeout(int timeoutInSeconds) {
+        myState.setConnectionTimeout(timeoutInSeconds);
+    }
+
+    @Data
+    public static class State {
         public static final String RESET_STR_VALUE = "";
 
-        public String username = RESET_STR_VALUE;
+        private static final int DEFAULT_CONNECTION_TIMEOUT = 10;
 
-        public String crumbData = RESET_STR_VALUE;
+        private String username = RESET_STR_VALUE;
 
-        public String lastSelectedView;
+        private String crumbData = RESET_STR_VALUE;
 
-        public List<FavoriteJob> favoriteJobs = new LinkedList<>();
+        private String lastSelectedView;
 
-        public JenkinsVersion jenkinsVersion = JenkinsVersion.VERSION_1;
+        private List<FavoriteJob> favoriteJobs = new LinkedList<>();
 
+        private JenkinsVersion jenkinsVersion = JenkinsVersion.VERSION_1;
+
+        private int connectionTimeout = DEFAULT_CONNECTION_TIMEOUT;
+
+        public void clearFavoriteJobs() {
+            favoriteJobs.clear();
+        }
+
+        public void addFavoriteJobs(FavoriteJob favoriteJob) {
+            favoriteJobs.add(favoriteJob);
+        }
+
+        public void removeFavoriteJob(Predicate<? super FavoriteJob> filter) {
+            favoriteJobs.removeIf(filter);
+        }
     }
 
     @AllArgsConstructor

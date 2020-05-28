@@ -4,10 +4,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.offbytwo.jenkins.model.TestResult;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
-import org.codinjutsu.tools.jenkins.model.Build;
-import org.codinjutsu.tools.jenkins.model.Jenkins;
-import org.codinjutsu.tools.jenkins.model.Job;
-import org.codinjutsu.tools.jenkins.model.View;
+import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.security.JenkinsVersion;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,12 +24,13 @@ public interface RequestManagerInterface {
 
     void authenticate(JenkinsAppSettings jenkinsAppSettings, JenkinsSettings jenkinsSettings);
 
-    void authenticate(String serverUrl, String username, String password, String crumbData, JenkinsVersion version);
+    void testAuthenticate(String serverUrl, String username, String password, String crumbData, JenkinsVersion version, int connectionTimoutInSeconds);
 
     List<Job> loadFavoriteJobs(List<JenkinsSettings.FavoriteJob> favoriteJobs);
 
     void stopBuild(Build build);
 
+    @NotNull
     Job loadJob(Job job);
 
     List<Job>loadJenkinsView (View view);
@@ -45,4 +43,7 @@ public interface RequestManagerInterface {
     String loadConsoleTextFor(Job job);
 
     List<TestResult> loadTestResultsFor(Job job);
+
+    @NotNull
+    List<Computer> loadComputer(JenkinsAppSettings settings);
 }

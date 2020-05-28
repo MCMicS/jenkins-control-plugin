@@ -5,5 +5,6 @@
                                 order="first"
                                 id="BUILT_IN_RENDERER" />
         <buildParameterRenderer implementation="org.codinjutsu.tools.jenkins.view.parameter.SeparatorRenderer" />
+        <buildParameterRenderer implementation="org.codinjutsu.tools.jenkins.view.parameter.NodeParameterRenderer" />
     </extensions>
 </idea-plugin>

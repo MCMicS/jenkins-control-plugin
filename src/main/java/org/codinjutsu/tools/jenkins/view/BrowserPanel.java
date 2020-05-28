@@ -430,6 +430,7 @@ public class BrowserPanel extends SimpleToolWindowPanel {
         popupGroup.add(new GotoBuildPageAction(this));
         popupGroup.add(new GotoBuildConsolePageAction(this));
         popupGroup.add(new GotoBuildTestResultsPageAction(this));
+        popupGroup.add(new GotoAllureReportPageAction(this));
         popupGroup.add(new GotoLastBuildPageAction(this));
         popupGroup.addSeparator();
         popupGroup.add(new UploadPatchToJobAction(this));

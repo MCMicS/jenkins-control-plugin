@@ -16,25 +16,29 @@
 
 package org.codinjutsu.tools.jenkins.security;
 
+import org.jetbrains.annotations.NotNull;
+
 public class SecurityClientFactory {
+
     private static JenkinsVersion _version;
 
     public static void setVersion(JenkinsVersion version) {
         _version = version;
     }
 
-    public static SecurityClient basic(String username, String password, String crumbData) {
-        BasicSecurityClient basicSecurityClient = new BasicSecurityClient(username, password, crumbData);
-        basicSecurityClient.setJenkinsVersion(_version);
-
-        return basicSecurityClient;
+    @NotNull
+    public static SecurityClient basic(String username, String password, String crumbData, int connectionTimout) {
+        return setConnectionProperties(new BasicSecurityClient(username, password, crumbData, connectionTimout));
     }
 
-    public static SecurityClient none(String crumbData) {
-        DefaultSecurityClient defaultSecurityClient = new DefaultSecurityClient(crumbData);
-        defaultSecurityClient.setJenkinsVersion(_version);
-
-        return defaultSecurityClient;
+    @NotNull
+    public static SecurityClient none(String crumbData, int connectionTimout) {
+        return setConnectionProperties(new DefaultSecurityClient(crumbData, connectionTimout));
     }
 
+    @NotNull
+    private static SecurityClient setConnectionProperties(@NotNull DefaultSecurityClient securityClient) {
+        securityClient.setJenkinsVersion(_version);
+        return securityClient;
+    }
 }
