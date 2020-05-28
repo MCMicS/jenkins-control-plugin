@@ -29,20 +29,19 @@ import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.exception.NoJobFoundException;
-import org.codinjutsu.tools.jenkins.model.Build;
-import org.codinjutsu.tools.jenkins.model.Jenkins;
-import org.codinjutsu.tools.jenkins.model.Job;
-import org.codinjutsu.tools.jenkins.model.View;
+import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.security.JenkinsVersion;
 import org.codinjutsu.tools.jenkins.security.SecurityClient;
 import org.codinjutsu.tools.jenkins.security.SecurityClientFactory;
+import org.codinjutsu.tools.jenkins.view.parameter.NodeParameterRenderer;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
-import java.util.function.Predicate;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class RequestManager implements RequestManagerInterface {
@@ -50,6 +49,8 @@ public class RequestManager implements RequestManagerInterface {
     private static final Logger logger = Logger.getLogger(RequestManager.class);
 
     private static final String BUILDHIVE_CLOUDBEES = "buildhive";
+
+    private final Project project;
 
     private final UrlBuilder urlBuilder;
 
@@ -63,6 +64,7 @@ public class RequestManager implements RequestManagerInterface {
     private JenkinsServer jenkinsServer;
 
     public RequestManager(Project project) {
+        this.project = project;
         this.urlBuilder = UrlBuilder.getInstance(project);
     }
 
@@ -143,7 +145,54 @@ public class RequestManager implements RequestManagerInterface {
                 jobWithNested.add(job);
             }
         }
-        return jobWithNested;
+        return withNodeParameterFix(jobWithNested);
+    }
+
+    /**
+     * @deprecated 2020-05-26 remove if NodeParameter implement choices API
+     */
+    @Deprecated(since = "0.13.3")
+    @NotNull
+    private List<Job> withNodeParameterFix(@NotNull List<Job> jobs) {
+        final AtomicReference<List<Computer>> computers = new AtomicReference<>();
+        final Supplier<Collection<Computer>> getOrLoad = () -> {
+            List<Computer> cachedComputers = computers.get();
+            if (cachedComputers == null) {
+                cachedComputers = loadComputer(JenkinsAppSettings.getSafeInstance(project));
+                computers.set(cachedComputers);
+            }
+            return cachedComputers;
+        };
+        // Suppliers.memoize(() currently mot working
+        return jobs.stream().map(job -> withNodeParameterFix(job, getOrLoad)).collect(Collectors.toList());
+    }
+
+    /**
+     * @deprecated 2020-05-26 remove if NodeParameter implement choices API
+     */
+    @Deprecated(since = "0.13.3")
+    @NotNull
+    private Job withNodeParameterFix(@NotNull Job job, @NotNull Supplier<Collection<Computer>> computers) {
+        final boolean fixJob = job.getParameters().stream().map(JobParameter::getJobParameterType)
+                .anyMatch(NodeParameterRenderer.NODE_PARAMETER::equals);
+        if (fixJob) {
+            final Job.JobBuilder fixedJob = job.toBuilder();
+            fixedJob.clearParameters();
+            for (JobParameter jobParameter : job.getParameters()) {
+                if (jobParameter.getJobParameterType().equals(NodeParameterRenderer.NODE_PARAMETER)) {
+                    final JobParameter.JobParameterBuilder fixedJobParameter = jobParameter.toBuilder();
+                    final List<String> computerNames = computers.get().stream().map(Computer::getDisplayName)
+                            .collect(Collectors.toList());
+                    fixedJobParameter.choices(computerNames);
+                    fixedJob.parameter(fixedJobParameter.build());
+                } else {
+                    fixedJob.parameter(jobParameter);
+                }
+            }
+            return fixedJob.build();
+        }
+
+        return job;
     }
 
     @NotNull
@@ -175,11 +224,18 @@ public class RequestManager implements RequestManagerInterface {
         return result;
     }
 
+    @NotNull
     private Job loadJob(String jenkinsJobUrl) {
-        if (handleNotYetLoggedInState()) return null;
+        if (handleNotYetLoggedInState()) return createEmptyJob(jenkinsJobUrl);
         URL url = urlBuilder.createJobUrl(jenkinsJobUrl);
         String jenkinsJobData = securityClient.execute(url);
         return jsonParser.createJob(jenkinsJobData);
+    }
+
+    @NotNull
+    private Job createEmptyJob(String jenkinsJobUrl) {
+        return Job.builder().name("").buildable(false).fullName("").url(jenkinsJobUrl)
+                .parameters(Collections.emptyList()).inQueue(false).build();
     }
 
     private void stopBuild(String jenkinsBuildUrl) {
@@ -230,10 +286,12 @@ public class RequestManager implements RequestManagerInterface {
     @Override
     public void authenticate(JenkinsAppSettings jenkinsAppSettings, JenkinsSettings jenkinsSettings) {
         SecurityClientFactory.setVersion(jenkinsSettings.getVersion());
+        final int connectionTimout = getConnectionTimout(jenkinsSettings.getConnectionTimeout());
         if (jenkinsSettings.isSecurityMode()) {
-            securityClient = SecurityClientFactory.basic(jenkinsSettings.getUsername(), jenkinsSettings.getPassword(), jenkinsSettings.getCrumbData());
+            securityClient = SecurityClientFactory.basic(jenkinsSettings.getUsername(), jenkinsSettings.getPassword(),
+                    jenkinsSettings.getCrumbData(), connectionTimout);
         } else {
-            securityClient = SecurityClientFactory.none(jenkinsSettings.getCrumbData());
+            securityClient = SecurityClientFactory.none(jenkinsSettings.getCrumbData(), connectionTimout);
         }
         securityClient.connect(urlBuilder.createAuthenticationUrl(jenkinsAppSettings.getServerUrl()));
 
@@ -241,14 +299,17 @@ public class RequestManager implements RequestManagerInterface {
     }
 
     @Override
-    public void authenticate(String serverUrl, String username, String password, String crumbData, JenkinsVersion version) {
+    public void testAuthenticate(String serverUrl, String username, String password, String crumbData, JenkinsVersion version,
+                                 int connectionTimoutInSeconds) {
         SecurityClientFactory.setVersion(version);
+        final int connectionTimout = getConnectionTimout(connectionTimoutInSeconds);
+        final SecurityClient securityClientForTest;
         if (StringUtils.isNotBlank(username)) {
-            securityClient = SecurityClientFactory.basic(username, password, crumbData);
+            securityClientForTest = SecurityClientFactory.basic(username, password, crumbData, connectionTimout);
         } else {
-            securityClient = SecurityClientFactory.none(crumbData);
+            securityClientForTest = SecurityClientFactory.none(crumbData, connectionTimout);
         }
-        securityClient.connect(urlBuilder.createAuthenticationUrl(serverUrl));
+        securityClientForTest.connect(urlBuilder.createAuthenticationUrl(serverUrl));
     }
 
     @Override
@@ -267,8 +328,8 @@ public class RequestManager implements RequestManagerInterface {
     }
 
     @Override
-    public Job loadJob(Job job) {
-        return loadJob(job.getUrl());
+    public @NotNull Job loadJob(Job job) {
+        return withNodeParameterFix(loadJob(job.getUrl()), () -> loadComputer(JenkinsAppSettings.getSafeInstance(project)));
     }
 
     @Override
@@ -318,6 +379,16 @@ public class RequestManager implements RequestManagerInterface {
     }
 
     @NotNull
+    @Override
+    public List<Computer> loadComputer(JenkinsAppSettings settings) {
+        if (handleNotYetLoggedInState()) {
+            return Collections.emptyList();
+        }
+        final URL url = urlBuilder.createComputerUrl(settings.getServerUrl());
+        return jsonParser.createComputers(securityClient.execute(url));
+    }
+
+    @NotNull
     private JobWithDetails getJob(@NotNull Job job) {
         Optional<JobWithDetails> jobWithDetails = Optional.empty();
         try {
@@ -327,6 +398,10 @@ public class RequestManager implements RequestManagerInterface {
             throw new NoJobFoundException(job, e);
         }
         return jobWithDetails.orElseThrow(() -> new NoJobFoundException(job));
+    }
+
+    private int getConnectionTimout(int connectionTimoutInSeconds) {
+        return connectionTimoutInSeconds * 1000;
     }
 
     void setSecurityClient(SecurityClient securityClient) {

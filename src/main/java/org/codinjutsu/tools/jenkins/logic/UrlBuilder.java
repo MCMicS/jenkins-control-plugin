@@ -18,6 +18,7 @@ package org.codinjutsu.tools.jenkins.logic;
 
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
+import com.offbytwo.jenkins.model.Computer;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
@@ -43,6 +44,8 @@ public class UrlBuilder {
     private static final String TEST_CONNECTION_REQUEST = "?tree=nodeName";
     private static final String BASIC_BUILDS_INFO = "builds[" + BASIC_BUILD_INFO + "]";
     private static final String NESTED_JOBS_INFO = "name,url,displayName,fullDisplayName,jobs[" + BASIC_JOB_INFO + "]";
+    private static final String COMPUTER = "/computer";
+    private static final String COMPUTER_INFO = "computer[displayName,description,offline,assignedLabels[name]]";
 
     public static UrlBuilder getInstance(Project project) {
         return ServiceManager.getService(project, UrlBuilder.class);
@@ -179,5 +182,16 @@ public class UrlBuilder {
         }
 
         return null;
+    }
+
+    @NotNull
+    public URL createComputerUrl(String serverUrl) {
+        try {
+            return new URL(serverUrl + URIUtil.encodePathQuery(COMPUTER + API_JSON + TREE_PARAM +
+                    COMPUTER_INFO));
+        } catch (Exception ex) {
+            handleException(ex);
+            throw new IllegalArgumentException("Error during URL creation", ex);
+        }
     }
 }

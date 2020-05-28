@@ -24,10 +24,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.util.DateUtil;
+import org.codinjutsu.tools.jenkins.view.parameter.NodeParameterRenderer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class JenkinsJsonParser implements JenkinsParser {
 
@@ -279,9 +281,9 @@ public class JenkinsJsonParser implements JenkinsParser {
 
         String type = parameterObj.getStringOrDefault(createJsonKey(PARAMETER_TYPE, StringUtils.EMPTY));
         String parameterClass = parameterObj.getString(createJsonKey(CLASS));
-        jobParameterBuilder.jobParameterType(JobParameterType.getType(type, parameterClass));
-        JsonArray choices = (JsonArray) parameterObj.get(PARAMETER_CHOICE);
-        jobParameterBuilder.choices(getChoices(choices));
+        final JobParameterType jobParameterType = JobParameterType.getType(type, parameterClass);
+        jobParameterBuilder.jobParameterType(jobParameterType);
+        jobParameterBuilder.choices(getChoices((JsonArray) parameterObj.get(PARAMETER_CHOICE)));
         return jobParameterBuilder.build();
     }
 
@@ -363,6 +365,55 @@ public class JenkinsJsonParser implements JenkinsParser {
         }
 
         return jobs;
+    }
+
+    @NotNull
+    @Override
+    public List<Computer> createComputers(String computerJsonArray) {
+        checkJsonDataAndThrowExceptionIfNecessary(computerJsonArray);
+        final JsonObject jsonObject = parseJson(computerJsonArray);
+        JsonArray jobObjects = (JsonArray) jsonObject.get(COMPUTER);
+        return jobObjects.stream().map(object -> (JsonObject) object).map(this::getComputer).collect(
+                Collectors.toCollection(LinkedList::new));
+    }
+
+    @NotNull
+    @Override
+    public Computer createComputer(String computerJson) {
+        checkJsonDataAndThrowExceptionIfNecessary(computerJson);
+        return getComputer(parseJson(computerJson));
+    }
+
+    @NotNull
+    private Computer getComputer(JsonObject computerJson) {
+        final String displayName = computerJson.getString(createJsonKey("displayName"));
+        final String description = computerJson.getStringOrDefault(createJsonKey("description", StringUtils.EMPTY));
+        final boolean offline = computerJson.getBooleanOrDefault(createJsonKey("offline", false));
+        final JsonArray labelsJson = (JsonArray) computerJson.get("assignedLabels");
+        final Computer.ComputerBuilder computerBuilder = Computer.builder()
+                .displayName(displayName)
+                .description(description)
+                .labels(getComputerLabels(labelsJson))
+                .offline(offline);
+        return computerBuilder.build();
+    }
+
+    @NotNull
+    private List<String> getComputerLabels(JsonArray labelsJson) {
+        final List<String> labels = new LinkedList<>();
+        if (labelsJson == null || labelsJson.isEmpty()) {
+            return labels;
+        }
+
+        for (Object obj : labelsJson) {
+            JsonObject labelJson = (JsonObject) obj;
+            final String nameProperty = "name";
+            if (labelJson == null || labelJson.isEmpty() || !labelJson.containsKey(nameProperty)) {
+                continue;
+            }
+            labels.add(labelJson.getString(createJsonKey(nameProperty)));
+        }
+        return labels;
     }
 
 
