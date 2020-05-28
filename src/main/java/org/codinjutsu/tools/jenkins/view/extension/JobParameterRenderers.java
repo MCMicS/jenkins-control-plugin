@@ -91,6 +91,7 @@ public final class JobParameterRenderers {
         return new JobParameterComponent(jobParameter, createErrorLabel(jobParameter.getJobParameterType()), () -> true);
     }
 
+    @SuppressWarnings("unused")
     @NotNull
     public static JobParameterComponent createErrorLabel(@NotNull JobParameter jobParameter, String defaultValue) {
         return createErrorLabel(jobParameter);

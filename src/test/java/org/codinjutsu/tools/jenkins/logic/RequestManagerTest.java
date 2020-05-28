@@ -17,8 +17,10 @@
 package org.codinjutsu.tools.jenkins.logic;
 
 import com.intellij.openapi.project.Project;
+import org.assertj.core.api.Assertions;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
+import org.codinjutsu.tools.jenkins.model.Computer;
 import org.codinjutsu.tools.jenkins.security.SecurityClient;
 import org.codinjutsu.tools.jenkins.util.IOUtils;
 import org.junit.Assert;
@@ -30,6 +32,7 @@ import org.picocontainer.PicoContainer;
 import org.powermock.reflect.Whitebox;
 
 import java.net.URL;
+import java.util.List;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -87,6 +90,18 @@ public class RequestManagerTest {
         } catch (ConfigurationException ex) {
             Assert.assertEquals("Jenkins Server Host Mismatch: expected='myjenkins' - actual='anotherjenkins'. Look at the value of 'Jenkins URL' at http://myjenkins:8080/configure", ex.getMessage());
         }
+    }
+
+    @Test
+    public void loadComputers() throws Exception {
+        final String serverUrl = "http://myjenkins:8080";
+        final URL computerUrl = new URL("http://myjenkins:8080/computer");
+        configuration.setServerUrl(serverUrl);
+        when(urlBuilderMock.createComputerUrl(serverUrl)).thenReturn(computerUrl);
+        when(securityClientMock.execute(computerUrl))
+                .thenReturn(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_computer.json")));
+        final List<Computer> computers = requestManager.loadComputer(configuration);
+        Assertions.assertThat(computers).hasSize(2);
     }
 
 

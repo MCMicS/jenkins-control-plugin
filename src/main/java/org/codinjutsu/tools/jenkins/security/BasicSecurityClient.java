@@ -36,13 +36,14 @@ class BasicSecurityClient extends DefaultSecurityClient {
     private String password = null;
 
 
-    BasicSecurityClient(String username, String password, String crumbData) {
-        super(crumbData);
+    BasicSecurityClient(String username, String password, String crumbData, int connectionTimout) {
+        super(crumbData, connectionTimout);
         this.username = username;
         this.password = password;
     }
 
 
+    @Override
     public void connect(URL url) {
         doAuthentication(url);
     }
