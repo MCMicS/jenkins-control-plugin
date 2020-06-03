@@ -7,13 +7,12 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import javax.swing.*;
-
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.codinjutsu.tools.jenkins.view.parameter.NodeParameterRenderer.NODE_PARAMETER;
 
-public class NodeParameterRendererTest {
+public class NodeParameterRendererTest implements JobParameterTest {
 
     private final NodeParameterRenderer jobParameterRenderer = new NodeParameterRenderer();
     private final JobParameterType labelParameter = new JobParameterType("LabelParameterDefinition",
@@ -58,17 +57,5 @@ public class NodeParameterRendererTest {
                 .isFalse();
         assertThat(jobParameterRenderer.isForJobParameter(createJobParameter(BuildInJobParameter.ChoiceParameterDefinition)))
                 .isFalse();
-    }
-
-    @NotNull
-    private JobParameter createJobParameter(JobParameterType jobParameterType) {
-        return createJobParameter(jobParameterType, new String [0]);
-    }
-
-    @NotNull
-    private JobParameter createJobParameter(JobParameterType jobParameterType, String... nodes) {
-        return JobParameter.builder().jobParameterType(jobParameterType)
-                .name("Test").choices(Arrays.asList(nodes)).defaultValue("default").description("Test Parameter")
-                .build();
     }
 }
