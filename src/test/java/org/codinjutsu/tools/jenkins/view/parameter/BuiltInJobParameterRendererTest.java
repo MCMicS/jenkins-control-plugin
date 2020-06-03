@@ -5,15 +5,13 @@ import org.codinjutsu.tools.jenkins.model.BuildInJobParameter;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
 import org.codinjutsu.tools.jenkins.model.JobParameterType;
 import org.codinjutsu.tools.jenkins.view.extension.JobParameterRenderers;
-import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import javax.swing.*;
 
 import static org.assertj.core.api.Assertions.*;
 
-public class BuiltInJobParameterRendererTest {
+public class BuiltInJobParameterRendererTest implements JobParameterTest {
 
     private final BuiltInJobParameterRenderer jobParameterRenderer = new BuiltInJobParameterRenderer();
 
@@ -68,11 +66,5 @@ public class BuiltInJobParameterRendererTest {
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JobParameterRenderers.ErrorLabel.class);
         jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.TextParameterDefinition));
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JTextArea.class);
-    }
-
-    @NotNull
-    private JobParameter createJobParameter(JobParameterType jobParameterType) {
-        return JobParameter.builder().jobParameterType(jobParameterType)
-                .name("Test").defaultValue("default").description("Test Parameter").build();
     }
 }

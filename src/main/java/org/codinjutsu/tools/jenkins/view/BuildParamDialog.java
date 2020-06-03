@@ -44,30 +44,15 @@ import java.util.function.Function;
 
 public class BuildParamDialog extends JDialog {
     private static final Logger logger = Logger.getLogger(BuildParamDialog.class);
-    /**
-     * com.intellij.icons.AllIcons.General#NotificationError
-     * com.intellij.icons.AllIcons.RunConfigurations#ToolbarError
-     * com.intellij.icons.AllIcons.General#BalloonError
-     * AllIcons.RunConfigurations.ToolbarError
-     */
-    private static final Icon WARNING_ICON = AllIcons.General.BalloonWarning;
     private final Job job;
     private final JenkinsAppSettings configuration;
     private final RequestManager requestManager;
     private final RunBuildCallback runBuildCallback;
-    private final Collection<JLabel> labels = new LinkedHashSet<>();
     private final Collection<JobParameterComponent> inputFields = new LinkedHashSet<>();
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
     private JPanel contentPanel;
-
-// UNSUPPORTED PARAMETERS
-//        FileParameterDefinition
-//        TextParameterDefinition
-//        RunParameterDefinition
-//        public static final JobParameterType ListSubversionTagsParameterDefinition = new JobParameterType("ListSubversionTagsParameterDefinition",
-//        "hudson.scm.listtagsparameter.ListSubversionTagsParameterDefinition");
 
     BuildParamDialog(Job job, JenkinsAppSettings configuration, RequestManager requestManager, RunBuildCallback runBuildCallback) {
         this.job = job;
@@ -88,15 +73,14 @@ public class BuildParamDialog extends JDialog {
 
     public static void showDialog(final Job job, final JenkinsAppSettings configuration, final RequestManager requestManager,
                                   final RunBuildCallback runBuildCallback) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                BuildParamDialog dialog = new BuildParamDialog(job, configuration, requestManager, runBuildCallback);
-                dialog.setLocationRelativeTo(null);
-                dialog.setSize(dialog.getPreferredSize());
-                dialog.setMaximumSize(new Dimension(300, 200));
-                dialog.pack();
-                dialog.setVisible(true);
-            }
+        SwingUtilities.invokeLater(() -> {
+            BuildParamDialog dialog = new BuildParamDialog(job, configuration, requestManager, runBuildCallback);
+            dialog.setLocationRelativeTo(null);
+            dialog.setSize(dialog.getPreferredSize());
+            //dialog.setMinimumSize(new Dimension(300, 200));
+            dialog.setMaximumSize(new Dimension(800, 600));
+            dialog.pack();
+            dialog.setVisible(true);
         });
     }
 
@@ -128,31 +112,32 @@ public class BuildParamDialog extends JDialog {
         contentPanel.setLayout(new SpringLayout());
         List<JobParameter> parameters = job.getParameters();
 
-        final AtomicInteger rows = new AtomicInteger(parameters.size());
+        final AtomicInteger rows = new AtomicInteger(0);
         for (JobParameter jobParameter : parameters) {
             final JobParameterRenderer jobParameterRenderer = JobParameterRenderer.findRenderer(jobParameter)
                     .orElseGet(ErrorRenderer::new);
-            //final JobParameterComponent jobParameterComponent = createInputField(jobParameter);
             final JobParameterComponent jobParameterComponent = jobParameterRenderer.render(jobParameter);
-            jobParameterComponent.getViewElement().setName(jobParameter.getName());
-
-            final JLabel label = jobParameterRenderer.createLabel(jobParameter)
-                    .map(setJLabelStyles(jobParameterComponent))
-                    .map(BuildParamDialog::appendColonIfMissing)
-                    .orElseGet(JLabel::new);
-            contentPanel.add(label);
-            contentPanel.add(jobParameterComponent.getViewElement());
-
-            final String description = jobParameter.getDescription();
-            if (StringUtils.isNotEmpty(description)) {
-                JLabel placeHolder = new JLabel("", SwingConstants.CENTER);
-                contentPanel.add(placeHolder);
-                contentPanel.add(new JLabel(description));
+            if (jobParameterComponent.isVisible()) {
                 rows.incrementAndGet();
-            }
+                jobParameterComponent.getViewElement().setName(jobParameter.getName());
 
-            labels.add(label);
-            inputFields.add(jobParameterComponent);
+                final JLabel label = jobParameterRenderer.createLabel(jobParameter)
+                        .map(setJLabelStyles(jobParameterComponent))
+                        .map(BuildParamDialog::appendColonIfMissing)
+                        .orElseGet(JLabel::new);
+                contentPanel.add(label);
+                contentPanel.add(jobParameterComponent.getViewElement());
+
+                final String description = jobParameter.getDescription();
+                if (StringUtils.isNotEmpty(description)) {
+                    JLabel placeHolder = new JLabel("", SwingConstants.CENTER);
+                    contentPanel.add(placeHolder);
+                    contentPanel.add(new JLabel(description));
+                    rows.incrementAndGet();
+                }
+
+                inputFields.add(jobParameterComponent);
+            }
         }
 
         final int columns = 2;
@@ -169,34 +154,24 @@ public class BuildParamDialog extends JDialog {
     }
 
     private boolean hasError() {
-        return inputFields.stream().map(JobParameterComponent::hasError).anyMatch(Boolean.TRUE::equals);
+        return inputFields.stream().anyMatch(JobParameterComponent::hasError);
     }
 
     private void registerListeners() {
-        buttonOK.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onOK();
-            }
-        });
+        buttonOK.addActionListener(e -> onOK());
 
-        buttonCancel.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onCancel();
-            }
-        });
+        buttonCancel.addActionListener(e -> onCancel());
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent e) {
                 onCancel();
             }
         });
 
-        contentPane.registerKeyboardAction(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onCancel();
-            }
-        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        contentPane.registerKeyboardAction(e -> onCancel(),
+                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     }
 
     private void onOK() {

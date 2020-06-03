@@ -351,7 +351,9 @@ public class RequestManager implements RequestManagerInterface {
     @Override
     public String loadConsoleTextFor(Job job) {
         try {
-            return getJob(job).getLastCompletedBuild().details().getConsoleOutputText();
+            final com.offbytwo.jenkins.model.Build lastCompletedBuild = getJob(job).getLastCompletedBuild();
+            return lastCompletedBuild.equals(com.offbytwo.jenkins.model.Build.BUILD_HAS_NEVER_RUN) ? null :
+                    lastCompletedBuild.details().getConsoleOutputText();
         } catch (IOException e) {
             logger.warn("cannot load log for " + job.getName());
             return null;
