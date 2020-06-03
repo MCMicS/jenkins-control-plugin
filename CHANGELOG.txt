@@ -1,3 +1,7 @@
+Version 0.13.4
+    * #219 How to run a jenkins job with hidden fields?
+    * #218 "Show log" on Job without Build leads to error
+
 Version 0.13.3
     * add GoTo Allure report
     * #213 NodeParameterDefinition is unsupported

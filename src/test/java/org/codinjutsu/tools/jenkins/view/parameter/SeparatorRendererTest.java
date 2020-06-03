@@ -3,14 +3,13 @@ package org.codinjutsu.tools.jenkins.view.parameter;
 import org.codinjutsu.tools.jenkins.model.BuildInJobParameter;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
 import org.codinjutsu.tools.jenkins.model.JobParameterType;
-import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import javax.swing.*;
 
 import static org.assertj.core.api.Assertions.*;
 
-public class SeparatorRendererTest {
+public class SeparatorRendererTest implements JobParameterTest {
 
     private final SeparatorRenderer jobParameterRenderer = new SeparatorRenderer();
     private final JobParameterType parameterSeparatorDefinition = new JobParameterType("ParameterSeparatorDefinition",
@@ -36,11 +35,5 @@ public class SeparatorRendererTest {
                 .isTrue();
         assertThat(jobParameterRenderer.isForJobParameter(createJobParameter(BuildInJobParameter.ChoiceParameterDefinition)))
                 .isFalse();
-    }
-
-    @NotNull
-    private JobParameter createJobParameter(JobParameterType jobParameterType) {
-        return JobParameter.builder().jobParameterType(jobParameterType)
-                .name("Test").defaultValue("default").description("Test Parameter").build();
     }
 }
