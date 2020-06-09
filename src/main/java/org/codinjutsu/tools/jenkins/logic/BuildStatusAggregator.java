@@ -60,6 +60,10 @@ public class BuildStatusAggregator implements BuildStatusVisitor {
         return unstableBuilds.get();
     }
 
+    public int getSucceededBuilds() {
+        return succeededBuilds.get();
+    }
+
     public boolean hasNoResults() {
         return sumAll() == 0;
     }
