@@ -21,8 +21,15 @@ import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
 import org.codinjutsu.tools.jenkins.view.BuildStatusRenderer;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.Icon;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Insets;
 
 public class BuildStatusIcon extends JComponent {
 
@@ -37,7 +44,9 @@ public class BuildStatusIcon extends JComponent {
     final int numberToDisplay;
     private final int numberWith;
 
-    public static JComponent createIcon(BuildStatusAggregator aggregator, BuildStatusRenderer buildStatusRenderer) {
+    public static JComponent createIcon(boolean combine, BuildStatusAggregator aggregator, BuildStatusRenderer buildStatusRenderer) {
+        JPanel combined = new JPanel();
+
         if (aggregator.hasNoResults()) {
             return new BuildStatusIcon(buildStatusRenderer.renderBuildStatus(BuildStatusEnum.NULL),
                     "No builds", 0);
@@ -45,18 +54,33 @@ public class BuildStatusIcon extends JComponent {
 
         int nbBrokenBuilds = aggregator.getBrokenBuilds();
         if (nbBrokenBuilds > 0) {
-            return new BuildStatusIcon(buildStatusRenderer.renderBuildStatus(BuildStatusEnum.FAILURE),
+            BuildStatusIcon brokenIcon = new BuildStatusIcon(buildStatusRenderer.renderBuildStatus(BuildStatusEnum.FAILURE),
                     String.format("%d broken builds", nbBrokenBuilds), nbBrokenBuilds);
+            if (!combine) {
+                return brokenIcon;
+            }
+            combined.add(brokenIcon);
         }
 
         int nbUnstableBuilds = aggregator.getUnstableBuilds();
         if (nbUnstableBuilds > 0) {
-            return new BuildStatusIcon(buildStatusRenderer.renderBuildStatus(BuildStatusEnum.UNSTABLE),
+            BuildStatusIcon unstableIcon = new BuildStatusIcon(buildStatusRenderer.renderBuildStatus(BuildStatusEnum.UNSTABLE),
                     String.format("%d unstable builds", nbUnstableBuilds), nbUnstableBuilds);
+            if (!combine) {
+                return unstableIcon;
+            }
+            combined.add(unstableIcon);
         }
 
-        return new BuildStatusIcon(buildStatusRenderer.renderBuildStatus(BuildStatusEnum.SUCCESS),
-                "No broken builds", 0);
+        String succeededTooltip = combine ? String.format("%s succeeded builds", aggregator.getSucceededBuilds()) : "No broken builds";
+        int succeededNumber = combine ? aggregator.getSucceededBuilds() : 0;
+        BuildStatusIcon successIcon = new BuildStatusIcon(buildStatusRenderer.renderBuildStatus(BuildStatusEnum.SUCCESS), succeededTooltip, succeededNumber);
+        if (!combine) {
+            return successIcon;
+        }
+
+        combined.add(successIcon);
+        return combined;
     }
 
     private BuildStatusIcon(Icon icon, String toolTipText, int numberToDisplay) {
@@ -68,14 +92,17 @@ public class BuildStatusIcon extends JComponent {
 
     }
 
+    @Override
     public Dimension getMinimumSize() {
         return getPreferredSize();
     }
 
+    @Override
     public Dimension getMaximumSize() {
         return getPreferredSize();
     }
 
+    @Override
     public Dimension getPreferredSize() {
         final Insets insets = getInsets();
         return new Dimension(
@@ -84,6 +111,7 @@ public class BuildStatusIcon extends JComponent {
         );
     }
 
+    @Override
     protected void paintComponent(Graphics g) {
 
         g.setColor(UIUtil.getPanelBackground());

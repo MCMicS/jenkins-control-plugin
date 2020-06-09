@@ -35,12 +35,19 @@ import org.codinjutsu.tools.jenkins.view.validator.NotNullValidator;
 import org.codinjutsu.tools.jenkins.view.validator.PositiveIntegerValidator;
 import org.codinjutsu.tools.jenkins.view.validator.UrlValidator;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
-import java.awt.*;
+import java.awt.Color;
 
 import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.POSITIVE_INTEGER;
 import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.URL;
@@ -80,6 +87,7 @@ public class ConfigurationPanel {
     private JTextField replaceWithSuffix;
     private JRadioButton version1RadioButton;
     private JRadioButton version2RadioButton;
+    private JCheckBox showAllInStatusbar;
     private JCheckBox useGreenColor;
     @GuiField(validators = POSITIVE_INTEGER)
     private JBIntSpinner timeout;
@@ -191,6 +199,7 @@ public class ConfigurationPanel {
                 || abortedCheckBox.isSelected() != jenkinsAppSettings.shouldDisplayAborted();
 
         boolean isUseGreenColor = isUseGreenColor() != jenkinsAppSettings.isUseGreenColor();
+        boolean isShowAllInStatusbar = isShowAllInStatusbar() != jenkinsAppSettings.isShowAllInStatusbar();
 
         return !jenkinsAppSettings.getServerUrl().equals(serverUrl.getText())
                 || jenkinsAppSettings.getBuildDelay() != getBuildDelay()
@@ -200,6 +209,7 @@ public class ConfigurationPanel {
                 || !(jenkinsSettings.getCrumbData().equals(crumbDataField.getText()))
                 || credentialModified
                 || isUseGreenColor
+                || isShowAllInStatusbar
                 || jenkinsSettings.getConnectionTimeout() != getConnectionTimeout()
                 || statusToIgnoreModified || (!jenkinsAppSettings.getSuffix().equals(replaceWithSuffix.getText()));
     }
@@ -225,6 +235,7 @@ public class ConfigurationPanel {
         jenkinsAppSettings.setDisplayAborted(abortedCheckBox.isSelected());
         jenkinsAppSettings.setSuffix(getSuffix());
         jenkinsAppSettings.setUseGreenColor(isUseGreenColor());
+        jenkinsAppSettings.setShowAllInStatusbar(isShowAllInStatusbar());
         jenkinsSettings.setConnectionTimeout(getConnectionTimeout());
 
         if (StringUtils.isNotBlank(username.getText())) {
@@ -252,6 +263,14 @@ public class ConfigurationPanel {
         this.useGreenColor.setSelected(useGreenColor);
     }
 
+    private boolean isShowAllInStatusbar() {
+        return showAllInStatusbar.isSelected();
+    }
+
+    private void setShowAllInStatusbar(boolean useGreenColor) {
+        this.showAllInStatusbar.setSelected(useGreenColor);
+    }
+
     public void loadConfigurationData(JenkinsAppSettings jenkinsAppSettings, JenkinsSettings jenkinsSettings) {
         serverUrl.setText(jenkinsAppSettings.getServerUrl());
         buildDelay.setText(String.valueOf(jenkinsAppSettings.getBuildDelay()));
@@ -275,6 +294,7 @@ public class ConfigurationPanel {
 
         replaceWithSuffix.setText(String.valueOf(jenkinsAppSettings.getSuffix()));
         setUseGreenColor(jenkinsAppSettings.isUseGreenColor());
+        setShowAllInStatusbar(jenkinsAppSettings.isShowAllInStatusbar());
         timeout.setNumber(jenkinsSettings.getConnectionTimeout());
 
         if (jenkinsSettings.getVersion().equals(JenkinsVersion.VERSION_1)) {
