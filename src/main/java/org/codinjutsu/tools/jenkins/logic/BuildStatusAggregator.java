@@ -85,6 +85,6 @@ public class BuildStatusAggregator implements BuildStatusVisitor {
     }
 
     public int sumAll() {
-        return succeededBuilds.get() + unstableBuilds.get() + brokenBuilds.get() + abortedBuilds.get() + unknownBuilds.get();
+        return succeededBuilds.get() + unstableBuilds.get() + brokenBuilds.get() + abortedBuilds.get() + unknownBuilds.get() + runningBuilds.get();
     }
 }
