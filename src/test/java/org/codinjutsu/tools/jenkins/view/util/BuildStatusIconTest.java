@@ -39,7 +39,7 @@ public class BuildStatusIconTest {
 
         BuildStatusIcon statusIcon = (BuildStatusIcon) BuildStatusIcon.createIcon(false, aggregatorMock, buildStatusRenderer);
         assertIconEquals("grey.svg", statusIcon.icon);
-        assertEquals("No builds", statusIcon.toolTipText);
+        assertEquals("No builds", statusIcon.getToolTipText());
         assertEquals(0, statusIcon.numberToDisplay);
     }
 
@@ -51,7 +51,7 @@ public class BuildStatusIconTest {
 
         BuildStatusIcon statusIcon = (BuildStatusIcon) BuildStatusIcon.createIcon(false, aggregatorMock, buildStatusRenderer);
         assertIconEquals("red.svg", statusIcon.icon);
-        assertEquals("4 broken builds", statusIcon.toolTipText);
+        assertEquals("4 broken builds", statusIcon.getToolTipText());
         assertEquals(4, statusIcon.numberToDisplay);
     }
 
@@ -63,8 +63,21 @@ public class BuildStatusIconTest {
 
         BuildStatusIcon statusIcon = (BuildStatusIcon) BuildStatusIcon.createIcon(false, aggregatorMock, buildStatusRenderer);
         assertIconEquals("yellow.svg", statusIcon.icon);
-        assertEquals("2 unstable builds", statusIcon.toolTipText);
+        assertEquals("2 unstable builds", statusIcon.getToolTipText());
         assertEquals(2, statusIcon.numberToDisplay);
+    }
+
+    @Test
+    public void runningBuildsShouldDisplayGrayIcon() {
+        Mockito.when(aggregatorMock.hasNoResults()).thenReturn(false);
+        Mockito.when(aggregatorMock.getBrokenBuilds()).thenReturn(0);
+        Mockito.when(aggregatorMock.getUnstableBuilds()).thenReturn(0);
+        Mockito.when(aggregatorMock.getRunningBuilds()).thenReturn(3);
+
+        BuildStatusIcon statusIcon = (BuildStatusIcon) BuildStatusIcon.createIcon(false, aggregatorMock, buildStatusRenderer);
+        assertIconEquals("grey.svg", statusIcon.icon);
+        assertEquals("3 running builds", statusIcon.getToolTipText());
+        assertEquals(3, statusIcon.numberToDisplay);
     }
 
     @Test
@@ -75,7 +88,7 @@ public class BuildStatusIconTest {
 
         BuildStatusIcon statusIcon = (BuildStatusIcon) BuildStatusIcon.createIcon(false, aggregatorMock, buildStatusRenderer);
         assertIconEquals("blue.svg", statusIcon.icon);
-        assertEquals("No broken builds", statusIcon.toolTipText);
+        assertEquals("No broken builds", statusIcon.getToolTipText());
         assertEquals(0, statusIcon.numberToDisplay);
     }
 
@@ -90,15 +103,15 @@ public class BuildStatusIconTest {
         assertEquals(3, statusIcons.getComponents().length);
 
         assertIconEquals("red.svg", ((BuildStatusIcon) statusIcons.getComponents()[0]).icon);
-        assertEquals("1 broken builds", ((BuildStatusIcon) statusIcons.getComponents()[0]).toolTipText);
+        assertEquals("1 broken builds", ((BuildStatusIcon) statusIcons.getComponents()[0]).getToolTipText());
         assertEquals(1, ((BuildStatusIcon) statusIcons.getComponents()[0]).numberToDisplay);
 
         assertIconEquals("yellow.svg", ((BuildStatusIcon) statusIcons.getComponents()[1]).icon);
-        assertEquals("2 unstable builds", ((BuildStatusIcon) statusIcons.getComponents()[1]).toolTipText);
+        assertEquals("2 unstable builds", ((BuildStatusIcon) statusIcons.getComponents()[1]).getToolTipText());
         assertEquals(2, ((BuildStatusIcon) statusIcons.getComponents()[1]).numberToDisplay);
 
         assertIconEquals("blue.svg", ((BuildStatusIcon) statusIcons.getComponents()[2]).icon);
-        assertEquals("3 succeeded builds", ((BuildStatusIcon) statusIcons.getComponents()[2]).toolTipText);
+        assertEquals("3 succeeded builds", ((BuildStatusIcon) statusIcons.getComponents()[2]).getToolTipText());
         assertEquals(3, ((BuildStatusIcon) statusIcons.getComponents()[2]).numberToDisplay);
     }
 

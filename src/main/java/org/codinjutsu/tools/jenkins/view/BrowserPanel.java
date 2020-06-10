@@ -19,7 +19,6 @@ package org.codinjutsu.tools.jenkins.view;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -124,6 +123,10 @@ public class BrowserPanel extends SimpleToolWindowPanel {
         Build lastBuild = job.getLastBuild();
         if (job.isBuildable() && lastBuild != null) {
             BuildStatusEnum status = lastBuild.getStatus();
+            if (job.getLastBuild() != null && job.getLastBuild().isBuilding()) {
+                buildStatusVisitor.visitBuilding();
+                return;
+            }
             if (BuildStatusEnum.FAILURE == status) {
                 buildStatusVisitor.visitFailed();
                 return;
