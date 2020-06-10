@@ -72,14 +72,19 @@ public class BuildStatusIcon extends JComponent {
             combined.add(unstableIcon);
         }
 
-        String succeededTooltip = combine ? String.format("%s succeeded builds", aggregator.getSucceededBuilds()) : "No broken builds";
-        int succeededNumber = combine ? aggregator.getSucceededBuilds() : 0;
-        BuildStatusIcon successIcon = new BuildStatusIcon(buildStatusRenderer.renderBuildStatus(BuildStatusEnum.SUCCESS), succeededTooltip, succeededNumber);
-        if (!combine) {
-            return successIcon;
+        int succeededNumber = aggregator.getSucceededBuilds();
+        if (succeededNumber > 0) {
+            String succeededTooltip = combine ? String.format("%s succeeded builds", aggregator.getSucceededBuilds()) : "No broken builds";
+            BuildStatusIcon successIcon = new BuildStatusIcon(buildStatusRenderer.renderBuildStatus(BuildStatusEnum.SUCCESS), succeededTooltip, succeededNumber);
+            if (!combine) {
+                return successIcon;
+            }
+            combined.add(successIcon);
         }
-
-        combined.add(successIcon);
+        if (combined.getComponentCount() == 0) {
+            combined.add(new BuildStatusIcon(buildStatusRenderer.renderBuildStatus(BuildStatusEnum.SUCCESS),
+                    "No broken builds", 0));
+        }
         return combined;
     }
 

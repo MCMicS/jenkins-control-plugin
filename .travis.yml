@@ -11,9 +11,13 @@ jobs:
       script: ./gradlew jacocoTestReport sonarqube
 git:
   depth: false
+
+before_cache:
+  - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
 cache:
   directories:
-  - "~/.gradle"
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
 addons:
   sonarcloud:
     organization: "mcmics-github"
