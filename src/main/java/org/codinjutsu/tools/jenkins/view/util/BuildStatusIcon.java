@@ -17,14 +17,24 @@
 package org.codinjutsu.tools.jenkins.view.util;
 
 import com.intellij.util.ui.UIUtil;
+import icons.JenkinsControlIcons;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
 import org.codinjutsu.tools.jenkins.view.BuildStatusRenderer;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BoxLayout;
+import javax.swing.Icon;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Insets;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.*;
 
 public class BuildStatusIcon extends JComponent {
     private static final int PIXEL_WIDTH = 8;
@@ -55,7 +65,9 @@ public class BuildStatusIcon extends JComponent {
         if (combine) {
             final JPanel combined = new JPanel();
             combined.setLayout(new BoxLayout(combined, BoxLayout.X_AXIS));
-            icons.forEach(combined::add);
+
+            // Sorted to put the running icon at the front
+            icons.stream().sorted(Comparator.comparing(i -> i.icon != JenkinsControlIcons.Job.GREY)).forEach(combined::add);
             return combined;
         } else {
             return icons.get(0);

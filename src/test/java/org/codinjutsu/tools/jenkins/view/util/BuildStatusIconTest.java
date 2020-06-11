@@ -23,7 +23,8 @@ import org.codinjutsu.tools.jenkins.view.DefaultBuildStatusEnumRenderer;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import javax.swing.*;
+import javax.swing.Icon;
+import javax.swing.JPanel;
 
 import static org.junit.Assert.assertEquals;
 
@@ -98,21 +99,30 @@ public class BuildStatusIconTest {
         Mockito.when(aggregatorMock.getBrokenBuilds()).thenReturn(1);
         Mockito.when(aggregatorMock.getUnstableBuilds()).thenReturn(2);
         Mockito.when(aggregatorMock.getSucceededBuilds()).thenReturn(3);
+        Mockito.when(aggregatorMock.getRunningBuilds()).thenReturn(4);
 
         JPanel statusIcons = (JPanel) BuildStatusIcon.createIcon(true, aggregatorMock, buildStatusRenderer);
-        assertEquals(3, statusIcons.getComponents().length);
+        assertEquals(4, statusIcons.getComponents().length);
 
-        assertIconEquals("red.svg", ((BuildStatusIcon) statusIcons.getComponents()[0]).icon);
-        assertEquals("1 broken builds", ((BuildStatusIcon) statusIcons.getComponents()[0]).getToolTipText());
-        assertEquals(1, ((BuildStatusIcon) statusIcons.getComponents()[0]).numberToDisplay);
+        int idx = 0;
+        assertIconEquals("grey.svg", ((BuildStatusIcon) statusIcons.getComponents()[idx]).icon);
+        assertEquals("4 running builds", ((BuildStatusIcon) statusIcons.getComponents()[idx]).getToolTipText());
+        assertEquals(4, ((BuildStatusIcon) statusIcons.getComponents()[idx]).numberToDisplay);
 
-        assertIconEquals("yellow.svg", ((BuildStatusIcon) statusIcons.getComponents()[1]).icon);
-        assertEquals("2 unstable builds", ((BuildStatusIcon) statusIcons.getComponents()[1]).getToolTipText());
-        assertEquals(2, ((BuildStatusIcon) statusIcons.getComponents()[1]).numberToDisplay);
+        idx++;
+        assertIconEquals("red.svg", ((BuildStatusIcon) statusIcons.getComponents()[idx]).icon);
+        assertEquals("1 broken builds", ((BuildStatusIcon) statusIcons.getComponents()[idx]).getToolTipText());
+        assertEquals(1, ((BuildStatusIcon) statusIcons.getComponents()[idx]).numberToDisplay);
 
-        assertIconEquals("blue.svg", ((BuildStatusIcon) statusIcons.getComponents()[2]).icon);
-        assertEquals("3 succeeded builds", ((BuildStatusIcon) statusIcons.getComponents()[2]).getToolTipText());
-        assertEquals(3, ((BuildStatusIcon) statusIcons.getComponents()[2]).numberToDisplay);
+        idx++;
+        assertIconEquals("yellow.svg", ((BuildStatusIcon) statusIcons.getComponents()[idx]).icon);
+        assertEquals("2 unstable builds", ((BuildStatusIcon) statusIcons.getComponents()[idx]).getToolTipText());
+        assertEquals(2, ((BuildStatusIcon) statusIcons.getComponents()[idx]).numberToDisplay);
+
+        idx++;
+        assertIconEquals("blue.svg", ((BuildStatusIcon) statusIcons.getComponents()[idx]).icon);
+        assertEquals("3 succeeded builds", ((BuildStatusIcon) statusIcons.getComponents()[idx]).getToolTipText());
+        assertEquals(3, ((BuildStatusIcon) statusIcons.getComponents()[idx]).numberToDisplay);
     }
 
     @Test
