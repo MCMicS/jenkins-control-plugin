@@ -23,7 +23,8 @@ import org.codinjutsu.tools.jenkins.view.DefaultBuildStatusEnumRenderer;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import javax.swing.*;
+import javax.swing.Icon;
+import javax.swing.JPanel;
 
 import static org.junit.Assert.assertEquals;
 
@@ -39,7 +40,7 @@ public class BuildStatusIconTest {
 
         BuildStatusIcon statusIcon = (BuildStatusIcon) BuildStatusIcon.createIcon(false, aggregatorMock, buildStatusRenderer);
         assertIconEquals("grey.svg", statusIcon.icon);
-        assertEquals("No builds", statusIcon.toolTipText);
+        assertEquals("No builds", statusIcon.getToolTipText());
         assertEquals(0, statusIcon.numberToDisplay);
     }
 
@@ -51,7 +52,7 @@ public class BuildStatusIconTest {
 
         BuildStatusIcon statusIcon = (BuildStatusIcon) BuildStatusIcon.createIcon(false, aggregatorMock, buildStatusRenderer);
         assertIconEquals("red.svg", statusIcon.icon);
-        assertEquals("4 broken builds", statusIcon.toolTipText);
+        assertEquals("4 broken builds", statusIcon.getToolTipText());
         assertEquals(4, statusIcon.numberToDisplay);
     }
 
@@ -63,8 +64,21 @@ public class BuildStatusIconTest {
 
         BuildStatusIcon statusIcon = (BuildStatusIcon) BuildStatusIcon.createIcon(false, aggregatorMock, buildStatusRenderer);
         assertIconEquals("yellow.svg", statusIcon.icon);
-        assertEquals("2 unstable builds", statusIcon.toolTipText);
+        assertEquals("2 unstable builds", statusIcon.getToolTipText());
         assertEquals(2, statusIcon.numberToDisplay);
+    }
+
+    @Test
+    public void runningBuildsShouldDisplayGrayIcon() {
+        Mockito.when(aggregatorMock.hasNoResults()).thenReturn(false);
+        Mockito.when(aggregatorMock.getBrokenBuilds()).thenReturn(0);
+        Mockito.when(aggregatorMock.getUnstableBuilds()).thenReturn(0);
+        Mockito.when(aggregatorMock.getRunningBuilds()).thenReturn(3);
+
+        BuildStatusIcon statusIcon = (BuildStatusIcon) BuildStatusIcon.createIcon(false, aggregatorMock, buildStatusRenderer);
+        assertIconEquals("grey.svg", statusIcon.icon);
+        assertEquals("3 running builds", statusIcon.getToolTipText());
+        assertEquals(3, statusIcon.numberToDisplay);
     }
 
     @Test
@@ -75,7 +89,7 @@ public class BuildStatusIconTest {
 
         BuildStatusIcon statusIcon = (BuildStatusIcon) BuildStatusIcon.createIcon(false, aggregatorMock, buildStatusRenderer);
         assertIconEquals("blue.svg", statusIcon.icon);
-        assertEquals("No broken builds", statusIcon.toolTipText);
+        assertEquals("No broken builds", statusIcon.getToolTipText());
         assertEquals(0, statusIcon.numberToDisplay);
     }
 
@@ -85,21 +99,43 @@ public class BuildStatusIconTest {
         Mockito.when(aggregatorMock.getBrokenBuilds()).thenReturn(1);
         Mockito.when(aggregatorMock.getUnstableBuilds()).thenReturn(2);
         Mockito.when(aggregatorMock.getSucceededBuilds()).thenReturn(3);
+        Mockito.when(aggregatorMock.getRunningBuilds()).thenReturn(4);
 
         JPanel statusIcons = (JPanel) BuildStatusIcon.createIcon(true, aggregatorMock, buildStatusRenderer);
-        assertEquals(3, statusIcons.getComponents().length);
+        assertEquals(4, statusIcons.getComponents().length);
 
-        assertIconEquals("red.svg", ((BuildStatusIcon) statusIcons.getComponents()[0]).icon);
-        assertEquals("1 broken builds", ((BuildStatusIcon) statusIcons.getComponents()[0]).toolTipText);
-        assertEquals(1, ((BuildStatusIcon) statusIcons.getComponents()[0]).numberToDisplay);
+        int idx = 0;
+        assertIconEquals("grey.svg", ((BuildStatusIcon) statusIcons.getComponents()[idx]).icon);
+        assertEquals("4 running builds", ((BuildStatusIcon) statusIcons.getComponents()[idx]).getToolTipText());
+        assertEquals(4, ((BuildStatusIcon) statusIcons.getComponents()[idx]).numberToDisplay);
 
-        assertIconEquals("yellow.svg", ((BuildStatusIcon) statusIcons.getComponents()[1]).icon);
-        assertEquals("2 unstable builds", ((BuildStatusIcon) statusIcons.getComponents()[1]).toolTipText);
-        assertEquals(2, ((BuildStatusIcon) statusIcons.getComponents()[1]).numberToDisplay);
+        idx++;
+        assertIconEquals("red.svg", ((BuildStatusIcon) statusIcons.getComponents()[idx]).icon);
+        assertEquals("1 broken builds", ((BuildStatusIcon) statusIcons.getComponents()[idx]).getToolTipText());
+        assertEquals(1, ((BuildStatusIcon) statusIcons.getComponents()[idx]).numberToDisplay);
 
-        assertIconEquals("blue.svg", ((BuildStatusIcon) statusIcons.getComponents()[2]).icon);
-        assertEquals("3 succeeded builds", ((BuildStatusIcon) statusIcons.getComponents()[2]).toolTipText);
-        assertEquals(3, ((BuildStatusIcon) statusIcons.getComponents()[2]).numberToDisplay);
+        idx++;
+        assertIconEquals("yellow.svg", ((BuildStatusIcon) statusIcons.getComponents()[idx]).icon);
+        assertEquals("2 unstable builds", ((BuildStatusIcon) statusIcons.getComponents()[idx]).getToolTipText());
+        assertEquals(2, ((BuildStatusIcon) statusIcons.getComponents()[idx]).numberToDisplay);
+
+        idx++;
+        assertIconEquals("blue.svg", ((BuildStatusIcon) statusIcons.getComponents()[idx]).icon);
+        assertEquals("3 succeeded builds", ((BuildStatusIcon) statusIcons.getComponents()[idx]).getToolTipText());
+        assertEquals(3, ((BuildStatusIcon) statusIcons.getComponents()[idx]).numberToDisplay);
+    }
+
+    @Test
+    public void combineIconsButNoBuilds() {
+        Mockito.when(aggregatorMock.hasNoResults()).thenReturn(false);
+
+        JPanel statusIcons = (JPanel) BuildStatusIcon.createIcon(true, aggregatorMock, buildStatusRenderer);
+
+        assertEquals(1, statusIcons.getComponents().length);
+
+        assertIconEquals("blue.svg", ((BuildStatusIcon) statusIcons.getComponents()[0]).icon);
+        assertEquals("No broken builds", ((BuildStatusIcon) statusIcons.getComponents()[0]).getToolTipText());
+        assertEquals(0, ((BuildStatusIcon) statusIcons.getComponents()[0]).numberToDisplay);
     }
 
     private void assertIconEquals(String expectedIconFilename, Icon actualIcon) {

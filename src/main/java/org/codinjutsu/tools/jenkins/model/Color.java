@@ -2,7 +2,7 @@ package org.codinjutsu.tools.jenkins.model;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Locale;
+import java.util.*;
 
 public enum Color {
 
@@ -10,7 +10,8 @@ public enum Color {
     YELLOW,
     ABORTED,
     BLUE,
-    DISABLED;
+    DISABLED,
+    GRAY;
 
     public boolean isForJobColor(@NotNull String jobColor) {
         return jobColor.toLowerCase(Locale.ENGLISH).startsWith(getJobColorName());
