@@ -115,6 +115,16 @@ public class BuildStatusIconTest {
         assertEquals(3, ((BuildStatusIcon) statusIcons.getComponents()[2]).numberToDisplay);
     }
 
+    @Test
+    public void combineIconsButNoBuilds() {
+        Mockito.when(aggregatorMock.hasNoResults()).thenReturn(false);
+
+        BuildStatusIcon statusIcon = (BuildStatusIcon) BuildStatusIcon.createIcon(true, aggregatorMock, buildStatusRenderer);
+        assertIconEquals("blue.svg", statusIcon.icon);
+        assertEquals("No broken builds", statusIcon.getToolTipText());
+        assertEquals(0, statusIcon.numberToDisplay);
+    }
+
     private void assertIconEquals(String expectedIconFilename, Icon actualIcon) {
         assertEquals(JenkinsControlIcons.getIcon(expectedIconFilename).toString(), actualIcon.toString());
     }

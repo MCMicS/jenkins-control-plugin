@@ -77,7 +77,7 @@ public class BuildStatusIcon extends JComponent {
             }
         }
 
-        if (!combine) {
+        if (!combine || succeededIcon == null) {
             return new BuildStatusIcon(buildStatusRenderer.renderBuildStatus(BuildStatusEnum.SUCCESS), "No broken builds", 0);
         }
 
