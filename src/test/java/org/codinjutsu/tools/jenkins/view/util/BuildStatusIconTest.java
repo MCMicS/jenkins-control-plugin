@@ -119,10 +119,13 @@ public class BuildStatusIconTest {
     public void combineIconsButNoBuilds() {
         Mockito.when(aggregatorMock.hasNoResults()).thenReturn(false);
 
-        BuildStatusIcon statusIcon = (BuildStatusIcon) BuildStatusIcon.createIcon(true, aggregatorMock, buildStatusRenderer);
-        assertIconEquals("blue.svg", statusIcon.icon);
-        assertEquals("No broken builds", statusIcon.getToolTipText());
-        assertEquals(0, statusIcon.numberToDisplay);
+        JPanel statusIcons = (JPanel) BuildStatusIcon.createIcon(true, aggregatorMock, buildStatusRenderer);
+
+        assertEquals(1, statusIcons.getComponents().length);
+
+        assertIconEquals("blue.svg", ((BuildStatusIcon) statusIcons.getComponents()[0]).icon);
+        assertEquals("No broken builds", ((BuildStatusIcon) statusIcons.getComponents()[0]).getToolTipText());
+        assertEquals(0, ((BuildStatusIcon) statusIcons.getComponents()[0]).numberToDisplay);
     }
 
     private void assertIconEquals(String expectedIconFilename, Icon actualIcon) {

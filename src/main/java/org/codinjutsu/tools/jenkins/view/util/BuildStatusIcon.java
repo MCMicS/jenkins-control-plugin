@@ -23,6 +23,8 @@ import org.codinjutsu.tools.jenkins.view.BuildStatusRenderer;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
+import java.util.*;
 
 public class BuildStatusIcon extends JComponent {
     private static final int PIXEL_WIDTH = 8;
@@ -35,61 +37,35 @@ public class BuildStatusIcon extends JComponent {
     private final int numberWith;
 
     public static JComponent createIcon(boolean combine, BuildStatusAggregator aggregator, BuildStatusRenderer buildStatusRenderer) {
-        JPanel combined = new JPanel();
+        final List<BuildStatusIcon> icons = new ArrayList<>();
 
         if (aggregator.hasNoResults()) {
-            return new BuildStatusIcon(buildStatusRenderer.renderBuildStatus(BuildStatusEnum.NULL), "No builds", 0);
+            icons.add(new BuildStatusIcon(buildStatusRenderer.renderBuildStatus(BuildStatusEnum.NULL), "No builds", 0));
         }
 
-        var brokenIcon = createIcon(aggregator.getBrokenBuilds(), buildStatusRenderer, BuildStatusEnum.FAILURE, "broken");
-        if (brokenIcon != null) {
-            if (combine) {
-                combined.add(brokenIcon);
-            } else {
-                return brokenIcon;
-            }
+        createIcon(icons, aggregator.getBrokenBuilds(), buildStatusRenderer, BuildStatusEnum.FAILURE, "broken");
+        createIcon(icons, aggregator.getUnstableBuilds(), buildStatusRenderer, BuildStatusEnum.UNSTABLE, "unstable");
+        createIcon(icons, aggregator.getRunningBuilds(), buildStatusRenderer, BuildStatusEnum.RUNNING, "running");
+        createIcon(icons, aggregator.getSucceededBuilds(), buildStatusRenderer, BuildStatusEnum.SUCCESS, "succeeded");
+
+        if (icons.isEmpty()) {
+            icons.add(new BuildStatusIcon(buildStatusRenderer.renderBuildStatus(BuildStatusEnum.SUCCESS),"No broken builds", 0));
         }
 
-        var unstableIcon = createIcon(aggregator.getUnstableBuilds(), buildStatusRenderer, BuildStatusEnum.UNSTABLE, "unstable");
-        if (unstableIcon != null) {
-            if (combine) {
-                combined.add(unstableIcon);
-            } else {
-                return unstableIcon;
-            }
+        if (combine) {
+            final JPanel combined = new JPanel();
+            combined.setLayout(new BoxLayout(combined, BoxLayout.X_AXIS));
+            icons.forEach(combined::add);
+            return combined;
+        } else {
+            return icons.get(0);
         }
-
-        var runningIcon = createIcon(aggregator.getRunningBuilds(), buildStatusRenderer, BuildStatusEnum.RUNNING, "running");
-        if (runningIcon != null) {
-            if (combine) {
-                combined.add(runningIcon, 0);
-            } else {
-                return runningIcon;
-            }
-        }
-
-        var succeededIcon = createIcon(aggregator.getSucceededBuilds(), buildStatusRenderer, BuildStatusEnum.SUCCESS, "succeeded");
-        if (succeededIcon != null) {
-            if (combine) {
-                combined.add(succeededIcon);
-            } else {
-                return succeededIcon;
-            }
-        }
-
-        if (!combine || succeededIcon == null) {
-            return new BuildStatusIcon(buildStatusRenderer.renderBuildStatus(BuildStatusEnum.SUCCESS), "No broken builds", 0);
-        }
-
-        combined.add(succeededIcon);
-        return combined;
     }
 
-    private static JComponent createIcon(int nbBrokenBuilds, BuildStatusRenderer buildStatusRenderer, BuildStatusEnum type, String label) {
-        if (nbBrokenBuilds > 0) {
-            return new BuildStatusIcon(buildStatusRenderer.renderBuildStatus(type), String.format("%d %s builds", nbBrokenBuilds, label), nbBrokenBuilds);
+    private static void createIcon(List<BuildStatusIcon> target, int nrBuilds, BuildStatusRenderer buildStatusRenderer, BuildStatusEnum type, String label) {
+        if (nrBuilds > 0) {
+            target.add(new BuildStatusIcon(buildStatusRenderer.renderBuildStatus(type), String.format("%d %s builds", nrBuilds, label), nrBuilds));
         }
-        return null;
     }
 
     private BuildStatusIcon(Icon icon, String toolTipText, int numberToDisplay) {
@@ -122,7 +98,6 @@ public class BuildStatusIcon extends JComponent {
 
     @Override
     protected void paintComponent(Graphics g) {
-
         g.setColor(UIUtil.getPanelBackground());
         g.fillRect(0, 0, getWidth(), getHeight());
 
