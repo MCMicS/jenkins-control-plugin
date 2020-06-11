@@ -1,5 +1,6 @@
 Version 0.13.5
     * #221 Allow showing all build results in the status bar. Thanks to @nvdweem
+    * #222 Separate icon for running builds. Thanks to @nvdweem
 
 Version 0.13.4
     * #219 How to run a jenkins job with hidden fields?
