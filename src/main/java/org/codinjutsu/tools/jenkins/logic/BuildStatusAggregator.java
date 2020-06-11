@@ -30,26 +30,38 @@ public class BuildStatusAggregator implements BuildStatusVisitor {
 
     private final AtomicInteger unknownBuilds = new AtomicInteger();
 
+    private final AtomicInteger runningBuilds = new AtomicInteger();
+
     public static final BuildStatusAggregator EMPTY = new BuildStatusAggregator();
 
+    @Override
     public void visitFailed() {
         brokenBuilds.getAndIncrement();
     }
 
+    @Override
     public void visitSuccess() {
         succeededBuilds.getAndIncrement();
     }
 
+    @Override
     public void visitUnstable() {
         unstableBuilds.getAndIncrement();
     }
 
+    @Override
     public void visitUnknown() {
         unknownBuilds.getAndIncrement();
     }
 
+    @Override
     public void visitAborted() {
         abortedBuilds.getAndIncrement();
+    }
+
+    @Override
+    public void visitBuilding() {
+        runningBuilds.getAndIncrement();
     }
 
     public int getBrokenBuilds() {
@@ -64,11 +76,15 @@ public class BuildStatusAggregator implements BuildStatusVisitor {
         return succeededBuilds.get();
     }
 
+    public int getRunningBuilds() {
+        return runningBuilds.get();
+    }
+
     public boolean hasNoResults() {
         return sumAll() == 0;
     }
 
     public int sumAll() {
-        return succeededBuilds.get() + unstableBuilds.get() + brokenBuilds.get() + abortedBuilds.get() + unknownBuilds.get();
+        return succeededBuilds.get() + unstableBuilds.get() + brokenBuilds.get() + abortedBuilds.get() + unknownBuilds.get() + runningBuilds.get();
     }
 }

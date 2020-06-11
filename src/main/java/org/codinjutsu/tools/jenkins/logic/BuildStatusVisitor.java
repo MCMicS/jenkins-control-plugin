@@ -29,4 +29,6 @@ public interface BuildStatusVisitor {
 
     void visitAborted();
 
+    void visitBuilding();
+
 }
