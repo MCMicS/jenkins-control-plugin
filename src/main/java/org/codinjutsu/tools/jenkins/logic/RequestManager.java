@@ -19,11 +19,20 @@ package org.codinjutsu.tools.jenkins.logic;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.net.IdeHttpClientHelpers;
+import com.intellij.util.net.ssl.CertificateManager;
 import com.offbytwo.jenkins.JenkinsServer;
+import com.offbytwo.jenkins.client.JenkinsHttpClient;
 import com.offbytwo.jenkins.model.JobWithDetails;
 import com.offbytwo.jenkins.model.TestChildReport;
 import com.offbytwo.jenkins.model.TestResult;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicHeader;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
@@ -293,9 +302,13 @@ public class RequestManager implements RequestManagerInterface {
         } else {
             securityClient = SecurityClientFactory.none(jenkinsSettings.getCrumbData(), connectionTimout);
         }
-        securityClient.connect(urlBuilder.createAuthenticationUrl(jenkinsAppSettings.getServerUrl()));
+        final String serverUrl = jenkinsAppSettings.getServerUrl();
+        securityClient.connect(urlBuilder.createAuthenticationUrl(serverUrl));
 
-        jenkinsServer = new JenkinsServer(urlBuilder.createServerUrl(jenkinsAppSettings.getServerUrl()), jenkinsSettings.getUsername(), jenkinsSettings.getPassword());
+        final JenkinsHttpClient jenkinsHttpClient = new JenkinsHttpClient(urlBuilder.createServerUrl(serverUrl),
+                createHttpClientBuilder(serverUrl, jenkinsSettings), jenkinsSettings.getUsername(),
+                jenkinsSettings.getPassword());
+        jenkinsServer = new JenkinsServer(jenkinsHttpClient);
     }
 
     @Override
@@ -391,12 +404,31 @@ public class RequestManager implements RequestManagerInterface {
     }
 
     @NotNull
+    private HttpClientBuilder createHttpClientBuilder(String serverUrl, JenkinsSettings jenkinsSettings) {
+        final CredentialsProvider provider = new BasicCredentialsProvider();
+        IdeHttpClientHelpers.ApacheHttpClient4.setProxyCredentialsForUrlIfEnabled(provider, serverUrl);
+        final RequestConfig.Builder requestConfig = RequestConfig.custom();
+        IdeHttpClientHelpers.ApacheHttpClient4.setProxyForUrlIfEnabled(requestConfig, serverUrl);
+        final HttpClientBuilder builder = HttpClients.custom()
+                .setSSLContext(CertificateManager.getInstance().getSslContext())
+                .setDefaultRequestConfig(requestConfig.build())
+                .setDefaultCredentialsProvider(provider);
+
+        if (StringUtils.isNotBlank(jenkinsSettings.getCrumbData())) {
+            builder.setDefaultHeaders(Collections.singletonList(
+                    new BasicHeader(jenkinsSettings.getVersion().getCrumbName(), jenkinsSettings.getCrumbData())));
+        }
+        return builder;
+    }
+
+    @NotNull
     private JobWithDetails getJob(@NotNull Job job) {
         Optional<JobWithDetails> jobWithDetails = Optional.empty();
         try {
             // maybe refactor and use job url
             jobWithDetails = Optional.ofNullable(jenkinsServer.getJob(job.getFullName()));
         } catch (IOException e) {
+            logger.warn(e.getMessage(), e);
             throw new NoJobFoundException(job, e);
         }
         return jobWithDetails.orElseThrow(() -> new NoJobFoundException(job));

@@ -49,7 +49,6 @@ class BasicSecurityClient extends DefaultSecurityClient {
     }
 
     private void doAuthentication(URL jenkinsUrl) throws AuthenticationException {
-
         if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
             httpClient.getState().setCredentials(
                     new AuthScope(jenkinsUrl.getHost(), jenkinsUrl.getPort()),
