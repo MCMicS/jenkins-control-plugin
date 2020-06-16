@@ -20,7 +20,7 @@ public interface RequestManagerInterface {
 
     void runBuild(Job job, JenkinsAppSettings configuration);
 
-    void runParameterizedBuild(Job job, JenkinsAppSettings configuration, Map<String, String> paramValueMap);
+    void runParameterizedBuild(Job job, JenkinsAppSettings configuration, Map<String, ?> paramValueMap);
 
     void authenticate(JenkinsAppSettings jenkinsAppSettings, JenkinsSettings jenkinsSettings);
 

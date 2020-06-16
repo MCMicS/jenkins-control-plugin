@@ -17,6 +17,8 @@
 package org.codinjutsu.tools.jenkins.view;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ModalityState;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -25,6 +27,7 @@ import org.codinjutsu.tools.jenkins.JobTracker;
 import org.codinjutsu.tools.jenkins.TraceableBuildJob;
 import org.codinjutsu.tools.jenkins.TraceableBuildJobFactory;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
+import org.codinjutsu.tools.jenkins.logic.RunBuildWithPatch;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
 import org.codinjutsu.tools.jenkins.view.extension.JobParameterRenderer;
@@ -48,7 +51,7 @@ public class BuildParamDialog extends JDialog {
     private final JenkinsAppSettings configuration;
     private final RequestManager requestManager;
     private final RunBuildCallback runBuildCallback;
-    private final Collection<JobParameterComponent> inputFields = new LinkedHashSet<>();
+    private final Collection<JobParameterComponent<?>> inputFields = new LinkedHashSet<>();
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
@@ -73,7 +76,7 @@ public class BuildParamDialog extends JDialog {
 
     public static void showDialog(final Job job, final JenkinsAppSettings configuration, final RequestManager requestManager,
                                   final RunBuildCallback runBuildCallback) {
-        SwingUtilities.invokeLater(() -> {
+        ApplicationManager.getApplication().invokeLater(() -> {
             BuildParamDialog dialog = new BuildParamDialog(job, configuration, requestManager, runBuildCallback);
             dialog.setLocationRelativeTo(null);
             dialog.setSize(dialog.getPreferredSize());
@@ -81,7 +84,7 @@ public class BuildParamDialog extends JDialog {
             dialog.setMaximumSize(new Dimension(800, 600));
             dialog.pack();
             dialog.setVisible(true);
-        });
+        }, ModalityState.NON_MODAL);
     }
 
     @NotNull
@@ -100,7 +103,7 @@ public class BuildParamDialog extends JDialog {
     }
 
     @NotNull
-    private static Function<JLabel, JLabel> setJLabelStyles(@NotNull JobParameterComponent jobParameterComponent) {
+    private static Function<JLabel, JLabel> setJLabelStyles(@NotNull JobParameterComponent<?> jobParameterComponent) {
         return label -> {
             label.setLabelFor(jobParameterComponent.getViewElement());
             setJLabelStyles(label);
@@ -116,7 +119,7 @@ public class BuildParamDialog extends JDialog {
         for (JobParameter jobParameter : parameters) {
             final JobParameterRenderer jobParameterRenderer = JobParameterRenderer.findRenderer(jobParameter)
                     .orElseGet(ErrorRenderer::new);
-            final JobParameterComponent jobParameterComponent = jobParameterRenderer.render(jobParameter);
+            final JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter);
             if (jobParameterComponent.isVisible()) {
                 rows.incrementAndGet();
                 jobParameterComponent.getViewElement().setName(jobParameter.getName());
@@ -175,14 +178,14 @@ public class BuildParamDialog extends JDialog {
     }
 
     private void onOK() {
-        final Map<String, String> paramValueMap = getParamValueMap();
+        final Map<String, ?> paramValueMap = getParamValueMap();
 
         new SwingWorker<Void, Void>() { //FIXME don't use swing worker
                 @Override
                 protected Void doInBackground() throws Exception {
                 TraceableBuildJob buildJob = TraceableBuildJobFactory.newBuildJob(job, configuration, paramValueMap, requestManager);
                 JobTracker.getInstance().registerJob(buildJob);
-                requestManager.runParameterizedBuild(job, configuration, paramValueMap);
+                buildJob.run();
                 return null;
             }
 
@@ -208,9 +211,9 @@ public class BuildParamDialog extends JDialog {
     }
 
     @NotNull
-    private Map<String, String> getParamValueMap() {
-        final HashMap<String, String> valueByNameMap = new HashMap<>();
-        for (JobParameterComponent jobParameterComponent : inputFields) {
+    private Map<String, ?> getParamValueMap() {
+        final HashMap<String, Object> valueByNameMap = new HashMap<>();
+        for (JobParameterComponent<?> jobParameterComponent : inputFields) {
             final JobParameter jobParameter = jobParameterComponent.getJobParameter();
             jobParameterComponent.ifHasValue(value -> valueByNameMap.put(jobParameter.getName(), value));
         }
@@ -228,7 +231,7 @@ public class BuildParamDialog extends JDialog {
 
         @NotNull
         @Override
-        public JobParameterComponent render(@NotNull JobParameter jobParameter) {
+        public JobParameterComponent<String> render(@NotNull JobParameter jobParameter) {
             return JobParameterRenderers.createErrorLabel(jobParameter);
         }
 

@@ -15,7 +15,7 @@ public class NodeParameterRenderer implements JobParameterRenderer {
     public static final JobParameterType NODE_PARAMETER = new JobParameterType("NodeParameterDefinition",
             "org.jvnet.jenkins.plugins.nodelabelparameter.NodeParameterDefinition");
 
-    private final Map<JobParameterType, BiFunction<JobParameter, String, JobParameterComponent>> converter = new HashMap<>();
+    private final Map<JobParameterType, BiFunction<JobParameter, String, JobParameterComponent<String>>> converter = new HashMap<>();
 
     public NodeParameterRenderer() {
         converter.put(new JobParameterType("LabelParameterDefinition",
@@ -28,7 +28,7 @@ public class NodeParameterRenderer implements JobParameterRenderer {
 
     @NotNull
     @Override
-    public JobParameterComponent render(@NotNull JobParameter jobParameter) {
+    public JobParameterComponent<String> render(@NotNull JobParameter jobParameter) {
         return converter.getOrDefault(jobParameter.getJobParameterType(), JobParameterRenderers::createErrorLabel)
                 .apply(jobParameter, jobParameter.getDefaultValue());
     }

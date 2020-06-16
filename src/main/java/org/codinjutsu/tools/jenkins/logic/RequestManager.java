@@ -286,9 +286,14 @@ public class RequestManager implements RequestManagerInterface {
     }
 
     @Override
-    public void runParameterizedBuild(Job job, JenkinsAppSettings configuration, Map<String, String> paramValueMap) {
+    public void runParameterizedBuild(Job job, JenkinsAppSettings configuration, Map<String, ?> paramValueMap) {
         if (handleNotYetLoggedInState()) return;
         URL url = urlBuilder.createRunParameterizedJobUrl(job.getUrl(), configuration, paramValueMap);
+
+        final Map<String, VirtualFile> filesToUpload = paramValueMap.entrySet().stream()
+                .filter(entry -> entry.getValue() instanceof VirtualFile)
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> VirtualFile.class.cast(entry.getValue())));
+        securityClient.setFiles(filesToUpload);
         securityClient.execute(url);
     }
 

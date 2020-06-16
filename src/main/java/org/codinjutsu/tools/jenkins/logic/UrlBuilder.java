@@ -75,11 +75,10 @@ public class UrlBuilder {
         return null;
     }
 
-    public URL createRunParameterizedJobUrl(String jobUrl, JenkinsAppSettings configuration, Map<String, String> paramValueMap) {
+    public URL createRunParameterizedJobUrl(String jobUrl, JenkinsAppSettings configuration, Map<String, ?> paramValueMap) {
         StringBuilder strBuilder = new StringBuilder(String.format("%s?delay=%dsec", PARAMETERIZED_BUILD, configuration.getBuildDelay()));
-        for (Map.Entry<String, String> valueByName : paramValueMap.entrySet()) {
-            strBuilder.append("&").append(valueByName.getKey()).append("=").append(valueByName.getValue());
-        }
+        paramValueMap.entrySet().stream().filter(entry -> entry.getValue() instanceof String)
+                .forEach(valueByName -> strBuilder.append("&").append(valueByName.getKey()).append("=").append(valueByName.getValue()));
         try {
             return new URL(jobUrl + URIUtil.encodePathQuery(strBuilder.toString()));
         } catch (Exception ex) {
