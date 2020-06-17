@@ -33,6 +33,7 @@ import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.codinjutsu.tools.jenkins.view.BuildParamDialog;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -95,14 +96,14 @@ public class RunBuildAction extends AnAction implements DumbAware {
                 progressIndicator.setIndeterminate(true);
                 RequestManager requestManager = browserPanel.getJenkinsManager();
                 if (job.hasParameters()) {
-                    BuildParamDialog.showDialog(job, JenkinsAppSettings.getSafeInstance(project), requestManager, new BuildParamDialog.RunBuildCallback() {
+                    BuildParamDialog.showDialog(project, job, JenkinsAppSettings.getSafeInstance(project), requestManager, new BuildParamDialog.RunBuildCallback() {
 
                         public void notifyOnOk(Job job) {
                             notifyOnGoingMessage(browserPanel, job);
                             browserPanel.loadJob(job);
                         }
 
-                        public void notifyOnError(Job job, Exception ex) {
+                        public void notifyOnError(Job job, Throwable ex) {
                             browserPanel.notifyErrorJenkinsToolWindow("Build '" + job.getName() + "' cannot be run: " + ex.getMessage());
                             browserPanel.loadJob(job);
                         }
@@ -110,7 +111,7 @@ public class RunBuildAction extends AnAction implements DumbAware {
                     });
 
                 } else {
-                    requestManager.runBuild(job, JenkinsAppSettings.getSafeInstance(project));
+                    requestManager.runBuild(job, JenkinsAppSettings.getSafeInstance(project), Collections.emptyMap());
                 }
             }
         }.queue();

@@ -269,31 +269,37 @@ public class RequestManager implements RequestManagerInterface {
     }
 
     @Override
-    public void runBuild(Job job, JenkinsAppSettings configuration, Map<String, VirtualFile> files) {
+    public void runBuild(Job job, JenkinsAppSettings configuration, Map<String, ?> parameters) {
         if (handleNotYetLoggedInState()) return;
-        if (job.hasParameters() && files.size() > 0) {
-            files.keySet().removeIf(key -> !job.hasParameter(key));
-            securityClient.setFiles(files);
+        if (job.hasParameters() && parameters.size() > 0) {
+            parameters.keySet().removeIf(key -> !job.hasParameter(key));
+        }
+
+        final Map<String, VirtualFile> filesToUpload = parameters.entrySet().stream()
+                .filter(entry -> entry.getValue() instanceof VirtualFile)
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> (VirtualFile) entry.getValue()));
+        final Map<String, String> stringParameters = parameters.entrySet().stream().filter(entry -> entry.getValue() instanceof String)
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> (String) entry.getValue()));
+        if (filesToUpload.isEmpty()) {
+            if (!stringParameters.isEmpty()) {
+                runParameterizedBuildWithoutFiles(job, configuration, stringParameters);
+                return;
+            }
+        } else {
+            securityClient.setFiles(filesToUpload);
         }
         runBuild(job, configuration);
     }
 
-    @Override
-    public void runBuild(Job job, JenkinsAppSettings configuration) {
+    private void runBuild(Job job, JenkinsAppSettings configuration) {
         if (handleNotYetLoggedInState()) return;
         URL url = urlBuilder.createRunJobUrl(job.getUrl(), configuration);
         securityClient.execute(url);
     }
 
-    @Override
-    public void runParameterizedBuild(Job job, JenkinsAppSettings configuration, Map<String, ?> paramValueMap) {
+    private void runParameterizedBuildWithoutFiles(Job job, JenkinsAppSettings configuration, Map<String, String> paramValueMap) {
         if (handleNotYetLoggedInState()) return;
         URL url = urlBuilder.createRunParameterizedJobUrl(job.getUrl(), configuration, paramValueMap);
-
-        final Map<String, VirtualFile> filesToUpload = paramValueMap.entrySet().stream()
-                .filter(entry -> entry.getValue() instanceof VirtualFile)
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> VirtualFile.class.cast(entry.getValue())));
-        securityClient.setFiles(filesToUpload);
         securityClient.execute(url);
     }
 

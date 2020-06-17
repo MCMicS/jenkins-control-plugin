@@ -1,13 +1,10 @@
 package org.codinjutsu.tools.jenkins;
 
+import org.codinjutsu.tools.jenkins.logic.RequestManager;
+import org.codinjutsu.tools.jenkins.model.Job;
+
 import java.text.MessageFormat;
 import java.util.Map;
-
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ModalityState;
-import org.codinjutsu.tools.jenkins.logic.RequestManager;
-import org.codinjutsu.tools.jenkins.logic.RunBuildWithPatch;
-import org.codinjutsu.tools.jenkins.model.Job;
 
 public class TraceableBuildJobFactory {
     private static int RETRY_LIMIT = 10;
@@ -16,10 +13,7 @@ public class TraceableBuildJobFactory {
             RequestManager requestManager) {
         final int numBuildRetries = configuration.getNumBuildRetries();
         ensureRetryLimit(numBuildRetries);
-//        final Runnable runBuild = () -> ApplicationManager.getApplication().invokeLater(
-//                () -> requestManager.runParameterizedBuild(job, configuration, paramValueMap),
-//                ModalityState.NON_MODAL);
-        final Runnable runBuild = () -> requestManager.runParameterizedBuild(job, configuration, paramValueMap);
+        final Runnable runBuild = () -> requestManager.runBuild(job, configuration, paramValueMap);
         return new TraceableBuildJob(job, runBuild, numBuildRetries);
     }
 

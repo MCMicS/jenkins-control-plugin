@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
+import com.intellij.openapi.project.Project;
 import org.assertj.swing.core.BasicRobot;
 import org.assertj.swing.core.matcher.JButtonMatcher;
 import org.assertj.swing.core.matcher.JLabelMatcher;
@@ -97,10 +98,11 @@ public class BuildParamDialogTest {
     private void createDialog(final Job job) {
         BuildParamDialog buildParamDialog = GuiActionRunner.execute(new GuiQuery<BuildParamDialog>() {
             protected BuildParamDialog executeInEDT() {
-                return new BuildParamDialog(job, configuration, requestManager, callbackRun);
+                Project project = mock(Project.class);
+                return new BuildParamDialog(project, job, configuration, requestManager, callbackRun);
             }
         });
-        dialogFixture = new DialogFixture(BasicRobot.robotWithCurrentAwtHierarchy(), buildParamDialog);
+        dialogFixture = new DialogFixture(BasicRobot.robotWithCurrentAwtHierarchy(), "BuildParamDialog");
         dialogFixture.show();
     }
 
@@ -137,7 +139,7 @@ public class BuildParamDialogTest {
         dialogFixture.button(JButtonMatcher.withText("OK")).click();
 
         ArgumentCaptor<Map> paramMap = ArgumentCaptor.forClass(Map.class);
-        verify(requestManager, times(1)).runParameterizedBuild(any(Job.class), any(JenkinsAppSettings.class), paramMap.capture());
+        verify(requestManager, times(1)).runBuild(any(Job.class), any(JenkinsAppSettings.class), paramMap.capture());
 
         Map expectedParamMapValue = paramMap.getValue();
         assertEquals(3, expectedParamMapValue.size());

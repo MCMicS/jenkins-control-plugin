@@ -1,6 +1,5 @@
 package org.codinjutsu.tools.jenkins.logic;
 
-import com.intellij.openapi.vfs.VirtualFile;
 import com.offbytwo.jenkins.model.TestResult;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
@@ -16,11 +15,7 @@ public interface RequestManagerInterface {
 
     Map<String, Build> loadJenkinsRssLatestBuilds(JenkinsAppSettings configuration);
 
-    void runBuild(Job job, JenkinsAppSettings configuration, Map<String, VirtualFile> files);
-
-    void runBuild(Job job, JenkinsAppSettings configuration);
-
-    void runParameterizedBuild(Job job, JenkinsAppSettings configuration, Map<String, ?> paramValueMap);
+    void runBuild(Job job, JenkinsAppSettings configuration, Map<String, ?> parameters);
 
     void authenticate(JenkinsAppSettings jenkinsAppSettings, JenkinsSettings jenkinsSettings);
 
