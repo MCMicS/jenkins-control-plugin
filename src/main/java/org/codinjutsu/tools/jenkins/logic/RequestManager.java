@@ -49,6 +49,7 @@ import javax.swing.*;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -188,7 +189,7 @@ public class RequestManager implements RequestManagerInterface {
             final Job.JobBuilder fixedJob = job.toBuilder();
             fixedJob.clearParameters();
             for (JobParameter jobParameter : job.getParameters()) {
-                if (jobParameter.getJobParameterType().equals(NodeParameterRenderer.NODE_PARAMETER)) {
+                if (NodeParameterRenderer.NODE_PARAMETER.equals(jobParameter.getJobParameterType())) {
                     final JobParameter.JobParameterBuilder fixedJobParameter = jobParameter.toBuilder();
                     final List<String> computerNames = computers.get().stream().map(Computer::getDisplayName)
                             .collect(Collectors.toList());
@@ -274,33 +275,24 @@ public class RequestManager implements RequestManagerInterface {
         if (job.hasParameters() && parameters.size() > 0) {
             parameters.keySet().removeIf(key -> !job.hasParameter(key));
         }
+        final AtomicInteger fileCount = new AtomicInteger();
 
-        final Map<String, VirtualFile> filesToUpload = parameters.entrySet().stream()
+        final Collection<RequestData> requestData = new LinkedHashSet<>(parameters.size());
+        parameters.entrySet().stream()
                 .filter(entry -> entry.getValue() instanceof VirtualFile)
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> (VirtualFile) entry.getValue()));
-        final Map<String, String> stringParameters = parameters.entrySet().stream().filter(entry -> entry.getValue() instanceof String)
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> (String) entry.getValue()));
-        if (filesToUpload.isEmpty()) {
-            if (!stringParameters.isEmpty()) {
-                runParameterizedBuildWithoutFiles(job, configuration, stringParameters);
-                return;
-            }
-        } else {
-            securityClient.setFiles(filesToUpload);
-        }
-        runBuild(job, configuration);
+                .map(entry -> new FileParameter(entry.getKey(), (VirtualFile) entry.getValue(),
+                        () -> String.format("file%d", fileCount.getAndIncrement())))
+                .forEach(requestData::add);
+        parameters.entrySet().stream().filter(entry -> entry.getValue() instanceof String)
+                .map(entry -> new StringParameter(entry.getKey(), (String) entry.getValue()))
+                .forEach(requestData::add);
+        runBuild(job, configuration, requestData);
     }
 
-    private void runBuild(Job job, JenkinsAppSettings configuration) {
+    private void runBuild(Job job, JenkinsAppSettings configuration, Collection<RequestData> requestData) {
         if (handleNotYetLoggedInState()) return;
         URL url = urlBuilder.createRunJobUrl(job.getUrl(), configuration);
-        securityClient.execute(url);
-    }
-
-    private void runParameterizedBuildWithoutFiles(Job job, JenkinsAppSettings configuration, Map<String, String> paramValueMap) {
-        if (handleNotYetLoggedInState()) return;
-        URL url = urlBuilder.createRunParameterizedJobUrl(job.getUrl(), configuration, paramValueMap);
-        securityClient.execute(url);
+        securityClient.execute(url, requestData);
     }
 
     @Override
@@ -434,7 +426,7 @@ public class RequestManager implements RequestManagerInterface {
 
     @NotNull
     private JobWithDetails getJob(@NotNull Job job) {
-        Optional<JobWithDetails> jobWithDetails = Optional.empty();
+        final Optional<JobWithDetails> jobWithDetails;
         try {
             // maybe refactor and use job url
             jobWithDetails = Optional.ofNullable(jenkinsServer.getJob(job.getFullName()));

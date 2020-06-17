@@ -84,7 +84,6 @@ public class RunBuildAction extends AnAction implements DumbAware {
 
             @Override
             public void onSuccess() {
-                notifyOnGoingMessage(browserPanel, job);
                 ExecutorService.getInstance(project).getExecutor().schedule(() -> GuiUtil.runInSwingThread(() -> {
                     final Optional<Job> newJob = browserPanel.getJob(job.getName());
                     newJob.ifPresent(browserPanel::loadJob);
@@ -112,6 +111,7 @@ public class RunBuildAction extends AnAction implements DumbAware {
 
                 } else {
                     requestManager.runBuild(job, JenkinsAppSettings.getSafeInstance(project), Collections.emptyMap());
+                    notifyOnGoingMessage(browserPanel, job);
                 }
             }
         }.queue();

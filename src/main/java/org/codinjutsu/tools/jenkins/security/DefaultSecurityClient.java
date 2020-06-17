@@ -16,7 +16,8 @@
 
 package org.codinjutsu.tools.jenkins.security;
 
-import com.intellij.openapi.vfs.VirtualFile;
+import com.github.cliftonlabs.json_simple.JsonObject;
+import com.github.cliftonlabs.json_simple.Jsoner;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
@@ -28,8 +29,11 @@ import org.apache.commons.httpclient.methods.multipart.StringPart;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
+import org.codinjutsu.tools.jenkins.model.FileParameter;
+import org.codinjutsu.tools.jenkins.model.RequestData;
 import org.codinjutsu.tools.jenkins.model.VirtualFilePartSource;
 import org.codinjutsu.tools.jenkins.util.IOUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,8 +41,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collection;
 
 class DefaultSecurityClient implements SecurityClient {
 
@@ -49,7 +52,6 @@ class DefaultSecurityClient implements SecurityClient {
     private final int connectionTimout;
 
     protected final HttpClient httpClient;
-    protected Map<String, VirtualFile> files = new HashMap<>();
 
     DefaultSecurityClient(String crumbData, int connectionTimout) {
         this.httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
@@ -62,61 +64,48 @@ class DefaultSecurityClient implements SecurityClient {
         execute(jenkinsUrl);
     }
 
-    public String execute(URL url) {
+    public String execute(URL url, @NotNull Collection<RequestData> data) {
         String urlStr = url.toString();
 
         ResponseCollector responseCollector = new ResponseCollector();
-        runMethod(urlStr, responseCollector);
+        runMethod(urlStr, data, responseCollector);
 
         if (isRedirection(responseCollector.statusCode)) {
-            runMethod(responseCollector.data, responseCollector);
+            runMethod(responseCollector.data, data, responseCollector);
         }
 
         return responseCollector.data;
     }
 
-    @Override
-    public void setFiles(Map<String, VirtualFile> files) {
-        this.files = files;
-    }
-
-    private PostMethod addFiles(PostMethod post) {
-        if (files.size() > 0) {
+    @NotNull
+    PostMethod createPost(String url, @NotNull Collection<RequestData> data) {
+        final PostMethod post = new PostMethod(url);
+        if (!data.isEmpty()) {
             ArrayList<Part> parts = new ArrayList<>();
-            int i = 0;
-            for(Map.Entry<String, VirtualFile> entry: files.entrySet()) {
-                VirtualFile virtualFile = entry.getValue();
-                final String key = entry.getKey();
-                parts.add(new StringPart("name", key));
-                parts.add(new StringPart("json", "{\"parameter\":{\"name\":\"" + key + "\",\"file\":\""+ String.format("file%d", i) +"\"}}"));
-                parts.add(new FilePart(String.format("file%d", i), new VirtualFilePartSource(virtualFile)));
-                i++;
-            }
+            data.stream().filter(FileParameter.class::isInstance)
+                    .map(FileParameter.class::cast)
+                    .map(fileParameter -> new FilePart(fileParameter.getFileName(), new VirtualFilePartSource(fileParameter.getFile())))
+                    .forEach(parts::add);
+            final JsonObject parameterJson = new JsonObject();
+            parameterJson.put("parameter", data);
+            parts.add(new StringPart("json", Jsoner.serialize(parameterJson)));
             post.setRequestEntity(new MultipartRequestEntity(parts.toArray(new Part[parts.size()]), post.getParams()));
-            files.clear();
         }
 
         return post;
     }
 
-    private void runMethod(String url, ResponseCollector responseCollector) {
-        PostMethod post = new PostMethod(url);
+    private void runMethod(String url, @NotNull Collection<RequestData> data, ResponseCollector responseCollector) {
+        final PostMethod post = createPost(url, data);
 
         if (isCrumbDataSet()) {
             post.addRequestHeader(jenkinsVersion.getCrumbName(), crumbData);
         }
         post.addRequestHeader(HttpHeaders.ACCEPT_LANGUAGE, "en-US,en;q=0.5");
 
-        post = addFiles(post);
-
         try {
-            if (files.isEmpty()) {
-                httpClient.getParams().setParameter("http.socket.timeout", connectionTimout);
-                httpClient.getParams().setParameter("http.connection.timeout", connectionTimout);
-            } else {
-                httpClient.getParams().setParameter("http.socket.timeout", 0);
-                httpClient.getParams().setParameter("http.connection.timeout", 0);
-            }
+            httpClient.getParams().setParameter("http.socket.timeout", connectionTimout);
+            httpClient.getParams().setParameter("http.connection.timeout", connectionTimout);
 
             int statusCode = httpClient.executeMethod(post);
             final String responseBody;
