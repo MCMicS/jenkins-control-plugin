@@ -16,7 +16,12 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
-import com.intellij.icons.AllIcons;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ModalityState;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.DialogWrapper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -32,29 +37,29 @@ import org.codinjutsu.tools.jenkins.view.extension.JobParameterRenderers;
 import org.codinjutsu.tools.jenkins.view.parameter.JobParameterComponent;
 import org.codinjutsu.tools.jenkins.view.util.SpringUtilities;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.List;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
-public class BuildParamDialog extends JDialog {
+public class BuildParamDialog extends DialogWrapper {
     private static final Logger logger = Logger.getLogger(BuildParamDialog.class);
     private final Job job;
+    private final @NotNull Project project;
     private final JenkinsAppSettings configuration;
     private final RequestManager requestManager;
     private final RunBuildCallback runBuildCallback;
-    private final Collection<JobParameterComponent> inputFields = new LinkedHashSet<>();
+    private final Collection<JobParameterComponent<?>> inputFields = new LinkedHashSet<>();
     private JPanel contentPane;
-    private JButton buttonOK;
-    private JButton buttonCancel;
     private JPanel contentPanel;
 
-    BuildParamDialog(Job job, JenkinsAppSettings configuration, RequestManager requestManager, RunBuildCallback runBuildCallback) {
+    BuildParamDialog(@NotNull Project project, Job job, JenkinsAppSettings configuration, RequestManager requestManager, RunBuildCallback runBuildCallback) {
+        super(project);
+        this.project = project;
+        init();
+        setTitle("This build requires parameters");
         this.job = job;
         this.configuration = configuration;
         this.requestManager = requestManager;
@@ -63,25 +68,20 @@ public class BuildParamDialog extends JDialog {
         contentPanel.setName("contentPanel");
 
         addParameterInputs();
-        setTitle("This build requires parameters");
-        setContentPane(contentPane);
         setModal(true);
-        getRootPane().setDefaultButton(buttonOK);
-
-        registerListeners();
     }
 
-    public static void showDialog(final Job job, final JenkinsAppSettings configuration, final RequestManager requestManager,
+    public static void showDialog(@NotNull Project project, final Job job, final JenkinsAppSettings configuration, final RequestManager requestManager,
                                   final RunBuildCallback runBuildCallback) {
-        SwingUtilities.invokeLater(() -> {
-            BuildParamDialog dialog = new BuildParamDialog(job, configuration, requestManager, runBuildCallback);
-            dialog.setLocationRelativeTo(null);
-            dialog.setSize(dialog.getPreferredSize());
+        ApplicationManager.getApplication().invokeLater(() -> {
+            BuildParamDialog dialog = new BuildParamDialog(project, job, configuration, requestManager, runBuildCallback);
+            //dialog.setSize(dialog.getPreferredSize());
             //dialog.setMinimumSize(new Dimension(300, 200));
-            dialog.setMaximumSize(new Dimension(800, 600));
             dialog.pack();
-            dialog.setVisible(true);
-        });
+            if (dialog.showAndGet()) {
+                dialog.onOK();
+            }
+        }, ModalityState.NON_MODAL);
     }
 
     @NotNull
@@ -100,7 +100,7 @@ public class BuildParamDialog extends JDialog {
     }
 
     @NotNull
-    private static Function<JLabel, JLabel> setJLabelStyles(@NotNull JobParameterComponent jobParameterComponent) {
+    private static Function<JLabel, JLabel> setJLabelStyles(@NotNull JobParameterComponent<?> jobParameterComponent) {
         return label -> {
             label.setLabelFor(jobParameterComponent.getViewElement());
             setJLabelStyles(label);
@@ -116,7 +116,7 @@ public class BuildParamDialog extends JDialog {
         for (JobParameter jobParameter : parameters) {
             final JobParameterRenderer jobParameterRenderer = JobParameterRenderer.findRenderer(jobParameter)
                     .orElseGet(ErrorRenderer::new);
-            final JobParameterComponent jobParameterComponent = jobParameterRenderer.render(jobParameter);
+            final JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter);
             if (jobParameterComponent.isVisible()) {
                 rows.incrementAndGet();
                 jobParameterComponent.getViewElement().setName(jobParameter.getName());
@@ -148,93 +148,91 @@ public class BuildParamDialog extends JDialog {
                 initial, initial,
                 padding, padding);
 
-        if (hasError()) {
-            buttonOK.setEnabled(false);
-        }
+        getOKAction().setEnabled(!hasError());
     }
 
     private boolean hasError() {
         return inputFields.stream().anyMatch(JobParameterComponent::hasError);
     }
 
-    private void registerListeners() {
-        buttonOK.addActionListener(e -> onOK());
-
-        buttonCancel.addActionListener(e -> onCancel());
-
-        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                onCancel();
-            }
-        });
-
-        contentPane.registerKeyboardAction(e -> onCancel(),
-                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-    }
-
     private void onOK() {
-        final Map<String, String> paramValueMap = getParamValueMap();
-
-        new SwingWorker<Void, Void>() { //FIXME don't use swing worker
-                @Override
-                protected Void doInBackground() throws Exception {
-                TraceableBuildJob buildJob = TraceableBuildJobFactory.newBuildJob(job, configuration, paramValueMap, requestManager);
-                JobTracker.getInstance().registerJob(buildJob);
-                requestManager.runParameterizedBuild(job, configuration, paramValueMap);
-                return null;
-            }
-
-            @Override
-            protected void done() {
-                dispose();
-                try {
-                    get();
-                    runBuildCallback.notifyOnOk(job);
-                } catch (InterruptedException e) {
-                    logger.log(Level.WARN, "Exception occured while...", e);
-                } catch (ExecutionException e) {
-                    runBuildCallback.notifyOnError(job, e);
-                    logger.log(Level.WARN, "Exception occured while trying to invoke build", e);
-                }
-
-            }
-        }.execute();
-    }
-
-    private void onCancel() {
-        dispose();
+        new RunBuild(project, job, configuration, getParamValueMap(), requestManager, runBuildCallback).queue();
     }
 
     @NotNull
-    private Map<String, String> getParamValueMap() {
-        final HashMap<String, String> valueByNameMap = new HashMap<>();
-        for (JobParameterComponent jobParameterComponent : inputFields) {
+    private Map<String, ?> getParamValueMap() {
+        final HashMap<String, Object> valueByNameMap = new HashMap<>();
+        for (JobParameterComponent<?> jobParameterComponent : inputFields) {
             final JobParameter jobParameter = jobParameterComponent.getJobParameter();
             jobParameterComponent.ifHasValue(value -> valueByNameMap.put(jobParameter.getName(), value));
         }
         return valueByNameMap;
     }
 
+    @Nullable
+    @Override
+    protected JComponent createCenterPanel() {
+        return contentPane;
+    }
+
     public interface RunBuildCallback {
 
         void notifyOnOk(Job job);
 
-        void notifyOnError(Job job, Exception ex);
+        void notifyOnError(Job job, Throwable ex);
     }
 
     public class ErrorRenderer implements JobParameterRenderer {
 
         @NotNull
         @Override
-        public JobParameterComponent render(@NotNull JobParameter jobParameter) {
+        public JobParameterComponent<String> render(@NotNull JobParameter jobParameter) {
             return JobParameterRenderers.createErrorLabel(jobParameter);
         }
 
         @Override
         public boolean isForJobParameter(@NotNull JobParameter jobParameter) {
             return true;
+        }
+    }
+
+    private static class RunBuild extends Task.Backgroundable {
+
+        private final Job job;
+        private final JenkinsAppSettings configuration;
+        private final Map<String, ?> paramValueMap;
+        private final RequestManager requestManager;
+        private final RunBuildCallback runBuildCallback;
+
+        RunBuild(Project project, Job job, JenkinsAppSettings configuration, Map<String, ?> paramValueMap, RequestManager requestManager, RunBuildCallback runBuildCallback) {
+            super(project, "Running Jenkins build", false);
+            this.job = job;
+            this.configuration = configuration;
+            this.paramValueMap = paramValueMap;
+            this.requestManager = requestManager;
+            this.runBuildCallback = runBuildCallback;
+        }
+
+        @Override
+        public void onSuccess() {
+            super.onSuccess();
+            runBuildCallback.notifyOnOk(job);
+        }
+
+        @Override
+        public void onThrowable(@NotNull Throwable error) {
+            //super.onThrowable(error);
+            logger.log(Level.WARN, "Exception occured while trying to invoke build", error);
+            runBuildCallback.notifyOnError(job, error);
+        }
+
+        @Override
+        public void run(@NotNull ProgressIndicator indicator) {
+            indicator.setIndeterminate(true);
+
+            TraceableBuildJob buildJob = TraceableBuildJobFactory.newBuildJob(job, configuration, paramValueMap, requestManager);
+            JobTracker.getInstance().registerJob(buildJob);
+            buildJob.run();
         }
     }
 }

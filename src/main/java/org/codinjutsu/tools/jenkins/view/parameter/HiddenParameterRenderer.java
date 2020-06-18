@@ -14,8 +14,8 @@ public class HiddenParameterRenderer implements JobParameterRenderer {
 
     @NotNull
     @Override
-    public JobParameterComponent render(@NotNull JobParameter jobParameter) {
-        return new JobParameterComponent(jobParameter, new JLabel(), false);
+    public JobParameterComponent<String> render(@NotNull JobParameter jobParameter) {
+        return new JobParameterComponent<>(jobParameter, new JLabel(), false);
     }
 
     @Override

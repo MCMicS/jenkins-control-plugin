@@ -16,16 +16,20 @@
 
 package org.codinjutsu.tools.jenkins.security;
 
-import com.intellij.openapi.vfs.VirtualFile;
+import org.codinjutsu.tools.jenkins.model.RequestData;
+import org.jetbrains.annotations.NotNull;
 
 import java.net.URL;
-import java.util.Map;
+import java.util.Collection;
+import java.util.Collections;
 
 public interface SecurityClient {
 
     void connect(URL jenkinsUrl);
 
-    String execute(URL url);
+    default String execute(URL url) {
+        return execute(url, Collections.emptySet());
+    }
 
-    void setFiles(Map<String, VirtualFile> files);
+    String execute(URL url, @NotNull Collection<RequestData> data);
 }

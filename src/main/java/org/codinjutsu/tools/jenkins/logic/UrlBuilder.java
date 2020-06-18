@@ -18,7 +18,6 @@ package org.codinjutsu.tools.jenkins.logic;
 
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
-import com.offbytwo.jenkins.model.Computer;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
@@ -77,9 +76,7 @@ public class UrlBuilder {
 
     public URL createRunParameterizedJobUrl(String jobUrl, JenkinsAppSettings configuration, Map<String, String> paramValueMap) {
         StringBuilder strBuilder = new StringBuilder(String.format("%s?delay=%dsec", PARAMETERIZED_BUILD, configuration.getBuildDelay()));
-        for (Map.Entry<String, String> valueByName : paramValueMap.entrySet()) {
-            strBuilder.append("&").append(valueByName.getKey()).append("=").append(valueByName.getValue());
-        }
+        paramValueMap.forEach((name, value) -> strBuilder.append("&").append(name).append("=").append(value));
         try {
             return new URL(jobUrl + URIUtil.encodePathQuery(strBuilder.toString()));
         } catch (Exception ex) {

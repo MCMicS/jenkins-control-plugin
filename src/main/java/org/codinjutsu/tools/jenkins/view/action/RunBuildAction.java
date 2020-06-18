@@ -33,6 +33,7 @@ import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.codinjutsu.tools.jenkins.view.BuildParamDialog;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -83,7 +84,6 @@ public class RunBuildAction extends AnAction implements DumbAware {
 
             @Override
             public void onSuccess() {
-                notifyOnGoingMessage(browserPanel, job);
                 ExecutorService.getInstance(project).getExecutor().schedule(() -> GuiUtil.runInSwingThread(() -> {
                     final Optional<Job> newJob = browserPanel.getJob(job.getName());
                     newJob.ifPresent(browserPanel::loadJob);
@@ -95,14 +95,14 @@ public class RunBuildAction extends AnAction implements DumbAware {
                 progressIndicator.setIndeterminate(true);
                 RequestManager requestManager = browserPanel.getJenkinsManager();
                 if (job.hasParameters()) {
-                    BuildParamDialog.showDialog(job, JenkinsAppSettings.getSafeInstance(project), requestManager, new BuildParamDialog.RunBuildCallback() {
+                    BuildParamDialog.showDialog(project, job, JenkinsAppSettings.getSafeInstance(project), requestManager, new BuildParamDialog.RunBuildCallback() {
 
                         public void notifyOnOk(Job job) {
                             notifyOnGoingMessage(browserPanel, job);
                             browserPanel.loadJob(job);
                         }
 
-                        public void notifyOnError(Job job, Exception ex) {
+                        public void notifyOnError(Job job, Throwable ex) {
                             browserPanel.notifyErrorJenkinsToolWindow("Build '" + job.getName() + "' cannot be run: " + ex.getMessage());
                             browserPanel.loadJob(job);
                         }
@@ -110,7 +110,8 @@ public class RunBuildAction extends AnAction implements DumbAware {
                     });
 
                 } else {
-                    requestManager.runBuild(job, JenkinsAppSettings.getSafeInstance(project));
+                    requestManager.runBuild(job, JenkinsAppSettings.getSafeInstance(project), Collections.emptyMap());
+                    notifyOnGoingMessage(browserPanel, job);
                 }
             }
         }.queue();

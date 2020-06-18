@@ -2,6 +2,7 @@ Version 0.13.5
     * #221 Allow showing all build results in the status bar. Thanks to @nvdweem
     * #222 Separate icon for running builds. Thanks to @nvdweem
     * #217 Show Log not possible for selected Job if self-signed or invalid SSL certificate is used
+    * #223 FileParameterDefinition is unsupported
 
 Version 0.13.4
     * #219 How to run a jenkins job with hidden fields?

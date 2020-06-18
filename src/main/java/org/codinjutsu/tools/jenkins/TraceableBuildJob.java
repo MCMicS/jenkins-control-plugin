@@ -6,7 +6,7 @@ import org.codinjutsu.tools.jenkins.model.Job;
 
 import com.google.common.base.Objects;
 
-public class TraceableBuildJob {
+public class TraceableBuildJob implements Runnable {
     public final Job job;
     private final Runnable runBuild;
     private Integer numBuildTriesLeft;
@@ -22,7 +22,7 @@ public class TraceableBuildJob {
         if (buildBelongsToThisJob(build)) {
             updatePassedAnyBuildStatus(build);
             if (shouldStillTryBuilding()) {
-                runBuild.run();
+                run();
                 numBuildTriesLeft--;
             }
         }
@@ -53,6 +53,11 @@ public class TraceableBuildJob {
     @Override
     public int hashCode() {
         return Objects.hashCode(job.getName(), job.getUrl());
+    }
+
+    @Override
+    public void run() {
+        runBuild.run();
     }
 }
 
