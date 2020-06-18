@@ -7,7 +7,7 @@ import icons.JenkinsControlIcons;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -24,6 +24,7 @@ public final class DefaultBuildStatusEnumRenderer implements BuildStatusRenderer
         iconByBuildStatus.put(BuildStatusEnum.NULL, JenkinsControlIcons.Job.GREY);
         iconByBuildStatus.put(BuildStatusEnum.ABORTED, JenkinsControlIcons.Job.GREY);
         iconByBuildStatus.put(BuildStatusEnum.FOLDER, AllIcons.Nodes.Folder);
+        iconByBuildStatus.put(BuildStatusEnum.RUNNING, JenkinsControlIcons.Job.GREY);
     }
 
     @NotNull

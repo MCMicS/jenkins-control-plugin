@@ -18,7 +18,7 @@ public class SeparatorRendererTest implements JobParameterTest {
     @Test
     public void render() {
         final JobParameter jobParameter = createJobParameter(parameterSeparatorDefinition);
-        JobParameterComponent jobParameterComponent = jobParameterRenderer.render(jobParameter);
+        JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JSeparator.class);
         assertThat(jobParameterComponent.getJobParameter()).isEqualTo(jobParameter);
 

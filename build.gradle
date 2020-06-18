@@ -8,7 +8,7 @@ plugins {
 }
 
 group 'org.codinjutsu'
-version '0.13.4-2018.3'
+version '0.13.5-2018.3'
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'java'
 apply plugin: 'idea'
@@ -28,7 +28,7 @@ lombok {
 
 idea {
     module {
-        downloadJavadoc = false
+        downloadJavadoc = true
         downloadSources = true
     }
 }
@@ -78,6 +78,14 @@ dependencies {
     implementation('com.offbytwo.jenkins:jenkins-client:0.3.8') {
         exclude group: 'org.slf4j'
         exclude group: 'org.apache.logging.log4j'
+        // provided by Idea Platform
+        //exclude group: 'commons-io' // not exists in all products (missing in PyCharm e.g)
+        exclude group: 'commons-lang'
+        exclude group: 'commons-collections'
+        exclude group: 'commons-logging'
+        exclude group: 'org.apache.httpcomponents'
+        exclude group: 'com.fasterxml.jackson.core'
+        exclude group: 'jaxen'
     }
 
     testImplementation(

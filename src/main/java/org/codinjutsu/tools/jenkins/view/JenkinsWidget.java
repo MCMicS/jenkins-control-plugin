@@ -25,6 +25,7 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.components.panels.NonOpaquePanel;
 import org.codinjutsu.tools.jenkins.BuildStatusSummaryFactory;
+import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsToolWindowFactory;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
 import org.codinjutsu.tools.jenkins.view.util.BuildStatusIcon;
@@ -32,10 +33,11 @@ import org.codinjutsu.tools.jenkins.view.util.WidgetBorderUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import java.awt.BorderLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.stream.Stream;
 
 /**
  * Jenkins status bar widget
@@ -43,6 +45,7 @@ import java.awt.event.MouseEvent;
 public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidget {
 
     private final Project project;
+    private final JenkinsAppSettings jenkinsAppSettings;
 
     public static JenkinsWidget getInstance(Project project) {
         return ServiceManager.getService(project, JenkinsWidget.class);
@@ -50,6 +53,8 @@ public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidg
 
     public JenkinsWidget(Project project) {
         this.project = project;
+        jenkinsAppSettings = JenkinsAppSettings.getSafeInstance(project);
+
         JComponent buildStatusIcon = createStatusIcon(new BuildStatusAggregator());
         setLayout(new BorderLayout());
         add(buildStatusIcon, BorderLayout.CENTER);
@@ -68,8 +73,8 @@ public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidg
     }
 
     private JComponent createStatusIcon(BuildStatusAggregator aggregator) {
-        JComponent statusIcon = BuildStatusIcon.createIcon(aggregator, BuildStatusEnumRenderer.getInstance(project));
-        statusIcon.addMouseListener(new MouseAdapter() {
+        JComponent statusIcon = BuildStatusIcon.createIcon(jenkinsAppSettings.isShowAllInStatusbar(), aggregator, BuildStatusEnumRenderer.getInstance(project));
+        MouseAdapter adapter = new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 activateBrowserToolWindow();
@@ -79,7 +84,8 @@ public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidg
             public void mouseReleased(MouseEvent e) {
                 activateBrowserToolWindow();
             }
-        });
+        };
+        Stream.concat(Stream.of(statusIcon.getComponents()), Stream.of(statusIcon)).forEach(c -> c.addMouseListener(adapter));
 
         setBorder(WidgetBorderUtil.getBorderInstance());
 
@@ -96,19 +102,22 @@ public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidg
         toolWindow.activate(null);
     }
 
+    @Override
     @NotNull
     public String ID() {
         return BuildStatusSummaryFactory.BUILD_STATUS_SUMMARY_ID;
     }
 
-    @Nullable
     @Override
+    @Nullable
     public WidgetPresentation getPresentation(@NotNull PlatformType type) {
         return null;
     }
 
+    @Override
     public void install(@NotNull StatusBar statusBar) {}
 
+    @Override
     public void dispose() {}
 
     public JComponent getComponent() {

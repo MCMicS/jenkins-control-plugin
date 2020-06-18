@@ -23,24 +23,34 @@ public class RssBuildStatusVisitor implements BuildStatusVisitor {
     private BuildStatusEnum buildStatusEnum;
 
 
+    @Override
     public void visitFailed() {
         buildStatusEnum = BuildStatusEnum.FAILURE;
     }
 
+    @Override
     public void visitSuccess() {
         buildStatusEnum = BuildStatusEnum.SUCCESS;
     }
 
+    @Override
     public void visitUnstable() {
         buildStatusEnum = BuildStatusEnum.UNSTABLE;
     }
 
+    @Override
     public void visitUnknown() {
         buildStatusEnum = BuildStatusEnum.NULL;
     }
 
+    @Override
     public void visitAborted() {
         buildStatusEnum = BuildStatusEnum.ABORTED;
+    }
+
+    @Override
+    public void visitBuilding() {
+        // Not used
     }
 
     public BuildStatusEnum getStatus() {

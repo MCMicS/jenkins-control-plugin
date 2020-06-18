@@ -22,8 +22,8 @@ public class SeparatorRenderer implements JobParameterRenderer {
 
     @NotNull
     @Override
-    public JobParameterComponent render(@NotNull JobParameter jobParameter) {
-        return new JobParameterComponent(jobParameter, new JSeparator());
+    public JobParameterComponent<String> render(@NotNull JobParameter jobParameter) {
+        return new JobParameterComponent<>(jobParameter, new JSeparator());
     }
 
     @Override
