@@ -2,6 +2,7 @@ package org.codinjutsu.tools.jenkins.model;
 
 import com.github.cliftonlabs.json_simple.JsonObject;
 import com.intellij.openapi.vfs.VirtualFile;
+import lombok.Getter;
 import lombok.Value;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,7 +20,7 @@ public class FileParameter implements RequestData {
     private final VirtualFile file;
 
     @NotNull
-    private final Supplier<String> fileNameProvider;
+    private final String fileName;
 
     public FileParameter(@NotNull String name, @NotNull VirtualFile file) {
         this(name, file, file::getName);
@@ -28,7 +29,7 @@ public class FileParameter implements RequestData {
     public FileParameter(@NotNull String name, @NotNull VirtualFile file, @NotNull Supplier<String> fileNameProvider) {
         this.name = name;
         this.file = file;
-        this.fileNameProvider = fileNameProvider;
+        this.fileName = fileNameProvider.get();
     }
 
     @Override
@@ -37,10 +38,5 @@ public class FileParameter implements RequestData {
         json.put("name", name);
         json.put("file", getFileName());
         json.toJson(writable);
-    }
-
-    @NotNull
-    public String getFileName() {
-        return fileNameProvider.get();
     }
 }

@@ -81,7 +81,7 @@ class DefaultSecurityClient implements SecurityClient {
     PostMethod createPost(String url, @NotNull Collection<RequestData> data) {
         final PostMethod post = new PostMethod(url);
         if (!data.isEmpty()) {
-            ArrayList<Part> parts = new ArrayList<>();
+            final ArrayList<Part> parts = new ArrayList<>();
             data.stream().filter(FileParameter.class::isInstance)
                     .map(FileParameter.class::cast)
                     .map(fileParameter -> new FilePart(fileParameter.getFileName(), new VirtualFilePartSource(fileParameter.getFile())))
@@ -89,7 +89,7 @@ class DefaultSecurityClient implements SecurityClient {
             final JsonObject parameterJson = new JsonObject();
             parameterJson.put("parameter", data);
             parts.add(new StringPart("json", Jsoner.serialize(parameterJson)));
-            post.setRequestEntity(new MultipartRequestEntity(parts.toArray(new Part[parts.size()]), post.getParams()));
+            post.setRequestEntity(new MultipartRequestEntity(parts.toArray(new Part[0]), post.getParams()));
         }
 
         return post;
