@@ -19,7 +19,7 @@ import java.util.function.Function;
 @ToString
 @EqualsAndHashCode
 //@Value
-public class JobParameterComponent {
+public class JobParameterComponent<T> {
 
     @NotNull
     private JobParameter jobParameter;
@@ -28,7 +28,7 @@ public class JobParameterComponent {
     private JComponent viewElement;
 
     @NotNull
-    private Function<JComponent, String> valueProvider;
+    private Function<JComponent, T> valueProvider;
 
     @NotNull
     private BooleanSupplier validator;
@@ -57,13 +57,13 @@ public class JobParameterComponent {
 
     public <C extends JComponent> JobParameterComponent(@NotNull JobParameter jobParameter,
                                                         @NotNull C viewElement,
-                                                        @NotNull Function<C, String> valueProvider) {
+                                                        @NotNull Function<C, T> valueProvider) {
         this(jobParameter, viewElement, valueProvider, () -> false);
     }
 
     public <C extends JComponent> JobParameterComponent(@NotNull JobParameter jobParameter,
                                                         @NotNull C viewElement,
-                                                        @NotNull Function<C, String> valueProvider,
+                                                        @NotNull Function<C, T> valueProvider,
                                                         @NotNull BooleanSupplier validator) {
         this(jobParameter, viewElement, valueProvider, validator, true);
     }
@@ -71,17 +71,17 @@ public class JobParameterComponent {
     @SuppressWarnings("unchecked")
     public <C extends JComponent> JobParameterComponent(@NotNull JobParameter jobParameter,
                                                         @NotNull C viewElement,
-                                                        @NotNull Function<C, String> valueProvider,
+                                                        @NotNull Function<C, T> valueProvider,
                                                         @NotNull BooleanSupplier validator,
                                                         boolean isVisible) {
         this.jobParameter = jobParameter;
         this.viewElement = viewElement;
-        this.valueProvider = (Function<JComponent, String>) valueProvider;
+        this.valueProvider = (Function<JComponent, T>) valueProvider;
         this.validator = validator;
         this.isVisible = isVisible;
     }
 
-    public void ifHasValue(Consumer<String> valueConsumer) {
+    public void ifHasValue(Consumer<T> valueConsumer) {
         Optional.ofNullable(valueProvider.apply(getViewElement())).ifPresent(valueConsumer);
     }
 

@@ -1,14 +1,11 @@
 package org.codinjutsu.tools.jenkins.view;
 
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.project.Project;
 import icons.JenkinsControlIcons;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
 import org.junit.Test;
-import org.mockito.InjectMocks;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.mock;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultBuildStatusEnumRendererTest {
 
@@ -23,5 +20,6 @@ public class DefaultBuildStatusEnumRendererTest {
         assertThat(buildStatusEnumRenderer.renderBuildStatus(BuildStatusEnum.NULL)).isEqualTo(JenkinsControlIcons.Job.GREY);
         assertThat(buildStatusEnumRenderer.renderBuildStatus(BuildStatusEnum.ABORTED)).isEqualTo(JenkinsControlIcons.Job.GREY);
         assertThat(buildStatusEnumRenderer.renderBuildStatus(BuildStatusEnum.FOLDER)).isEqualTo(AllIcons.Nodes.Folder);
+        assertThat(buildStatusEnumRenderer.renderBuildStatus(BuildStatusEnum.RUNNING)).isEqualTo(JenkinsControlIcons.Job.GREY);
     }
 }

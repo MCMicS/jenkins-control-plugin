@@ -5,12 +5,10 @@ import com.intellij.openapi.components.Service;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import icons.JenkinsControlIcons;
-import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
-import org.codinjutsu.tools.jenkins.model.Color;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -27,6 +25,7 @@ public final class DefaultBuildStatusEnumRenderer implements BuildStatusRenderer
         iconByBuildStatus.put(BuildStatusEnum.NULL, JenkinsControlIcons.Job.GREY);
         iconByBuildStatus.put(BuildStatusEnum.ABORTED, JenkinsControlIcons.Job.GREY);
         iconByBuildStatus.put(BuildStatusEnum.FOLDER, AllIcons.Nodes.Folder);
+        iconByBuildStatus.put(BuildStatusEnum.RUNNING, JenkinsControlIcons.Job.GREY);
     }
 
     @NotNull

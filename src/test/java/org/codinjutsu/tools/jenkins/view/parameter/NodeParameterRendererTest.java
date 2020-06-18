@@ -22,7 +22,7 @@ public class NodeParameterRendererTest implements JobParameterTest {
     @Test
     public void renderLabel() {
         final JobParameter jobParameter = createJobParameter(labelParameter);
-        JobParameterComponent jobParameterComponent = jobParameterRenderer.render(jobParameter);
+        JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JTextField.class);
         assertThat(jobParameterComponent.getJobParameter()).isEqualTo(jobParameter);
 
@@ -33,7 +33,7 @@ public class NodeParameterRendererTest implements JobParameterTest {
     @Test
     public void renderNode() {
         final JobParameter jobParameter = createJobParameter(nodeParameter, "Test", "default", "master");
-        JobParameterComponent jobParameterComponent = jobParameterRenderer.render(jobParameter);
+        JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter);
         final JComponent viewElement = jobParameterComponent.getViewElement();
         assertThat(viewElement).isInstanceOf(JComboBox.class);
         assertThat(jobParameterComponent.getJobParameter()).isEqualTo(jobParameter);

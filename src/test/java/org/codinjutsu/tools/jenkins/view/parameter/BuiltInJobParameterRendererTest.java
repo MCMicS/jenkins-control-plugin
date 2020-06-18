@@ -1,6 +1,7 @@
 package org.codinjutsu.tools.jenkins.view.parameter;
 
 import com.intellij.openapi.ui.ComboBox;
+import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.codinjutsu.tools.jenkins.model.BuildInJobParameter;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
 import org.codinjutsu.tools.jenkins.model.JobParameterType;
@@ -25,9 +26,9 @@ public class BuiltInJobParameterRendererTest implements JobParameterTest {
                 .isTrue();
         assertThat(jobParameterRenderer.isForJobParameter(createJobParameter(BuildInJobParameter.PasswordParameterDefinition)))
                 .isTrue();
-        assertThat(jobParameterRenderer.isForJobParameter(createJobParameter(BuildInJobParameter.CredentialsParameterDefinition)))
-                .isFalse();
         assertThat(jobParameterRenderer.isForJobParameter(createJobParameter(BuildInJobParameter.FileParameterDefinition)))
+                .isTrue();
+        assertThat(jobParameterRenderer.isForJobParameter(createJobParameter(BuildInJobParameter.CredentialsParameterDefinition)))
                 .isFalse();
         assertThat(jobParameterRenderer.isForJobParameter(createJobParameter(BuildInJobParameter.RunParameterDefinition)))
                 .isFalse();
@@ -47,7 +48,7 @@ public class BuiltInJobParameterRendererTest implements JobParameterTest {
     @Test
     public void render() {
         final JobParameter jobParameter = createJobParameter(BuildInJobParameter.ChoiceParameterDefinition);
-        JobParameterComponent jobParameterComponent = jobParameterRenderer.render(jobParameter);
+        JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(ComboBox.class);
         assertThat(jobParameterComponent.getJobParameter()).isEqualTo(jobParameter);
 
@@ -61,7 +62,7 @@ public class BuiltInJobParameterRendererTest implements JobParameterTest {
         jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.CredentialsParameterDefinition));
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JobParameterRenderers.ErrorLabel.class);
         jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.FileParameterDefinition));
-        assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JobParameterRenderers.ErrorLabel.class);
+        assertThat(jobParameterComponent.getViewElement()).isInstanceOf(TextFieldWithBrowseButton.class);
         jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.RunParameterDefinition));
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JobParameterRenderers.ErrorLabel.class);
         jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.TextParameterDefinition));

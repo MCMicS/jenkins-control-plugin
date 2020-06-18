@@ -19,11 +19,20 @@ package org.codinjutsu.tools.jenkins.logic;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.net.IdeHttpClientHelpers;
+import com.intellij.util.net.ssl.CertificateManager;
 import com.offbytwo.jenkins.JenkinsServer;
+import com.offbytwo.jenkins.client.JenkinsHttpClient;
 import com.offbytwo.jenkins.model.JobWithDetails;
 import com.offbytwo.jenkins.model.TestChildReport;
 import com.offbytwo.jenkins.model.TestResult;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicHeader;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
@@ -40,6 +49,7 @@ import javax.swing.*;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -179,7 +189,7 @@ public class RequestManager implements RequestManagerInterface {
             final Job.JobBuilder fixedJob = job.toBuilder();
             fixedJob.clearParameters();
             for (JobParameter jobParameter : job.getParameters()) {
-                if (jobParameter.getJobParameterType().equals(NodeParameterRenderer.NODE_PARAMETER)) {
+                if (NodeParameterRenderer.NODE_PARAMETER.equals(jobParameter.getJobParameterType())) {
                     final JobParameter.JobParameterBuilder fixedJobParameter = jobParameter.toBuilder();
                     final List<String> computerNames = computers.get().stream().map(Computer::getDisplayName)
                             .collect(Collectors.toList());
@@ -260,27 +270,29 @@ public class RequestManager implements RequestManagerInterface {
     }
 
     @Override
-    public void runBuild(Job job, JenkinsAppSettings configuration, Map<String, VirtualFile> files) {
+    public void runBuild(Job job, JenkinsAppSettings configuration, Map<String, ?> parameters) {
         if (handleNotYetLoggedInState()) return;
-        if (job.hasParameters() && files.size() > 0) {
-            files.keySet().removeIf(key -> !job.hasParameter(key));
-            securityClient.setFiles(files);
+        if (job.hasParameters() && parameters.size() > 0) {
+            parameters.keySet().removeIf(key -> !job.hasParameter(key));
         }
-        runBuild(job, configuration);
+        final AtomicInteger fileCount = new AtomicInteger();
+
+        final Collection<RequestData> requestData = new LinkedHashSet<>(parameters.size());
+        parameters.entrySet().stream()
+                .filter(entry -> entry.getValue() instanceof VirtualFile)
+                .map(entry -> new FileParameter(entry.getKey(), (VirtualFile) entry.getValue(),
+                        () -> String.format("file%d", fileCount.getAndIncrement())))
+                .forEach(requestData::add);
+        parameters.entrySet().stream().filter(entry -> entry.getValue() instanceof String)
+                .map(entry -> new StringParameter(entry.getKey(), (String) entry.getValue()))
+                .forEach(requestData::add);
+        runBuild(job, configuration, requestData);
     }
 
-    @Override
-    public void runBuild(Job job, JenkinsAppSettings configuration) {
+    private void runBuild(Job job, JenkinsAppSettings configuration, Collection<RequestData> requestData) {
         if (handleNotYetLoggedInState()) return;
         URL url = urlBuilder.createRunJobUrl(job.getUrl(), configuration);
-        securityClient.execute(url);
-    }
-
-    @Override
-    public void runParameterizedBuild(Job job, JenkinsAppSettings configuration, Map<String, String> paramValueMap) {
-        if (handleNotYetLoggedInState()) return;
-        URL url = urlBuilder.createRunParameterizedJobUrl(job.getUrl(), configuration, paramValueMap);
-        securityClient.execute(url);
+        securityClient.execute(url, requestData);
     }
 
     @Override
@@ -293,9 +305,13 @@ public class RequestManager implements RequestManagerInterface {
         } else {
             securityClient = SecurityClientFactory.none(jenkinsSettings.getCrumbData(), connectionTimout);
         }
-        securityClient.connect(urlBuilder.createAuthenticationUrl(jenkinsAppSettings.getServerUrl()));
+        final String serverUrl = jenkinsAppSettings.getServerUrl();
+        securityClient.connect(urlBuilder.createAuthenticationUrl(serverUrl));
 
-        jenkinsServer = new JenkinsServer(urlBuilder.createServerUrl(jenkinsAppSettings.getServerUrl()), jenkinsSettings.getUsername(), jenkinsSettings.getPassword());
+        final JenkinsHttpClient jenkinsHttpClient = new JenkinsHttpClient(urlBuilder.createServerUrl(serverUrl),
+                createHttpClientBuilder(serverUrl, jenkinsSettings), jenkinsSettings.getUsername(),
+                jenkinsSettings.getPassword());
+        jenkinsServer = new JenkinsServer(jenkinsHttpClient);
     }
 
     @Override
@@ -391,12 +407,31 @@ public class RequestManager implements RequestManagerInterface {
     }
 
     @NotNull
+    private HttpClientBuilder createHttpClientBuilder(String serverUrl, JenkinsSettings jenkinsSettings) {
+        final CredentialsProvider provider = new BasicCredentialsProvider();
+        IdeHttpClientHelpers.ApacheHttpClient4.setProxyCredentialsForUrlIfEnabled(provider, serverUrl);
+        final RequestConfig.Builder requestConfig = RequestConfig.custom();
+        IdeHttpClientHelpers.ApacheHttpClient4.setProxyForUrlIfEnabled(requestConfig, serverUrl);
+        final HttpClientBuilder builder = HttpClients.custom()
+                .setSSLContext(CertificateManager.getInstance().getSslContext())
+                .setDefaultRequestConfig(requestConfig.build())
+                .setDefaultCredentialsProvider(provider);
+
+        if (StringUtils.isNotBlank(jenkinsSettings.getCrumbData())) {
+            builder.setDefaultHeaders(Collections.singletonList(
+                    new BasicHeader(jenkinsSettings.getVersion().getCrumbName(), jenkinsSettings.getCrumbData())));
+        }
+        return builder;
+    }
+
+    @NotNull
     private JobWithDetails getJob(@NotNull Job job) {
-        Optional<JobWithDetails> jobWithDetails = Optional.empty();
+        final Optional<JobWithDetails> jobWithDetails;
         try {
             // maybe refactor and use job url
             jobWithDetails = Optional.ofNullable(jenkinsServer.getJob(job.getFullName()));
         } catch (IOException e) {
+            logger.warn(e.getMessage(), e);
             throw new NoJobFoundException(job, e);
         }
         return jobWithDetails.orElseThrow(() -> new NoJobFoundException(job));

@@ -15,11 +15,6 @@ public interface JobParameterRenderer {
     ExtensionPointName<JobParameterRenderer> EP_NAME = ExtensionPointName.create("Jenkins Control Plugin.buildParameterRenderer");
 
     @NotNull
-    static Optional<JobParameterComponent> renderParameter(@NotNull JobParameter jobParameter) {
-        return findRenderer(jobParameter).map(renderer -> renderer.render(jobParameter));
-    }
-
-    @NotNull
     static Optional<JobParameterRenderer> findRenderer(@NotNull JobParameter jobParameter) {
         return JobParameterRenderer.EP_NAME.extensions()
                 .filter(jobParameterRenderer -> jobParameterRenderer.isForJobParameter(jobParameter))
@@ -27,7 +22,7 @@ public interface JobParameterRenderer {
     }
 
     /**
-     * If non-emptx Optional return then a label will be shown.
+     * If non-empty Optional return then a label will be shown.
      */
     @Nonnull
     default Optional<JLabel> createLabel(@NotNull JobParameter jobParameter) {
@@ -42,6 +37,7 @@ public interface JobParameterRenderer {
         return Optional.of(label);
     }
 
+    @SuppressWarnings({"rawtypes", "java:S3740"})
     @NotNull
     JobParameterComponent render(@NotNull JobParameter jobParameter);
 

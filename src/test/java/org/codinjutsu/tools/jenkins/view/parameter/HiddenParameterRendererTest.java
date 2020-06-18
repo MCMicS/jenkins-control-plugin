@@ -18,7 +18,7 @@ public class HiddenParameterRendererTest implements JobParameterTest {
     @Test
     public void render() {
         final JobParameter jobParameter = createJobParameter(hiddenParameter);
-        JobParameterComponent jobParameterComponent = jobParameterRenderer.render(jobParameter);
+        JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JLabel.class);
         assertThat(jobParameterComponent.isVisible()).isFalse();
 

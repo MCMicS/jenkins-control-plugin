@@ -37,7 +37,8 @@ public enum BuildStatusEnum {
     NULL("Null"),
     // TODO: handle the folder-case explicitly. @mcmics: use better Folder Detection
     // instead of simply making it a BuildStatusEnum so that the icon renders
-    FOLDER("Folder");
+    FOLDER("Folder"),
+    RUNNING("Running", Color.GRAY);
 
 
     private static final Logger log = Logger.getLogger(BuildStatusEnum.class);

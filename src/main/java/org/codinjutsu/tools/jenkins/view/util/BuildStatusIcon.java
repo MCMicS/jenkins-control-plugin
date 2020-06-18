@@ -17,65 +17,89 @@
 package org.codinjutsu.tools.jenkins.view.util;
 
 import com.intellij.util.ui.UIUtil;
+import icons.JenkinsControlIcons;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
 import org.codinjutsu.tools.jenkins.view.BuildStatusRenderer;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BoxLayout;
+import javax.swing.Icon;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Insets;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class BuildStatusIcon extends JComponent {
-
-
     private static final int PIXEL_WIDTH = 8;
 
     private static final Color FOREGROUND_COLOR = new JLabel().getForeground();
 
     final Icon icon;
-    final String toolTipText;
 
     final int numberToDisplay;
     private final int numberWith;
 
-    public static JComponent createIcon(BuildStatusAggregator aggregator, BuildStatusRenderer buildStatusRenderer) {
+    public static JComponent createIcon(boolean combine, BuildStatusAggregator aggregator, BuildStatusRenderer buildStatusRenderer) {
+        final List<BuildStatusIcon> icons = new ArrayList<>();
+
         if (aggregator.hasNoResults()) {
-            return new BuildStatusIcon(buildStatusRenderer.renderBuildStatus(BuildStatusEnum.NULL),
-                    "No builds", 0);
+            icons.add(new BuildStatusIcon(buildStatusRenderer.renderBuildStatus(BuildStatusEnum.NULL), "No builds", 0));
         }
 
-        int nbBrokenBuilds = aggregator.getBrokenBuilds();
-        if (nbBrokenBuilds > 0) {
-            return new BuildStatusIcon(buildStatusRenderer.renderBuildStatus(BuildStatusEnum.FAILURE),
-                    String.format("%d broken builds", nbBrokenBuilds), nbBrokenBuilds);
+        createIcon(icons, aggregator.getBrokenBuilds(), buildStatusRenderer, BuildStatusEnum.FAILURE, "broken");
+        createIcon(icons, aggregator.getUnstableBuilds(), buildStatusRenderer, BuildStatusEnum.UNSTABLE, "unstable");
+        createIcon(icons, aggregator.getRunningBuilds(), buildStatusRenderer, BuildStatusEnum.RUNNING, "running");
+        createIcon(icons, aggregator.getSucceededBuilds(), buildStatusRenderer, BuildStatusEnum.SUCCESS, "succeeded");
+
+        if (icons.isEmpty()) {
+            icons.add(new BuildStatusIcon(buildStatusRenderer.renderBuildStatus(BuildStatusEnum.SUCCESS),"No broken builds", 0));
         }
 
-        int nbUnstableBuilds = aggregator.getUnstableBuilds();
-        if (nbUnstableBuilds > 0) {
-            return new BuildStatusIcon(buildStatusRenderer.renderBuildStatus(BuildStatusEnum.UNSTABLE),
-                    String.format("%d unstable builds", nbUnstableBuilds), nbUnstableBuilds);
-        }
+        if (combine) {
+            final JPanel combined = new JPanel();
+            combined.setLayout(new BoxLayout(combined, BoxLayout.X_AXIS));
 
-        return new BuildStatusIcon(buildStatusRenderer.renderBuildStatus(BuildStatusEnum.SUCCESS),
-                "No broken builds", 0);
+            // Sorted to put the running icon at the front
+            icons.stream().sorted(Comparator.comparing(i -> i.icon != JenkinsControlIcons.Job.GREY)).forEach(combined::add);
+            return combined;
+        } else {
+            return icons.get(0);
+        }
+    }
+
+    private static void createIcon(List<BuildStatusIcon> target, int nrBuilds, BuildStatusRenderer buildStatusRenderer, BuildStatusEnum type, String label) {
+        if (nrBuilds > 0) {
+            target.add(new BuildStatusIcon(buildStatusRenderer.renderBuildStatus(type), String.format("%d %s builds", nrBuilds, label), nrBuilds));
+        }
     }
 
     private BuildStatusIcon(Icon icon, String toolTipText, int numberToDisplay) {
         this.icon = icon;
-        this.toolTipText = toolTipText;
+        setToolTipText(toolTipText);
         this.numberToDisplay = numberToDisplay;
         this.numberWith = numberToDisplay == 0 ? 0 : String.valueOf(numberToDisplay).length() * PIXEL_WIDTH;
         setOpaque(false);
 
     }
 
+    @Override
     public Dimension getMinimumSize() {
         return getPreferredSize();
     }
 
+    @Override
     public Dimension getMaximumSize() {
         return getPreferredSize();
     }
 
+    @Override
     public Dimension getPreferredSize() {
         final Insets insets = getInsets();
         return new Dimension(
@@ -84,8 +108,8 @@ public class BuildStatusIcon extends JComponent {
         );
     }
 
+    @Override
     protected void paintComponent(Graphics g) {
-
         g.setColor(UIUtil.getPanelBackground());
         g.fillRect(0, 0, getWidth(), getHeight());
 
@@ -93,7 +117,6 @@ public class BuildStatusIcon extends JComponent {
         int x = (size.width - icon.getIconWidth() - numberWith) / 2;
         int y = (size.height - icon.getIconHeight()) / 2;
         paintIcon(g, icon, x, y);
-        setToolTipText(toolTipText);
 
         if (numberToDisplay > 0) {
             Font originalFont = g.getFont();

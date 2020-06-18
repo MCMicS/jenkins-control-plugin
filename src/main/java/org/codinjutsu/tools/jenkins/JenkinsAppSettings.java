@@ -161,6 +161,14 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
         myState.setUseGreenColor(useGreenColor);
     }
 
+    public boolean isShowAllInStatusbar() {
+        return myState.isShowAllInStatusbar();
+    }
+
+    public void setShowAllInStatusbar(boolean showAllInStatusbar) {
+        myState.setShowAllInStatusbar(showAllInStatusbar);
+    }
+
     @Data
     public static class State {
 
@@ -173,6 +181,7 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
         private int numBuildRetries = DEFAULT_BUILD_RETRY;
         private RssSettings rssSettings = new RssSettings();
         private boolean useGreenColor = false;
+        private boolean showAllInStatusbar = false;
     }
 
     @Data
