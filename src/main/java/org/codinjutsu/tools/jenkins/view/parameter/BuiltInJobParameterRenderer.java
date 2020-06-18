@@ -16,7 +16,7 @@ import java.util.function.BiFunction;
 
 public class BuiltInJobParameterRenderer implements JobParameterRenderer {
 
-    private final Map<JobParameterType, BiFunction<JobParameter, String, JobParameterComponent>> converter = new HashMap<>();
+    private final Map<JobParameterType, BiFunction<JobParameter, String, JobParameterComponent<?>>> converter = new HashMap<>();
 
     public BuiltInJobParameterRenderer() {
         converter.put(BuildInJobParameter.ChoiceParameterDefinition, JobParameterRenderers::createComboBox);
@@ -24,11 +24,12 @@ public class BuiltInJobParameterRenderer implements JobParameterRenderer {
         converter.put(BuildInJobParameter.StringParameterDefinition, JobParameterRenderers::createTextField);
         converter.put(BuildInJobParameter.PasswordParameterDefinition, JobParameterRenderers::createPasswordField);
         converter.put(BuildInJobParameter.TextParameterDefinition, JobParameterRenderers::createTextArea);
+        converter.put(BuildInJobParameter.FileParameterDefinition, JobParameterRenderers::createFileUpload);
     }
 
     @NotNull
     @Override
-    public JobParameterComponent render(@NotNull JobParameter jobParameter) {
+    public JobParameterComponent<?> render(@NotNull JobParameter jobParameter) {
         final JobParameterType jobParameterType = jobParameter.getJobParameterType();
         final String defaultValue = jobParameter.getDefaultValue();
         return converter.getOrDefault(jobParameterType, JobParameterRenderers::createErrorLabel).apply(jobParameter, defaultValue);

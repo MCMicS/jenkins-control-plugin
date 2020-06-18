@@ -37,8 +37,6 @@ public class JobParameter {
     private final JobParameterType jobParameterType;
     @Nullable
     private final String defaultValue;
-    @Nullable
-    private final VirtualFile virtualFile;
     @NotNull
     @Singular
     private final List<String> choices;
