@@ -7,6 +7,8 @@ import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.ui.components.JBTextArea;
+import com.intellij.ui.components.JBTextField;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
@@ -51,7 +53,7 @@ public final class JobParameterRenderers {
 
     @NotNull
     public static JobParameterComponent<String> createTextArea(JobParameter jobParameter, String defaultValue) {
-        final JTextArea textArea = new JTextArea();
+        final JTextArea textArea = new JBTextArea();
         textArea.setRows(5);
         if (StringUtils.isNotEmpty(defaultValue)) {
             textArea.setText(defaultValue);
@@ -61,7 +63,7 @@ public final class JobParameterRenderers {
 
     @NotNull
     public static JobParameterComponent<String> createTextField(JobParameter jobParameter, String defaultValue) {
-        final JTextField textField = new JTextField();
+        final JTextField textField = new JBTextField();
         if (StringUtils.isNotEmpty(defaultValue)) {
             textField.setText(defaultValue);
         }

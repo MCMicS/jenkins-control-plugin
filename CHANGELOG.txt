@@ -1,3 +1,6 @@
+Version 0.13.6
+    * #225 Git Branch Parameter is unsupported
+
 Version 0.13.5
     * #221 Allow showing all build results in the status bar. Thanks to @nvdweem
     * #222 Separate icon for running builds. Thanks to @nvdweem
