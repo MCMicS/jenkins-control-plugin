@@ -148,15 +148,8 @@ public class ConfigurationPanel {
 
         testConnectionButton.addActionListener(event -> testConnection(project));
 
-        formValidator = FormValidator.<JTextField>init(this)
-                .addValidator(username, component -> {
-                    if (StringUtils.isNotBlank(component.getText())) {
-                        String password = getPassword();
-                        if (StringUtils.isBlank(password)) {
-                            throw new ConfigurationException(String.format("'%s' must be set", passwordField.getName()));
-                        }
-                    }
-                });
+        formValidator = FormValidator.<JTextField>init(this);
+                
     }
 
     private void testConnection(Project project) {
