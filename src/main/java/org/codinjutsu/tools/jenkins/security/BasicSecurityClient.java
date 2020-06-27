@@ -21,6 +21,7 @@ import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpHeaders;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.util.IOUtils;
 
@@ -55,10 +56,10 @@ class BasicSecurityClient extends DefaultSecurityClient {
                     new UsernamePasswordCredentials(username, password));
         }
 
-
         httpClient.getParams().setAuthenticationPreemptive(true);
 
         PostMethod post = new PostMethod(jenkinsUrl.toString());
+        post.addRequestHeader(HttpHeaders.ACCEPT_LANGUAGE, "en-US,en;q=0.5");
 
         try {
             if (isCrumbDataSet()) {

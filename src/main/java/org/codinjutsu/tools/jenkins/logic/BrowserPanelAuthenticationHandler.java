@@ -42,7 +42,7 @@ public class BrowserPanelAuthenticationHandler implements AuthenticationNotifier
 
     @Override
     public void loginCancelled() {
-        browser.setJobsUnavailable();
+        browser.handleEmptyConfiguration();
     }
 
     @Override

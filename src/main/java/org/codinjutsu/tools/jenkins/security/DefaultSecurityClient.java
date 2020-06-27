@@ -109,7 +109,7 @@ class DefaultSecurityClient implements SecurityClient {
 
             int statusCode = httpClient.executeMethod(post);
             final String responseBody;
-            try(InputStream inputStream = post.getResponseBodyAsStream()) {
+            try (InputStream inputStream = post.getResponseBodyAsStream()) {
                 responseBody = IOUtils.toString(inputStream, post.getResponseCharSet());
             }
             checkResponse(statusCode, responseBody);
@@ -133,19 +133,19 @@ class DefaultSecurityClient implements SecurityClient {
 
     protected void checkResponse(int statusCode, String responseBody) throws AuthenticationException {
         if (statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
-            throw new AuthenticationException("Not found");
+            throw new AuthenticationException("Not found", responseBody);
         }
 
         if (statusCode == HttpURLConnection.HTTP_FORBIDDEN || statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
             if (StringUtils.containsIgnoreCase(responseBody, BAD_CRUMB_DATA)) {
-                throw new AuthenticationException("CSRF enabled -> Missing or bad crumb data");
+                throw new AuthenticationException("CSRF enabled -> Missing or bad crumb data", responseBody);
             }
 
             throw new AuthenticationException("Unauthorized -> Missing or bad credentials", responseBody);
         }
 
         if (HttpURLConnection.HTTP_INTERNAL_ERROR == statusCode) {
-            throw new AuthenticationException("Server Internal Error: Server unavailable");
+            throw new AuthenticationException("Server Internal Error: Server unavailable", responseBody);
         }
     }
 
