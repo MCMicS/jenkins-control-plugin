@@ -1,6 +1,5 @@
 package org.codinjutsu.tools.jenkins.logic;
 
-import com.intellij.openapi.components.Service;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import lombok.Builder;
@@ -13,7 +12,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 
-@Service
+//@Service
 public class ConfigurationValidator {
     @NotNull
     private final UrlBuilder urlBuilder;
