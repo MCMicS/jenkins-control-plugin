@@ -14,9 +14,9 @@ public interface JobParameterTest {
     }
 
     @NotNull
-    default JobParameter createJobParameter(JobParameterType jobParameterType, String... nodes) {
+    default JobParameter createJobParameter(JobParameterType jobParameterType, String... choices) {
         return JobParameter.builder().jobParameterType(jobParameterType)
-                .name("Test").choices(Arrays.asList(nodes)).defaultValue("default").description("Test Parameter")
+                .name("Test").choices(Arrays.asList(choices)).defaultValue("default").description("Test Parameter")
                 .build();
     }
 }

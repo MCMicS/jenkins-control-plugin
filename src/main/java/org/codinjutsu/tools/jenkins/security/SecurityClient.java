@@ -18,6 +18,7 @@ package org.codinjutsu.tools.jenkins.security;
 
 import org.codinjutsu.tools.jenkins.model.RequestData;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.net.URL;
 import java.util.Collection;
@@ -25,7 +26,8 @@ import java.util.Collections;
 
 public interface SecurityClient {
 
-    void connect(URL jenkinsUrl);
+    @Nullable
+    String connect(URL jenkinsUrl);
 
     default String execute(URL url) {
         return execute(url, Collections.emptySet());

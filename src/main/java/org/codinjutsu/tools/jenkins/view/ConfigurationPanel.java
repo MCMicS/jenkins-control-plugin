@@ -25,7 +25,9 @@ import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
+import org.codinjutsu.tools.jenkins.logic.ConfigurationValidator;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
+import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.security.AuthenticationException;
 import org.codinjutsu.tools.jenkins.security.JenkinsVersion;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
@@ -48,6 +50,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 import java.awt.Color;
+import java.util.stream.Collectors;
 
 import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.POSITIVE_INTEGER;
 import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.URL;
@@ -173,10 +176,18 @@ public class ConfigurationPanel {
 
             JenkinsVersion version = version1RadioButton.isSelected() ? JenkinsVersion.VERSION_1 : JenkinsVersion.VERSION_2;
 
-            RequestManager.getInstance(project).testAuthenticate(serverUrl.getText(), username.getText(), password,
-                    crumbDataField.getText(), version, getConnectionTimeout());
-            setConnectionFeedbackLabel(CONNECTION_TEST_SUCCESSFUL_COLOR, "Successful");
-            setPassword(password);
+            final String jenkinsUrl = RequestManager.getInstance(project).testAuthenticate(serverUrl.getText(),
+                    username.getText(), password, crumbDataField.getText(), version, getConnectionTimeout());
+            final ConfigurationValidator.ValidationResult validationResult = ConfigurationValidator.getInstance(project)
+                    .validate(serverUrl.getText(), jenkinsUrl);
+            if (validationResult.isValid()) {
+                setConnectionFeedbackLabel(CONNECTION_TEST_SUCCESSFUL_COLOR, "Successful");
+                setPassword(password);
+            } else {
+                setConnectionFeedbackLabel(CONNECTION_TEST_FAILED_COLOR, "Invalid Configuration");
+                debugPanel.setVisible(true);
+                debugTextPane.setText(String.join("<br>", validationResult.getErrors()));
+            }
         } catch (AuthenticationException authenticationException) {
             setConnectionFeedbackLabel(CONNECTION_TEST_FAILED_COLOR, "[Fail] " + authenticationException.getMessage());
             String responseBody = authenticationException.getResponseBody();

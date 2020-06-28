@@ -58,7 +58,7 @@ public class RequestManagerTest {
     public void loadJenkinsWorkspaceWithMismatchServerPortInTheResponse() throws Exception {
         configuration.setServerUrl("http://myjenkins:8080");
         URL urlFromConf = new URL("http://myjenkins:8080");
-        URL urlFromJenkins = new URL("http://myjenkins:8082");
+        URL urlFromJenkins = new URL("http://myjenkins:7070");
         when(urlBuilderMock.createJenkinsWorkspaceUrl(configuration))
                 .thenReturn(urlFromConf);
         when(urlBuilderMock.createViewUrl(any(JenkinsPlateform.class), anyString()))
@@ -69,7 +69,7 @@ public class RequestManagerTest {
             requestManager.loadJenkinsWorkspace(configuration);
             Assert.fail();
         } catch (ConfigurationException ex) {
-            Assert.assertEquals("Jenkins Server Port Mismatch: expected='8080' - actual='8082'. Look at the value of 'Jenkins URL' at http://myjenkins:8080/configure", ex.getMessage());
+            Assert.assertEquals("Jenkins Server Port Mismatch: expected='8080' - actual='7070'. Look at the value of 'Jenkins URL' at http://myjenkins:8080/configure", ex.getMessage());
         }
     }
 
@@ -83,7 +83,7 @@ public class RequestManagerTest {
         when(urlBuilderMock.createViewUrl(any(JenkinsPlateform.class), anyString()))
                 .thenReturn(urlFromJenkins);
         when(securityClientMock.execute(urlFromConf))
-                .thenReturn(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadJenkinsWorkspaceWithIncorrectPortInTheResponse.json")));
+                .thenReturn(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadJenkinsWorkspaceWithIncorrectHostInTheResponse.json")));
         try {
             requestManager.loadJenkinsWorkspace(configuration);
             Assert.fail();
@@ -116,5 +116,8 @@ public class RequestManagerTest {
         requestManager = new RequestManager(project);
         requestManager.setSecurityClient(securityClientMock);
         Whitebox.setInternalState(requestManager, urlBuilderMock);
+
+        when(urlBuilderMock.toUrl(anyString())).thenCallRealMethod();
+        when(urlBuilderMock.createConfigureUrl(anyString())).thenCallRealMethod();
     }
 }
