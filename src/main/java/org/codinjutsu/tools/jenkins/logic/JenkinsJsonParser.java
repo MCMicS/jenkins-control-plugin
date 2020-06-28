@@ -24,7 +24,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.util.DateUtil;
-import org.codinjutsu.tools.jenkins.view.parameter.NodeParameterRenderer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,16 +53,18 @@ public class JenkinsJsonParser implements JenkinsParser {
     }
 
     @Override
-    public Jenkins createWorkspace(String jsonData, String serverUrl) {
+    public Jenkins createWorkspace(String jsonData) {
         checkJsonDataAndThrowExceptionIfNecessary(jsonData);
-        Jenkins jenkins = new Jenkins("", serverUrl);
         final JsonObject jsonObject = parseJson(jsonData);
-        JsonObject primaryViewObject = (JsonObject) jsonObject.get(PRIMARY_VIEW);
-        if (primaryViewObject != null) {
-            jenkins.setPrimaryView(getView(primaryViewObject));
-        }
+        final Optional<View> primaryView = Optional.ofNullable((JsonObject) jsonObject.get(PRIMARY_VIEW)).map(this::getView);
+        final String primaryViewUrl = primaryView.map(View::getUrl).orElse("");
 
-        JsonArray viewsObject = (JsonArray) jsonObject.get(VIEWS);
+        final String description = jsonObject.getStringOrDefault(createJsonKey(SERVER_DESCRIPTION, ""));
+        final String jenkinsUrl = jsonObject.getString(createJsonKey(SERVER_URL, primaryViewUrl));
+        final Jenkins jenkins = new Jenkins(description, jenkinsUrl);
+        primaryView.ifPresent(jenkins::setPrimaryView);
+
+        final JsonArray viewsObject = (JsonArray) jsonObject.get(VIEWS);
         if (viewsObject != null) {
             jenkins.setViews(getViews(viewsObject));
         }

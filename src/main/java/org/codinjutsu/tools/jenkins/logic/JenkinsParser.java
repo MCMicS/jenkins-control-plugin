@@ -25,6 +25,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public interface JenkinsParser {
+    String SERVER_DESCRIPTION = "description";
+    String SERVER_URL = "url";
     String JOBS = "jobs";
     String JOB_NAME = "name";
     String JOB_FULL_NAME = "fullName";
@@ -63,7 +65,7 @@ public interface JenkinsParser {
     String CLASS = "_class";
     String COMPUTER = "computer";
 
-    Jenkins createWorkspace(String jsonData, String serverUrl);
+    Jenkins createWorkspace(String jsonData);
 
     Job createJob(String jsonData);
 

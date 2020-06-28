@@ -57,7 +57,7 @@ public class UrlBuilderTest {
         configuration.setServerUrl("http://localhost:8080/jenkins");
 
         URL url = urlBuilder.createJenkinsWorkspaceUrl(configuration);
-        assertThat(url.toString()).isEqualTo("http://localhost:8080/jenkins/api/json?tree=nodeName,nodeDescription,primaryView%5Bname,url%5D,views%5Bname,url,views%5Bname,url%5D%5D");
+        assertThat(url.toString()).isEqualTo("http://localhost:8080/jenkins/api/json?tree=url,description,nodeName,nodeDescription,primaryView%5Bname,url%5D,views%5Bname,url,views%5Bname,url%5D%5D");
     }
 
     @Test

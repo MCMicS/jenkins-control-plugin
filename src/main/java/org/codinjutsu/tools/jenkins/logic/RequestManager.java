@@ -98,25 +98,12 @@ public class RequestManager implements RequestManagerInterface {
             jenkinsPlateform = JenkinsPlateform.CLASSIC;
         }
 
-        Jenkins jenkins = jsonParser.createWorkspace(jenkinsWorkspaceData, configuration.getServerUrl());
-
-        int jenkinsPort = url.getPort();
-        URL viewUrl = urlBuilder.createViewUrl(jenkinsPlateform, jenkins.getPrimaryView().getUrl());
-        int viewPort = viewUrl.getPort();
-
-        if (isJenkinsPortSet(jenkinsPort) && jenkinsPort != viewPort) {
-            throw new ConfigurationException(String.format("Jenkins Server Port Mismatch: expected='%s' - actual='%s'. Look at the value of 'Jenkins URL' at %s/configure", jenkinsPort, viewPort, configuration.getServerUrl()));
+        Jenkins jenkins = jsonParser.createWorkspace(jenkinsWorkspaceData);
+        final ConfigurationValidator.ValidationResult validationResult = ConfigurationValidator.getInstance(project).validate(configuration, jenkins);
+        if (!validationResult.isValid()) {
+            throw new ConfigurationException(validationResult.getFirstError());
         }
-
-        if (!StringUtils.equals(url.getHost(), viewUrl.getHost())) {
-            throw new ConfigurationException(String.format("Jenkins Server Host Mismatch: expected='%s' - actual='%s'. Look at the value of 'Jenkins URL' at %s/configure", url.getHost(), viewUrl.getHost(), configuration.getServerUrl()));
-        }
-
         return jenkins;
-    }
-
-    private boolean isJenkinsPortSet(int jenkinsPort) {
-        return jenkinsPort != -1;
     }
 
     /**

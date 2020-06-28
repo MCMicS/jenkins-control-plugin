@@ -54,7 +54,7 @@ public class JenkinsJsonParserTest {
 
     @Test
     public void loadJenkinsWorkSpace() throws Exception {
-        Jenkins jenkins = jsonParser.createWorkspace(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadWorkspace.json")), "http://myjenkins");
+        Jenkins jenkins = jsonParser.createWorkspace(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadWorkspace.json")));
 
         List<View> actualViews = jenkins.getViews();
 
@@ -67,7 +67,7 @@ public class JenkinsJsonParserTest {
 
     @Test
     public void loadJenkinsWorkSpaceWithNestedViews() throws Exception {
-        Jenkins jenkins = jsonParser.createWorkspace(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadWorkspaceWithNestedView.json")), "http://myjenkins");
+        Jenkins jenkins = jsonParser.createWorkspace(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadWorkspaceWithNestedView.json")));
 
         List<View> actualViews = jenkins.getViews();
 
