@@ -32,16 +32,11 @@ public class Jenkins {
     private List<View> views;
     private View primaryView;
 
-
-    public Jenkins() {
-        this(null, null);
-    }
-
     public Jenkins(String description, String serverUrl) {
         this.name = description;
         this.serverUrl = serverUrl;
-        this.jobs = new LinkedList<Job>();
-        this.views = new LinkedList<View>();
+        this.jobs = new LinkedList<>();
+        this.views = new LinkedList<>();
     }
 
 

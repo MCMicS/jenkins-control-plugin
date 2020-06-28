@@ -1,10 +1,10 @@
 {
     "nodeDescription":"The master Jenkins node",
     "nodeName":"",
-    "url": "http://myjenkins:7070",
+    "url": "http://anotherjenkins:8080",
     "primaryView":{
         "name":"Tous",
-        "url":"http://myjenkins:7070"
+        "url":"http://anotherjenkins:8080"
     },
     "views":[
         {
