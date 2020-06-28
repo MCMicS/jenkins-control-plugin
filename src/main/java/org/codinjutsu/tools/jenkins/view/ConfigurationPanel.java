@@ -184,6 +184,7 @@ public class ConfigurationPanel {
                 setConnectionFeedbackLabel(CONNECTION_TEST_SUCCESSFUL_COLOR, "Successful");
                 setPassword(password);
             } else {
+                setConnectionFeedbackLabel(CONNECTION_TEST_FAILED_COLOR, "Invalid Configuration");
                 debugPanel.setVisible(true);
                 debugTextPane.setText(String.join("<br>", validationResult.getErrors()));
             }
