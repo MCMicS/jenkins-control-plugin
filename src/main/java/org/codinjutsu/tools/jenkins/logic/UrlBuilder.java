@@ -22,11 +22,13 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Map;
+import java.util.Optional;
 
 public class UrlBuilder {
 
@@ -35,19 +37,20 @@ public class UrlBuilder {
     private static final String PARAMETERIZED_BUILD = "/buildWithParameters";
     private static final String RSS_LATEST = "/rssLatest";
     private static final String TREE_PARAM = "?tree=";
-    private static final String BASIC_JENKINS_INFO = "nodeName,nodeDescription,primaryView[name,url],views[name,url,views[name,url]]";
+    private static final String BASIC_JENKINS_INFO = "url,description,nodeName,nodeDescription,primaryView[name,url],views[name,url,views[name,url]]";
     private static final String BASIC_BUILD_INFO = "id,url,building,result,number,displayName,fullDisplayName,timestamp,duration";
     private static final String BASIC_JOB_INFO = "name,fullName,displayName,fullDisplayName,jobs,url,color,buildable,inQueue,healthReport[description,iconUrl],lastBuild[" + BASIC_BUILD_INFO + "],property[parameterDefinitions[name,type,defaultParameterValue[value],description,choices]]";
     private static final String BASIC_VIEW_INFO = "name,url,jobs[" + BASIC_JOB_INFO + "]";
     private static final String CLOUDBEES_VIEW_INFO = "name,url,views[jobs[" + BASIC_JOB_INFO + "]]";
-    private static final String TEST_CONNECTION_REQUEST = "?tree=nodeName";
+    private static final String TEST_CONNECTION_REQUEST = "?tree=nodeName,url,description";
     private static final String BASIC_BUILDS_INFO = "builds[" + BASIC_BUILD_INFO + "]";
     private static final String NESTED_JOBS_INFO = "name,url,displayName,fullDisplayName,jobs[" + BASIC_JOB_INFO + "]";
     private static final String COMPUTER = "/computer";
     private static final String COMPUTER_INFO = "computer[displayName,description,offline,assignedLabels[name]]";
 
     public static UrlBuilder getInstance(Project project) {
-        return ServiceManager.getService(project, UrlBuilder.class);
+        return Optional.ofNullable(ServiceManager.getService(project, UrlBuilder.class))
+                .orElseGet(UrlBuilder::new);
     }
 
     @NotNull
@@ -162,7 +165,6 @@ public class UrlBuilder {
         return null;
     }
 
-
     private void handleException(Exception ex) {
         if (ex instanceof MalformedURLException) {
             throw new IllegalArgumentException("URL is malformed", ex);
@@ -190,5 +192,35 @@ public class UrlBuilder {
             handleException(ex);
             throw new IllegalArgumentException("Error during URL creation", ex);
         }
+    }
+
+    @NotNull
+    public URL createConfigureUrl(@NotNull String serverUrl) {
+        try {
+            return new URL(removeTrailingSlash(serverUrl) + "/configure");
+        } catch (Exception ex) {
+            handleException(ex);
+            throw new IllegalArgumentException("Error during URL creation", ex);
+        }
+    }
+
+    @Nullable
+    public URL toUrl(@NotNull String url) {
+        try {
+            return new URL(url);
+        } catch (Exception ex) {
+            handleException(ex);
+        }
+        return null;
+    }
+
+    private String removeTrailingSlash(@NotNull String url) {
+        final String withoutTrailingSlash;
+        if (url.endsWith("/")) {
+            withoutTrailingSlash = url.substring(0, url.length() - 1);
+        } else {
+            withoutTrailingSlash = url;
+        }
+        return withoutTrailingSlash;
     }
 }

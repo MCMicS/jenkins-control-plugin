@@ -98,25 +98,13 @@ public class RequestManager implements RequestManagerInterface {
             jenkinsPlateform = JenkinsPlateform.CLASSIC;
         }
 
-        Jenkins jenkins = jsonParser.createWorkspace(jenkinsWorkspaceData, configuration.getServerUrl());
-
-        int jenkinsPort = url.getPort();
-        URL viewUrl = urlBuilder.createViewUrl(jenkinsPlateform, jenkins.getPrimaryView().getUrl());
-        int viewPort = viewUrl.getPort();
-
-        if (isJenkinsPortSet(jenkinsPort) && jenkinsPort != viewPort) {
-            throw new ConfigurationException(String.format("Jenkins Server Port Mismatch: expected='%s' - actual='%s'. Look at the value of 'Jenkins URL' at %s/configure", jenkinsPort, viewPort, configuration.getServerUrl()));
+        final Jenkins jenkins = jsonParser.createWorkspace(jenkinsWorkspaceData);
+        final ConfigurationValidator.ValidationResult validationResult = ConfigurationValidator.getInstance(project)
+                .validate(configuration.getServerUrl(), jenkins.getServerUrl());
+        if (!validationResult.isValid()) {
+            throw new ConfigurationException(validationResult.getFirstError());
         }
-
-        if (!StringUtils.equals(url.getHost(), viewUrl.getHost())) {
-            throw new ConfigurationException(String.format("Jenkins Server Host Mismatch: expected='%s' - actual='%s'. Look at the value of 'Jenkins URL' at %s/configure", url.getHost(), viewUrl.getHost(), configuration.getServerUrl()));
-        }
-
         return jenkins;
-    }
-
-    private boolean isJenkinsPortSet(int jenkinsPort) {
-        return jenkinsPort != -1;
     }
 
     /**
@@ -315,8 +303,8 @@ public class RequestManager implements RequestManagerInterface {
     }
 
     @Override
-    public void testAuthenticate(String serverUrl, String username, String password, String crumbData, JenkinsVersion version,
-                                 int connectionTimoutInSeconds) {
+    public String testAuthenticate(String serverUrl, String username, String password, String crumbData, JenkinsVersion version,
+                                   int connectionTimoutInSeconds) {
         SecurityClientFactory.setVersion(version);
         final int connectionTimout = getConnectionTimout(connectionTimoutInSeconds);
         final SecurityClient securityClientForTest;
@@ -325,7 +313,8 @@ public class RequestManager implements RequestManagerInterface {
         } else {
             securityClientForTest = SecurityClientFactory.none(crumbData, connectionTimout);
         }
-        securityClientForTest.connect(urlBuilder.createAuthenticationUrl(serverUrl));
+        final String serverData = securityClientForTest.connect(urlBuilder.createAuthenticationUrl(serverUrl));
+        return jsonParser.getServerUrl(serverData);
     }
 
     @Override
