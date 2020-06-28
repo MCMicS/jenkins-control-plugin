@@ -3,7 +3,10 @@ package org.codinjutsu.tools.jenkins.logic;
 import com.intellij.openapi.project.Project;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
-import org.mockito.Mockito;
+import org.picocontainer.PicoContainer;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ConfigurationValidatorTest {
 
@@ -13,7 +16,7 @@ public class ConfigurationValidatorTest {
     private static final String WRONG_PROTOCOL_SERVER_URL = "https://localhost:8080/";
     private static final String WRONG_PATH_SERVER_URL = "http://localhost:8080/jenkins";
     private final String configuredServerUrl = SERVER_URL;
-    private final Project project = Mockito.mock(Project.class);
+    private final Project project = mockProject();
     private final ConfigurationValidator configurationValidator = new ConfigurationValidator(project);
 
     @Test
@@ -79,5 +82,13 @@ public class ConfigurationValidatorTest {
     public void validate() {
         final ConfigurationValidator.ValidationResult validationResult = configurationValidator.validate(configuredServerUrl, SERVER_URL);
         Assertions.assertThat(validationResult.isValid()).isTrue();
+    }
+
+    private static Project mockProject() {
+        final Project project = mock(Project.class);
+        final PicoContainer container = mock(PicoContainer.class);
+        when(project.getPicoContainer()).thenReturn(container);
+        when(container.getComponentInstance(UrlBuilder.class.getName())).thenReturn(new UrlBuilder());
+        return project;
     }
 }
