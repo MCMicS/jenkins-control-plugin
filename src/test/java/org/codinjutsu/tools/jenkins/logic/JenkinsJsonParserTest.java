@@ -195,7 +195,7 @@ public class JenkinsJsonParserTest {
     }
 
     @Test
-    public void parseComputer() throws Exception {
+    public void parseComputer() {
         final Computer actualComputer = jsonParser.createComputer("{\n" +
                 "            \"_class\": \"hudson.model.Hudson$MasterComputer\",\n" +
                 "            \"description\": \"Jenkins Master\",\n" +
@@ -206,6 +206,15 @@ public class JenkinsJsonParserTest {
         final Computer expectedComputer = Computer.builder().displayName("master").description("Jenkins Master")
                 .offline(false).build();
         assertThat(actualComputer).isEqualTo(expectedComputer);
+    }
+
+    @Test
+    public void getServerUrl() {
+        final String serverUrl = jsonParser.getServerUrl("{\"_class\":\"hudson.model.Hudson\"," +
+                "\"nodeName\":\"\"," +
+                "\"description\":\"Sample\"," +
+                "\"url\":\"http://localhost:8080/jenkins/\"}");
+        assertThat(serverUrl).isEqualTo("http://localhost:8080/jenkins/");
     }
 
     @Test

@@ -34,6 +34,7 @@ import org.codinjutsu.tools.jenkins.model.RequestData;
 import org.codinjutsu.tools.jenkins.model.VirtualFilePartSource;
 import org.codinjutsu.tools.jenkins.util.IOUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,9 +60,10 @@ class DefaultSecurityClient implements SecurityClient {
         this.connectionTimout = connectionTimout;
     }
 
+    @Nullable
     @Override
-    public void connect(URL jenkinsUrl) {
-        execute(jenkinsUrl);
+    public String connect(URL jenkinsUrl) {
+        return execute(jenkinsUrl);
     }
 
     public String execute(URL url, @NotNull Collection<RequestData> data) {

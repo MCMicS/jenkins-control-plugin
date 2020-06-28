@@ -19,7 +19,7 @@ public interface RequestManagerInterface {
 
     void authenticate(JenkinsAppSettings jenkinsAppSettings, JenkinsSettings jenkinsSettings);
 
-    void testAuthenticate(String serverUrl, String username, String password, String crumbData, JenkinsVersion version, int connectionTimoutInSeconds);
+    String testAuthenticate(String serverUrl, String username, String password, String crumbData, JenkinsVersion version, int connectionTimoutInSeconds);
 
     List<Job> loadFavoriteJobs(List<JenkinsSettings.FavoriteJob> favoriteJobs);
 

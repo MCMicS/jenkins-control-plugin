@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.util.IOUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,13 +44,14 @@ class BasicSecurityClient extends DefaultSecurityClient {
         this.password = password;
     }
 
-
+    @Nullable
     @Override
-    public void connect(URL url) {
-        doAuthentication(url);
+    public String connect(URL url) {
+        return doAuthentication(url);
     }
 
-    private void doAuthentication(URL jenkinsUrl) throws AuthenticationException {
+    @Nullable
+    private String doAuthentication(URL jenkinsUrl) throws AuthenticationException {
         if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
             httpClient.getState().setCredentials(
                     new AuthScope(jenkinsUrl.getHost(), jenkinsUrl.getPort()),
@@ -75,6 +77,7 @@ class BasicSecurityClient extends DefaultSecurityClient {
             if (responseCode != HttpURLConnection.HTTP_OK) {
                 checkResponse(responseCode, responseBody);
             }
+            return responseBody;
         } catch (HttpException httpEx) {
             throw new ConfigurationException(String.format("HTTP Error during method execution '%s': %s", jenkinsUrl.toString(), httpEx.getMessage()), httpEx);
         } catch (IOException ioEx) {

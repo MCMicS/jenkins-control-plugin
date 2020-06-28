@@ -98,8 +98,9 @@ public class RequestManager implements RequestManagerInterface {
             jenkinsPlateform = JenkinsPlateform.CLASSIC;
         }
 
-        Jenkins jenkins = jsonParser.createWorkspace(jenkinsWorkspaceData);
-        final ConfigurationValidator.ValidationResult validationResult = ConfigurationValidator.getInstance(project).validate(configuration, jenkins);
+        final Jenkins jenkins = jsonParser.createWorkspace(jenkinsWorkspaceData);
+        final ConfigurationValidator.ValidationResult validationResult = ConfigurationValidator.getInstance(project)
+                .validate(configuration.getServerUrl(), jenkins.getServerUrl());
         if (!validationResult.isValid()) {
             throw new ConfigurationException(validationResult.getFirstError());
         }
@@ -302,8 +303,8 @@ public class RequestManager implements RequestManagerInterface {
     }
 
     @Override
-    public void testAuthenticate(String serverUrl, String username, String password, String crumbData, JenkinsVersion version,
-                                 int connectionTimoutInSeconds) {
+    public String testAuthenticate(String serverUrl, String username, String password, String crumbData, JenkinsVersion version,
+                                   int connectionTimoutInSeconds) {
         SecurityClientFactory.setVersion(version);
         final int connectionTimout = getConnectionTimout(connectionTimoutInSeconds);
         final SecurityClient securityClientForTest;
@@ -312,7 +313,8 @@ public class RequestManager implements RequestManagerInterface {
         } else {
             securityClientForTest = SecurityClientFactory.none(crumbData, connectionTimout);
         }
-        securityClientForTest.connect(urlBuilder.createAuthenticationUrl(serverUrl));
+        final String serverData = securityClientForTest.connect(urlBuilder.createAuthenticationUrl(serverUrl));
+        return jsonParser.getServerUrl(serverData);
     }
 
     @Override

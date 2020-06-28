@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+@SuppressWarnings("java:S1192")
 public interface JenkinsParser {
     String SERVER_DESCRIPTION = "description";
     String SERVER_URL = "url";
@@ -82,4 +83,7 @@ public interface JenkinsParser {
 
     @NotNull
     Computer createComputer(String computerJson);
+
+    @NotNull
+    String getServerUrl(String serverData);
 }

@@ -87,7 +87,7 @@ public class UrlBuilderTest {
     @Test
     public void createAuthenticationJSONUrl() {
         URL url = urlBuilder.createAuthenticationUrl("http://localhost:8080/jenkins");
-        assertThat(url.toString()).isEqualTo("http://localhost:8080/jenkins/api/json?tree=nodeName");
+        assertThat(url.toString()).isEqualTo("http://localhost:8080/jenkins/api/json?tree=nodeName,url,description");
     }
 
     @Test

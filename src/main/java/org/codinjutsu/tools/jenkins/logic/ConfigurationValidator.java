@@ -7,8 +7,6 @@ import lombok.Builder;
 import lombok.Singular;
 import lombok.Value;
 import org.apache.commons.lang.StringUtils;
-import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
-import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.URL;
@@ -30,20 +28,22 @@ public class ConfigurationValidator {
     }
 
     @NotNull
-    public ValidationResult validate(@NotNull JenkinsAppSettings configuration, @NotNull Jenkins jenkins) {
-        final URL configuredUrl = urlBuilder.toUrl(configuration.getServerUrl());
-        final URL jenkinsUrl = urlBuilder.toUrl(jenkins.getServerUrl());
-        final URL configureUrl = urlBuilder.createConfigureUrl(configuration.getServerUrl());
+    public ValidationResult validate(@NotNull String configuredServerUrl, @NotNull String jenkinsUrlAsString) {
+        final URL configuredUrl = urlBuilder.toUrl(configuredServerUrl);
+        final URL jenkinsUrl = urlBuilder.toUrl(jenkinsUrlAsString);
+        final URL configureUrl = urlBuilder.createConfigureUrl(configuredServerUrl);
 
         final ValidationResult.ValidationResultBuilder validationResult = ValidationResult.builder();
-        validateProtocol(validationResult, configuredUrl, jenkinsUrl, configureUrl);
-        validateHost(validationResult, configuredUrl, jenkinsUrl, configureUrl);
-        validatePort(validationResult, configuredUrl, jenkinsUrl, configureUrl);
-        validatePath(validationResult, configuredUrl, jenkinsUrl, configureUrl);
+        if (configuredUrl != null && jenkinsUrl != null) {
+            validateProtocol(validationResult, configuredUrl, jenkinsUrl, configureUrl);
+            validateHost(validationResult, configuredUrl, jenkinsUrl, configureUrl);
+            validatePort(validationResult, configuredUrl, jenkinsUrl, configureUrl);
+            validatePath(validationResult, configuredUrl, jenkinsUrl, configureUrl);
+        }
         return validationResult.build();
     }
 
-    @NotNull
+    @SuppressWarnings("java:S1854")
     private void validatePort(@NotNull ValidationResult.ValidationResultBuilder validationResult,
                               @NotNull URL configuration, @NotNull URL jenkins, @NotNull URL configureUrl) {
         final int configuredPort = configuration.getPort();
@@ -55,7 +55,6 @@ public class ConfigurationValidator {
         }
     }
 
-    @NotNull
     private void validateHost(@NotNull ValidationResult.ValidationResultBuilder validationResult,
                               @NotNull URL configuration, @NotNull URL jenkins, @NotNull URL configureUrl) {
         if (!StringUtils.equals(configuration.getHost(), jenkins.getHost())) {
@@ -64,7 +63,6 @@ public class ConfigurationValidator {
         }
     }
 
-    @NotNull
     private void validateProtocol(@NotNull ValidationResult.ValidationResultBuilder validationResult,
                               @NotNull URL configuration, @NotNull URL jenkins, @NotNull URL configureUrl) {
         if (!StringUtils.equals(configuration.getProtocol(), jenkins.getProtocol())) {
@@ -73,7 +71,6 @@ public class ConfigurationValidator {
         }
     }
 
-    @NotNull
     private void validatePath(@NotNull ValidationResult.ValidationResultBuilder validationResult,
                               @NotNull URL configuration, @NotNull URL jenkins, @NotNull URL configureUrl) {
         if (!StringUtils.equals(configuration.getPath(), jenkins.getPath())) {

@@ -60,7 +60,7 @@ public class JenkinsJsonParser implements JenkinsParser {
         final String primaryViewUrl = primaryView.map(View::getUrl).orElse("");
 
         final String description = jsonObject.getStringOrDefault(createJsonKey(SERVER_DESCRIPTION, ""));
-        final String jenkinsUrl = jsonObject.getString(createJsonKey(SERVER_URL, primaryViewUrl));
+        final String jenkinsUrl = jsonObject.getStringOrDefault(createJsonKey(SERVER_URL, primaryViewUrl));
         final Jenkins jenkins = new Jenkins(description, jenkinsUrl);
         primaryView.ifPresent(jenkins::setPrimaryView);
 
@@ -383,6 +383,15 @@ public class JenkinsJsonParser implements JenkinsParser {
     public Computer createComputer(String computerJson) {
         checkJsonDataAndThrowExceptionIfNecessary(computerJson);
         return getComputer(parseJson(computerJson));
+    }
+
+    @NotNull
+    @Override
+    public String getServerUrl(String serverData) {
+        checkJsonDataAndThrowExceptionIfNecessary(serverData);
+        final JsonObject jsonObject = parseJson(serverData);
+        //final String description = jsonObject.getStringOrDefault(createJsonKey(SERVER_DESCRIPTION, ""));
+        return jsonObject.getString(createJsonKey(SERVER_URL, ""));
     }
 
     @NotNull
