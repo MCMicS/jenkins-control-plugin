@@ -8,5 +8,6 @@
         <buildParameterRenderer implementation="org.codinjutsu.tools.jenkins.view.parameter.NodeParameterRenderer" />
         <buildParameterRenderer implementation="org.codinjutsu.tools.jenkins.view.parameter.HiddenParameterRenderer" />
         <buildParameterRenderer implementation="org.codinjutsu.tools.jenkins.view.parameter.PatchParameterRenderer" />
+        <buildParameterRenderer implementation="org.codinjutsu.tools.jenkins.view.parameter.GitParameterRenderer" />
     </extensions>
 </idea-plugin>

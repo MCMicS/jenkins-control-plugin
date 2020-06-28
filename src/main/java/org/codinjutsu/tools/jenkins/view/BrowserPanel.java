@@ -400,21 +400,22 @@ public class BrowserPanel extends SimpleToolWindowPanel {
     }
 
     public void handleEmptyConfiguration() {
-        JenkinsWidget.getInstance(project).updateStatusIcon(BuildStatusAggregator.EMPTY); //FIXME could be handled elsehwere
-        DefaultTreeModel model = (DefaultTreeModel) jobTree.getModel();
-        DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
-        root.removeAllChildren();
-        model.nodeStructureChanged(root);
-        jobTree.setRootVisible(false);
-
-        jenkins.update(Jenkins.byDefault());
-
         currentSelectedView = null;
         setJobsUnavailable();
     }
 
     public void setJobsUnavailable() {
+        clearView();
+        jobTree.setRootVisible(false);
         jobTree.getEmptyText().setText(UNAVAILABLE);
+    }
+
+    private void clearView() {
+        DefaultTreeModel model = (DefaultTreeModel) jobTree.getModel();
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
+        root.removeAllChildren();
+        model.reload();
+        JenkinsWidget.getInstance(project).updateStatusIcon(BuildStatusAggregator.EMPTY);
     }
 
     public void postAuthenticationInitialization() {
@@ -523,13 +524,10 @@ public class BrowserPanel extends SimpleToolWindowPanel {
 
     private void fillJobTree(final BuildStatusVisitor buildStatusVisitor) {
         final List<Job> jobList = jenkins.getJobs();
-        if (jobList.isEmpty()) {
-            return;
-        }
-
         final TreeModel model = jobTree.getModel();
         final DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) model.getRoot();
         rootNode.removeAllChildren();
+
         jobList.stream().map(BrowserPanel::createJobTree).forEach(rootNode::add);
         CollectionUtil.flattenedJobs(jobList).forEach(job -> visit(job, buildStatusVisitor));
         watch();
