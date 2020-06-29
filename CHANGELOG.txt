@@ -1,4 +1,7 @@
 Version 0.13.6
+    * tbd
+
+Version 0.13.6
     * #225 Git Branch Parameter is unsupported
     * #227 Jenkins invalid configuration causes AuthenticationException and UI not respond correctly to this
 
