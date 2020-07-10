@@ -1,5 +1,5 @@
 Version 0.13.6
-    * tbd
+    * #232 PersistentStringParameter not supported
 
 Version 0.13.6
     * #225 Git Branch Parameter is unsupported
