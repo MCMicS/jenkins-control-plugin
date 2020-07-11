@@ -16,16 +16,14 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
+import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
-import com.intellij.openapi.wm.ToolWindowManager;
-import com.intellij.ui.BrowserHyperlinkListener;
 import com.intellij.ui.PopupHandler;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.TreeSpeedSearch;
@@ -36,56 +34,25 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
-import org.codinjutsu.tools.jenkins.JenkinsToolWindowFactory;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
-import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
-import org.codinjutsu.tools.jenkins.logic.BuildStatusVisitor;
-import org.codinjutsu.tools.jenkins.logic.ExecutorService;
-import org.codinjutsu.tools.jenkins.logic.JenkinsLoadingTaskOption;
-import org.codinjutsu.tools.jenkins.logic.JobNameComparator;
-import org.codinjutsu.tools.jenkins.logic.RequestManager;
-import org.codinjutsu.tools.jenkins.model.Build;
-import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
-import org.codinjutsu.tools.jenkins.model.FavoriteView;
-import org.codinjutsu.tools.jenkins.model.Jenkins;
-import org.codinjutsu.tools.jenkins.model.Job;
-import org.codinjutsu.tools.jenkins.model.View;
+import org.codinjutsu.tools.jenkins.logic.*;
+import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.util.CollectionUtil;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
-import org.codinjutsu.tools.jenkins.view.action.GotoAllureReportPageAction;
-import org.codinjutsu.tools.jenkins.view.action.GotoBuildConsolePageAction;
-import org.codinjutsu.tools.jenkins.view.action.GotoBuildPageAction;
-import org.codinjutsu.tools.jenkins.view.action.GotoBuildTestResultsPageAction;
-import org.codinjutsu.tools.jenkins.view.action.GotoJobPageAction;
-import org.codinjutsu.tools.jenkins.view.action.GotoLastBuildPageAction;
-import org.codinjutsu.tools.jenkins.view.action.LoadBuildsAction;
-import org.codinjutsu.tools.jenkins.view.action.OpenPluginSettingsAction;
-import org.codinjutsu.tools.jenkins.view.action.RefreshNodeAction;
-import org.codinjutsu.tools.jenkins.view.action.RefreshRssAction;
-import org.codinjutsu.tools.jenkins.view.action.RunBuildAction;
-import org.codinjutsu.tools.jenkins.view.action.SelectViewAction;
-import org.codinjutsu.tools.jenkins.view.action.SetJobAsFavoriteAction;
-import org.codinjutsu.tools.jenkins.view.action.ShowLogAction;
-import org.codinjutsu.tools.jenkins.view.action.StopBuildAction;
-import org.codinjutsu.tools.jenkins.view.action.UnsetJobAsFavoriteAction;
-import org.codinjutsu.tools.jenkins.view.action.UploadPatchToJobAction;
+import org.codinjutsu.tools.jenkins.view.action.*;
 import org.codinjutsu.tools.jenkins.view.action.settings.SortByStatusAction;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
-import java.awt.BorderLayout;
-import java.util.Comparator;
-import java.util.Enumeration;
+import java.awt.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -363,17 +330,11 @@ public class BrowserPanel extends SimpleToolWindowPanel {
     }
 
     public void notifyInfoJenkinsToolWindow(@NotNull String htmlLinkMessage) {
-        ToolWindowManager.getInstance(project).notifyByBalloon(
-                JenkinsToolWindowFactory.JENKINS_BROWSER,
-                MessageType.INFO,
-                htmlLinkMessage,
-                null,
-                new BrowserHyperlinkListener());
+        JenkinsNotifier.getInstance(project).notify(htmlLinkMessage, NotificationType.INFORMATION);
     }
 
     public void notifyErrorJenkinsToolWindow(@NotNull String message) {
-        GuiUtil.runInSwingThread(() -> ToolWindowManager.getInstance(project).notifyByBalloon(
-                JenkinsToolWindowFactory.JENKINS_BROWSER, MessageType.ERROR, message));
+        JenkinsNotifier.getInstance(project).error(message);
     }
 
     private Tree createTree() {
