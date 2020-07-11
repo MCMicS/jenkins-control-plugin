@@ -1,7 +1,7 @@
 {
     "name":"config-provider-model",
     "displayName":"config-provider-model",
-    "fullDisplayName":"config-provider-model",
+    "fullDisplayName":"config-provider-model-full",
     "url":"http://ci.jenkins-ci.org/job/config-provider-model/",
     "color":"blue",
     "healthReport":[

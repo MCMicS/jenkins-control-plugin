@@ -222,6 +222,19 @@ public class JenkinsJsonParserTest {
         Job actualJob = jsonParser.createJob(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadJob.json")));
         final Job expectedJob = new JobBuilder()
                 .job("config-provider-model", "blue", "http://ci.jenkins-ci.org/job/config-provider-model/", false, true)
+                .fullDisplayName("config-provider-model")
+                .lastBuild("http://ci.jenkins-ci.org/job/config-provider-model/8/", 8, "SUCCESS", false, "2012-04-02_16-26-29", 1477640156281l, 4386421l)
+                .health("health-80plus", "0 tests en echec sur un total de 24 tests")
+                .get();
+        assertThat(actualJob).isEqualTo(expectedJob);
+    }
+
+    @Test
+    public void testLoadJobWithFullDisplayName() throws Exception {
+        Job actualJob = jsonParser.createJob(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadJobWithFullDisplayName.json")));
+        final Job expectedJob = new JobBuilder()
+                .job("config-provider-model", "blue", "http://ci.jenkins-ci.org/job/config-provider-model/", false, true)
+                .fullDisplayName("config-provider-model-full")
                 .lastBuild("http://ci.jenkins-ci.org/job/config-provider-model/8/", 8, "SUCCESS", false, "2012-04-02_16-26-29", 1477640156281l, 4386421l)
                 .health("health-80plus", "0 tests en echec sur un total de 24 tests")
                 .get();
@@ -246,8 +259,9 @@ public class JenkinsJsonParserTest {
                 .job("Simple Jenkins Test", "yellow", "http://localhost:8080/job/Simple%20Jenkins%20Test/", false, true)
                 .lastBuild(lastBuild)
                 .health("health-40to59", "Testergebnis: 1 Test von 2 Tests fehlgeschlagen.")
-                .displayName("Parent -> Simple Jenkins Test")
+                .displayName("Simple Jenkins Test")
                 .fullName("Parent/Simple Jenkins Test")
+                .fullDisplayName("Parent -> Simple Jenkins Test")
                 .get();
         assertThat(actualJob).isEqualTo(expected);
     }
