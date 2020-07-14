@@ -1,5 +1,6 @@
 Version 0.13.6
     * #232 PersistentStringParameter not supported
+    * #234 Can't seem to connect to my jenkins server with the latest version 0.13.6-2020.1
 
 Version 0.13.6
     * #225 Git Branch Parameter is unsupported
