@@ -18,9 +18,7 @@ package org.codinjutsu.tools.jenkins.security;
 
 import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.multipart.FilePart;
 import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
@@ -32,6 +30,7 @@ import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.model.FileParameter;
 import org.codinjutsu.tools.jenkins.model.RequestData;
 import org.codinjutsu.tools.jenkins.model.VirtualFilePartSource;
+import org.codinjutsu.tools.jenkins.util.HtmlUtil;
 import org.codinjutsu.tools.jenkins.util.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -47,12 +46,10 @@ import java.util.Collection;
 class DefaultSecurityClient implements SecurityClient {
 
     private static final String BAD_CRUMB_DATA = "No valid crumb was included in the request";
-
+    protected final HttpClient httpClient;
+    private final int connectionTimout;
     protected String crumbData;
     protected JenkinsVersion jenkinsVersion = JenkinsVersion.VERSION_1;
-    private final int connectionTimout;
-
-    protected final HttpClient httpClient;
 
     DefaultSecurityClient(String crumbData, int connectionTimout) {
         this.httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
@@ -122,12 +119,14 @@ class DefaultSecurityClient implements SecurityClient {
             if (isRedirection(statusCode)) {
                 responseCollector.collect(statusCode, post.getResponseHeader("Location").getValue());
             }
-        } catch (HttpException httpEx) {
-            throw new ConfigurationException(String.format("HTTP Error during method execution '%s': %s", url, httpEx.getMessage()), httpEx);
         } catch (UnknownHostException uhEx) {
             throw new ConfigurationException(String.format("Unknown server: %s", uhEx.getMessage()), uhEx);
+        } catch (HttpException httpEx) {
+            throw new ConfigurationException(String.format("HTTP Error during method execution [%s] for URL '%s'",
+                    httpEx.getMessage(), createUrlForNotification(post)), httpEx);
         } catch (IOException ioEx) {
-            throw new ConfigurationException(String.format("IO Error during method execution '%s': %s", url, ioEx.getMessage()), ioEx);
+            throw new ConfigurationException(String.format("IO Error during method execution [%s] for URL '%s'",
+                    ioEx.getMessage(), createUrlForNotification(post)), ioEx);
         } finally {
             post.releaseConnection();
         }
@@ -160,6 +159,26 @@ class DefaultSecurityClient implements SecurityClient {
         return StringUtils.isNotBlank(crumbData);
     }
 
+    public void setJenkinsVersion(JenkinsVersion jenkinsVersion) {
+        this.jenkinsVersion = jenkinsVersion;
+    }
+
+    protected final String createUrlForNotification(@NotNull String url) {
+        int startQueryParamtersIndex = url.indexOf('?');
+        if (startQueryParamtersIndex != -1) {
+            return HtmlUtil.wrapUrl(url.substring(0, startQueryParamtersIndex), url);
+        }
+        return HtmlUtil.wrapUrl(url, url);
+    }
+
+    protected final String createUrlForNotification(HttpMethodBase httpMethod) {
+        try {
+            return createUrlForNotification(httpMethod.getURI().toString());
+        } catch (URIException e) {
+            throw new ConfigurationException(String.format("Invalid URI: %s", e.getMessage()), e);
+        }
+    }
+
     private static class ResponseCollector {
 
         private int statusCode;
@@ -170,9 +189,5 @@ class DefaultSecurityClient implements SecurityClient {
             this.data = body;
         }
 
-    }
-
-    public void setJenkinsVersion(JenkinsVersion jenkinsVersion) {
-        this.jenkinsVersion = jenkinsVersion;
     }
 }

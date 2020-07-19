@@ -22,6 +22,10 @@ public class HtmlUtil {
     }
 
     public static String createHtmlLinkMessage(String linkLabel, String linkUrl) {
-        return "<html><a href='" + linkUrl + "'>" + linkLabel + "</a></html>";
+        return "<html>" + wrapUrl(linkLabel, linkUrl) + "</html>";
+    }
+
+    public static String wrapUrl(String linkLabel, String linkUrl) {
+        return "<a href='" + linkUrl + "'>" + linkLabel + "</a>";
     }
 }

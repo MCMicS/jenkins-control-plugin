@@ -1,6 +1,7 @@
-Version 0.13.6
+Version 0.13.7
     * #232 PersistentStringParameter not supported
     * #234 Can't seem to connect to my jenkins server with the latest version 0.13.6-2020.1
+    * #233 Error overlay over whole of screen if connection is lost. Add Notification group to configure the behaviour in IDE settings.
 
 Version 0.13.6
     * #225 Git Branch Parameter is unsupported

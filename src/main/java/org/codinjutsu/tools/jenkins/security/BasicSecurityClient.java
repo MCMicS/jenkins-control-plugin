@@ -16,7 +16,6 @@
 
 package org.codinjutsu.tools.jenkins.security;
 
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -78,10 +77,8 @@ class BasicSecurityClient extends DefaultSecurityClient {
                 checkResponse(responseCode, responseBody);
             }
             return responseBody;
-        } catch (HttpException httpEx) {
-            throw new ConfigurationException(String.format("HTTP Error during method execution '%s': %s", jenkinsUrl.toString(), httpEx.getMessage()), httpEx);
         } catch (IOException ioEx) {
-            throw new ConfigurationException(String.format("IO Error during method execution '%s': %s", jenkinsUrl.toString(), ioEx.getMessage()), ioEx);
+            throw new ConfigurationException(String.format("Error during authentication: %s", ioEx.getMessage()), ioEx);
         } finally {
             post.releaseConnection();
         }
