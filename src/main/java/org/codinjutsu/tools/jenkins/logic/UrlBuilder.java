@@ -42,7 +42,7 @@ public class UrlBuilder {
     private static final String BASIC_JOB_INFO = "name,fullName,displayName,fullDisplayName,jobs,url,color,buildable,inQueue,healthReport[description,iconUrl],lastBuild[" + BASIC_BUILD_INFO + "],property[parameterDefinitions[name,type,defaultParameterValue[value],description,choices]]";
     private static final String BASIC_VIEW_INFO = "name,url,jobs[" + BASIC_JOB_INFO + "]";
     private static final String CLOUDBEES_VIEW_INFO = "name,url,views[jobs[" + BASIC_JOB_INFO + "]]";
-    private static final String TEST_CONNECTION_REQUEST = "?tree=nodeName,url,description";
+    private static final String TEST_CONNECTION_REQUEST = "?tree=nodeName,url,description,primaryView[name,url]";
     private static final String BASIC_BUILDS_INFO = "builds[" + BASIC_BUILD_INFO + "]";
     private static final String NESTED_JOBS_INFO = "name,url,displayName,fullDisplayName,jobs[" + BASIC_JOB_INFO + "]";
     private static final String COMPUTER = "/computer";
@@ -149,7 +149,7 @@ public class UrlBuilder {
 
     public URL createAuthenticationUrl(String serverUrl) {
         try {
-            return new URL(serverUrl + API_JSON + TEST_CONNECTION_REQUEST);
+            return new URL(serverUrl + URIUtil.encodePathQuery(API_JSON + TEST_CONNECTION_REQUEST));
         } catch (Exception ex) {
             handleException(ex);
         }
@@ -214,7 +214,8 @@ public class UrlBuilder {
         return null;
     }
 
-    private String removeTrailingSlash(@NotNull String url) {
+    @NotNull
+    public String removeTrailingSlash(@NotNull String url) {
         final String withoutTrailingSlash;
         if (url.endsWith("/")) {
             withoutTrailingSlash = url.substring(0, url.length() - 1);

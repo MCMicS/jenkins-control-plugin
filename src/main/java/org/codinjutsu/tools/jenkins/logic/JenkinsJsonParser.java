@@ -57,10 +57,9 @@ public class JenkinsJsonParser implements JenkinsParser {
         checkJsonDataAndThrowExceptionIfNecessary(jsonData);
         final JsonObject jsonObject = parseJson(jsonData);
         final Optional<View> primaryView = Optional.ofNullable((JsonObject) jsonObject.get(PRIMARY_VIEW)).map(this::getView);
-        final String primaryViewUrl = primaryView.map(View::getUrl).orElse("");
 
         final String description = jsonObject.getStringOrDefault(createJsonKey(SERVER_DESCRIPTION, ""));
-        final String jenkinsUrl = jsonObject.getStringOrDefault(createJsonKey(SERVER_URL, primaryViewUrl));
+        final String jenkinsUrl = getServerUrl(jsonObject);
         final Jenkins jenkins = new Jenkins(description, jenkinsUrl);
         primaryView.ifPresent(jenkins::setPrimaryView);
 
@@ -391,7 +390,17 @@ public class JenkinsJsonParser implements JenkinsParser {
         checkJsonDataAndThrowExceptionIfNecessary(serverData);
         final JsonObject jsonObject = parseJson(serverData);
         //final String description = jsonObject.getStringOrDefault(createJsonKey(SERVER_DESCRIPTION, ""));
-        return jsonObject.getString(createJsonKey(SERVER_URL, ""));
+
+        final Optional<View> primaryView = Optional.ofNullable((JsonObject) jsonObject.get(PRIMARY_VIEW)).map(this::getView);
+        final String primaryViewUrl = primaryView.map(View::getUrl).orElse("");
+        return jsonObject.getStringOrDefault(createJsonKey(SERVER_URL, primaryViewUrl));
+    }
+
+    @NotNull
+    private String getServerUrl(JsonObject jsonObject) {
+        final Optional<View> primaryView = Optional.ofNullable((JsonObject) jsonObject.get(PRIMARY_VIEW)).map(this::getView);
+        final String primaryViewUrl = primaryView.map(View::getUrl).orElse("");
+        return jsonObject.getStringOrDefault(createJsonKey(SERVER_URL, primaryViewUrl));
     }
 
     @NotNull
