@@ -214,7 +214,8 @@ public class UrlBuilder {
         return null;
     }
 
-    private String removeTrailingSlash(@NotNull String url) {
+    @NotNull
+    public String removeTrailingSlash(@NotNull String url) {
         final String withoutTrailingSlash;
         if (url.endsWith("/")) {
             withoutTrailingSlash = url.substring(0, url.length() - 1);
