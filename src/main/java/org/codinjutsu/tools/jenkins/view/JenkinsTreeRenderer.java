@@ -24,14 +24,18 @@ import com.intellij.util.text.DateFormatUtil;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Delegate;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 import java.util.Optional;
-import java.util.OptionalLong;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -48,17 +52,18 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
     @Override
     public void customizeCellRenderer(@NotNull JTree tree, Object value, boolean selected, boolean expanded,
                                       boolean leaf, int row, boolean hasFocus) {
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
+        getUserObject(value).ifPresent(userObject -> render(userObject, getNode(value).map(DefaultMutableTreeNode::getParent)));
+    }
 
-        final Object userObject = node.getUserObject();
+    private void render(@NotNull Object userObject, @NotNull Optional<TreeNode> parent) {
         if (userObject instanceof Jenkins) {
             Jenkins jenkins = (Jenkins) userObject;
             append(buildLabel(jenkins), SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
             setToolTipText(jenkins.getServerUrl());
             setIcon(AllIcons.Webreferences.Server);
         } else if (userObject instanceof Job) {
-            Job job = (Job) node.getUserObject();
-            append(buildLabel(job), getAttribute(job));
+            Job job = (Job) userObject;
+            append(buildLabel(job, parent.flatMap(this::getUserObject)), getAttribute(job));
             setToolTipText(job.getHealthDescription());
             if (favoriteJobDetector.isFavoriteJob(job)) {
                 setIcon(new CompositeIcon(getBuildStatusColor(job), job.getHealthIcon(), FAVORITE_ICON));
@@ -66,10 +71,21 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
                 setIcon(new CompositeIcon(getBuildStatusColor(job), job.getHealthIcon()));
             }
         } else if (userObject instanceof Build) {
-            Build build = (Build) node.getUserObject();
+            Build build = (Build) userObject;
             append(buildLabel(build), SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
             setIcon(new CompositeIcon(getBuildStatusColor(build)));
         }
+    }
+
+    @NotNull
+    private Optional<DefaultMutableTreeNode> getNode(@Nullable Object value) {
+        return Optional.ofNullable(value).filter(DefaultMutableTreeNode.class::isInstance)
+                .map(DefaultMutableTreeNode.class::cast);
+    }
+
+    @NotNull
+    private Optional<Object> getUserObject(@Nullable Object value) {
+        return getNode(value).map(DefaultMutableTreeNode::getUserObject);
     }
 
     @NotNull
@@ -109,20 +125,35 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
     }
 
     @NotNull
-    public static String buildLabel(Job job) {
+    public static String buildLabel(Job job, Optional<Object> parentUserObject) {
+        final Function<Job, String> jobNameRenderer;
+        final Function<Build, String> buildNameRenderer;
+        if (parentUserObject.filter(Job.class::isInstance).isPresent()) {
+            jobNameRenderer = Job::preferDisplayName;
+            buildNameRenderer = build -> StringUtils.EMPTY;
+        } else {
+            jobNameRenderer = Job::getNameToRenderSingleJob;
+            buildNameRenderer = Build::getFullDisplayName;
+        }
+        return buildLabel(job, jobNameRenderer, buildNameRenderer);
+    }
+
+    @NotNull
+    public static String buildLabel(Job job, Function<Job, String> jobName, Function<Build, String> buildName) {
         Build build = job.getLastBuild();
         if (build == null) {
-            return job.getName();
+            return jobName.apply(job);
         }
         String status = "";
         if (job.isInQueue()) {
-            status = " (in queue)";
+            status = "(in queue)";
         } else if (build.isBuilding()) {
-            status = " (running)";
+            status = "(running)";
         }
-        final String buildName = Optional.ofNullable(build.getFullDisplayName())
-                .orElseGet(() -> String.format("%s %s", job.getName(), build.getDisplayNumber()));
-        return String.format("%s%s", buildName, status);
+        final String renderedValue = Optional.ofNullable(buildName.apply(build))
+                .filter(Predicate.not(StringUtils::isEmpty))
+                .orElseGet(() -> String.format("%s %s", jobName.apply(job), build.getDisplayNumber()));
+        return String.format("%s %s", renderedValue, status);
     }
 
 

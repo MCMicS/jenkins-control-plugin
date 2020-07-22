@@ -47,7 +47,7 @@ public final class RunBuildWithPatch {
                          @NotNull Consumer<String> errorNotifier) {
         if (!job.hasParameter(RunBuildWithPatch.PARAMETER_NAME)) {
             errorNotifier.accept(String.format("Job \"%s\" should has parameter with name \"%s\"",
-                    job.getName(), RunBuildWithPatch.PARAMETER_NAME));
+                    job.getNameToRenderSingleJob(), RunBuildWithPatch.PARAMETER_NAME));
         }
         try {
             final JenkinsAppSettings settings = JenkinsAppSettings.getSafeInstance(project);
@@ -70,7 +70,7 @@ public final class RunBuildWithPatch {
     VirtualFile prepareFile(BrowserPanel browserPanel, @NotNull VirtualFile file,
                             JenkinsAppSettings settings, Job job) throws IOException {
         if (file.exists()) {
-            final String suffix = settings.getSuffix().replace(SUFFIX_JOB_NAME_MACROS, job.getName());
+            final String suffix = settings.getSuffix().replace(SUFFIX_JOB_NAME_MACROS, job.getNameToRenderSingleJob());
             final String preparedContent = prepareFileContent(file, suffix);
 
             WriteAction.run(() -> {
@@ -156,7 +156,7 @@ public final class RunBuildWithPatch {
 
         private void notifyOnGoingMessage(Job job) {
             browserPanel.notifyInfoJenkinsToolWindow(HtmlUtil.createHtmlLinkMessage(
-                    job.getName() + " build is on going", job.getUrl()));
+                    job.getNameToRenderSingleJob() + " build is on going", job.getUrl()));
         }
     }
 }

@@ -52,7 +52,7 @@ public class TraceableBuildJob implements Runnable {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(job.getName(), job.getUrl());
+        return Objects.hashCode(job.getNameToRenderSingleJob(), job.getUrl());
     }
 
     @Override

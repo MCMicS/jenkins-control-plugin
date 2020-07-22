@@ -69,7 +69,7 @@ public class BrowserPanel extends SimpleToolWindowPanel {
     private static final String LOADING = "Loading...";
     private static final JobNameComparator JOB_NAME_COMPARATOR = new JobNameComparator();
     private static final Comparator<Job> sortByStatusComparator = Comparator.comparing(BrowserPanel::toBuildStatus);
-    private static final Comparator<Job> sortByNameComparator = Comparator.comparing(Job::getName, JOB_NAME_COMPARATOR);
+    private static final Comparator<Job> sortByNameComparator = Comparator.comparing(Job::getNameToRenderSingleJob, JOB_NAME_COMPARATOR);
     private final Tree jobTree;
     private final Runnable refreshViewJob;
     private final Project project;
@@ -236,7 +236,7 @@ public class BrowserPanel extends SimpleToolWindowPanel {
 
     @NotNull
     public Optional<Job> getJob(String name) {
-        return getAllJobs().stream().filter(job -> job.getName().equals(name)).findFirst();
+        return getAllJobs().stream().filter(job -> job.getNameToRenderSingleJob().equals(name)).findFirst();
     }
 
     public void setSortedByStatus(boolean sortedByBuildStatus) {
@@ -352,7 +352,7 @@ public class BrowserPanel extends SimpleToolWindowPanel {
             final DefaultMutableTreeNode node = (DefaultMutableTreeNode) treePath.getLastPathComponent();
             final Object userObject = node.getUserObject();
             if (userObject instanceof Job) {
-                return ((Job) userObject).getName();
+                return ((Job) userObject).getNameToRenderSingleJob();
             }
             return "<empty>";
         });
@@ -539,14 +539,12 @@ public class BrowserPanel extends SimpleToolWindowPanel {
     }
 
     public void addToWatch(String changeListName, Job job) {
-        JenkinsAppSettings settings = JenkinsAppSettings.getSafeInstance(project);
-
         final Build lastBuild = job.getLastBuild();
         if (lastBuild != null) {
             final int nextBuildNumber = lastBuild.getNumber() + 1;
             final Build nextBuild = lastBuild.toBuilder()
                     .number(nextBuildNumber)
-                    .url(settings.getServerUrl() + String.format("/job/%s/%d/", job.getName(), nextBuildNumber))
+                    .url(String.format("%s/%d/", job.getUrl(), nextBuildNumber))
                     .build();
             job.setLastBuild(nextBuild);
         }
