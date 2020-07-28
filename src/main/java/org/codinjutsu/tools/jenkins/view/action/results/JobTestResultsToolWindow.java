@@ -65,7 +65,7 @@ public class JobTestResultsToolWindow {
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
         }
-        showInToolWindow(consoleView, job.getName());
+        showInToolWindow(consoleView, job.getNameToRenderSingleJob());
         processHandler.startNotify();
     }
 

@@ -32,6 +32,7 @@ public class JobBuilder {
         jobBuilder.name(jobName).color(jobColor).url(jobUrl).inQueue(inQueue).buildable(buildable);
         jobBuilder.displayName(jobName);
         jobBuilder.fullName(jobName);
+        //jobBuilder.fullDisplayName(jobName);
         return this;
     }
 
@@ -42,6 +43,11 @@ public class JobBuilder {
 
     public JobBuilder fullName(@NotNull String fullName) {
         jobBuilder.fullName(fullName);
+        return this;
+    }
+
+    public JobBuilder fullDisplayName(@NotNull String fullDisplayName) {
+        jobBuilder.fullDisplayName(fullDisplayName);
         return this;
     }
 

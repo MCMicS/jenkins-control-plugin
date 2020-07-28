@@ -42,11 +42,11 @@ public class NoJobFoundException extends RuntimeException {
     @NotNull
     private static String createMessage(@NotNull Job job, @Nullable String cause) {
         return MessageFormat.format("Could not find Job data for: {0} [{1}].\nCause: {2}",
-                job.getName(), job.getUrl(), cause);
+                job.getNameToRenderSingleJob(), job.getUrl(), cause);
     }
 
     @NotNull
     private static String createMessage(@NotNull Job job) {
-        return MessageFormat.format("Could not find Job data for: {0} [{1}]", job.getName(), job.getUrl());
+        return MessageFormat.format("Could not find Job data for: {0} [{1}]", job.getNameToRenderSingleJob(), job.getUrl());
     }
 }
