@@ -26,14 +26,13 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.PopupHandler;
 import com.intellij.ui.ScrollPaneFactory;
-import com.intellij.ui.TreeSpeedSearch;
-import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
+import org.codinjutsu.tools.jenkins.JenkinsTree;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.logic.*;
 import org.codinjutsu.tools.jenkins.model.*;
@@ -66,7 +65,6 @@ public class BrowserPanel extends SimpleToolWindowPanel {
     public static final String JENKINS_PANEL_PLACE = "jenkinsBrowserActions";
     private static final Logger logger = Logger.getLogger(BrowserPanel.class);
     private static final String UNAVAILABLE = "No Jenkins server available";
-    private static final String LOADING = "Loading...";
     private static final JobNameComparator JOB_NAME_COMPARATOR = new JobNameComparator();
     private static final Comparator<Job> sortByStatusComparator = Comparator.comparing(BrowserPanel::toBuildStatus);
     private static final Comparator<Job> sortByNameComparator = Comparator.comparing(Job::getNameToRenderSingleJob, JOB_NAME_COMPARATOR);
@@ -76,8 +74,8 @@ public class BrowserPanel extends SimpleToolWindowPanel {
     private final JenkinsAppSettings jenkinsAppSettings;
     @NotNull
     private final JenkinsSettings jenkinsSettings;
-    private final RequestManager requestManager;
     private final Jenkins jenkins;
+    private final RequestManager requestManager;
     private final Map<String, Job> watchedJobs = new ConcurrentHashMap<>();
     private JPanel rootPanel;
     private JPanel jobPanel;
@@ -98,8 +96,7 @@ public class BrowserPanel extends SimpleToolWindowPanel {
         setProvideQuickActions(false);
 
         jenkins = Jenkins.byDefault();
-        jobTree = createTree();
-
+        jobTree = new JenkinsTree(project, jenkinsSettings, jenkins);
 
         jobPanel.setLayout(new BorderLayout());
         jobPanel.add(ScrollPaneFactory.createScrollPane(jobTree), BorderLayout.CENTER);
@@ -335,29 +332,6 @@ public class BrowserPanel extends SimpleToolWindowPanel {
 
     public void notifyErrorJenkinsToolWindow(@NotNull String message) {
         JenkinsNotifier.getInstance(project).error(message);
-    }
-
-    private Tree createTree() {
-        SimpleTree tree = new SimpleTree();
-        tree.getEmptyText().setText(LOADING);
-        tree.setCellRenderer(new JenkinsTreeRenderer(jenkinsSettings::isFavoriteJob,
-                BuildStatusEnumRenderer.getInstance(project)));
-        tree.setName("jobTree");
-        tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode(jenkins), false));
-        //final JobTreeHandler jobTreeHandler = new JobTreeHandler(project);
-        //tree.addTreeWillExpandListener(jobTreeHandler);
-        tree.addMouseListener(new JobClickHandler());
-
-        new TreeSpeedSearch(tree, treePath -> {
-            final DefaultMutableTreeNode node = (DefaultMutableTreeNode) treePath.getLastPathComponent();
-            final Object userObject = node.getUserObject();
-            if (userObject instanceof Job) {
-                return ((Job) userObject).getNameToRenderSingleJob();
-            }
-            return "<empty>";
-        });
-
-        return tree;
     }
 
     public void handleEmptyConfiguration() {
