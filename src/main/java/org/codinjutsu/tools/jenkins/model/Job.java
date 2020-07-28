@@ -113,13 +113,13 @@ public class Job {
 
     @NotNull
     public String getNameToRenderSingleJob() {
-        return Optional.ofNullable(getFullDisplayName()).filter(Predicate.not(StringUtils::isEmpty))
+        return Optional.ofNullable(getFullDisplayName()).filter(s -> !StringUtils.isEmpty(s))
                 .orElseGet(this::preferDisplayName);
     }
 
     @NotNull
     public String preferDisplayName() {
-        return Optional.ofNullable(getDisplayName()).filter(Predicate.not(StringUtils::isEmpty))
+        return Optional.ofNullable(getDisplayName()).filter(s -> !StringUtils.isEmpty(s))
                 .orElseGet(this::getName);
     }
 

@@ -46,6 +46,7 @@
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.view.BuildStatusEnumRenderer"/>
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.RunBuildWithPatch"/>
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.ConfigurationValidator"/>
+        <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.JenkinsNotifier"/>
 
         <postStartupActivity implementation="org.codinjutsu.tools.jenkins.StartupJenkinsService" />
 

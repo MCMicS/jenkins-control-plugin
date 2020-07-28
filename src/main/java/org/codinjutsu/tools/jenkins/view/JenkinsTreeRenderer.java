@@ -151,7 +151,7 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
             status = "(running)";
         }
         final String renderedValue = Optional.ofNullable(buildName.apply(build))
-                .filter(Predicate.not(StringUtils::isEmpty))
+                .filter(s -> !StringUtils.isEmpty(s))
                 .orElseGet(() -> String.format("%s %s", jobName.apply(job), build.getDisplayNumber()));
         return String.format("%s %s", renderedValue, status);
     }
