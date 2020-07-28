@@ -9,6 +9,7 @@ Version 0.13.8
     * Add Notification group to configure the behaviour in IDE settings.
     * Fix: regression: remove trailing Slash for URL Validation
     * #230: jobs in folders: job name too long
+    * #231: jobs in folders: collapsed after refresh
 
 Version 0.13.6
     * #225 Git Branch Parameter is unsupported
