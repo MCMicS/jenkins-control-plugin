@@ -9,5 +9,7 @@
         <buildParameterRenderer implementation="org.codinjutsu.tools.jenkins.view.parameter.HiddenParameterRenderer" />
         <buildParameterRenderer implementation="org.codinjutsu.tools.jenkins.view.parameter.PatchParameterRenderer" />
         <buildParameterRenderer implementation="org.codinjutsu.tools.jenkins.view.parameter.GitParameterRenderer" />
+        <buildParameterRenderer
+                implementation="org.codinjutsu.tools.jenkins.view.parameter.PersistentParameterRenderer"/>
     </extensions>
 </idea-plugin>

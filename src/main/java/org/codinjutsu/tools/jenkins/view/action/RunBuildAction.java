@@ -75,7 +75,7 @@ public class RunBuildAction extends AnAction implements DumbAware {
 
     private void notifyOnGoingMessage(BrowserPanel browserPanel, Job job) {
         browserPanel.notifyInfoJenkinsToolWindow(HtmlUtil.createHtmlLinkMessage(
-                job.getName() + " build is on going",
+                job.getNameToRenderSingleJob() + " build is on going",
                 job.getUrl()));
     }
 
@@ -85,7 +85,7 @@ public class RunBuildAction extends AnAction implements DumbAware {
             @Override
             public void onSuccess() {
                 ExecutorService.getInstance(project).getExecutor().schedule(() -> GuiUtil.runInSwingThread(() -> {
-                    final Optional<Job> newJob = browserPanel.getJob(job.getName());
+                    final Optional<Job> newJob = browserPanel.getJob(job.getNameToRenderSingleJob());
                     newJob.ifPresent(browserPanel::loadJob);
                 }), BUILD_STATUS_UPDATE_DELAY, TimeUnit.SECONDS);
             }
@@ -103,7 +103,7 @@ public class RunBuildAction extends AnAction implements DumbAware {
                         }
 
                         public void notifyOnError(Job job, Throwable ex) {
-                            browserPanel.notifyErrorJenkinsToolWindow("Build '" + job.getName() + "' cannot be run: " + ex.getMessage());
+                            browserPanel.notifyErrorJenkinsToolWindow("Build '" + job.getNameToRenderSingleJob() + "' cannot be run: " + ex.getMessage());
                             browserPanel.loadJob(job);
                         }
 

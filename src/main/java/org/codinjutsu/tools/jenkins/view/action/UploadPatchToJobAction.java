@@ -71,7 +71,7 @@ public class UploadPatchToJobAction extends AnAction implements DumbAware {
                             ModalityState.NON_MODAL);
                 }
             } else {
-                message = String.format("Job \"%s\" should has parameter with name \"%s\"", job.getName(),
+                message = String.format("Job \"%s\" should has parameter with name \"%s\"", job.getNameToRenderSingleJob(),
                         RunBuildWithPatch.PARAMETER_NAME);
             }
 

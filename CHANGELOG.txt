@@ -1,3 +1,11 @@
+Version 0.13.7
+    * #232 PersistentStringParameter not supported
+    * #233 Error overlay over whole of screen if connection is lost. Add Notification group to configure the behaviour in IDE settings.
+    * #234 Can't seem to connect to my jenkins server with the latest version 0.13.6-2020.1
+    * Add Notification group to configure the behaviour in IDE settings.
+    * Fix: regression: remove trailing Slash for URL Validation
+    * #230: jobs in folders: job name too long
+
 Version 0.13.6
     * #225 Git Branch Parameter is unsupported
     * #227 Jenkins invalid configuration causes AuthenticationException and UI not respond correctly to this
