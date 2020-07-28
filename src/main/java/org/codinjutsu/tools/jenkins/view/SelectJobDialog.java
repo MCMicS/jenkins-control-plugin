@@ -107,7 +107,7 @@ public class SelectJobDialog extends JDialog {
         final DefaultComboBoxModel<String> jobListModel = new DefaultComboBoxModel<>();
         jobs.stream().filter(Job::hasParameters)
                 .filter(job -> job.hasParameter(RunBuildWithPatch.PARAMETER_NAME))
-                .map(Job::getName)
+                .map(Job::getNameToRenderSingleJob)
                 .forEach(jobListModel::addElement);
         jobsList.setModel(jobListModel);
     }

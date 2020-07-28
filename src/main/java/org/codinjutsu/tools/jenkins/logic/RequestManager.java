@@ -360,7 +360,7 @@ public class RequestManager implements RequestManagerInterface {
             return lastCompletedBuild.equals(com.offbytwo.jenkins.model.Build.BUILD_HAS_NEVER_RUN) ? null :
                     lastCompletedBuild.details().getConsoleOutputText();
         } catch (IOException e) {
-            logger.warn("cannot load log for " + job.getName());
+            logger.warn("cannot load log for " + job.getNameToRenderSingleJob());
             return null;
         }
     }
@@ -380,7 +380,7 @@ public class RequestManager implements RequestManagerInterface {
             }
             return result;
         } catch (IOException e) {
-            logger.warn("cannot load test results for " + job.getName());
+            logger.warn("cannot load test results for " + job.getNameToRenderSingleJob());
             return Collections.emptyList();
         }
     }

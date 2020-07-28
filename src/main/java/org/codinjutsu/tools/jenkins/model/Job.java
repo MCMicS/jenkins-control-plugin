@@ -28,10 +28,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * TODO mcmics: use {@link Value}
@@ -62,6 +60,9 @@ public class Job {
     @Builder.Default
     @Nullable
     private final String displayName = null;
+    @Builder.Default
+    @Nullable
+    private final String fullDisplayName = null;
     @NotNull
     private final String fullName;
     @NotNull
@@ -111,11 +112,15 @@ public class Job {
     }
 
     @NotNull
-    public String getName() {
-        if (StringUtils.isEmpty(displayName)) {
-            return name;
-        }
-        return displayName;
+    public String getNameToRenderSingleJob() {
+        return Optional.ofNullable(getFullDisplayName()).filter(Predicate.not(StringUtils::isEmpty))
+                .orElseGet(this::preferDisplayName);
+    }
+
+    @NotNull
+    public String preferDisplayName() {
+        return Optional.ofNullable(getDisplayName()).filter(Predicate.not(StringUtils::isEmpty))
+                .orElseGet(this::getName);
     }
 
     public boolean hasParameters() {

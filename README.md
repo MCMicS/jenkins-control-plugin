@@ -1,4 +1,4 @@
-# Jenkins Plugin 0.13.6 for Jetbrains products
+# Jenkins Plugin 0.13.7 for Jetbrains products
 [![Build Status](https://travis-ci.com/MCMicS/jenkins-control-plugin.svg?branch=master)](https://travis-ci.com/MCMicS/jenkins-control-plugin)
 [![Gitter](https://badges.gitter.im/jenkins-control-plugin/community.svg)](https://gitter.im/jenkins-control-plugin/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=MCMicS_jenkins-control-plugin&metric=alert_status)](https://sonarcloud.io/dashboard?id=MCMicS_jenkins-control-plugin)
@@ -58,6 +58,15 @@ It is recommended to use an API token for authenticate the plugin:
 * You can set an auto refresh Period value (in minutes) for both Job Browser and Rss Reader.
 * You can filter the RSS data based on the status of the build
 * When your configuration is set up, click on the **Apply** Button to save it.
+
+## Notifications
+This plugin uses the IDEA Notification System. Default is Tool Window Balloon (as in previous versions).
+If the message is too large for screen it is not shown.
+It can be configured from Event log window:
+![Configure Notification from Event Log window](doc/images/Notification_EventLog.png?raw=true)
+
+It is also possible to configure it (Settings -> Appearance -> Notifications -> Jenkins Notifications) to show only balloon or only log
+![Configure Notification from Settings Dialog](doc/images/Notification_Menu.png?raw=true)
 
 ## Usage
 * To view the jobs You have to refresh the Jenkins Workspace by right-clicking on the Server icon node

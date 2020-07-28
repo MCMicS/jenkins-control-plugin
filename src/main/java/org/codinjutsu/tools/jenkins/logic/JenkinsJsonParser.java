@@ -57,10 +57,9 @@ public class JenkinsJsonParser implements JenkinsParser {
         checkJsonDataAndThrowExceptionIfNecessary(jsonData);
         final JsonObject jsonObject = parseJson(jsonData);
         final Optional<View> primaryView = Optional.ofNullable((JsonObject) jsonObject.get(PRIMARY_VIEW)).map(this::getView);
-        final String primaryViewUrl = primaryView.map(View::getUrl).orElse("");
 
         final String description = jsonObject.getStringOrDefault(createJsonKey(SERVER_DESCRIPTION, ""));
-        final String jenkinsUrl = jsonObject.getStringOrDefault(createJsonKey(SERVER_URL, primaryViewUrl));
+        final String jenkinsUrl = getServerUrl(jsonObject);
         final Jenkins jenkins = new Jenkins(description, jenkinsUrl);
         primaryView.ifPresent(jenkins::setPrimaryView);
 
@@ -216,14 +215,17 @@ public class JenkinsJsonParser implements JenkinsParser {
         final String fullName = jsonObject.getStringOrDefault(createJsonKey(JOB_FULL_NAME, name));
         final JobType jobType = getJobType(jsonObject);
         final String displayName = getDisplayName(jsonObject);
+        final String fullDisplayName = getFullDisplayName(jsonObject);
         final String url = jsonObject.getString(createJsonKey(JOB_URL));
         final String color = jsonObject.getStringOrDefault(createJsonKey(JOB_COLOR, null));
         final boolean buildable = getBoolean(jsonObject.getBoolean(createJsonKey(JOB_IS_BUILDABLE)));
         final boolean inQueue = getBoolean(jsonObject.getBoolean(createJsonKey(JOB_IS_IN_QUEUE)));
 
         JsonArray healths = (JsonArray) jsonObject.get(JOB_HEALTH);
-        final Job.JobBuilder jobBuilder = Job.builder().name(name).jobType(jobType).displayName(displayName)
-                .fullName(fullName).color(color).url(url).inQueue(inQueue).buildable(buildable)
+        final Job.JobBuilder jobBuilder = Job.builder().name(name).jobType(jobType)
+                .fullName(fullName)
+                .displayName(displayName).fullDisplayName(fullDisplayName)
+                .color(color).url(url).inQueue(inQueue).buildable(buildable)
                 .health(getHealth(healths));
 
         JsonObject lastBuildObject = (JsonObject) jsonObject.get(JOB_LAST_BUILD);
@@ -235,9 +237,12 @@ public class JenkinsJsonParser implements JenkinsParser {
 
     @Nullable
     private String getDisplayName(@NotNull JsonObject jsonObject) {
-        final JsonKey preferFullDisplayName = createJsonKey(JOB_FULL_DISPLAY_NAME,
-                jsonObject.getString(createJsonKey(JOB_DISPLAY_NAME)));
-        return jsonObject.getStringOrDefault(preferFullDisplayName);
+        return jsonObject.getStringOrDefault(createJsonKey(JOB_DISPLAY_NAME));
+    }
+
+    @Nullable
+    private String getFullDisplayName(@NotNull JsonObject jsonObject) {
+        return jsonObject.getStringOrDefault(createJsonKey(JOB_FULL_DISPLAY_NAME));
     }
 
     @NotNull
@@ -391,7 +396,17 @@ public class JenkinsJsonParser implements JenkinsParser {
         checkJsonDataAndThrowExceptionIfNecessary(serverData);
         final JsonObject jsonObject = parseJson(serverData);
         //final String description = jsonObject.getStringOrDefault(createJsonKey(SERVER_DESCRIPTION, ""));
-        return jsonObject.getString(createJsonKey(SERVER_URL, ""));
+
+        final Optional<View> primaryView = Optional.ofNullable((JsonObject) jsonObject.get(PRIMARY_VIEW)).map(this::getView);
+        final String primaryViewUrl = primaryView.map(View::getUrl).orElse("");
+        return jsonObject.getStringOrDefault(createJsonKey(SERVER_URL, primaryViewUrl));
+    }
+
+    @NotNull
+    private String getServerUrl(JsonObject jsonObject) {
+        final Optional<View> primaryView = Optional.ofNullable((JsonObject) jsonObject.get(PRIMARY_VIEW)).map(this::getView);
+        final String primaryViewUrl = primaryView.map(View::getUrl).orElse("");
+        return jsonObject.getStringOrDefault(createJsonKey(SERVER_URL, primaryViewUrl));
     }
 
     @NotNull

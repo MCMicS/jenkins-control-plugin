@@ -64,6 +64,12 @@ public class ConfigurationValidatorTest {
     }
 
     @Test
+    public void validateTrailingSlash() {
+        final ConfigurationValidator.ValidationResult validationResult = configurationValidator.validate("http://localhost:8080", "http://localhost:8080/");
+        Assertions.assertThat(validationResult.isValid()).isTrue();
+    }
+
+    @Test
     public void validateMultipleErrors() {
         final ConfigurationValidator.ValidationResult validationResult = configurationValidator.validate(configuredServerUrl, "https://127.0.0.1:8081/jenkins");
 

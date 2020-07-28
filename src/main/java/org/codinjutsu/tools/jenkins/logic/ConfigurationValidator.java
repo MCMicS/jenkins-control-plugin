@@ -72,10 +72,14 @@ public class ConfigurationValidator {
 
     private void validatePath(@NotNull ValidationResult.ValidationResultBuilder validationResult,
                               @NotNull URL configuration, @NotNull URL jenkins, @NotNull URL configureUrl) {
-        if (!StringUtils.equals(configuration.getPath(), jenkins.getPath())) {
+        if (!isSameUrlPath(configuration.getPath(), jenkins.getPath())) {
             validationResult.error(String.format("Jenkins Server Path Mismatch: expected='%s' - actual='%s'. Look at the value of 'Jenkins URL' at %s",
                     configuration.getPath(), jenkins.getPath(), configureUrl));
         }
+    }
+
+    private boolean isSameUrlPath(@NotNull String leftUrl, @NotNull String rightUrl) {
+        return StringUtils.equals(urlBuilder.removeTrailingSlash(leftUrl), urlBuilder.removeTrailingSlash(rightUrl));
     }
 
     @NotNull
