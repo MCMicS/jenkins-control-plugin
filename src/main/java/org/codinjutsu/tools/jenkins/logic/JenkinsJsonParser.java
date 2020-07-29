@@ -394,19 +394,14 @@ public class JenkinsJsonParser implements JenkinsParser {
     @Override
     public String getServerUrl(String serverData) {
         checkJsonDataAndThrowExceptionIfNecessary(serverData);
-        final JsonObject jsonObject = parseJson(serverData);
-        //final String description = jsonObject.getStringOrDefault(createJsonKey(SERVER_DESCRIPTION, ""));
-
-        final Optional<View> primaryView = Optional.ofNullable((JsonObject) jsonObject.get(PRIMARY_VIEW)).map(this::getView);
-        final String primaryViewUrl = primaryView.map(View::getUrl).orElse("");
-        return jsonObject.getStringOrDefault(createJsonKey(SERVER_URL, primaryViewUrl));
+        return getServerUrl(parseJson(serverData));
     }
 
     @NotNull
     private String getServerUrl(JsonObject jsonObject) {
         final Optional<View> primaryView = Optional.ofNullable((JsonObject) jsonObject.get(PRIMARY_VIEW)).map(this::getView);
         final String primaryViewUrl = primaryView.map(View::getUrl).orElse("");
-        return jsonObject.getStringOrDefault(createJsonKey(SERVER_URL, primaryViewUrl));
+        return Optional.ofNullable(jsonObject.getStringOrDefault(createJsonKey(SERVER_URL, primaryViewUrl))).orElse(StringUtils.EMPTY);
     }
 
     @NotNull
