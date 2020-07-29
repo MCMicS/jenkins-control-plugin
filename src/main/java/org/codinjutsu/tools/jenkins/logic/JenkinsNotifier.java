@@ -7,12 +7,10 @@ import com.intellij.notification.NotificationType;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.NlsContexts;
 import org.codinjutsu.tools.jenkins.JenkinsToolWindowFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@SuppressWarnings("UnstableApiUsage")
 @Service
 public class JenkinsNotifier {
 
@@ -32,32 +30,32 @@ public class JenkinsNotifier {
     }
 
     @NotNull
-    public Notification error(@NlsContexts.NotificationContent String content) {
+    public Notification error(String content) {
         return error(project, content);
     }
 
     @NotNull
-    public Notification error(@Nullable Project project, @NlsContexts.NotificationContent String content) {
+    public Notification error(@Nullable Project project, String content) {
         return notify(project, content, NotificationType.ERROR);
     }
 
     @NotNull
-    public Notification warning(@NlsContexts.NotificationContent String content) {
+    public Notification warning(String content) {
         return notify(project, content, NotificationType.WARNING);
     }
 
     @NotNull
-    public Notification warning(@Nullable Project project, @NlsContexts.NotificationContent String content) {
+    public Notification warning(@Nullable Project project, String content) {
         return notify(project, content, NotificationType.WARNING);
     }
 
     @NotNull
-    public Notification notify(@NlsContexts.NotificationContent String content, NotificationType notificationType) {
+    public Notification notify(String content, NotificationType notificationType) {
         return notify(project, content, notificationType);
     }
 
     @NotNull
-    public Notification notify(@Nullable Project project, @NlsContexts.NotificationContent String content, NotificationType notificationType) {
+    public Notification notify(@Nullable Project project, String content, NotificationType notificationType) {
         final Notification notification = jenkinsGroup.createNotification(content, notificationType);
         notification.setListener(NotificationListener.URL_OPENING_LISTENER);
         notification.notify(project);

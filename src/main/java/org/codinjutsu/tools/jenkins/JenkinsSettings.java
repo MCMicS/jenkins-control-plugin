@@ -44,8 +44,6 @@ import java.util.function.Predicate;
 public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings.State> {
 
     public static final String JENKINS_SETTINGS_PASSWORD_KEY = "JENKINS_SETTINGS_PASSWORD_KEY";
-    public static final String PLUGIN_ID = "Jenkins Control Plugin";
-    private static final Logger LOG = Logger.getInstance(JenkinsSettings.class.getName());
     private State myState = new State();
 
     public static JenkinsSettings getSafeInstance(Project project) {
