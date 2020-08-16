@@ -1,9 +1,9 @@
 Version 0.13.8
     * Initialize Notification on Load
     * add About Entry for 2020.1+
-    * #231 jobs in folders: collapsed after refresh
+    * #231 jobs in folders: collapsed after refresh: Last Expanded and Selections are restored after Restart IDE too
 
-Version 0.13.8
+Version 0.13.7
     * #232 PersistentStringParameter not supported
     * #233 Error overlay over whole of screen if connection is lost. Add Notification group to configure the behaviour in IDE settings.
     * #234 Can't seem to connect to my jenkins server with the latest version 0.13.6-2020.1
