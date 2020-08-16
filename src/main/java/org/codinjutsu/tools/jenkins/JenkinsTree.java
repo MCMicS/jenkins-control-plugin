@@ -9,9 +9,11 @@ import com.intellij.openapi.util.WriteExternalException;
 import com.intellij.ui.TreeUIHelper;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.util.containers.Convertor;
+import com.intellij.util.ui.tree.TreeUtil;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.model.Job;
+import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.BuildStatusEnumRenderer;
 import org.codinjutsu.tools.jenkins.view.JenkinsTreeNode;
 import org.codinjutsu.tools.jenkins.view.JenkinsTreeRenderer;
@@ -27,11 +29,15 @@ import java.util.*;
 public class JenkinsTree implements PersistentStateComponent<JenkinsTreeState> {
     private static final String LOADING = "Loading...";
     private static final String UNAVAILABLE = "No Jenkins server available";
+    private static final TreeState NO_TREE_STATE = null;
     @NotNull
     private final JenkinsSettings jenkinsSettings;
     private final Jenkins jenkins;
     private final SimpleTree tree;
+    @NotNull
     private JenkinsTreeState state = new JenkinsTreeState();
+    @Nullable
+    private TreeState lastTreeState = NO_TREE_STATE;
     private static final Logger LOG = Logger.getInstance(JenkinsTree.class);
 
     public JenkinsTree(Project project, @NotNull JenkinsSettings jenkinsSettings, Jenkins jenkins) {
@@ -132,24 +138,30 @@ public class JenkinsTree implements PersistentStateComponent<JenkinsTreeState> {
                 .filter(expectedClass::isInstance).map(expectedClass::cast);
     }
 
-    @NotNull
-    public DefaultTreeModel getModel() {
-        return (DefaultTreeModel) tree.getModel();
-    }
-
     @Nullable
     public DefaultMutableTreeNode getModelRoot() {
         return (DefaultMutableTreeNode) getModel().getRoot();
     }
 
     public void setJobs(@NotNull final Collection<Job> jobs) {
-        final Optional<TreeState> treeState = getTreeState();
-        final TreeModel model = tree.getModel();
-        final DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) model.getRoot();
+        Optional.ofNullable(getModelRoot()).ifPresent(rootNode -> setJobs(jobs, rootNode));
+    }
+
+    private void setJobs(@NotNull final Collection<Job> jobs, @NotNull DefaultMutableTreeNode rootNode) {
         rootNode.removeAllChildren();
         jobs.stream().map(JenkinsTree::createJobTree).forEach(rootNode::add);
         tree.setRootVisible(true);
-        treeState.ifPresent(t -> t.applyTo(tree, rootNode));
+    }
+
+    public void keepLastState(@NotNull final Runnable runnable) {
+        final Optional<TreeState> treeState = getLastTreeState();
+        runnable.run();
+        treeState.ifPresent(t -> t.applyTo(tree, getModelRoot()));
+        saveLastTreeState();
+    }
+
+    private void saveLastTreeState() {
+        this.lastTreeState = getTreeState().orElse(NO_TREE_STATE);
     }
 
     public void setJobsUnavailable() {
@@ -180,13 +192,20 @@ public class JenkinsTree implements PersistentStateComponent<JenkinsTreeState> {
     }
 
     @NotNull
-    private Optional<TreeState> getTreeState() {
+    public Optional<TreeState> getTreeState() {
         return Optional.ofNullable(getModelRoot()).map(modelRoot -> TreeState.createOn(tree, modelRoot));
+    }
+
+    @NotNull
+    private Optional<TreeState> getLastTreeState() {
+        final Integer childCount = Optional.ofNullable(getModelRoot()).map(DefaultMutableTreeNode::getChildCount).orElse(0);
+        return childCount == 0 ? Optional.ofNullable(lastTreeState) : getTreeState();
     }
 
     @Override
     public void loadState(@NotNull JenkinsTreeState state) {
         this.state = state;
+        this.lastTreeState = TreeState.createFrom(state.treeState);
     }
 
     public void updateJobNode(@NotNull Job job) {
@@ -200,8 +219,8 @@ public class JenkinsTree implements PersistentStateComponent<JenkinsTreeState> {
 
     @NotNull
     private Collection<DefaultMutableTreeNode> findNodes(@NotNull Job job) {
-        final DefaultMutableTreeNode modelRoot = getModelRoot();
-        final Enumeration<TreeNode> allNodes = modelRoot.depthFirstEnumeration();
+        final Enumeration<TreeNode> allNodes = Optional.ofNullable(getModelRoot())
+                .map(DefaultMutableTreeNode::depthFirstEnumeration).orElse(Collections.emptyEnumeration());
 
         final List<DefaultMutableTreeNode> jobNodes = new ArrayList<>();
         while (allNodes.hasMoreElements()) {
@@ -214,8 +233,31 @@ public class JenkinsTree implements PersistentStateComponent<JenkinsTreeState> {
         return jobNodes;
     }
 
+    @NotNull
+    private DefaultTreeModel getModel() {
+        return (DefaultTreeModel) tree.getModel();
+    }
+
     private boolean isSameJob(Job job1, Job job2) {
         return job1.getUrl().equals(job2.getUrl());
+    }
+
+    public void sortJobs(Comparator<Job> comparator) {
+        final DefaultTreeModel model = getModel();
+        TreeUtil.sort(model, wrapJobSorter(comparator));
+        GuiUtil.runInSwingThread(() -> model.nodeStructureChanged((TreeNode) model.getRoot()));
+    }
+
+    @NotNull
+    private static Comparator<DefaultMutableTreeNode> wrapJobSorter(Comparator<Job> jobComparator) {
+        return (node1, node2) -> {
+            final Optional<Job> job1 = JenkinsTree.getJob(node1);
+            final Optional<Job> job2 = JenkinsTree.getJob(node2);
+            if (job1.isPresent() && job2.isPresent()) {
+                return jobComparator.compare(job1.get(), job2.get());
+            }
+            return 0;
+        };
     }
 
     @SuppressWarnings("java:S110")

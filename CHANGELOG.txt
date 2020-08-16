@@ -1,6 +1,7 @@
 Version 0.13.8
     * Initialize Notification on Load
     * add About Entry for 2020.1+
+    * #231 jobs in folders: collapsed after refresh
 
 Version 0.13.8
     * #232 PersistentStringParameter not supported

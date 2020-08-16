@@ -1,15 +1,52 @@
 package org.codinjutsu.tools.jenkins.view;
 
+import com.intellij.ide.util.treeView.NodeDescriptorProvidingKey;
+import com.intellij.navigation.ItemPresentation;
+import com.intellij.navigation.NavigationItem;
 import lombok.Value;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public interface JenkinsTreeNode {
+public interface JenkinsTreeNode extends NodeDescriptorProvidingKey, NavigationItem {
 
     @NotNull
     String getUrl();
+
+    @NotNull
+    @Override
+    default NavigationItem getKey() {
+        return this;
+    }
+
+    @Nullable
+    @Override
+    default String getName() {
+        return getUrl();
+    }
+
+    @Nullable
+    @Override
+    default ItemPresentation getPresentation() {
+        return null;
+    }
+
+    @Override
+    default void navigate(boolean requestFocus) {
+        // do nothing
+    }
+
+    @Override
+    default boolean canNavigate() {
+        return false;
+    }
+
+    @Override
+    default boolean canNavigateToSource() {
+        return false;
+    }
 
     void render(JenkinsTreeNodeVisitor treeNodeRenderer);
 

@@ -45,9 +45,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeNode;
 import java.awt.*;
 import java.util.Comparator;
 import java.util.List;
@@ -150,18 +147,6 @@ public class BrowserPanel extends SimpleToolWindowPanel implements PersistentSta
         buildStatusVisitor.visitUnknown();
     }
 
-    @NotNull
-    private static Comparator<DefaultMutableTreeNode> wrapJobSorter(Comparator<Job> jobComparator) {
-        return (node1, node2) -> {
-            final Optional<Job> job1 = JenkinsTree.getJob(node1);
-            final Optional<Job> job2 = JenkinsTree.getJob(node2);
-            if (job1.isPresent() && job2.isPresent()) {
-                return jobComparator.compare(job1.get(), job2.get());
-            }
-            return 0;
-        };
-    }
-
     /*whole method could be moved inside of ExecutorProvider (executor would expose interface that would allow to schedule
       new task previously cancelling previous ones) */
     public void initScheduledJobs() {
@@ -203,14 +188,12 @@ public class BrowserPanel extends SimpleToolWindowPanel implements PersistentSta
 
     public void setSortedByStatus(boolean sortedByBuildStatus) {
         this.sortedByBuildStatus = sortedByBuildStatus;
-        final DefaultTreeModel model = jobTree.getModel();
-        if (sortedByBuildStatus) {
-            TreeUtil.sort(model, wrapJobSorter(sortByStatusComparator));
-        } else {
-            TreeUtil.sort(model, wrapJobSorter(sortByNameComparator));
-        }
+        jobTree.keepLastState(() -> jobTree.sortJobs(getCurrentSorting()));
+    }
 
-        GuiUtil.runInSwingThread(() -> model.nodeStructureChanged((TreeNode) model.getRoot()));
+    @NotNull
+    private Comparator<Job> getCurrentSorting() {
+        return sortedByBuildStatus ? sortByStatusComparator : sortByNameComparator;
     }
 
     private void updateSelection() {
@@ -519,25 +502,22 @@ public class BrowserPanel extends SimpleToolWindowPanel implements PersistentSta
             jenkins.setJobs(jobList);
         }
 
+        @Nullable
         private View getViewToLoad() {
             if (currentSelectedView != null) {
                 return currentSelectedView;
             }
-
-            View primaryView = jenkins.getPrimaryView();
-            if (primaryView != null) {
-                return primaryView;
-            }
-
-            return null;
+            return jenkins.getPrimaryView();
         }
 
         private void fillJobTree(final BuildStatusVisitor buildStatusVisitor) {
             final List<Job> jobList = jenkins.getJobs();
-            jobTree.setJobs(jobList);
-            CollectionUtil.flattenedJobs(jobList).forEach(job -> visit(job, buildStatusVisitor));
-            watch();
-            setSortedByStatus(sortedByBuildStatus);
+            jobTree.keepLastState(() -> {
+                jobTree.setJobs(jobList);
+                CollectionUtil.flattenedJobs(jobList).forEach(job -> visit(job, buildStatusVisitor));
+                watch();
+                jobTree.sortJobs(getCurrentSorting());
+            });
         }
 
         private void setTreeBusy(final boolean isBusy) {
