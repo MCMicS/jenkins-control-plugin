@@ -51,6 +51,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -354,15 +355,32 @@ public class RequestManager implements RequestManagerInterface {
     }
 
     @Override
-    public String loadConsoleTextFor(Job job) {
+    public String loadConsoleTextFor(Job job, BuildType buildType) {
         try {
-            final com.offbytwo.jenkins.model.Build lastCompletedBuild = getJob(job).getLastCompletedBuild();
-            return lastCompletedBuild.equals(com.offbytwo.jenkins.model.Build.BUILD_HAS_NEVER_RUN) ? null :
-                    lastCompletedBuild.details().getConsoleOutputText();
+            final com.offbytwo.jenkins.model.Build build = getBuildForType(buildType).apply(getJob(job));
+            return build.equals(com.offbytwo.jenkins.model.Build.BUILD_HAS_NEVER_RUN) ? null :
+                    build.details().getConsoleOutputText();
         } catch (IOException e) {
             logger.warn("cannot load log for " + job.getNameToRenderSingleJob());
             return null;
         }
+    }
+
+    @NotNull
+    private Function<JobWithDetails, com.offbytwo.jenkins.model.Build> getBuildForType(BuildType buildType) {
+        final Function<JobWithDetails, com.offbytwo.jenkins.model.Build> buildProvider;
+        switch (buildType) {
+            case LAST_SUCCESSFUL:
+                buildProvider = JobWithDetails::getLastSuccessfulBuild;
+                break;
+            case LAST_FAILED:
+                buildProvider = JobWithDetails::getLastFailedBuild;
+                break;
+            case LAST://Fallthrough
+            default:
+                buildProvider = JobWithDetails::getLastCompletedBuild;
+        }
+        return buildProvider;
     }
 
     @Override
@@ -432,5 +450,9 @@ public class RequestManager implements RequestManagerInterface {
 
     void setSecurityClient(SecurityClient securityClient) {
         this.securityClient = securityClient;
+    }
+
+    void setJenkinsServer(JenkinsServer jenkinsServer) {
+        this.jenkinsServer = jenkinsServer;
     }
 }

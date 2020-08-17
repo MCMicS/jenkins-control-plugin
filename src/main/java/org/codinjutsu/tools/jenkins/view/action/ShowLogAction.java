@@ -31,6 +31,7 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import org.codinjutsu.tools.jenkins.exception.NoJobFoundException;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
+import org.codinjutsu.tools.jenkins.model.BuildType;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
@@ -97,7 +98,7 @@ public class ShowLogAction extends AnAction implements DumbAware {
                 RequestManager requestManager = browserPanelForAction.getJenkinsManager();
                 progressIndicator.setIndeterminate(true);
                 try {
-                    consoleContent = requestManager.loadConsoleTextFor(job);
+                    consoleContent = requestManager.loadConsoleTextFor(job, BuildType.LAST);
                 } catch (NoJobFoundException e) {
                     browserPanelForAction.notifyErrorJenkinsToolWindow(e.getMessage());
                 }
