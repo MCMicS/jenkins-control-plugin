@@ -317,7 +317,9 @@ public class BrowserPanel extends SimpleToolWindowPanel implements PersistentSta
 
         popupGroup.add(ActionManager.getInstance().getAction(RunBuildAction.ACTION_ID));
         popupGroup.add(new StopBuildAction(this));
-        popupGroup.add(new ShowLogAction(this));
+        popupGroup.add(new ShowLogAction(this, BuildType.LAST));
+        popupGroup.add(new ShowLogAction(this, BuildType.LAST_SUCCESSFUL));
+        popupGroup.add(new ShowLogAction(this, BuildType.LAST_FAILED));
         popupGroup.addSeparator();
         popupGroup.add(new SetJobAsFavoriteAction(this));
 

@@ -86,6 +86,9 @@ public class Job {
     @Builder.Default
     @NotNull
     private List<Job> nestedJobs = new LinkedList<>();
+    @Builder.Default
+    @NotNull
+    private EnumSet<BuildType> availableBuildTypes = EnumSet.noneOf(BuildType.class);
 
     @NotNull
     public Icon getHealthIcon() {
@@ -137,7 +140,7 @@ public class Job {
         }
         return false;
     }
-    
+
     @Value
     public static class Health {
 
