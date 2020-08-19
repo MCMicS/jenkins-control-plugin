@@ -1,7 +1,8 @@
 Version 0.13.8
     * Initialize Notification on Load
     * add About Entry for 2020.1+
-    * #231 jobs in folders: collapsed after refresh: Last Expanded and Selections are restored after Restart IDE too
+    * #231 jobs in folders: collapsed after refresh: Last Expanded and Selections are restored after Restart IDE too. Loaded Builds are not reloaded on restore last state.
+    * #197 Show log for individual builds of selected jobs
 
 Version 0.13.7
     * #232 PersistentStringParameter not supported

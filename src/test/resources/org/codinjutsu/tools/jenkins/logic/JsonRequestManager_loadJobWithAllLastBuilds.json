@@ -1,0 +1,37 @@
+{
+    "name": "config-provider-model",
+    "displayName": "config-provider-model",
+    "fullDisplayName": "config-provider-model-full",
+    "url": "http://ci.jenkins-ci.org/job/config-provider-model/",
+    "color": "blue",
+    "healthReport": [
+        {
+            "description": "0 tests en echec sur un total de 24 tests",
+            "iconUrl": "health-80plus.png"
+        },
+        {
+            "description": "a ignorer",
+            "iconUrl": "a_ignorer"
+        }
+    ],
+    "buildable": true,
+    "inQueue": false,
+    "lastBuild": {
+        "id": "2012-04-02_16-26-29",
+        "building": false,
+        "number": 8,
+        "result": "SUCCESS",
+        "url": "http://ci.jenkins-ci.org/job/config-provider-model/8/",
+        "timestamp": 1477640156281,
+        "duration": 4386421
+    },
+    "lastFailedBuild": {
+        "_class": "org.jenkinsci.plugins.workflow.job.WorkflowRun",
+        "url": "http://ci.jenkins-ci.org/job/config-provider-model//12/"
+    },
+    "lastSuccessfulBuild": {
+        "_class": "org.jenkinsci.plugins.workflow.job.WorkflowRun",
+        "url": "http://ci.jenkins-ci.org/job/config-provider-model//16/"
+    },
+    "property": []
+}
