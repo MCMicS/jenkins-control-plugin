@@ -1,6 +1,7 @@
 language: java
 os: linux
-jdk: openjdk11
+jdk:
+  openjdk11
 script: ./gradlew verifyPlugin test
 
 jobs:
@@ -14,7 +15,9 @@ git:
 
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 cache:
+  timeout: 900
   directories:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
