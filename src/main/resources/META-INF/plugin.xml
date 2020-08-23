@@ -54,8 +54,7 @@
                     canCloseContents="true"
                     icon="JenkinsControlIcons.TOOLWINDOW_TEST_RESULTS"
                     factoryClass="org.codinjutsu.tools.jenkins.view.action.results.JobTestResultsToolWindowFactory"/>
-        <statusBarWidgetFactory implementation="org.codinjutsu.tools.jenkins.BuildStatusSummaryFactory" />
-        <aboutPopupDescriptionProvider implementation="org.codinjutsu.tools.jenkins.view.JenkinsAbout" />
+        <statusBarWidgetProvider implementation="org.codinjutsu.tools.jenkins.BuildStatusSummaryFactory" />
     </extensions>
 
     <actions>
@@ -67,16 +66,12 @@
                 text="Load Builds"
                 description="Load builds for selected Job"
                 icon="JenkinsControlIcons.LOAD_BUILDS"
-        >
-            <override-text place="GoToAction" text="Jenkins: Load Builds" />
-        </action>
+        />
         <action id="Jenkins.RunBuild" class="org.codinjutsu.tools.jenkins.view.action.RunBuildAction"
                 text="Build on Jenkins"
                 description="Run a build on Jenkins Server"
                 icon="AllIcons.Actions.Execute"
-        >
-            <override-text place="GoToAction" text="Jenkins: Build on Jenkins" />
-        </action>
+        />
     </actions>
 
     <extensionPoints>
