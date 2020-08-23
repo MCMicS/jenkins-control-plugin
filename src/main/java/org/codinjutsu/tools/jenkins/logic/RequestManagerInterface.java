@@ -35,7 +35,7 @@ public interface RequestManagerInterface {
 
     List<Build> loadBuilds(Job job);
 
-    String loadConsoleTextFor(Job job);
+    String loadConsoleTextFor(Job job, BuildType buildType);
 
     List<TestResult> loadTestResultsFor(Job job);
 

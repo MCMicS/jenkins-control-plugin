@@ -27,7 +27,8 @@
     </project-components>
 
     <extensions defaultExtensionNs="com.intellij">
-        <projectConfigurable groupId="tools" groupWeight="110" dynamic="true" displayName="Jenkins Plugin" id="preferences.Jenkins" instance="org.codinjutsu.tools.jenkins.JenkinsComponent"/>
+        <projectConfigurable groupId="tools" groupWeight="110" dynamic="true" displayName="Jenkins Plugin"
+                             id="preferences.Jenkins" instance="org.codinjutsu.tools.jenkins.JenkinsComponent"/>
 
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.ExecutorService" />
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.LoginService" />
@@ -57,6 +58,7 @@
                     icon="JenkinsControlIcons.TOOLWINDOW_TEST_RESULTS"
                     factoryClass="org.codinjutsu.tools.jenkins.view.action.results.JobTestResultsToolWindowFactory"/>
         <statusBarWidgetFactory implementation="org.codinjutsu.tools.jenkins.BuildStatusSummaryFactory" />
+        <aboutPopupDescriptionProvider implementation="org.codinjutsu.tools.jenkins.view.JenkinsAbout" />
     </extensions>
 
     <actions>

@@ -29,26 +29,37 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.NlsActions;
+import com.offbytwo.jenkins.model.Build;
+import com.offbytwo.jenkins.model.JobWithDetails;
+import lombok.Value;
 import org.codinjutsu.tools.jenkins.exception.NoJobFoundException;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
+import org.codinjutsu.tools.jenkins.model.BuildType;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.function.Function;
 
 public class ShowLogAction extends AnAction implements DumbAware {
 
     private static final Icon ICON = AllIcons.Actions.ShowHiddens;//AllIcons.Nodes.Console
 
     private final BrowserPanel browserPanel;
+    private final BuildType buildType;
 
-
-    public ShowLogAction(BrowserPanel browserPanel) {
-        super("Show log", "Show last build's log", ICON);
+    public ShowLogAction(BrowserPanel browserPanel, BuildType buildType) {
+        super(ICON);
+        final ShowLogActionText actionText = getActionText(buildType);
+        getTemplatePresentation().setText(actionText.getText());
+        getTemplatePresentation().setDescription(actionText.getDescription());
         this.browserPanel = browserPanel;
+        this.buildType = buildType;
     }
 
     @Override
@@ -86,7 +97,6 @@ public class ShowLogAction extends AnAction implements DumbAware {
                     panel.updateUI();
 
                     final RunContentDescriptor contentDescriptor = new RunContentDescriptor(consoleView, null, panel, myTitle);
-
                     RunContentManager.getInstance(project).showRunContent(DefaultRunExecutor.getRunExecutorInstance(), contentDescriptor);
                 });
 
@@ -97,7 +107,7 @@ public class ShowLogAction extends AnAction implements DumbAware {
                 RequestManager requestManager = browserPanelForAction.getJenkinsManager();
                 progressIndicator.setIndeterminate(true);
                 try {
-                    consoleContent = requestManager.loadConsoleTextFor(job);
+                    consoleContent = requestManager.loadConsoleTextFor(job, buildType);
                 } catch (NoJobFoundException e) {
                     browserPanelForAction.notifyErrorJenkinsToolWindow(e.getMessage());
                 }
@@ -111,8 +121,37 @@ public class ShowLogAction extends AnAction implements DumbAware {
         final Job selectedJob = browserPanel.getSelectedJob();
         final boolean canShowLogForLastBuild = selectedJob != null
                 && selectedJob.isBuildable()
-                && selectedJob.getLastBuild() != null
+                && isLogAvailable(selectedJob)
                 && !selectedJob.isInQueue();
         event.getPresentation().setVisible(canShowLogForLastBuild);
+    }
+
+    private boolean isLogAvailable(@NotNull Job buildableJob) {
+        return buildableJob.getAvailableBuildTypes().contains(buildType);
+    }
+
+    @NotNull
+    static ShowLogActionText getActionText(BuildType buildType) {
+        final ShowLogActionText logActionText;
+        switch (buildType) {
+            case LAST_SUCCESSFUL:
+                logActionText = new ShowLogActionText("Show last successful log", "Show last successful build's log");
+                break;
+            case LAST_FAILED:
+                logActionText = new ShowLogActionText("Show last failed log", "Show last failed build's log");
+                break;
+            case LAST://Fallthrough
+            default:
+                logActionText = new ShowLogActionText("Show last log", "Show last build's log");
+        }
+        return logActionText;
+    }
+
+    @Value
+    static class ShowLogActionText {
+
+        @Nullable @NlsActions.ActionText String text;
+        @Nullable @NlsActions.ActionDescription String description;
+
     }
 }

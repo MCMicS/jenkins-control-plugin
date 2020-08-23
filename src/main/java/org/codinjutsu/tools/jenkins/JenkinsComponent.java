@@ -29,8 +29,6 @@ import javax.swing.*;
 
 public class JenkinsComponent implements SearchableConfigurable {
 
-
-    private static final String JENKINS_CONTROL_PLUGIN_NAME = "Jenkins Plugin";
     private static final String JENKINS_CONTROL_COMPONENT_NAME = "JenkinsComponent";
 
     private final JenkinsAppSettings jenkinsAppSettings;
@@ -84,7 +82,7 @@ public class JenkinsComponent implements SearchableConfigurable {
 
     @Nls
     public String getDisplayName() {
-        return JENKINS_CONTROL_PLUGIN_NAME;
+        return Version.PLUGIN_NAME;
     }
 
 
