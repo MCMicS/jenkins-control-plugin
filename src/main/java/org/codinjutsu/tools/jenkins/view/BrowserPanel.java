@@ -57,7 +57,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @State(name = "JenkinsBrowserPanel", storages = {
-        @Storage(value = StoragePathMacros.PRODUCT_WORKSPACE_FILE, roamingType = RoamingType.DISABLED)
+        @Storage(value = StoragePathMacros.WORKSPACE_FILE, roamingType = RoamingType.DISABLED)
 })
 public class BrowserPanel extends SimpleToolWindowPanel implements PersistentStateComponent<JenkinsTreeState> {
 

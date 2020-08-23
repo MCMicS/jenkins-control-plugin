@@ -29,7 +29,6 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.NlsActions;
 import com.offbytwo.jenkins.model.Build;
 import com.offbytwo.jenkins.model.JobWithDetails;
 import lombok.Value;
@@ -150,8 +149,8 @@ public class ShowLogAction extends AnAction implements DumbAware {
     @Value
     static class ShowLogActionText {
 
-        @Nullable @NlsActions.ActionText String text;
-        @Nullable @NlsActions.ActionDescription String description;
+        @Nullable String text;
+        @Nullable String description;
 
     }
 }
