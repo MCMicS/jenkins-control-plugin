@@ -12,6 +12,7 @@ version '0.13.8-2020.1'
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'java'
 apply plugin: 'idea'
+apply from:'https://raw.githubusercontent.com/FWDekker/intellij-randomness/master/gradle/scripts/verifier.gradle'
 
 sourceCompatibility = JavaVersion.VERSION_11
 
@@ -143,4 +144,11 @@ jacocoTestReport {
     reports {
         xml.enabled true
     }
+}
+
+runPluginVerifier {
+    pluginFileName = "${intellij.pluginName}-${project.version}"
+//    ides = ["IC-2019.3.5"]
+    ides = ["IC-${intellij.version}"]
+    verifierVersion = "1.240"
 }
