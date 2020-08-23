@@ -11,7 +11,6 @@ import org.codinjutsu.tools.jenkins.JenkinsToolWindowFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@SuppressWarnings("UnstableApiUsage")
 @Service
 public class JenkinsNotifier {
 

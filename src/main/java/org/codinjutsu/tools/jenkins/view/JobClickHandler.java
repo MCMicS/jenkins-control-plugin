@@ -3,12 +3,12 @@ package org.codinjutsu.tools.jenkins.view;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.ui.playback.commands.ActionCommand;
+import org.codinjutsu.tools.jenkins.JenkinsTree;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.view.action.RunBuildAction;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
@@ -33,17 +33,8 @@ public class JobClickHandler extends MouseAdapter {
     }
 
     @NotNull
-    private static Optional<Job> getJob(TreePath treePath) {
-        final Object node = treePath.getLastPathComponent();
-        return Optional.ofNullable(node)
-                .filter(DefaultMutableTreeNode.class::isInstance).map(DefaultMutableTreeNode.class::cast)
-                .map(DefaultMutableTreeNode::getUserObject)
-                .filter(Job.class::isInstance).map(Job.class::cast);
-    }
-
-    @NotNull
     private static Optional<Job> getJob(MouseEvent event) {
-        return getTreePath(event).flatMap(JobClickHandler::getJob);
+        return getTreePath(event).flatMap(JenkinsTree::getJob);
     }
 
     @Override
