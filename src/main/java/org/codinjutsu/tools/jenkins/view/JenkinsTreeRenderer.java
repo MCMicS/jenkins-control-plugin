@@ -52,29 +52,26 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
     @Override
     public void customizeCellRenderer(@NotNull JTree tree, Object value, boolean selected, boolean expanded,
                                       boolean leaf, int row, boolean hasFocus) {
-        getUserObject(value).ifPresent(userObject -> render(userObject, getNode(value).map(DefaultMutableTreeNode::getParent)));
+        getJenkinsTreeNode(value).ifPresent(jenkinsTreeNode -> render(jenkinsTreeNode, getNode(value).map(DefaultMutableTreeNode::getParent)));
     }
 
-    private void render(@NotNull Object userObject, @NotNull Optional<TreeNode> parent) {
-        if (userObject instanceof Jenkins) {
-            Jenkins jenkins = (Jenkins) userObject;
-            append(buildLabel(jenkins), SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
-            setToolTipText(jenkins.getServerUrl());
-            setIcon(AllIcons.Webreferences.Server);
-        } else if (userObject instanceof Job) {
-            Job job = (Job) userObject;
-            append(buildLabel(job, parent.flatMap(this::getUserObject)), getAttribute(job));
-            setToolTipText(job.getHealthDescription());
-            if (favoriteJobDetector.isFavoriteJob(job)) {
-                setIcon(new CompositeIcon(getBuildStatusColor(job), job.getHealthIcon(), FAVORITE_ICON));
-            } else {
-                setIcon(new CompositeIcon(getBuildStatusColor(job), job.getHealthIcon()));
+    private void render(@NotNull JenkinsTreeNode treeNode, @NotNull Optional<TreeNode> parent) {
+        treeNode.render(new JenkinsTreeNodeVisitor() {
+            @Override
+            public void visit(JenkinsTreeNode.RootNode jenkinsServer) {
+                JenkinsTreeRenderer.this.render(jenkinsServer);
             }
-        } else if (userObject instanceof Build) {
-            Build build = (Build) userObject;
-            append(buildLabel(build), SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
-            setIcon(new CompositeIcon(getBuildStatusColor(build)));
-        }
+
+            @Override
+            public void visit(JenkinsTreeNode.BuildNode build) {
+                JenkinsTreeRenderer.this.render(build);
+            }
+
+            @Override
+            public void visit(JenkinsTreeNode.JobNode job) {
+                JenkinsTreeRenderer.this.render(job, parent);
+            }
+        });
     }
 
     @NotNull
@@ -86,6 +83,11 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
     @NotNull
     private Optional<Object> getUserObject(@Nullable Object value) {
         return getNode(value).map(DefaultMutableTreeNode::getUserObject);
+    }
+
+    @NotNull
+    private Optional<JenkinsTreeNode> getJenkinsTreeNode(@Nullable Object value) {
+        return getUserObject(value).filter(JenkinsTreeNode.class::isInstance).map(JenkinsTreeNode.class::cast);
     }
 
     @NotNull
@@ -125,10 +127,10 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
     }
 
     @NotNull
-    public static String buildLabel(Job job, Optional<Object> parentUserObject) {
+    public static String buildLabel(Job job, Optional<JenkinsTreeNode> parentJenkinsTreeNode) {
         final Function<Job, String> jobNameRenderer;
         final Function<Build, String> buildNameRenderer;
-        if (parentUserObject.filter(Job.class::isInstance).isPresent()) {
+        if (parentJenkinsTreeNode.filter(JenkinsTreeNode.JobNode.class::isInstance).isPresent()) {
             jobNameRenderer = Job::preferDisplayName;
             buildNameRenderer = build -> StringUtils.EMPTY;
         } else {
@@ -159,6 +161,29 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
 
     public static String buildLabel(Jenkins jenkins) {
         return "Jenkins " + jenkins.getName();
+    }
+
+    private void render(JenkinsTreeNode.RootNode jenkinsServer) {
+        final Jenkins jenkins = jenkinsServer.getJenkins();
+        append(buildLabel(jenkins), SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
+        setToolTipText(jenkins.getServerUrl());
+        setIcon(AllIcons.Webreferences.Server);
+    }
+
+    private void render(JenkinsTreeNode.BuildNode build) {
+        append(buildLabel(build.getBuild()), SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
+        setIcon(new CompositeIcon(getBuildStatusColor(build.getBuild())));
+    }
+
+    private void render(JenkinsTreeNode.JobNode jobNode, @NotNull Optional<TreeNode> parent) {
+        final Job job = jobNode.getJob();
+        append(buildLabel(job, parent.flatMap(this::getJenkinsTreeNode)), getAttribute(job));
+        setToolTipText(job.getHealthDescription());
+        if (favoriteJobDetector.isFavoriteJob(job)) {
+            setIcon(new CompositeIcon(getBuildStatusColor(job), job.getHealthIcon(), FAVORITE_ICON));
+        } else {
+            setIcon(new CompositeIcon(getBuildStatusColor(job), job.getHealthIcon()));
+        }
     }
 
     private static class CompositeIcon implements Icon {

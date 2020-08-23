@@ -228,11 +228,24 @@ public class JenkinsJsonParser implements JenkinsParser {
                 .color(color).url(url).inQueue(inQueue).buildable(buildable)
                 .health(getHealth(healths));
 
+        final EnumSet<BuildType> availableBuildTypes = EnumSet.noneOf(BuildType.class);
         JsonObject lastBuildObject = (JsonObject) jsonObject.get(JOB_LAST_BUILD);
         Optional.ofNullable(lastBuildObject).map(this::getLastBuild).ifPresent(jobBuilder::lastBuild);
+        JsonObject lastSuccessfulBuildObject = (JsonObject) jsonObject.get(JOB_LAST_SUCCESSFUL_BUILD);
+        JsonObject lastFailedBuildObject = (JsonObject) jsonObject.get(JOB_LAST_FAILED_BUILD);
+        addBuildType(availableBuildTypes, BuildType.LAST, lastBuildObject);
+        addBuildType(availableBuildTypes, BuildType.LAST_SUCCESSFUL, lastSuccessfulBuildObject);
+        addBuildType(availableBuildTypes, BuildType.LAST_FAILED, lastFailedBuildObject);
+        jobBuilder.availableBuildTypes(availableBuildTypes);
+
         JsonArray parameterProperty = (JsonArray) jsonObject.get(PARAMETER_PROPERTY);
         jobBuilder.parameters(getParameters(parameterProperty));
         return jobBuilder.build();
+    }
+
+    private void addBuildType(@NotNull Collection<BuildType> buildTypes, @NotNull BuildType buildType,
+                              @Nullable JsonObject buildJsonObject) {
+        Optional.ofNullable(buildJsonObject).ifPresent(o -> buildTypes.add(buildType));
     }
 
     @Nullable
@@ -394,19 +407,14 @@ public class JenkinsJsonParser implements JenkinsParser {
     @Override
     public String getServerUrl(String serverData) {
         checkJsonDataAndThrowExceptionIfNecessary(serverData);
-        final JsonObject jsonObject = parseJson(serverData);
-        //final String description = jsonObject.getStringOrDefault(createJsonKey(SERVER_DESCRIPTION, ""));
-
-        final Optional<View> primaryView = Optional.ofNullable((JsonObject) jsonObject.get(PRIMARY_VIEW)).map(this::getView);
-        final String primaryViewUrl = primaryView.map(View::getUrl).orElse("");
-        return jsonObject.getStringOrDefault(createJsonKey(SERVER_URL, primaryViewUrl));
+        return getServerUrl(parseJson(serverData));
     }
 
     @NotNull
     private String getServerUrl(JsonObject jsonObject) {
         final Optional<View> primaryView = Optional.ofNullable((JsonObject) jsonObject.get(PRIMARY_VIEW)).map(this::getView);
         final String primaryViewUrl = primaryView.map(View::getUrl).orElse("");
-        return jsonObject.getStringOrDefault(createJsonKey(SERVER_URL, primaryViewUrl));
+        return Optional.ofNullable(jsonObject.getStringOrDefault(createJsonKey(SERVER_URL, primaryViewUrl))).orElse(StringUtils.EMPTY);
     }
 
     @NotNull

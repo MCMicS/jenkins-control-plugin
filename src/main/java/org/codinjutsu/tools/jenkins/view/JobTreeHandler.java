@@ -4,6 +4,7 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.project.Project;
 import lombok.Value;
+import org.codinjutsu.tools.jenkins.JenkinsTree;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.model.JobType;
 import org.codinjutsu.tools.jenkins.view.action.LoadBuildsAction;
@@ -11,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeWillExpandListener;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.ExpandVetoException;
 import java.util.Optional;
 
@@ -34,19 +34,13 @@ public class JobTreeHandler implements TreeWillExpandListener {
                 final LoadBuildsAction loadBuildsAction = (LoadBuildsAction) action;
                 Optional.of(jobNode).filter(job -> job.getLastBuilds().isEmpty())
                         .ifPresent(job -> loadBuildsAction.loadBuilds(project,  job));
-//            InputEvent inputEvent = ActionCommand.getInputEvent(LoadBuildsAction.ACTION_ID);
-//            ActionManager.getInstance().tryToExecute(action, inputEvent, null, BrowserPanel.JENKINS_PANEL_PLACE, true);
             }
         }
     }
 
     @NotNull
     private Optional<Job> getJobForNode(TreeExpansionEvent event) {
-        final Object node = event.getPath().getLastPathComponent();
-        return Optional.ofNullable(node)
-                .filter(DefaultMutableTreeNode.class::isInstance).map(DefaultMutableTreeNode.class::cast)
-                .map(DefaultMutableTreeNode::getUserObject)
-                .filter(Job.class::isInstance).map(Job.class::cast);
+        return JenkinsTree.getJob(event.getPath());
     }
 
     @Override

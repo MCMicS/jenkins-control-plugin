@@ -1,14 +1,14 @@
 plugins {
     id 'java'
     id 'org.jetbrains.intellij' version '0.4.18'
-    id "io.freefair.lombok" version "5.0.0"
+    id "io.freefair.lombok" version "5.1.1"
     id 'idea'
     id "org.sonarqube" version "2.8"
     id 'jacoco'
 }
 
 group 'org.codinjutsu'
-version '0.13.7-2018.3'
+version '0.13.8-2018.3'
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'java'
 apply plugin: 'idea'
