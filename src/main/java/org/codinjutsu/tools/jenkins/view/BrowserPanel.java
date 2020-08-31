@@ -156,7 +156,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements PersistentSta
         executor.remove(refreshViewJob);
 
         if (jenkinsAppSettings.isServerUrlSet() && jenkinsAppSettings.getJobRefreshPeriod() > 0) {
-            refreshViewFutureTask = executor.scheduleWithFixedDelay(refreshViewJob, jenkinsAppSettings.getJobRefreshPeriod(), jenkinsAppSettings.getJobRefreshPeriod(), TimeUnit.MINUTES);
+            refreshViewFutureTask = executor.scheduleWithFixedDelay(refreshViewJob, jenkinsAppSettings.getJobRefreshPeriod(), jenkinsAppSettings.getJobRefreshPeriod(), TimeUnit.SECONDS);
         }
     }
 
@@ -497,6 +497,10 @@ public class BrowserPanel extends SimpleToolWindowPanel implements PersistentSta
                 jobList = requestManager.loadFavoriteJobs(jenkinsSettings.getFavoriteJobs());
             } else {
                 jobList = requestManager.loadJenkinsView(currentSelectedView);
+            }
+
+            for(Job job : jobList) {
+                job.setLastBuilds(requestManager.loadBuilds(job));
             }
 
             jenkinsSettings.setLastSelectedView(currentSelectedView.getName());

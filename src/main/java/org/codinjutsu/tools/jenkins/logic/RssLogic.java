@@ -83,7 +83,7 @@ public class RssLogic implements Disposable {
         executor.remove(refreshRssBuildsJob);
 
         if (jenkinsAppSettings.isServerUrlSet() && jenkinsAppSettings.getRssRefreshPeriod() > 0) {
-            refreshRssBuildFutureTask = executor.scheduleWithFixedDelay(refreshRssBuildsJob, 0, jenkinsAppSettings.getRssRefreshPeriod(), TimeUnit.MINUTES);
+            refreshRssBuildFutureTask = executor.scheduleWithFixedDelay(refreshRssBuildsJob, 0, jenkinsAppSettings.getRssRefreshPeriod(), TimeUnit.SECONDS);
         }
     }
 
