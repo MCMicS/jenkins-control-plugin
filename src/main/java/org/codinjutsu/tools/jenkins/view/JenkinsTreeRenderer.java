@@ -77,6 +77,11 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
             public void visit(JenkinsTreeNode.JobNode job) {
                 JenkinsTreeRenderer.this.render(job, parent);
             }
+
+            @Override
+            public void visit(JenkinsTreeNode.BuildParameterNode buildParameterNode) {
+                JenkinsTreeRenderer.this.render(buildParameterNode);
+            }
         });
     }
 
@@ -199,6 +204,10 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
         } else {
             setIcon(new CompositeIcon(getBuildStatusColor(job), job.getHealthIcon()));
         }
+    }
+
+    private void render(JenkinsTreeNode.BuildParameterNode buildParameterNode) {
+        append(buildParameterNode.getBuildParameter().toString(), SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
     }
 
     private static class CompositeIcon implements Icon {
