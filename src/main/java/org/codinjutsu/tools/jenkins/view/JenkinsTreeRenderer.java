@@ -24,9 +24,15 @@ import com.intellij.util.text.DateFormatUtil;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Delegate;
+import lombok.val;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
-import org.codinjutsu.tools.jenkins.model.*;
+import org.codinjutsu.tools.jenkins.model.Build;
+import org.codinjutsu.tools.jenkins.model.BuildParameter;
+import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
+import org.codinjutsu.tools.jenkins.model.Jenkins;
+import org.codinjutsu.tools.jenkins.model.Job;
+import org.codinjutsu.tools.jenkins.model.JobType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -121,9 +127,18 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
 
         final String buildNumberDisplay = build.getDisplayNumber();
         final Optional<Long> duration = Optional.ofNullable(build.getDuration());
-        return String.format("%s (%s) duration: %s %s", buildNumberDisplay,
+        val buildParameterList = Optional.ofNullable(build.getBuildParameterList());
+        return String.format("%s (%s) duration: %s %s\nparameters: [%s]",
+                buildNumberDisplay,
                 DateFormatUtil.formatDateTime(build.getTimestamp()),
-                DurationFormatUtils.formatDurationHMS(duration.orElse(0L)), status);
+                DurationFormatUtils.formatDurationHMS(duration.orElse(0L)),
+                status,
+                buildParameterList.flatMap(list ->
+                        list.stream()
+                                .map(BuildParameter::toString)
+                                .reduce((a, b) -> String.format("%s %s",a,b))
+                ).orElse("empty")
+        );
     }
 
     @NotNull

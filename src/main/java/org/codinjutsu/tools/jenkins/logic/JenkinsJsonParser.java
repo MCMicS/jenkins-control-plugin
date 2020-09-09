@@ -20,7 +20,6 @@ import com.github.cliftonlabs.json_simple.JsonArray;
 import com.github.cliftonlabs.json_simple.JsonKey;
 import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
-import lombok.val;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.log4j.Logger;
@@ -186,22 +185,22 @@ public class JenkinsJsonParser implements JenkinsParser {
             builder.duration(duration);
         }
         // set parameter
-        // TODO: 2020/9/9 完成展示参数的工作
-        val buildParameterList = ((JsonArray) lastBuildObject.getCollection(createJsonKey(ACTIONS))).stream()
-                .map(action -> action.getCollection(createJsonKey(PARAMETERS)))
-                .map(action -> getBuildParameters((JsonObject) action))
-                .collect(Collectors.toList());
-        LOG.info(buildParameterList);
+        getActions(lastBuildObject).stream()
+                .filter(action -> isContainParameters((JsonObject) action))
+                .findFirst()
+                .ifPresent(action -> builder.buildParameterList(getBuildParameters((JsonObject) action)));
         return builder.build();
     }
 
+    private JsonArray getActions(@NotNull JsonObject lastBuildObject) {
+        return lastBuildObject.getCollection(createJsonKey(ACTIONS));
+    }
+
     private List<BuildParameter> getBuildParameters(JsonObject action) {
-        JsonArray parameters = action.getCollection(createJsonKey(PARAMETERS));
-        return action.stream()
-                .map(parameter -> BuildParameter.of()
+        return action.getCollection(createJsonKey(PARAMETERS))
+                .stream().map(parameter -> BuildParameter.of()
                         .setName(((JsonObject) parameter).getString(createJsonKey("name")))
-                        .setValue(((JsonObject) parameter).getString(createJsonKey("value"))))
-                .collect(Collectors.toList());
+                        .setValue(((JsonObject) parameter).getString(createJsonKey("value")))).collect(Collectors.toList());
     }
 
     private boolean isContainParameters(JsonObject action) {
