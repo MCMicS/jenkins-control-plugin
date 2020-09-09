@@ -68,26 +68,6 @@ public class JenkinsTree implements PersistentStateComponent<JenkinsTreeState> {
     }
 
     @NotNull
-    public static DefaultMutableTreeNode fillJobTree(@NotNull Job job, @NotNull DefaultMutableTreeNode jobNode) {
-        jobNode.removeAllChildren();
-        if (job.getJobType().containNestedJobs()) {
-            job.getNestedJobs().stream().map(JenkinsTree::createJobTree).forEach(jobNode::add);
-        } else {
-            job.getLastBuilds().stream()
-                    .map(build -> {
-                        val buildNode = createNode(build);
-                        Optional.ofNullable(build.getBuildParameterList())
-                                .ifPresent(buildParameters -> buildParameters.stream()
-                                        .map(JenkinsTree::createNode)
-                                        .forEach(buildNode::add));
-                        return buildNode;
-                    })
-                    .forEach(jobNode::add);
-        }
-        return jobNode;
-    }
-
-    @NotNull
     public static Optional<Job> getJob(TreePath treePath) {
         final Class<JenkinsTreeNode.JobNode> jobNodeClass = JenkinsTreeNode.JobNode.class;
         return getLastSelectedPath(treePath, jobNodeClass).map(JenkinsTreeNode.JobNode::getJob);
@@ -130,11 +110,6 @@ public class JenkinsTree implements PersistentStateComponent<JenkinsTreeState> {
     }
 
     @NotNull
-    private static DefaultMutableTreeNode createJobTree(Job job) {
-        return fillJobTree(job, createNode(job));
-    }
-
-    @NotNull
     private static Comparator<DefaultMutableTreeNode> wrapJobSorter(Comparator<Job> jobComparator) {
         return (node1, node2) -> {
             final Optional<Job> job1 = JenkinsTree.getJob(node1);
@@ -144,6 +119,35 @@ public class JenkinsTree implements PersistentStateComponent<JenkinsTreeState> {
             }
             return 0;
         };
+    }
+
+    @NotNull
+    public DefaultMutableTreeNode fillJobTree(@NotNull Job job, @NotNull DefaultMutableTreeNode jobNode) {
+        jobNode.removeAllChildren();
+        if (job.getJobType().containNestedJobs()) {
+            job.getNestedJobs().stream().map(this::createJobTree).forEach(jobNode::add);
+        } else {
+            job.getLastBuilds().stream()
+                    .map(build -> {
+                        val buildNode = createNode(build);
+                        Optional.ofNullable(build.getBuildParameterList())
+                                .ifPresent(buildParameters -> buildParameters.stream()
+                                        .map(buildParameter -> {
+                                            val buildParameterNode = createNode(buildParameter);
+                                            getTree().expandPath(new TreePath(buildParameterNode.getPath()));
+                                            return buildParameterNode;
+                                        })
+                                        .forEach(buildNode::add));
+                        return buildNode;
+                    })
+                    .forEach(jobNode::add);
+        }
+        return jobNode;
+    }
+
+    @NotNull
+    private DefaultMutableTreeNode createJobTree(Job job) {
+        return fillJobTree(job, createNode(job));
     }
 
     @NotNull
@@ -186,7 +190,7 @@ public class JenkinsTree implements PersistentStateComponent<JenkinsTreeState> {
 
     private void setJobs(@NotNull final Collection<Job> jobs, @NotNull DefaultMutableTreeNode rootNode) {
         rootNode.removeAllChildren();
-        jobs.stream().map(JenkinsTree::createJobTree).forEach(rootNode::add);
+        jobs.stream().map(this::createJobTree).forEach(rootNode::add);
         tree.setRootVisible(true);
     }
 
@@ -247,7 +251,7 @@ public class JenkinsTree implements PersistentStateComponent<JenkinsTreeState> {
     public void updateJobNode(@NotNull Job job) {
         final DefaultTreeModel model = getModel();
         findNodes(job).forEach(jobNode -> {
-            JenkinsTree.fillJobTree(job, jobNode);
+            fillJobTree(job, jobNode);
             model.nodeChanged(jobNode);
             model.nodeStructureChanged(jobNode);
         });
