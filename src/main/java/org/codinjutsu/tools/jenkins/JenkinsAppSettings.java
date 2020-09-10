@@ -173,8 +173,8 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
         return myState.isAutoLoadBuilds();
     }
 
-    public void setAutoLoadBuilds(boolean showAllInStatusbar) {
-        myState.setAutoLoadBuilds(showAllInStatusbar);
+    public void setAutoLoadBuilds(boolean autoLoadBuilds) {
+        myState.setAutoLoadBuilds(autoLoadBuilds);
     }
 
     @Data
