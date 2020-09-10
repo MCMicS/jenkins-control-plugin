@@ -127,22 +127,20 @@ public class JenkinsTree implements PersistentStateComponent<JenkinsTreeState> {
         if (job.getJobType().containNestedJobs()) {
             job.getNestedJobs().stream().map(this::createJobTree).forEach(jobNode::add);
         } else {
-            job.getLastBuilds().stream()
-                    .map(build -> {
-                        val buildNode = createNode(build);
-                        Optional.ofNullable(build.getBuildParameterList())
-                                .ifPresent(buildParameters -> buildParameters.stream()
-                                        .map(buildParameter -> {
-                                            val buildParameterNode = createNode(buildParameter);
-                                            getTree().expandPath(new TreePath(buildParameterNode.getPath()));
-                                            return buildParameterNode;
-                                        })
-                                        .forEach(buildNode::add));
-                        return buildNode;
-                    })
-                    .forEach(jobNode::add);
+            job.getLastBuilds().stream().map(this::initBuildNode).forEach(jobNode::add);
         }
         return jobNode;
+    }
+
+    @NotNull
+    private DefaultMutableTreeNode initBuildNode(Build build) {
+        val buildNode = createNode(build);
+        Optional.ofNullable(build.getBuildParameterList())
+                .ifPresent(buildParameters -> buildParameters.stream()
+                        .map(JenkinsTree::createNode)
+                        .forEach(buildNode::add)
+                );
+        return buildNode;
     }
 
     @NotNull

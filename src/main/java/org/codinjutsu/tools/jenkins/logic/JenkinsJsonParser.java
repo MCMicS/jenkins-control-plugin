@@ -185,22 +185,30 @@ public class JenkinsJsonParser implements JenkinsParser {
             builder.duration(duration);
         }
         // set parameter
-        getActions(lastBuildObject).stream()
-                .filter(action -> isContainParameters((JsonObject) action))
-                .findFirst()
-                .ifPresent(action -> builder.buildParameterList(getBuildParameters((JsonObject) action)));
+        Optional.ofNullable(getActions(lastBuildObject))
+                .flatMap(actions -> actions.stream()
+                        .filter(action -> isContainParameters((JsonObject) action))
+                        .findFirst()
+                )
+                .ifPresent(action ->
+                        builder.buildParameterList(getBuildParameters((JsonObject) action))
+                );
         return builder.build();
     }
 
+    @Nullable
     private JsonArray getActions(@NotNull JsonObject lastBuildObject) {
         return lastBuildObject.getCollection(createJsonKey(ACTIONS));
     }
 
+    @NotNull
     private List<BuildParameter> getBuildParameters(JsonObject action) {
-        return action.getCollection(createJsonKey(PARAMETERS))
-                .stream().map(parameter -> BuildParameter.of()
-                        .setName(((JsonObject) parameter).getString(createJsonKey("name")))
-                        .setValue(((JsonObject) parameter).getString(createJsonKey("value")))).collect(Collectors.toList());
+        return action.getCollection(createJsonKey(PARAMETERS)).stream()
+                .map(parameter -> BuildParameter.of(
+                        ((JsonObject) parameter).getString(createJsonKey("name")),
+                        ((JsonObject) parameter).getString(createJsonKey("value"))
+                ))
+                .collect(Collectors.toList());
     }
 
     private boolean isContainParameters(JsonObject action) {

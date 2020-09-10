@@ -498,9 +498,10 @@ public class BrowserPanel extends SimpleToolWindowPanel implements PersistentSta
             } else {
                 jobList = requestManager.loadJenkinsView(currentSelectedView);
             }
-
-            for(Job job : jobList) {
-                job.setLastBuilds(requestManager.loadBuilds(job));
+            if (jenkinsAppSettings.isAutoLoadBuilds()) {
+                for(Job job : jobList) {
+                    job.setLastBuilds(requestManager.loadBuilds(job));
+                }
             }
 
             jenkinsSettings.setLastSelectedView(currentSelectedView.getName());

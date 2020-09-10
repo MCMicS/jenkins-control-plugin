@@ -132,18 +132,9 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
 
         final String buildNumberDisplay = build.getDisplayNumber();
         final Optional<Long> duration = Optional.ofNullable(build.getDuration());
-        val buildParameterList = Optional.ofNullable(build.getBuildParameterList());
-        return String.format("%s (%s) duration: %s %s\nparameters: [%s]",
-                buildNumberDisplay,
+        return String.format("%s (%s) duration: %s %s", buildNumberDisplay,
                 DateFormatUtil.formatDateTime(build.getTimestamp()),
-                DurationFormatUtils.formatDurationHMS(duration.orElse(0L)),
-                status,
-                buildParameterList.flatMap(list ->
-                        list.stream()
-                                .map(BuildParameter::toString)
-                                .reduce((a, b) -> String.format("%s %s",a,b))
-                ).orElse("empty")
-        );
+                DurationFormatUtils.formatDurationHMS(duration.orElse(0L)), status);
     }
 
     @NotNull
