@@ -62,8 +62,6 @@ public class JenkinsTree implements PersistentStateComponent<JenkinsTreeState> {
                 BuildStatusEnumRenderer.getInstance(project)));
         this.tree.setName("jobTree");
         this.tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode(new JenkinsTreeNode.RootNode(this.jenkins)), false));
-        //final JobTreeHandler jobTreeHandler = new JobTreeHandler(project);
-        //addTreeWillExpandListener(jobTreeHandler);
         this.tree.addMouseListener(new JobClickHandler());
     }
 
@@ -94,7 +92,7 @@ public class JenkinsTree implements PersistentStateComponent<JenkinsTreeState> {
     }
 
     @NotNull
-    private static DefaultMutableTreeNode createNode(BuildParameter buildParameter) {
+    private static DefaultMutableTreeNode createNode(@NotNull BuildParameter buildParameter) {
         return new DefaultMutableTreeNode(new JenkinsTreeNode.BuildParameterNode(buildParameter), true);
     }
 
@@ -122,20 +120,20 @@ public class JenkinsTree implements PersistentStateComponent<JenkinsTreeState> {
     }
 
     @NotNull
-    public DefaultMutableTreeNode fillJobTree(@NotNull Job job, @NotNull DefaultMutableTreeNode jobNode) {
+    public static DefaultMutableTreeNode fillJobTree(@NotNull Job job, @NotNull DefaultMutableTreeNode jobNode) {
         jobNode.removeAllChildren();
         if (job.getJobType().containNestedJobs()) {
-            job.getNestedJobs().stream().map(this::createJobTree).forEach(jobNode::add);
+            job.getNestedJobs().stream().map(JenkinsTree::createJobTree).forEach(jobNode::add);
         } else {
-            job.getLastBuilds().stream().map(this::initBuildNode).forEach(jobNode::add);
+            job.getLastBuilds().stream().map(JenkinsTree::initBuildNode).forEach(jobNode::add);
         }
         return jobNode;
     }
 
     @NotNull
-    private DefaultMutableTreeNode initBuildNode(Build build) {
+    private static DefaultMutableTreeNode initBuildNode(Build build) {
         val buildNode = createNode(build);
-        Optional.ofNullable(build.getBuildParameterList())
+        Optional.of(build.getBuildParameterList())
                 .ifPresent(buildParameters -> buildParameters.stream()
                         .map(JenkinsTree::createNode)
                         .forEach(buildNode::add)
@@ -144,7 +142,7 @@ public class JenkinsTree implements PersistentStateComponent<JenkinsTreeState> {
     }
 
     @NotNull
-    private DefaultMutableTreeNode createJobTree(Job job) {
+    private static DefaultMutableTreeNode createJobTree(Job job) {
         return fillJobTree(job, createNode(job));
     }
 
@@ -188,7 +186,7 @@ public class JenkinsTree implements PersistentStateComponent<JenkinsTreeState> {
 
     private void setJobs(@NotNull final Collection<Job> jobs, @NotNull DefaultMutableTreeNode rootNode) {
         rootNode.removeAllChildren();
-        jobs.stream().map(this::createJobTree).forEach(rootNode::add);
+        jobs.stream().map(JenkinsTree::createJobTree).forEach(rootNode::add);
         tree.setRootVisible(true);
     }
 

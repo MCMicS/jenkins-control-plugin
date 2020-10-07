@@ -24,11 +24,9 @@ import com.intellij.util.text.DateFormatUtil;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Delegate;
-import lombok.val;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.codinjutsu.tools.jenkins.model.Build;
-import org.codinjutsu.tools.jenkins.model.BuildParameter;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.model.Job;
@@ -198,7 +196,14 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
     }
 
     private void render(JenkinsTreeNode.BuildParameterNode buildParameterNode) {
-        append(buildParameterNode.getBuildParameter().toString(), SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
+        final String parameter;
+        if (buildParameterNode.hasValue()) {
+            parameter = String.format("%s: %s", buildParameterNode.getBuildParameter().getName(),
+                    buildParameterNode.getBuildParameter().getValue());
+        } else {
+            parameter = buildParameterNode.getBuildParameter().getName();
+        }
+        append(parameter, SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
     }
 
     private static class CompositeIcon implements Icon {

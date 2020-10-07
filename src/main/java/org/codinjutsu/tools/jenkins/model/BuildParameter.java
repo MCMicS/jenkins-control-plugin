@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @Data
 @Accessors(chain = true)
@@ -11,17 +12,11 @@ import org.jetbrains.annotations.NotNull;
 public class BuildParameter {
     @NotNull
     private String name;
-    @NotNull
+    @Nullable
     private String value;
 
     @NotNull
-    public static BuildParameter of(@NotNull String name, @NotNull String value) {
+    public static BuildParameter of(@NotNull String name, @Nullable String value) {
         return new BuildParameter(name, value);
-    }
-
-    @Override
-    @NotNull
-    public String toString() {
-        return String.format("%s: %s", name, value);
     }
 }

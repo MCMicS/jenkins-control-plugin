@@ -54,6 +54,7 @@ public interface JenkinsTreeNode extends NodeDescriptorProvidingKey, NavigationI
 
     @Data
     class BuildParameterNode implements JenkinsTreeNode {
+        @NotNull
         private final BuildParameter buildParameter;
 
         @NotNull
@@ -65,6 +66,10 @@ public interface JenkinsTreeNode extends NodeDescriptorProvidingKey, NavigationI
         @Override
         public void render(JenkinsTreeNodeVisitor treeNodeRenderer) {
             treeNodeRenderer.visit(this);
+        }
+
+        public boolean hasValue() {
+            return buildParameter.getValue() != null;
         }
     }
 
