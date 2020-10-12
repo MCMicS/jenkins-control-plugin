@@ -9,6 +9,7 @@ import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.methods.multipart.StringPart;
 import org.assertj.core.api.Assertions;
+import org.assertj.core.util.Lists;
 import org.codinjutsu.tools.jenkins.model.FileParameter;
 import org.codinjutsu.tools.jenkins.model.RequestData;
 import org.codinjutsu.tools.jenkins.model.StringParameter;
@@ -36,7 +37,7 @@ public class DefaultSecurityClientTest {
     @Test
     public void createPostWithOneFileAndOneStringParameter() throws IOException {
         final VirtualFile virtualFile = new MockVirtualFile("sampleFile.md");
-        final PostMethod post = securityClient.createPost("http://example.org", List.of(new StringParameter("test", "Jenkins"),
+        final PostMethod post = securityClient.createPost("http://example.org", Lists.list(new StringParameter("test", "Jenkins"),
                 new FileParameter("fileParam", virtualFile)));
         Assertions.assertThat(post.getRequestEntity()).isNotNull();
         Assertions.assertThat(post.getRequestEntity()).isInstanceOf(MultipartRequestEntity.class);
@@ -54,7 +55,7 @@ public class DefaultSecurityClientTest {
     @Test
     public void createPostWithFileNameProvider() throws IOException {
         final VirtualFile virtualFile = new MockVirtualFile("sampleFile.md");
-        final PostMethod post = securityClient.createPost("http://example.org", List.of(new StringParameter("test", "Jenkins"),
+        final PostMethod post = securityClient.createPost("http://example.org", Lists.list(new StringParameter("test", "Jenkins"),
                 new FileParameter("fileParam", virtualFile, () -> "file0")));
         Assertions.assertThat(post.getRequestEntity()).isNotNull();
         Assertions.assertThat(post.getRequestEntity()).isInstanceOf(MultipartRequestEntity.class);
@@ -72,7 +73,7 @@ public class DefaultSecurityClientTest {
     @Test
     public void createPostWithOTwoStringParameter() throws IOException {
         final VirtualFile virtualFile = new MockVirtualFile("sampleFile.md");
-        final List<RequestData> requestData = List.of(new StringParameter("test", "Jenkins"),
+        final List<RequestData> requestData =Lists.list(new StringParameter("test", "Jenkins"),
                 new StringParameter("second", "more"));
         final PostMethod post = securityClient.createPost("http://example.org", requestData);
         Assertions.assertThat(post.getRequestEntity()).isNotNull();
