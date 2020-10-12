@@ -1,3 +1,7 @@
+Version 0.13.9
+    * display build parameters (PR #246)
+    * auto load builds option in settings (PR #246)
+
 Version 0.13.8
     * Initialize Notification on Load
     * add About Entry for 2020.1+
