@@ -60,7 +60,13 @@ public interface JenkinsTreeNode extends NodeDescriptorProvidingKey, NavigationI
         @NotNull
         @Override
         public String getUrl() {
-            return "";
+            return buildParameter.getBuildUrl();
+        }
+
+        @NotNull
+        @Override
+        public String getName() {
+            return buildParameter.getName();
         }
 
         @Override

@@ -191,7 +191,7 @@ public class JenkinsJsonParser implements JenkinsParser {
                         .findFirst()
                 )
                 .ifPresent(action ->
-                        builder.buildParameterList(getBuildParameters((JsonObject) action))
+                        builder.buildParameterList(getBuildParameters((JsonObject) action, url))
                 );
         return builder.build();
     }
@@ -202,11 +202,12 @@ public class JenkinsJsonParser implements JenkinsParser {
     }
 
     @NotNull
-    private List<BuildParameter> getBuildParameters(JsonObject action) {
+    private List<BuildParameter> getBuildParameters(JsonObject action, String buildUrl) {
         return action.getCollection(createJsonKey(PARAMETERS)).stream()
                 .map(parameter -> BuildParameter.of(
                         ((JsonObject) parameter).getString(createJsonKey("name")),
-                        ((JsonObject) parameter).getString(createJsonKey("value"))
+                        ((JsonObject) parameter).getString(createJsonKey("value")),
+                        buildUrl
                 ))
                 .collect(Collectors.toList());
     }

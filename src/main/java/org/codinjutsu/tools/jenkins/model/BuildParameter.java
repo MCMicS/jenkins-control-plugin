@@ -14,9 +14,11 @@ public class BuildParameter {
     private String name;
     @Nullable
     private String value;
+    @NotNull
+    private String buildUrl;
 
     @NotNull
-    public static BuildParameter of(@NotNull String name, @Nullable String value) {
-        return new BuildParameter(name, value);
+    public static BuildParameter of(@NotNull String name, @Nullable String value, @NotNull String buildUrl) {
+        return new BuildParameter(name, value, buildUrl);
     }
 }

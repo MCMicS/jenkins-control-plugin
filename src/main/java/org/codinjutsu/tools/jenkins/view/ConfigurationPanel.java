@@ -77,7 +77,7 @@ public class ConfigurationPanel {
     private JCheckBox useGreenColor;
     @GuiField(validators = POSITIVE_INTEGER)
     private JBIntSpinner timeout;
-    private JCheckBox autoLoadBuilds;
+    private JCheckBox autoLoadBuildsOnFirstLevel;
     private boolean myPasswordModified = false;
 
     public ConfigurationPanel(final Project project) {
@@ -259,11 +259,11 @@ public class ConfigurationPanel {
     }
 
     private boolean getAutoLoadBuilds() {
-        return autoLoadBuilds.isSelected();
+        return autoLoadBuildsOnFirstLevel.isSelected();
     }
 
     private void setAutoLoadBuilds(boolean autoLoadBuilds) {
-        this.autoLoadBuilds.setSelected(autoLoadBuilds);
+        this.autoLoadBuildsOnFirstLevel.setSelected(autoLoadBuilds);
     }
 
     private boolean isShowAllInStatusbar() {
