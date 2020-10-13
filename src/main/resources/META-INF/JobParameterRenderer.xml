@@ -11,5 +11,6 @@
         <buildParameterRenderer implementation="org.codinjutsu.tools.jenkins.view.parameter.GitParameterRenderer" />
         <buildParameterRenderer
                 implementation="org.codinjutsu.tools.jenkins.view.parameter.PersistentParameterRenderer"/>
+        <buildParameterRenderer implementation="org.codinjutsu.tools.jenkins.view.parameter.ListGitBranchesParameterRenderer" />
     </extensions>
 </idea-plugin>
