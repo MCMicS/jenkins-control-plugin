@@ -29,7 +29,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.util.*;
-import java.util.function.Predicate;
 
 /**
  * TODO mcmics: use {@link Value}
@@ -116,13 +115,13 @@ public class Job {
 
     @NotNull
     public String getNameToRenderSingleJob() {
-        return Optional.ofNullable(getFullDisplayName()).filter(Predicate.not(StringUtils::isEmpty))
+        return Optional.ofNullable(getFullDisplayName()).filter(StringUtils::isNotEmpty)
                 .orElseGet(this::preferDisplayName);
     }
 
     @NotNull
     public String preferDisplayName() {
-        return Optional.ofNullable(getDisplayName()).filter(Predicate.not(StringUtils::isEmpty))
+        return Optional.ofNullable(getDisplayName()).filter(StringUtils::isNotEmpty)
                 .orElseGet(this::getName);
     }
 

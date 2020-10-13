@@ -26,11 +26,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Delegate;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
-import org.codinjutsu.tools.jenkins.model.Build;
-import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
-import org.codinjutsu.tools.jenkins.model.Jenkins;
-import org.codinjutsu.tools.jenkins.model.Job;
-import org.codinjutsu.tools.jenkins.model.JobType;
+import org.codinjutsu.tools.jenkins.model.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,7 +35,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -162,7 +157,7 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
             status = "(running)";
         }
         final String renderedValue = Optional.ofNullable(buildName.apply(build))
-                .filter(Predicate.not(StringUtils::isEmpty))
+                .filter(StringUtils::isNotEmpty)
                 .orElseGet(() -> String.format("%s %s", jobName.apply(job), build.getDisplayNumber()));
         return String.format("%s %s", renderedValue, status);
     }
