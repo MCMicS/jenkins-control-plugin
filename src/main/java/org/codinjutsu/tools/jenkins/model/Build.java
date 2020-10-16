@@ -24,6 +24,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 
 @Value
@@ -56,6 +58,9 @@ public class Build {
     @NotNull
     @Builder.Default
     private final BuildStatusEnum status = BuildStatusEnum.NULL;
+    @Builder.Default
+    @NotNull
+    private final List<BuildParameter> buildParameterList = new LinkedList<>();
 
     @NotNull
     public static Build createBuildFromWorkspace(String buildUrl, int number, String status, boolean isBuilding, String buildDate, Long timestamp, Long duration) {

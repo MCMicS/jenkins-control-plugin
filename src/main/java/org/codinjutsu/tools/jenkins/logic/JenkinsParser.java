@@ -67,6 +67,8 @@ public interface JenkinsParser {
     String PARAMETER_CHOICE = "choices";
     String CLASS = "_class";
     String COMPUTER = "computer";
+    String ACTIONS = "actions";
+    String PARAMETERS = "parameters";
 
     Jenkins createWorkspace(String jsonData);
 

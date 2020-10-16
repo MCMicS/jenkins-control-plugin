@@ -21,13 +21,31 @@ import com.github.cliftonlabs.json_simple.JsonKey;
 import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.log4j.Logger;
-import org.codinjutsu.tools.jenkins.model.*;
+import org.codinjutsu.tools.jenkins.model.Build;
+import org.codinjutsu.tools.jenkins.model.BuildParameter;
+import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
+import org.codinjutsu.tools.jenkins.model.BuildType;
+import org.codinjutsu.tools.jenkins.model.Computer;
+import org.codinjutsu.tools.jenkins.model.Jenkins;
+import org.codinjutsu.tools.jenkins.model.Job;
+import org.codinjutsu.tools.jenkins.model.JobParameter;
+import org.codinjutsu.tools.jenkins.model.JobParameterType;
+import org.codinjutsu.tools.jenkins.model.JobType;
+import org.codinjutsu.tools.jenkins.model.View;
 import org.codinjutsu.tools.jenkins.util.DateUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.stream.Collectors;
 
 public class JenkinsJsonParser implements JenkinsParser {
@@ -166,8 +184,36 @@ public class JenkinsJsonParser implements JenkinsParser {
         if (duration != null) {
             builder.duration(duration);
         }
-
+        // set parameter
+        Optional.ofNullable(getActions(lastBuildObject))
+                .flatMap(actions -> actions.stream()
+                        .filter(action -> isContainParameters((JsonObject) action))
+                        .findFirst()
+                )
+                .ifPresent(action ->
+                        builder.buildParameterList(getBuildParameters((JsonObject) action, url))
+                );
         return builder.build();
+    }
+
+    @Nullable
+    private JsonArray getActions(@NotNull JsonObject lastBuildObject) {
+        return lastBuildObject.getCollection(createJsonKey(ACTIONS));
+    }
+
+    @NotNull
+    private List<BuildParameter> getBuildParameters(JsonObject action, String buildUrl) {
+        return action.getCollection(createJsonKey(PARAMETERS)).stream()
+                .map(parameter -> BuildParameter.of(
+                        ((JsonObject) parameter).getString(createJsonKey("name")),
+                        ((JsonObject) parameter).getString(createJsonKey("value")),
+                        buildUrl
+                ))
+                .collect(Collectors.toList());
+    }
+
+    private boolean isContainParameters(JsonObject action) {
+        return ObjectUtils.isNotEmpty(action.getCollection(createJsonKey(PARAMETERS)));
     }
 
     @NotNull

@@ -35,7 +35,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -70,6 +69,11 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
             @Override
             public void visit(JenkinsTreeNode.JobNode job) {
                 JenkinsTreeRenderer.this.render(job, parent);
+            }
+
+            @Override
+            public void visit(JenkinsTreeNode.BuildParameterNode buildParameterNode) {
+                JenkinsTreeRenderer.this.render(buildParameterNode);
             }
         });
     }
@@ -153,7 +157,7 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
             status = "(running)";
         }
         final String renderedValue = Optional.ofNullable(buildName.apply(build))
-                .filter(Predicate.not(StringUtils::isEmpty))
+                .filter(StringUtils::isNotEmpty)
                 .orElseGet(() -> String.format("%s %s", jobName.apply(job), build.getDisplayNumber()));
         return String.format("%s %s", renderedValue, status);
     }
@@ -184,6 +188,17 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
         } else {
             setIcon(new CompositeIcon(getBuildStatusColor(job), job.getHealthIcon()));
         }
+    }
+
+    private void render(JenkinsTreeNode.BuildParameterNode buildParameterNode) {
+        final String parameter;
+        if (buildParameterNode.hasValue()) {
+            parameter = String.format("%s: %s", buildParameterNode.getBuildParameter().getName(),
+                    buildParameterNode.getBuildParameter().getValue());
+        } else {
+            parameter = buildParameterNode.getBuildParameter().getName();
+        }
+        append(parameter, SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
     }
 
     private static class CompositeIcon implements Icon {
