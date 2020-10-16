@@ -169,6 +169,14 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
         myState.setShowAllInStatusbar(showAllInStatusbar);
     }
 
+    public boolean isAutoLoadBuilds() {
+        return myState.isAutoLoadBuilds();
+    }
+
+    public void setAutoLoadBuilds(boolean autoLoadBuilds) {
+        myState.setAutoLoadBuilds(autoLoadBuilds);
+    }
+
     @Data
     public static class State {
 
@@ -182,6 +190,7 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
         private RssSettings rssSettings = new RssSettings();
         private boolean useGreenColor = false;
         private boolean showAllInStatusbar = false;
+        private boolean autoLoadBuilds = false;
     }
 
     @Data

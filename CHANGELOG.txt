@@ -1,3 +1,9 @@
+Version 0.13.9
+    * display build parameters (PR #246)
+    * auto load builds option in settings (PR #246)
+    * #249 PT_BRANCH_TAG is unsupported
+    * #247 Plugin 'Jenkins Control Plugin' failed to initialize in Android Studio 4.1
+
 Version 0.13.8
     * Initialize Notification on Load
     * add About Entry for 2020.1+

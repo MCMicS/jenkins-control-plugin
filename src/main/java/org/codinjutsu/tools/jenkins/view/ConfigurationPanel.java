@@ -27,7 +27,6 @@ import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.logic.ConfigurationValidator;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
-import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.security.AuthenticationException;
 import org.codinjutsu.tools.jenkins.security.JenkinsVersion;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
@@ -37,20 +36,12 @@ import org.codinjutsu.tools.jenkins.view.validator.NotNullValidator;
 import org.codinjutsu.tools.jenkins.view.validator.PositiveIntegerValidator;
 import org.codinjutsu.tools.jenkins.view.validator.UrlValidator;
 
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JRadioButton;
-import javax.swing.JTextField;
-import javax.swing.JTextPane;
+import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
-import java.awt.Color;
-import java.util.stream.Collectors;
+import java.awt.*;
 
 import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.POSITIVE_INTEGER;
 import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.URL;
@@ -59,33 +50,25 @@ public class ConfigurationPanel {
 
     private static final JBColor CONNECTION_TEST_SUCCESSFUL_COLOR = JBColor.GREEN;
     private static final JBColor CONNECTION_TEST_FAILED_COLOR = JBColor.RED;
-
+    private final FormValidator<JTextField> formValidator;
     @GuiField(validators = URL)
     private JTextField serverUrl;
-
     private JTextField crumbDataField;
-
     private JTextField username;
     private JPasswordField passwordField;
-
     private JTextField buildDelay;
     private JTextField jobRefreshPeriod;
     private JTextField rssRefreshPeriod;
     private JTextField numBuildRetries;
-
     private JPanel rootPanel;
-
     private JButton testConnectionButton;
     private JLabel connectionStatusLabel;
     private JPanel debugPanel;
     private JTextPane debugTextPane;
-
     private JPanel rssStatusFilterPanel;
-
     private JCheckBox successOrStableCheckBox;
     private JCheckBox unstableOrFailCheckBox;
     private JCheckBox abortedCheckBox;
-
     private JPanel uploadPatchSettingsPanel;
     private JTextField replaceWithSuffix;
     private JRadioButton version1RadioButton;
@@ -94,9 +77,7 @@ public class ConfigurationPanel {
     private JCheckBox useGreenColor;
     @GuiField(validators = POSITIVE_INTEGER)
     private JBIntSpinner timeout;
-
-    private final FormValidator<JTextField> formValidator;
-
+    private JCheckBox autoLoadBuildsOnFirstLevel;
     private boolean myPasswordModified = false;
 
     public ConfigurationPanel(final Project project) {
@@ -211,6 +192,7 @@ public class ConfigurationPanel {
 
         boolean isUseGreenColor = isUseGreenColor() != jenkinsAppSettings.isUseGreenColor();
         boolean isShowAllInStatusbar = isShowAllInStatusbar() != jenkinsAppSettings.isShowAllInStatusbar();
+        boolean isAutoLoadBuilds = getAutoLoadBuilds() != jenkinsAppSettings.isAutoLoadBuilds();
 
         return !jenkinsAppSettings.getServerUrl().equals(serverUrl.getText())
                 || jenkinsAppSettings.getBuildDelay() != getBuildDelay()
@@ -221,6 +203,7 @@ public class ConfigurationPanel {
                 || credentialModified
                 || isUseGreenColor
                 || isShowAllInStatusbar
+                || isAutoLoadBuilds
                 || jenkinsSettings.getConnectionTimeout() != getConnectionTimeout()
                 || statusToIgnoreModified || (!jenkinsAppSettings.getSuffix().equals(replaceWithSuffix.getText()));
     }
@@ -247,6 +230,7 @@ public class ConfigurationPanel {
         jenkinsAppSettings.setSuffix(getSuffix());
         jenkinsAppSettings.setUseGreenColor(isUseGreenColor());
         jenkinsAppSettings.setShowAllInStatusbar(isShowAllInStatusbar());
+        jenkinsAppSettings.setAutoLoadBuilds(getAutoLoadBuilds());
         jenkinsSettings.setConnectionTimeout(getConnectionTimeout());
 
         if (StringUtils.isNotBlank(username.getText())) {
@@ -272,6 +256,14 @@ public class ConfigurationPanel {
 
     private void setUseGreenColor(boolean useGreenColor) {
         this.useGreenColor.setSelected(useGreenColor);
+    }
+
+    private boolean getAutoLoadBuilds() {
+        return autoLoadBuildsOnFirstLevel.isSelected();
+    }
+
+    private void setAutoLoadBuilds(boolean autoLoadBuilds) {
+        this.autoLoadBuildsOnFirstLevel.setSelected(autoLoadBuilds);
     }
 
     private boolean isShowAllInStatusbar() {
@@ -306,6 +298,7 @@ public class ConfigurationPanel {
         replaceWithSuffix.setText(String.valueOf(jenkinsAppSettings.getSuffix()));
         setUseGreenColor(jenkinsAppSettings.isUseGreenColor());
         setShowAllInStatusbar(jenkinsAppSettings.isShowAllInStatusbar());
+        setAutoLoadBuilds(jenkinsAppSettings.isAutoLoadBuilds());
         timeout.setNumber(jenkinsSettings.getConnectionTimeout());
 
         if (jenkinsSettings.getVersion().equals(JenkinsVersion.VERSION_1)) {
@@ -336,12 +329,12 @@ public class ConfigurationPanel {
         myPasswordModified = false;
     }
 
-    private void setPassword(String password) {
-        passwordField.setText(StringUtils.isBlank(password) ? null : password);
-    }
-
     private String getPassword() {
         return String.valueOf(passwordField.getPassword());
+    }
+
+    private void setPassword(String password) {
+        passwordField.setText(StringUtils.isBlank(password) ? null : password);
     }
 
     private int getRssRefreshPeriod() {

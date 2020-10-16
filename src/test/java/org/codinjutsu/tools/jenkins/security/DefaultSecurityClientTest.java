@@ -1,5 +1,6 @@
 package org.codinjutsu.tools.jenkins.security;
 
+import com.github.cliftonlabs.json_simple.Jsoner;
 import com.intellij.mock.MockVirtualFile;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -8,6 +9,7 @@ import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.methods.multipart.StringPart;
 import org.assertj.core.api.Assertions;
+import org.assertj.core.util.Lists;
 import org.codinjutsu.tools.jenkins.model.FileParameter;
 import org.codinjutsu.tools.jenkins.model.RequestData;
 import org.codinjutsu.tools.jenkins.model.StringParameter;
@@ -15,9 +17,12 @@ import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+
+import static org.junit.Assert.*;
 
 public class DefaultSecurityClientTest {
 
@@ -32,7 +37,7 @@ public class DefaultSecurityClientTest {
     @Test
     public void createPostWithOneFileAndOneStringParameter() throws IOException {
         final VirtualFile virtualFile = new MockVirtualFile("sampleFile.md");
-        final PostMethod post = securityClient.createPost("http://example.org", Arrays.asList(new StringParameter("test", "Jenkins"),
+        final PostMethod post = securityClient.createPost("http://example.org", Lists.list(new StringParameter("test", "Jenkins"),
                 new FileParameter("fileParam", virtualFile)));
         Assertions.assertThat(post.getRequestEntity()).isNotNull();
         Assertions.assertThat(post.getRequestEntity()).isInstanceOf(MultipartRequestEntity.class);
@@ -50,7 +55,7 @@ public class DefaultSecurityClientTest {
     @Test
     public void createPostWithFileNameProvider() throws IOException {
         final VirtualFile virtualFile = new MockVirtualFile("sampleFile.md");
-        final PostMethod post = securityClient.createPost("http://example.org", Arrays.asList(new StringParameter("test", "Jenkins"),
+        final PostMethod post = securityClient.createPost("http://example.org", Lists.list(new StringParameter("test", "Jenkins"),
                 new FileParameter("fileParam", virtualFile, () -> "file0")));
         Assertions.assertThat(post.getRequestEntity()).isNotNull();
         Assertions.assertThat(post.getRequestEntity()).isInstanceOf(MultipartRequestEntity.class);
@@ -68,7 +73,7 @@ public class DefaultSecurityClientTest {
     @Test
     public void createPostWithOTwoStringParameter() throws IOException {
         final VirtualFile virtualFile = new MockVirtualFile("sampleFile.md");
-        final List<RequestData> requestData = Arrays.asList(new StringParameter("test", "Jenkins"),
+        final List<RequestData> requestData =Lists.list(new StringParameter("test", "Jenkins"),
                 new StringParameter("second", "more"));
         final PostMethod post = securityClient.createPost("http://example.org", requestData);
         Assertions.assertThat(post.getRequestEntity()).isNotNull();
