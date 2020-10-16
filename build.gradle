@@ -8,7 +8,7 @@ plugins {
 }
 
 group 'org.codinjutsu'
-version '0.13.9-2020.1-eap3'
+version '0.13.9-2020.3-eap1'
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'java'
 apply plugin: 'idea'
@@ -19,7 +19,6 @@ targetCompatibility = JavaVersion.VERSION_1_8
 
 intellij {
     version 'LATEST-EAP-SNAPSHOT'
-//    version '2020.1.3'
     plugins 'java'
     updateSinceUntilBuild false
     pluginName 'jenkins-control-plugin'
