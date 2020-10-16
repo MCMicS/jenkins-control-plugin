@@ -11,10 +11,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-public class GitParameterRenderer implements JobParameterRenderer {
+public class ListGitBranchesParameterRenderer implements JobParameterRenderer {
 
     @NonNls
-    private static final String TYPE_CLASS = "net.uaznia.lukanus.hudson.plugins.gitparameter.GitParameterDefinition";
+    private static final String TYPE_CLASS = "com.syhuang.hudson.plugins.listgitbranchesparameter.ListGitBranchesParameterDefinition";
 
     static final JobParameterType PT_TAG = new JobParameterType("PT_TAG", TYPE_CLASS);
 
@@ -22,29 +22,12 @@ public class GitParameterRenderer implements JobParameterRenderer {
 
     static final JobParameterType PT_BRANCH_TAG = new JobParameterType("PT_BRANCH_TAG", TYPE_CLASS);
 
-    static final JobParameterType PT_REVISION = new JobParameterType("PT_REVISION", TYPE_CLASS);
-
-    static final JobParameterType PT_PULL_REQUEST = new JobParameterType("PT_PULL_REQUEST", TYPE_CLASS);
-
     private final Map<JobParameterType, BiFunction<JobParameter, String, JobParameterComponent<String>>> converter = new HashMap<>();
 
-    public GitParameterRenderer() {
+    public ListGitBranchesParameterRenderer() {
         converter.put(PT_TAG, GitParameterRenderer::createComponent);
         converter.put(PT_BRANCH, GitParameterRenderer::createComponent);
         converter.put(PT_BRANCH_TAG, GitParameterRenderer::createComponent);
-        converter.put(PT_REVISION, GitParameterRenderer::createComponent);
-        converter.put(PT_PULL_REQUEST, GitParameterRenderer::createComponent);
-    }
-
-    @NotNull
-    public static JobParameterComponent<String> createComponent(@NotNull JobParameter jobParameter, String defaultValue) {
-        final BiFunction<JobParameter, String, JobParameterComponent<String>> renderer;
-        if (jobParameter.getChoices().isEmpty()) {
-            renderer = JobParameterRenderers::createTextField;
-        } else {
-            renderer = JobParameterRenderers::createComboBox;
-        }
-        return renderer.apply(jobParameter, defaultValue);
     }
 
     @NotNull

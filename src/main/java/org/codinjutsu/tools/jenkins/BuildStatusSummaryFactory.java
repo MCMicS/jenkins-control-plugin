@@ -13,7 +13,7 @@ public class BuildStatusSummaryFactory implements StatusBarWidgetProvider {
 
     @Nullable
     @Override
-    public StatusBarWidget getWidget(@NotNull final Project project) {
+    public StatusBarWidget getWidget(@NotNull Project project) {
         return JenkinsWidget.getInstance(project);
     }
 }

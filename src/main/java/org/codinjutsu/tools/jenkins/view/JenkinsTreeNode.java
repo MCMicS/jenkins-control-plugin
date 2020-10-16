@@ -3,8 +3,10 @@ package org.codinjutsu.tools.jenkins.view;
 import com.intellij.ide.util.treeView.NodeDescriptorProvidingKey;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.navigation.NavigationItem;
+import lombok.Data;
 import lombok.Value;
 import org.codinjutsu.tools.jenkins.model.Build;
+import org.codinjutsu.tools.jenkins.model.BuildParameter;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.jetbrains.annotations.NotNull;
@@ -49,6 +51,33 @@ public interface JenkinsTreeNode extends NodeDescriptorProvidingKey, NavigationI
     }
 
     void render(JenkinsTreeNodeVisitor treeNodeRenderer);
+
+    @Data
+    class BuildParameterNode implements JenkinsTreeNode {
+        @NotNull
+        private final BuildParameter buildParameter;
+
+        @NotNull
+        @Override
+        public String getUrl() {
+            return buildParameter.getBuildUrl();
+        }
+
+        @NotNull
+        @Override
+        public String getName() {
+            return buildParameter.getName();
+        }
+
+        @Override
+        public void render(JenkinsTreeNodeVisitor treeNodeRenderer) {
+            treeNodeRenderer.visit(this);
+        }
+
+        public boolean hasValue() {
+            return buildParameter.getValue() != null;
+        }
+    }
 
     @Value
     class BuildNode implements JenkinsTreeNode {
