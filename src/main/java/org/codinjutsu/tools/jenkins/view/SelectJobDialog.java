@@ -42,6 +42,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -152,7 +153,7 @@ public class SelectJobDialog extends JDialog {
                     changes.addAll(changeList.getChanges());
                 }
             }
-            final String base = PatchWriter.calculateBaseForWritingPatch(project, changes).getPath();
+            final Path base = PatchWriter.calculateBaseDirForWritingPatch(project, changes);
             final List<FilePatch> patches = IdeaTextPatchBuilder.buildPatch(project, changes, base, false);
             UnifiedDiffWriter.write(project, patches, writer, CodeStyle.getProjectOrDefaultSettings(project).getLineSeparator(), null);
         }

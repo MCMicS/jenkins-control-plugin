@@ -10,8 +10,7 @@
         Yuri Novitsky (support of PPP),
         Michael Suhr
     </vendor>
-<!--    <idea-version since-build="201"/>-->
-    <idea-version since-build="201.6487.11"/>
+    <idea-version since-build="203"/>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.vcs</depends>
@@ -59,6 +58,8 @@
                     factoryClass="org.codinjutsu.tools.jenkins.view.action.results.JobTestResultsToolWindowFactory"/>
         <statusBarWidgetFactory implementation="org.codinjutsu.tools.jenkins.BuildStatusSummaryFactory" />
         <aboutPopupDescriptionProvider implementation="org.codinjutsu.tools.jenkins.view.JenkinsAbout" />
+        <notificationGroup displayType="NONE" id="Jenkins Rss" />
+        <notificationGroup displayType="TOOL_WINDOW" id="Jenkins Notification" toolWindowId="Jenkins"/>
     </extensions>
 
     <actions>
