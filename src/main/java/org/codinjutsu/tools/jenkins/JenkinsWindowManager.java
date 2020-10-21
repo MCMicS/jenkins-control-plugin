@@ -49,9 +49,7 @@ public class JenkinsWindowManager implements Disposable {
     public void dispose() {
         RssAuthenticationActionHandler.getInstance(project).dispose();
         BrowserPanelAuthenticationHandler.getInstance(project).dispose();
-
         JenkinsWidget.getInstance(project).dispose();
-
-        ExecutorService.getInstance(project).getExecutor().shutdown();
+        ExecutorService.getInstance(project).dispose();
     }
 }

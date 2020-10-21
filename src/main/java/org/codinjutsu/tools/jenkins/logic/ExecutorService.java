@@ -1,12 +1,13 @@
 package org.codinjutsu.tools.jenkins.logic;
 
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
-public class ExecutorService {
+public class ExecutorService implements Disposable {
 
     private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor;
 
@@ -29,5 +30,10 @@ public class ExecutorService {
         if (!futureTask.isDone() || !futureTask.isCancelled()) {
             futureTask.cancel(false);
         }
+    }
+
+    @Override
+    public void dispose() {
+        getExecutor().shutdown();
     }
 }

@@ -1,3 +1,6 @@
+Version 0.13.10
+    * #181 Change to Dynamic Plugin for 2020.3+
+
 Version 0.13.9
     * display build parameters (PR #246)
     * auto load builds option in settings (PR #246)

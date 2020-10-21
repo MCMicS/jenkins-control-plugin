@@ -8,7 +8,7 @@ plugins {
 }
 
 group 'org.codinjutsu'
-version '0.13.9-2020.3-eap1'
+version '0.13.9-2020.3-eap2'
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'java'
 apply plugin: 'idea'
@@ -115,6 +115,8 @@ test {
 
 runIde {
     //jvmArgs '-Djava.awt.headless=true'
+    jvmArgs = ['-XX:+UnlockDiagnosticVMOptions']
+    systemProperty('ide.plugins.snapshot.on.unload.fail', 'true')
 }
 
 buildPlugin {
