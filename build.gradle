@@ -1,18 +1,17 @@
 plugins {
     id 'java'
-    id 'org.jetbrains.intellij' version '0.5.0'
-    id "io.freefair.lombok" version "5.2.1"
+    id 'org.jetbrains.intellij' version '0.6.3'
+    id "io.freefair.lombok" version "5.3.0"
     id 'idea'
     id "org.sonarqube" version "3.0"
     id 'jacoco'
 }
 
 group 'org.codinjutsu'
-version '0.13.9-2020.3-eap1'
+version '0.13.9-2020.3-eap3'
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'java'
 apply plugin: 'idea'
-apply from:'https://raw.githubusercontent.com/FWDekker/intellij-randomness/master/gradle/scripts/verifier.gradle'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
@@ -22,6 +21,7 @@ intellij {
     plugins 'java'
     updateSinceUntilBuild false
     pluginName 'jenkins-control-plugin'
+    type = 'IC'
 }
 
 lombok {
@@ -146,10 +146,11 @@ jacocoTestReport {
         xml.enabled true
     }
 }
-
+import org.jetbrains.intellij.tasks.RunPluginVerifierTask
 runPluginVerifier {
-    pluginFileName = "${intellij.pluginName}-${project.version}"
-//    ides = ["IC-2019.3.5"]
-    ides = ["IC-${intellij.version}"]
-    verifierVersion = "1.240"
+    //distributionFile = "${intellij.pluginName}-${project.version}"
+    ideVersions = ["IC-${intellij.version}", "PS-${intellij.version}", "IU-${intellij.version}"]
+    //failureLevel = FailureLevel.ALL
+    failureLevel = RunPluginVerifierTask.FailureLevel.ALL
+    verifierVersion = "latest"
 }
