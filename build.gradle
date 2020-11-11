@@ -117,6 +117,7 @@ runIde {
     //jvmArgs '-Djava.awt.headless=true'
     jvmArgs = ['-XX:+UnlockDiagnosticVMOptions']
     systemProperty('ide.plugins.snapshot.on.unload.fail', 'true')
+    systemProperty('ide.plugins.allow.unload.from.sources', 'true')
 }
 
 buildPlugin {
