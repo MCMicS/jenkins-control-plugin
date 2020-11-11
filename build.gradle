@@ -146,11 +146,15 @@ jacocoTestReport {
         xml.enabled true
     }
 }
+
 import org.jetbrains.intellij.tasks.RunPluginVerifierTask
+def ideaVersionToVerify = "2020.3"
+def verifyFailureLevel = EnumSet.copyOf(RunPluginVerifierTask.FailureLevel.ALL)
+verifyFailureLevel.remove(RunPluginVerifierTask.FailureLevel.NOT_DYNAMIC)
 runPluginVerifier {
     //distributionFile = "${intellij.pluginName}-${project.version}"
-    ideVersions = ["IC-${intellij.version}", "PS-${intellij.version}", "IU-${intellij.version}"]
-    //failureLevel = FailureLevel.ALL
-    failureLevel = RunPluginVerifierTask.FailureLevel.ALL
+    ideVersions = ["IU-${ideaVersionToVerify}"]
+//    ideVersions = ["IC-2020.3", "PS-2020.3", "IU-2020.3"]
+    failureLevel = verifyFailureLevel
     verifierVersion = "latest"
 }
