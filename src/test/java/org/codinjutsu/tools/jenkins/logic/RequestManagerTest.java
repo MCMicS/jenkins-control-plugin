@@ -50,6 +50,7 @@ import static org.mockito.Mockito.when;
 
 public class RequestManagerTest {
 
+    private static final String RUNNING_CONSOLE_OUTPUT = "running";
     private static final String COMPLETED_CONSOLE_OUTPUT = "completed";
     private static final String SUCCESSFUL_CONSOLE_OUTPUT = "successful";
     private static final String FAILED_CONSOLE_OUTPUT = "failed";
@@ -123,6 +124,13 @@ public class RequestManagerTest {
                 .thenReturn(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_computer.json")));
         final List<Computer> computers = requestManager.loadComputer(configuration);
         assertThat(computers).hasSize(2);
+    }
+
+    @Test
+    public void loadConsoleTextForRunningBuild() {
+        final Job job = createJobWithBuilds();
+        final String buildOutput = requestManager.loadConsoleTextFor(job, BuildType.LAST);
+        assertThat(buildOutput).isEqualTo(COMPLETED_CONSOLE_OUTPUT);
     }
 
     @Test

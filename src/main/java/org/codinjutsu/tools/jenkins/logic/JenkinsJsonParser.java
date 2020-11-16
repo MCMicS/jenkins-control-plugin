@@ -277,9 +277,13 @@ public class JenkinsJsonParser implements JenkinsParser {
         final EnumSet<BuildType> availableBuildTypes = EnumSet.noneOf(BuildType.class);
         JsonObject lastBuildObject = (JsonObject) jsonObject.get(JOB_LAST_BUILD);
         Optional.ofNullable(lastBuildObject).map(this::getLastBuild).ifPresent(jobBuilder::lastBuild);
+        JsonObject lastCompletedBuildObject = (JsonObject) jsonObject.get(JOB_LAST_COMPLETED_BUILD);
         JsonObject lastSuccessfulBuildObject = (JsonObject) jsonObject.get(JOB_LAST_SUCCESSFUL_BUILD);
         JsonObject lastFailedBuildObject = (JsonObject) jsonObject.get(JOB_LAST_FAILED_BUILD);
         addBuildType(availableBuildTypes, BuildType.LAST, lastBuildObject);
+        if (!availableBuildTypes.contains(BuildType.LAST)) {
+            addBuildType(availableBuildTypes, BuildType.LAST, lastCompletedBuildObject);
+        }
         addBuildType(availableBuildTypes, BuildType.LAST_SUCCESSFUL, lastSuccessfulBuildObject);
         addBuildType(availableBuildTypes, BuildType.LAST_FAILED, lastFailedBuildObject);
         jobBuilder.availableBuildTypes(availableBuildTypes);

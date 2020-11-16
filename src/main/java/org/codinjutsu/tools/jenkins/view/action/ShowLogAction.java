@@ -96,8 +96,10 @@ public class ShowLogAction extends AnAction implements DumbAware {
                     toolbarActions.addAction(new ShowJobResultsAsJUnitViewAction(browserPanelForAction));
                     panel.updateUI();
 
-                    final RunContentDescriptor contentDescriptor = new RunContentDescriptor(consoleView, null, panel, myTitle);
-                    RunContentManager.getInstance(project).showRunContent(DefaultRunExecutor.getRunExecutorInstance(), contentDescriptor);
+                    final RunContentDescriptor contentDescriptor = new RunContentDescriptor(consoleView,
+                            null, panel, getTitle());
+                    RunContentManager.getInstance(project).showRunContent(DefaultRunExecutor.getRunExecutorInstance(),
+                            contentDescriptor);
                 });
 
             }

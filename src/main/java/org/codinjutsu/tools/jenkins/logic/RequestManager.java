@@ -378,9 +378,25 @@ public class RequestManager implements RequestManagerInterface {
                 break;
             case LAST://Fallthrough
             default:
-                buildProvider = JobWithDetails::getLastCompletedBuild;
+                buildProvider = preferLastBuildRunning(JobWithDetails::getLastCompletedBuild);
         }
         return buildProvider;
+    }
+
+    @NotNull
+    private Function<JobWithDetails, com.offbytwo.jenkins.model.Build> preferLastBuildRunning(
+            Function<JobWithDetails, com.offbytwo.jenkins.model.Build> fallback) {
+        return job -> {
+            try {
+                com.offbytwo.jenkins.model.Build lastBuild = job.getLastBuild();
+                if (lastBuild.details().isBuilding()) {
+                    return lastBuild;
+                }
+            } catch (IOException e) {
+                logger.warn("cannot load details for " + job.getName());
+            }
+            return fallback.apply(job);
+        };
     }
 
     @Override
