@@ -16,39 +16,26 @@
 
 package org.codinjutsu.tools.jenkins.view.action;
 
-import com.intellij.execution.executors.DefaultRunExecutor;
-import com.intellij.execution.filters.TextConsoleBuilder;
-import com.intellij.execution.filters.TextConsoleBuilderFactory;
-import com.intellij.execution.ui.ConsoleView;
-import com.intellij.execution.ui.ConsoleViewContentType;
-import com.intellij.execution.ui.RunContentDescriptor;
-import com.intellij.execution.ui.RunContentManager;
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsActions;
-import com.offbytwo.jenkins.model.Build;
-import com.offbytwo.jenkins.model.JobWithDetails;
 import lombok.Value;
-import org.codinjutsu.tools.jenkins.exception.NoJobFoundException;
-import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.BuildType;
 import org.codinjutsu.tools.jenkins.model.Job;
-import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.awt.*;
-import java.util.function.Function;
 
 public class ShowLogAction extends AnAction implements DumbAware {
 
     private static final Icon ICON = AllIcons.Actions.ShowHiddens;//AllIcons.Nodes.Console
+    private static final Logger LOG = Logger.getInstance(UploadPatchToJobAction.class.getName());
 
     private final BrowserPanel browserPanel;
     private final BuildType buildType;
@@ -66,56 +53,9 @@ public class ShowLogAction extends AnAction implements DumbAware {
     public void actionPerformed(AnActionEvent event) {
         final Project project = ActionUtil.getProject(event);
         final BrowserPanel browserPanelForAction = ActionUtil.getBrowserPanel(event);
-
         final Job job = browserPanelForAction.getSelectedJob();
-        new Task.Backgroundable(project, job.getNameToRenderSingleJob(), false) {
-
-            String consoleContent;
-
-            @Override
-            public void onSuccess() {
-                if (consoleContent == null) {
-                    return;
-                }
-                GuiUtil.runInSwingThread(() -> {
-                    TextConsoleBuilder builder = TextConsoleBuilderFactory.getInstance().createBuilder(myProject);
-                    builder.setViewer(true);
-                    ConsoleView consoleView = builder.getConsole();
-                    consoleView.print(consoleContent, ConsoleViewContentType.NORMAL_OUTPUT);
-
-                    JPanel panel = new JPanel(new BorderLayout());
-
-                    DefaultActionGroup toolbarActions = new DefaultActionGroup();
-                    ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar(
-                            ActionPlaces.UNKNOWN, toolbarActions, false);
-                    panel.add(actionToolbar.getComponent(), BorderLayout.WEST);
-                    panel.add(consoleView.getComponent(), BorderLayout.CENTER);
-                    actionToolbar.setTargetComponent(panel);
-
-                    toolbarActions.addAll(consoleView.createConsoleActions());
-                    toolbarActions.addAction(new ShowJobResultsAsJUnitViewAction(browserPanelForAction));
-                    panel.updateUI();
-
-                    final RunContentDescriptor contentDescriptor = new RunContentDescriptor(consoleView,
-                            null, panel, getTitle());
-                    RunContentManager.getInstance(project).showRunContent(DefaultRunExecutor.getRunExecutorInstance(),
-                            contentDescriptor);
-                });
-
-            }
-
-            @Override
-            public void run(@NotNull ProgressIndicator progressIndicator) {
-                RequestManager requestManager = browserPanelForAction.getJenkinsManager();
-                progressIndicator.setIndeterminate(true);
-                try {
-                    consoleContent = requestManager.loadConsoleTextFor(job, buildType);
-                } catch (NoJobFoundException e) {
-                    browserPanelForAction.notifyErrorJenkinsToolWindow(e.getMessage());
-                }
-            }
-        }.queue();
-
+        final LogToolWindow logToolWindow = new LogToolWindow(project);
+        logToolWindow.showLog(buildType, job, browserPanel);
     }
 
     @Override

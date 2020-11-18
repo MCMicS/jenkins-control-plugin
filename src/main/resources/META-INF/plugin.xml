@@ -56,6 +56,12 @@
                     doNotActivateOnStart="true"
                     icon="JenkinsControlIcons.TOOLWINDOW_TEST_RESULTS"
                     factoryClass="org.codinjutsu.tools.jenkins.view.action.results.JobTestResultsToolWindowFactory"/>
+        <toolWindow id="JenkinsLogs"
+                    anchor="bottom"
+                    canCloseContents="true"
+                    doNotActivateOnStart="true"
+                    icon="JenkinsControlIcons.JENKINS_TOOLWINDOW_ICON"
+                    factoryClass="org.codinjutsu.tools.jenkins.view.action.LogToolWindowFactory"/>
         <statusBarWidgetFactory implementation="org.codinjutsu.tools.jenkins.BuildStatusSummaryFactory" />
         <aboutPopupDescriptionProvider implementation="org.codinjutsu.tools.jenkins.view.JenkinsAbout" />
         <notificationGroup displayType="NONE" id="Jenkins Rss" />
