@@ -70,6 +70,8 @@ public class RequestManagerTest {
     @Mock
     private JenkinsServer jenkinsServer;
     @Mock
+    private com.offbytwo.jenkins.model.Build runningBuild;
+    @Mock
     private com.offbytwo.jenkins.model.Build lastCompletedBuild;
     @Mock
     private com.offbytwo.jenkins.model.Build lastSuccessfulBuild;
@@ -128,9 +130,9 @@ public class RequestManagerTest {
 
     @Test
     public void loadConsoleTextForRunningBuild() {
-        final Job job = createJobWithBuilds();
+        final Job job = createJobWithBuilds(runningBuild);
         final String buildOutput = requestManager.loadConsoleTextFor(job, BuildType.LAST);
-        assertThat(buildOutput).isEqualTo(COMPLETED_CONSOLE_OUTPUT);
+        assertThat(buildOutput).isEqualTo(RUNNING_CONSOLE_OUTPUT);
     }
 
     @Test
@@ -156,12 +158,18 @@ public class RequestManagerTest {
 
     @NotNull
     private Job createJobWithBuilds() {
+        return createJobWithBuilds(lastCompletedBuild);
+    }
+
+    @NotNull
+    private Job createJobWithBuilds(com.offbytwo.jenkins.model.Build lastBuild) {
         final Job job = mock(Job.class, Answers.RETURNS_SMART_NULLS);
         final String fullJobName = "fullJobName";
         when(job.getFullName()).thenReturn(fullJobName);
         JobWithDetails jobWithDetails = mock(JobWithDetails.class, Answers.RETURNS_SMART_NULLS);
         try {
             when(jenkinsServer.getJob(fullJobName)).thenReturn(jobWithDetails);
+            when(jobWithDetails.getLastBuild()).thenReturn(lastBuild);
             when(jobWithDetails.getLastCompletedBuild()).thenReturn(lastCompletedBuild);
             when(jobWithDetails.getLastSuccessfulBuild()).thenReturn(lastSuccessfulBuild);
             when(jobWithDetails.getLastFailedBuild()).thenReturn(lastFailedBuild);
@@ -188,9 +196,12 @@ public class RequestManagerTest {
         when(urlBuilderMock.createConfigureUrl(anyString())).thenCallRealMethod();
         when(urlBuilderMock.removeTrailingSlash(anyString())).thenCallRealMethod();
 
+        mockBuildConsoleOutput(runningBuild, RUNNING_CONSOLE_OUTPUT);
         mockBuildConsoleOutput(lastCompletedBuild, COMPLETED_CONSOLE_OUTPUT);
         mockBuildConsoleOutput(lastSuccessfulBuild, SUCCESSFUL_CONSOLE_OUTPUT);
         mockBuildConsoleOutput(lastFailedBuild, FAILED_CONSOLE_OUTPUT);
+
+        when(runningBuild.details().isBuilding()).thenReturn(true);
     }
 
     private void mockBuildConsoleOutput(com.offbytwo.jenkins.model.Build build, String consoleText) throws IOException {

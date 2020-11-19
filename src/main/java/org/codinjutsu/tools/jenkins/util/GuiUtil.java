@@ -68,11 +68,6 @@ public class GuiUtil {
         showInToolWindow(toolWindow, consoleView.getComponent(), consoleView, tabName);
     }
 
-    public static void showInToolWindow(ToolWindow toolWindow, JComponent toolWindowComponent, String tabName) {
-        final Disposable doNothing = () -> {};
-        showInToolWindow(toolWindow, toolWindowComponent, doNothing, tabName);
-    }
-
     public static void showInToolWindow(ToolWindow toolWindow, JComponent toolWindowComponent,
                                         @NotNull Disposable toolWindowDisposable, String tabName) {
         runInSwingThread(() -> {

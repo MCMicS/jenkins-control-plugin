@@ -97,7 +97,8 @@ public class LogToolWindow {
     }
 
     private void showInToolWindow(ShowLogConsoleView showLogConsoleView, String tabName) {
-        getToolWindow().ifPresent(toolWindow -> GuiUtil.showInToolWindow(toolWindow, showLogConsoleView.getPanel(), tabName));
+        getToolWindow().ifPresent(toolWindow -> GuiUtil.showInToolWindow(toolWindow, showLogConsoleView.getPanel(),
+                showLogConsoleView.getConsoleView(), tabName));
     }
 
     @NotNull
