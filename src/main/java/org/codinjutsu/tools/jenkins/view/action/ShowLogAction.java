@@ -37,15 +37,13 @@ public class ShowLogAction extends AnAction implements DumbAware {
     private static final Icon ICON = AllIcons.Actions.ShowHiddens;//AllIcons.Nodes.Console
     private static final Logger LOG = Logger.getInstance(UploadPatchToJobAction.class.getName());
 
-    private final BrowserPanel browserPanel;
     private final BuildType buildType;
 
-    public ShowLogAction(BrowserPanel browserPanel, BuildType buildType) {
+    public ShowLogAction(BuildType buildType) {
         super(ICON);
         final ShowLogActionText actionText = getActionText(buildType);
         getTemplatePresentation().setText(actionText.getText());
         getTemplatePresentation().setDescription(actionText.getDescription());
-        this.browserPanel = browserPanel;
         this.buildType = buildType;
     }
 
@@ -55,11 +53,12 @@ public class ShowLogAction extends AnAction implements DumbAware {
         final BrowserPanel browserPanelForAction = ActionUtil.getBrowserPanel(event);
         final Job job = browserPanelForAction.getSelectedJob();
         final LogToolWindow logToolWindow = new LogToolWindow(project);
-        logToolWindow.showLog(buildType, job, browserPanel);
+        logToolWindow.showLog(buildType, job, browserPanelForAction);
     }
 
     @Override
     public void update(AnActionEvent event) {
+        final BrowserPanel browserPanel = ActionUtil.getBrowserPanel(event);
         final Job selectedJob = browserPanel.getSelectedJob();
         final boolean canShowLogForLastBuild = selectedJob != null
                 && selectedJob.isBuildable()

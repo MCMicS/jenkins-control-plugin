@@ -47,7 +47,7 @@ public class ShowLogActionTest {
 
     @Test
     public void updateForJobIsInQueue() {
-        final ShowLogAction showLogAction = new ShowLogAction(browserPanel, BuildType.LAST);
+        final ShowLogAction showLogAction = new ShowLogAction(BuildType.LAST);
         final Job jobInQueue = createDefaultJobBuilder().inQueue(true).build();
         when(browserPanel.getSelectedJob()).thenReturn(jobInQueue);
         showLogAction.update(actionEvent);
@@ -56,7 +56,7 @@ public class ShowLogActionTest {
 
     @Test
     public void updateForNoSelectedJob() {
-        final ShowLogAction showLogAction = new ShowLogAction(browserPanel, BuildType.LAST);
+        final ShowLogAction showLogAction = new ShowLogAction(BuildType.LAST);
         when(browserPanel.getSelectedJob()).thenReturn(null);
         showLogAction.update(actionEvent);
         verify(presentation).setVisible(false);
@@ -64,7 +64,7 @@ public class ShowLogActionTest {
 
     @Test
     public void updateForNonBuildableJob() {
-        final ShowLogAction showLogAction = new ShowLogAction(browserPanel, BuildType.LAST);
+        final ShowLogAction showLogAction = new ShowLogAction(BuildType.LAST);
         final Job jobNotBuildable = createDefaultJobBuilder().inQueue(true).build();
         when(browserPanel.getSelectedJob()).thenReturn(jobNotBuildable);
         showLogAction.update(actionEvent);
@@ -73,7 +73,7 @@ public class ShowLogActionTest {
 
     @Test
     public void updateForLastLogAvailable() {
-        final ShowLogAction showLogAction = new ShowLogAction(browserPanel, BuildType.LAST);
+        final ShowLogAction showLogAction = new ShowLogAction(BuildType.LAST);
         showLogAction.update(actionEvent);
         verify(presentation).setVisible(true);
     }
@@ -84,21 +84,21 @@ public class ShowLogActionTest {
                 .availableBuildTypes(EnumSet.of(BuildType.LAST_SUCCESSFUL))
                 .build();
         when(browserPanel.getSelectedJob()).thenReturn(jobWithoutBuildType);;
-        final ShowLogAction showLogAction = new ShowLogAction(browserPanel, BuildType.LAST);
+        final ShowLogAction showLogAction = new ShowLogAction(BuildType.LAST);
         showLogAction.update(actionEvent);
         verify(presentation).setVisible(false);
     }
 
     @Test
     public void updateForLastSuccessfulLog() {
-        final ShowLogAction showLogAction = new ShowLogAction(browserPanel, BuildType.LAST_SUCCESSFUL);
+        final ShowLogAction showLogAction = new ShowLogAction(BuildType.LAST_SUCCESSFUL);
         showLogAction.update(actionEvent);
         verify(presentation).setVisible(true);
     }
 
     @Test
     public void updateForLastSuccessfulLogNotAvailable() {
-        final ShowLogAction showLogAction = new ShowLogAction(browserPanel, BuildType.LAST_SUCCESSFUL);
+        final ShowLogAction showLogAction = new ShowLogAction(BuildType.LAST_SUCCESSFUL);
         final Job jobWithoutBuildType = createDefaultJobBuilder().inQueue(true)
                 .availableBuildTypes(EnumSet.of(BuildType.LAST))
                 .build();
@@ -109,7 +109,7 @@ public class ShowLogActionTest {
 
     @Test
     public void updateForLastFailedLog() {
-        final ShowLogAction showLogAction = new ShowLogAction(browserPanel, BuildType.LAST_FAILED);
+        final ShowLogAction showLogAction = new ShowLogAction(BuildType.LAST_FAILED);
         showLogAction.update(actionEvent);
         verify(presentation).setVisible(true);
     }
@@ -120,7 +120,7 @@ public class ShowLogActionTest {
                 .availableBuildTypes(EnumSet.of(BuildType.LAST))
                 .build();
         when(browserPanel.getSelectedJob()).thenReturn(jobWithoutBuildType);
-        final ShowLogAction showLogAction = new ShowLogAction(browserPanel, BuildType.LAST_FAILED);
+        final ShowLogAction showLogAction = new ShowLogAction(BuildType.LAST_FAILED);
         showLogAction.update(actionEvent);
         verify(presentation).setVisible(false);
     }
