@@ -1,7 +1,10 @@
 package org.codinjutsu.tools.jenkins.view.action;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.project.Project;
 import org.codinjutsu.tools.jenkins.model.BuildType;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.model.JobType;
@@ -13,12 +16,12 @@ import org.junit.Test;
 import java.util.EnumSet;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 public class ShowLogActionTest {
 
+    private final Project project = mock(Project.class);
     private final BrowserPanel browserPanel = mock(BrowserPanel.class);
     private final AnActionEvent actionEvent = mock(AnActionEvent.class);
     private final Presentation presentation = mock(Presentation.class);
@@ -127,7 +130,11 @@ public class ShowLogActionTest {
 
     @Before
     public void setUp() {
+        final DataContext dataContext = mock(DataContext.class);
+        when(dataContext.getData(PlatformDataKeys.PROJECT.getName())).thenReturn(project);
+        when(project.getService(BrowserPanel.class)).thenReturn(browserPanel);
         when(actionEvent.getPresentation()).thenReturn(presentation);
+        when(actionEvent.getDataContext()).thenReturn(dataContext);
         when(browserPanel.getSelectedJob()).thenReturn(job);
     }
 
