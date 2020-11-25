@@ -1,4 +1,4 @@
-<idea-plugin xmlns:xi="http://www.w3.org/2001/XInclude" require-restart="false">
+<idea-plugin xmlns:xi="http://www.w3.org/2001/XInclude">
     <!--suppress PluginXmlValidity -->
     <name>Jenkins Control Plugin</name>
     <id>Jenkins Control Plugin</id>
@@ -18,6 +18,12 @@
     <!--    <depends>com.intellij.modules.java</depends>-->
     <depends optional="true" config-file="JavaSupport.xml">com.intellij.java</depends>
     <xi:include href="/META-INF/JobParameterRenderer.xml" xpointer="xpointer(/idea-plugin/*)"/>
+
+    <project-components>
+        <component>
+            <implementation-class>org.codinjutsu.tools.jenkins.WatchedJobsDecorator</implementation-class>
+        </component>
+    </project-components>
 
     <extensions defaultExtensionNs="com.intellij">
         <projectConfigurable parentId="tools" groupWeight="110" dynamic="true" displayName="Jenkins Plugin"
@@ -58,9 +64,6 @@
                     factoryClass="org.codinjutsu.tools.jenkins.view.action.LogToolWindowFactory"/>
         <statusBarWidgetFactory implementation="org.codinjutsu.tools.jenkins.BuildStatusSummaryFactory" />
         <aboutPopupDescriptionProvider implementation="org.codinjutsu.tools.jenkins.view.JenkinsAbout" />
-        <notificationGroup displayType="NONE" id="Jenkins Rss" />
-        <notificationGroup displayType="TOOL_WINDOW" id="Jenkins Notification" toolWindowId="Jenkins"/>
-        <vcs.changeListDecorator implementation="org.codinjutsu.tools.jenkins.WatchedJobsDecorator" />
     </extensions>
 
     <actions>

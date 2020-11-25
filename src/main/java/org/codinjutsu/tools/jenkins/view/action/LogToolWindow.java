@@ -12,7 +12,6 @@ import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.offbytwo.jenkins.helper.BuildConsoleStreamListener;
@@ -151,7 +150,7 @@ public class LogToolWindow {
         public ShowLogRunDescriptor(@Nullable ExecutionConsole executionConsole,
                                     @Nullable ProcessHandler processHandler,
                                     @NotNull JComponent component,
-                                    @NlsContexts.TabTitle String displayName) {
+                                    String displayName) {
             super(executionConsole, processHandler, component, displayName);
         }
 

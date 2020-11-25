@@ -17,7 +17,8 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 intellij {
-    version '2020.2.3'
+    //version '2020.2.3'
+    version '2020.1'
     plugins 'java'
     updateSinceUntilBuild false
     pluginName 'jenkins-control-plugin'
@@ -151,13 +152,11 @@ jacocoTestReport {
 }
 
 import org.jetbrains.intellij.tasks.RunPluginVerifierTask
-def ideaVersionToVerify = "2020.3"
+def ideaVersionToVerify = "${intellij.version}"
 def verifyFailureLevel = EnumSet.copyOf(RunPluginVerifierTask.FailureLevel.ALL)
 verifyFailureLevel.remove(RunPluginVerifierTask.FailureLevel.NOT_DYNAMIC)
 runPluginVerifier {
-    //distributionFile = "${intellij.pluginName}-${project.version}"
     ideVersions = ["IU-${ideaVersionToVerify}"]
-//    ideVersions = ["IC-2020.3", "PS-2020.3", "IU-2020.3"]
     failureLevel = verifyFailureLevel
     verifierVersion = "latest"
 }

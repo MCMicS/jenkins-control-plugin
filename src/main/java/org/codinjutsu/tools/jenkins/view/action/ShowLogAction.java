@@ -22,7 +22,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.NlsActions;
 import lombok.Value;
 import org.codinjutsu.tools.jenkins.model.BuildType;
 import org.codinjutsu.tools.jenkins.model.Job;
@@ -91,8 +90,8 @@ public class ShowLogAction extends AnAction implements DumbAware {
     @Value
     static class ShowLogActionText {
 
-        @Nullable @NlsActions.ActionText String text;
-        @Nullable @NlsActions.ActionDescription String description;
+        @Nullable String text;
+        @Nullable String description;
 
     }
 }

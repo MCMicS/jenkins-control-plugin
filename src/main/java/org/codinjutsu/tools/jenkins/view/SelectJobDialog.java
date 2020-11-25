@@ -153,7 +153,7 @@ public class SelectJobDialog extends JDialog {
                     changes.addAll(changeList.getChanges());
                 }
             }
-            final Path base = PatchWriter.calculateBaseDirForWritingPatch(project, changes);
+            final String base = PatchWriter.calculateBaseForWritingPatch(project, changes).getPath();
             final List<FilePatch> patches = IdeaTextPatchBuilder.buildPatch(project, changes, base, false);
             UnifiedDiffWriter.write(project, patches, writer, CodeStyle.getProjectOrDefaultSettings(project).getLineSeparator(), null);
         }

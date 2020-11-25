@@ -4,6 +4,7 @@ import com.intellij.notification.*;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
+import org.codinjutsu.tools.jenkins.JenkinsToolWindowFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,7 +17,8 @@ public class JenkinsNotifier {
 
     JenkinsNotifier(@Nullable Project project) {
         this.project = project;
-        jenkinsGroup = NotificationGroupManager.getInstance().getNotificationGroup("Jenkins Notification");
+        jenkinsGroup = NotificationGroup.toolWindowGroup("Jenkins Notification",
+                JenkinsToolWindowFactory.JENKINS_BROWSER);
     }
 
     @NotNull
