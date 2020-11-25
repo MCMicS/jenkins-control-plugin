@@ -1,5 +1,6 @@
 package org.codinjutsu.tools.jenkins.logic;
 
+import com.offbytwo.jenkins.helper.BuildConsoleStreamListener;
 import com.offbytwo.jenkins.model.TestResult;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
@@ -36,6 +37,8 @@ public interface RequestManagerInterface {
     List<Build> loadBuilds(Job job);
 
     String loadConsoleTextFor(Job job, BuildType buildType);
+
+    void loadConsoleTextFor(Job job, BuildType buildType, BuildConsoleStreamListener buildConsoleStreamListener);
 
     List<TestResult> loadTestResultsFor(Job job);
 

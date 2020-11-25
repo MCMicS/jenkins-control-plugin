@@ -54,6 +54,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @State(name = "JenkinsBrowserPanel", storages = {
@@ -213,6 +214,10 @@ public class BrowserPanel extends SimpleToolWindowPanel implements PersistentSta
     }
 
     public void loadJob(final Job job) {
+        loadJob(job, j -> {});
+    }
+
+    public void loadJob(final Job job, Consumer<Job> loadedJob) {
         if (!SwingUtilities.isEventDispatchThread()) {
             logger.warn("BrowserPanel.loadJob called from outside of EDT");
         }
@@ -229,6 +234,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements PersistentSta
             public void onSuccess() {
                 job.updateContentWith(returnJob);
                 refreshJob(job);
+                loadedJob.accept(job);
             }
 
         });
@@ -317,9 +323,9 @@ public class BrowserPanel extends SimpleToolWindowPanel implements PersistentSta
 
         popupGroup.add(ActionManager.getInstance().getAction(RunBuildAction.ACTION_ID));
         popupGroup.add(new StopBuildAction(this));
-        popupGroup.add(new ShowLogAction(this, BuildType.LAST));
-        popupGroup.add(new ShowLogAction(this, BuildType.LAST_SUCCESSFUL));
-        popupGroup.add(new ShowLogAction(this, BuildType.LAST_FAILED));
+        popupGroup.add(new ShowLogAction(BuildType.LAST));
+        popupGroup.add(new ShowLogAction(BuildType.LAST_SUCCESSFUL));
+        popupGroup.add(new ShowLogAction(BuildType.LAST_FAILED));
         popupGroup.addSeparator();
         popupGroup.add(new SetJobAsFavoriteAction(this));
 
