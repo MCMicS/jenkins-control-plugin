@@ -16,8 +16,7 @@ public class BrowserPanelAuthenticationHandler implements AuthenticationNotifier
 
     public BrowserPanelAuthenticationHandler(final Project project ) {
         browser = BrowserPanel.getInstance(project);
-        final MessageBus myBus = ApplicationManager.getApplication().getMessageBus();
-        connection = myBus.connect();
+        connection = ApplicationManager.getApplication().getMessageBus().connect();
     }
 
     public void subscribe() {

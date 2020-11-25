@@ -1,18 +1,17 @@
 plugins {
     id 'java'
-    id 'org.jetbrains.intellij' version '0.5.0'
-    id "io.freefair.lombok" version "5.2.1"
+    id 'org.jetbrains.intellij' version '0.6.3'
+    id "io.freefair.lombok" version "5.3.0"
     id 'idea'
     id "org.sonarqube" version "3.0"
     id 'jacoco'
 }
 
 group 'org.codinjutsu'
-version '0.13.9-2020.1'
+version '0.13.10-2020.1'
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'java'
 apply plugin: 'idea'
-apply from:'https://raw.githubusercontent.com/FWDekker/intellij-randomness/master/gradle/scripts/verifier.gradle'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
@@ -22,6 +21,7 @@ intellij {
     plugins 'java'
     updateSinceUntilBuild false
     pluginName 'jenkins-control-plugin'
+    type = 'IC'
 }
 
 lombok {
@@ -115,6 +115,9 @@ test {
 
 runIde {
     //jvmArgs '-Djava.awt.headless=true'
+    jvmArgs = ['-XX:+UnlockDiagnosticVMOptions']
+    systemProperty('ide.plugins.snapshot.on.unload.fail', 'true')
+    systemProperty('ide.plugins.allow.unload.from.sources', 'true')
 }
 
 buildPlugin {
@@ -147,9 +150,14 @@ jacocoTestReport {
     }
 }
 
+import org.jetbrains.intellij.tasks.RunPluginVerifierTask
+def ideaVersionToVerify = "2020.3"
+def verifyFailureLevel = EnumSet.copyOf(RunPluginVerifierTask.FailureLevel.ALL)
+verifyFailureLevel.remove(RunPluginVerifierTask.FailureLevel.NOT_DYNAMIC)
 runPluginVerifier {
-    pluginFileName = "${intellij.pluginName}-${project.version}"
-//    ides = ["IC-2019.3.5"]
-    ides = ["IC-${intellij.version}"]
-    verifierVersion = "1.240"
+    //distributionFile = "${intellij.pluginName}-${project.version}"
+    ideVersions = ["IU-${ideaVersionToVerify}"]
+//    ideVersions = ["IC-2020.3", "PS-2020.3", "IU-2020.3"]
+    failureLevel = verifyFailureLevel
+    verifierVersion = "latest"
 }

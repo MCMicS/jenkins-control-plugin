@@ -16,7 +16,7 @@ public class JenkinsControlIcons {
     public static final Icon LOAD_BUILDS = getIcon("builds.svg");
 
     public static Icon getIcon(String iconFilename) {
-        return IconLoader.getIcon(ICON_FOLDER + iconFilename);
+        return IconLoader.getIcon(ICON_FOLDER + iconFilename, JenkinsControlIcons.class);
     }
 
     public static final class Health {

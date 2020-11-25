@@ -16,7 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
-import com.intellij.notification.NotificationGroup;
+import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.NotificationListener;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.Disposable;
@@ -39,15 +39,13 @@ import org.codinjutsu.tools.jenkins.view.JenkinsWidget;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class RssLogic implements Disposable {
-
-    private final NotificationGroup JENKINS_RSS_GROUP = NotificationGroup.logOnlyGroup("Jenkins Rss");
 
     private final Project project;
     private final JenkinsAppSettings jenkinsAppSettings;
@@ -119,7 +117,7 @@ public class RssLogic implements Disposable {
             } else {
                 notificationType = NotificationType.WARNING;
             }
-            JENKINS_RSS_GROUP
+            NotificationGroupManager.getInstance().getNotificationGroup("Jenkins Rss")
                     .createNotification("", buildMessage(build), notificationType, NotificationListener.URL_OPENING_LISTENER)
                     .notify(project);
         }

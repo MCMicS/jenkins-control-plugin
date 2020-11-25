@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 public class JobTestResultsToolWindowFactory implements ToolWindowFactory {
 
     static final String TOOL_WINDOW_ID = "Job test results";
+    static final String TOOL_WINDOW_NAME = TOOL_WINDOW_ID;
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
