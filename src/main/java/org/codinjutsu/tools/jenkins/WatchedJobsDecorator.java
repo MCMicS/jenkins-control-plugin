@@ -24,34 +24,20 @@ import com.intellij.ui.SimpleTextAttributes;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
-import java.util.Optional;
 
-/**
- * org.codinjutsu.tools.jenkins.ChangesBarProjectComponent
- *
- * @author Yuri Novitsky
- */
-public class ChangesBarProjectComponent implements ChangeListDecorator {
+public class WatchedJobsDecorator implements ChangeListDecorator {
 
     private Project project;
 
-    public ChangesBarProjectComponent(Project project) {
+    public WatchedJobsDecorator(Project project) {
         this.project = project;
     }
-
-    @NotNull
-    public String getComponentName() {
-        return "org.codinjutsu.tools.jenkins.ChangesBarProjectComponent";
-    }
-
 
     @Override
     public void decorateChangeList(LocalChangeList localChangeList, ColoredTreeCellRenderer coloredTreeCellRenderer, boolean b, boolean b2, boolean b3) {
         BrowserPanel browserPanel = BrowserPanel.getInstance(project);
-        //browserPanel.watch();
         Map<String, Job> jobs = browserPanel.getWatched();
         if (jobs.containsKey(localChangeList.getName())) {
             Build build = jobs.get(localChangeList.getName()).getLastBuild();

@@ -1,9 +1,6 @@
 package org.codinjutsu.tools.jenkins.logic;
 
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationGroup;
-import com.intellij.notification.NotificationListener;
-import com.intellij.notification.NotificationType;
+import com.intellij.notification.*;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
@@ -14,13 +11,14 @@ import org.jetbrains.annotations.Nullable;
 @Service
 public class JenkinsNotifier {
 
-    private final NotificationGroup jenkinsGroup = NotificationGroup.toolWindowGroup("Jenkins Notification",
-            JenkinsToolWindowFactory.JENKINS_BROWSER);
+    private final NotificationGroup jenkinsGroup;
     @Nullable
     private final Project project;
 
     JenkinsNotifier(@Nullable Project project) {
         this.project = project;
+        jenkinsGroup = NotificationGroup.toolWindowGroup("Jenkins Notification",
+                JenkinsToolWindowFactory.JENKINS_BROWSER);
     }
 
     @NotNull
