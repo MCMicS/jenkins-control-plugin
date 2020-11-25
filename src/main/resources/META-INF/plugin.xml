@@ -21,12 +21,12 @@
 
     <project-components>
         <component>
-            <implementation-class>org.codinjutsu.tools.jenkins.ChangesBarProjectComponent</implementation-class>
+            <implementation-class>org.codinjutsu.tools.jenkins.WatchedJobsDecorator</implementation-class>
         </component>
     </project-components>
 
     <extensions defaultExtensionNs="com.intellij">
-        <projectConfigurable groupId="tools" groupWeight="110" dynamic="true" displayName="Jenkins Plugin"
+        <projectConfigurable parentId="tools" groupWeight="110" dynamic="true" displayName="Jenkins Plugin"
                              id="preferences.Jenkins" instance="org.codinjutsu.tools.jenkins.JenkinsComponent"/>
 
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.ExecutorService" />
@@ -59,7 +59,12 @@
                     canCloseContents="true"
                     icon="JenkinsControlIcons.TOOLWINDOW_TEST_RESULTS"
                     factoryClass="org.codinjutsu.tools.jenkins.view.action.results.JobTestResultsToolWindowFactory"/>
-        <statusBarWidgetProvider implementation="org.codinjutsu.tools.jenkins.BuildStatusSummaryFactory"/>
+        <toolWindow id="JenkinsLogs"
+                    anchor="bottom"
+                    canCloseContents="true"
+                    icon="JenkinsControlIcons.JENKINS_TOOLWINDOW_ICON"
+                    factoryClass="org.codinjutsu.tools.jenkins.view.action.LogToolWindowFactory"/>
+        <statusBarWidgetProvider implementation="org.codinjutsu.tools.jenkins.BuildStatusSummaryFactory" />
     </extensions>
 
     <actions>
@@ -80,8 +85,12 @@
     </actions>
 
     <extensionPoints>
-        <extensionPoint name="viewTestResults" interface="org.codinjutsu.tools.jenkins.view.extension.ViewTestResults" dynamic="true"/>
-        <extensionPoint name="buildParameterRenderer" interface="org.codinjutsu.tools.jenkins.view.extension.JobParameterRenderer" dynamic="true"/>
+        <extensionPoint name="viewTestResults"
+                        interface="org.codinjutsu.tools.jenkins.view.extension.ViewTestResults"
+                        dynamic="true"/>
+        <extensionPoint name="buildParameterRenderer"
+                        interface="org.codinjutsu.tools.jenkins.view.extension.JobParameterRenderer"
+                        dynamic="true"/>
     </extensionPoints>
 
     <!--suppress PluginXmlValidity -->

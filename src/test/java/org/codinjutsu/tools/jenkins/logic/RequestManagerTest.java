@@ -50,6 +50,7 @@ import static org.mockito.Mockito.when;
 
 public class RequestManagerTest {
 
+    private static final String RUNNING_CONSOLE_OUTPUT = "running";
     private static final String COMPLETED_CONSOLE_OUTPUT = "completed";
     private static final String SUCCESSFUL_CONSOLE_OUTPUT = "successful";
     private static final String FAILED_CONSOLE_OUTPUT = "failed";
@@ -68,6 +69,8 @@ public class RequestManagerTest {
     private Project project;
     @Mock
     private JenkinsServer jenkinsServer;
+    @Mock
+    private com.offbytwo.jenkins.model.Build runningBuild;
     @Mock
     private com.offbytwo.jenkins.model.Build lastCompletedBuild;
     @Mock
@@ -126,6 +129,13 @@ public class RequestManagerTest {
     }
 
     @Test
+    public void loadConsoleTextForRunningBuild() {
+        final Job job = createJobWithBuilds(runningBuild);
+        final String buildOutput = requestManager.loadConsoleTextFor(job, BuildType.LAST);
+        assertThat(buildOutput).isEqualTo(RUNNING_CONSOLE_OUTPUT);
+    }
+
+    @Test
     public void loadConsoleTextForLastBuild() {
         final Job job = createJobWithBuilds();
         final String buildOutput = requestManager.loadConsoleTextFor(job, BuildType.LAST);
@@ -148,12 +158,18 @@ public class RequestManagerTest {
 
     @NotNull
     private Job createJobWithBuilds() {
+        return createJobWithBuilds(lastCompletedBuild);
+    }
+
+    @NotNull
+    private Job createJobWithBuilds(com.offbytwo.jenkins.model.Build lastBuild) {
         final Job job = mock(Job.class, Answers.RETURNS_SMART_NULLS);
         final String fullJobName = "fullJobName";
         when(job.getFullName()).thenReturn(fullJobName);
         JobWithDetails jobWithDetails = mock(JobWithDetails.class, Answers.RETURNS_SMART_NULLS);
         try {
             when(jenkinsServer.getJob(fullJobName)).thenReturn(jobWithDetails);
+            when(jobWithDetails.getLastBuild()).thenReturn(lastBuild);
             when(jobWithDetails.getLastCompletedBuild()).thenReturn(lastCompletedBuild);
             when(jobWithDetails.getLastSuccessfulBuild()).thenReturn(lastSuccessfulBuild);
             when(jobWithDetails.getLastFailedBuild()).thenReturn(lastFailedBuild);
@@ -180,9 +196,12 @@ public class RequestManagerTest {
         when(urlBuilderMock.createConfigureUrl(anyString())).thenCallRealMethod();
         when(urlBuilderMock.removeTrailingSlash(anyString())).thenCallRealMethod();
 
+        mockBuildConsoleOutput(runningBuild, RUNNING_CONSOLE_OUTPUT);
         mockBuildConsoleOutput(lastCompletedBuild, COMPLETED_CONSOLE_OUTPUT);
         mockBuildConsoleOutput(lastSuccessfulBuild, SUCCESSFUL_CONSOLE_OUTPUT);
         mockBuildConsoleOutput(lastFailedBuild, FAILED_CONSOLE_OUTPUT);
+
+        when(runningBuild.details().isBuilding()).thenReturn(true);
     }
 
     private void mockBuildConsoleOutput(com.offbytwo.jenkins.model.Build build, String consoleText) throws IOException {

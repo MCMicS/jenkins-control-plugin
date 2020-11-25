@@ -47,8 +47,9 @@ public class JobTestConsoleProperties extends TestConsoleProperties implements S
     }
 
     @Override
-    public OutputToGeneralTestEventsConverter createTestEventsConverter(@NotNull String testFrameworkName, @NotNull TestConsoleProperties consoleProperties) {
-        return new OutputToGeneralTestEventsConverter("Job test results", this) {
+    public OutputToGeneralTestEventsConverter createTestEventsConverter(@NotNull String testFrameworkName,
+                                                                        @NotNull TestConsoleProperties consoleProperties) {
+        return new OutputToGeneralTestEventsConverter(JobTestResultsToolWindowFactory.TOOL_WINDOW_NAME, this) {
             @Override
             public void onStartTesting() {
                 ApplicationManager.getApplication().executeOnPooledThread(() -> {

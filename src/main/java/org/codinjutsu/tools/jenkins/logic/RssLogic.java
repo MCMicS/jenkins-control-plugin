@@ -39,8 +39,8 @@ import org.codinjutsu.tools.jenkins.view.JenkinsWidget;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
