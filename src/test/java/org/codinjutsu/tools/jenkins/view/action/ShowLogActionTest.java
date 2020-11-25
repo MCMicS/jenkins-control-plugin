@@ -133,6 +133,7 @@ public class ShowLogActionTest {
         final DataContext dataContext = mock(DataContext.class);
         when(dataContext.getData(PlatformDataKeys.PROJECT.getName())).thenReturn(project);
         when(project.getService(BrowserPanel.class)).thenReturn(browserPanel);
+        when(project.getService(BrowserPanel.class, true)).thenReturn(browserPanel);
         when(actionEvent.getPresentation()).thenReturn(presentation);
         when(actionEvent.getDataContext()).thenReturn(dataContext);
         when(browserPanel.getSelectedJob()).thenReturn(job);
