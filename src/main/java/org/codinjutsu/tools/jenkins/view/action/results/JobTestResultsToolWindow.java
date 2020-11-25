@@ -26,12 +26,10 @@ import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil;
 import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComponentContainer;
-import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
-import com.intellij.ui.content.Content;
-import com.intellij.ui.content.ContentManager;
 import org.codinjutsu.tools.jenkins.model.Job;
+import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,12 +54,14 @@ public class JobTestResultsToolWindow {
         final ConfigurationFactory configurationFactory = configurationType.getConfigurationFactories()[0];
 
         final RunConfiguration configuration = new UnknownRunConfiguration(configurationFactory, project);
-        final Executor executor = new DefaultRunExecutor();
+        final Executor executor = DefaultRunExecutor.getRunExecutorInstance();
         final ProcessHandler processHandler = new MyProcessHandler();
-        final TestConsoleProperties consoleProperties = new JobTestConsoleProperties(job, project, executor, configuration, processHandler);
+        final TestConsoleProperties consoleProperties = new JobTestConsoleProperties(job, project, executor,
+                configuration, processHandler);
         final BaseTestsOutputConsoleView consoleView;
         try {
-            consoleView = SMTestRunnerConnectionUtil.createAndAttachConsole(TOOL_WINDOW_ID, processHandler, consoleProperties);
+            consoleView = SMTestRunnerConnectionUtil.createAndAttachConsole(TOOL_WINDOW_ID, processHandler,
+                    consoleProperties);
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
         }
@@ -70,19 +70,7 @@ public class JobTestResultsToolWindow {
     }
 
     private void showInToolWindow(ComponentContainer consoleView, String tabName) {
-        getToolWindow().ifPresent(toolWindow -> showInToolWindow(toolWindow, consoleView, tabName));
-    }
-
-    private void showInToolWindow(ToolWindow toolWindow, ComponentContainer consoleView, String tabName) {
-        toolWindow.setAvailable(true, null);
-        toolWindow.activate(null);
-        toolWindow.show(null);
-        ContentManager contentManager = toolWindow.getContentManager();
-        Content content = contentManager.getFactory()
-                .createContent(consoleView.getComponent(), tabName, false);
-        Disposer.register(content, consoleView);
-        contentManager.addContent(content);
-        contentManager.setSelectedContent(content);
+        getToolWindow().ifPresent(toolWindow -> GuiUtil.showInToolWindow(toolWindow, consoleView, tabName));
     }
 
     @NotNull

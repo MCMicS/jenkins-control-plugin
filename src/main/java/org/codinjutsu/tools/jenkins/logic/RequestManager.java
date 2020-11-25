@@ -24,6 +24,7 @@ import com.intellij.util.net.IdeHttpClientHelpers;
 import com.intellij.util.net.ssl.CertificateManager;
 import com.offbytwo.jenkins.JenkinsServer;
 import com.offbytwo.jenkins.client.JenkinsHttpClient;
+import com.offbytwo.jenkins.helper.BuildConsoleStreamListener;
 import com.offbytwo.jenkins.model.JobWithDetails;
 import com.offbytwo.jenkins.model.TestChildReport;
 import com.offbytwo.jenkins.model.TestResult;
@@ -50,6 +51,7 @@ import javax.swing.*;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -366,6 +368,27 @@ public class RequestManager implements RequestManagerInterface, Disposable {
         }
     }
 
+    @Override
+    public void loadConsoleTextFor(Job job, BuildType buildType,
+                                     BuildConsoleStreamListener buildConsoleStreamListener) {
+        try {
+            final int pollingInSeconds = 1;
+            final int poolingTimeout = Math.toIntExact(TimeUnit.HOURS.toSeconds(1));
+            final com.offbytwo.jenkins.model.Build build = getBuildForType(buildType).apply(getJob(job));
+            if (build.equals(com.offbytwo.jenkins.model.Build.BUILD_HAS_NEVER_RUN)) {
+                buildConsoleStreamListener.onData("No Build available\n");
+                buildConsoleStreamListener.finished();
+            } else {
+                buildConsoleStreamListener.onData("Log for Build " + build.getUrl() + "console\n");
+                build.details().streamConsoleOutput(buildConsoleStreamListener, pollingInSeconds, poolingTimeout);
+            }
+        } catch (IOException | InterruptedException e) {
+            logger.warn("cannot load log for " + job.getNameToRenderSingleJob());
+            Thread.currentThread().interrupt();
+            buildConsoleStreamListener.finished();
+        }
+    }
+
     @NotNull
     private Function<JobWithDetails, com.offbytwo.jenkins.model.Build> getBuildForType(BuildType buildType) {
         final Function<JobWithDetails, com.offbytwo.jenkins.model.Build> buildProvider;
@@ -378,9 +401,25 @@ public class RequestManager implements RequestManagerInterface, Disposable {
                 break;
             case LAST://Fallthrough
             default:
-                buildProvider = JobWithDetails::getLastCompletedBuild;
+                buildProvider = preferLastBuildRunning(JobWithDetails::getLastCompletedBuild);
         }
         return buildProvider;
+    }
+
+    @NotNull
+    private Function<JobWithDetails, com.offbytwo.jenkins.model.Build> preferLastBuildRunning(
+            Function<JobWithDetails, com.offbytwo.jenkins.model.Build> fallback) {
+        return job -> {
+            try {
+                com.offbytwo.jenkins.model.Build lastBuild = job.getLastBuild();
+                if (lastBuild.details().isBuilding()) {
+                    return lastBuild;
+                }
+            } catch (IOException e) {
+                logger.warn("cannot load details for " + job.getName());
+            }
+            return fallback.apply(job);
+        };
     }
 
     @Override

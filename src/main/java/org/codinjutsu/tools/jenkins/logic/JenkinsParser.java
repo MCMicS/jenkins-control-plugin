@@ -39,6 +39,7 @@ public interface JenkinsParser {
     String JOB_URL = "url";
     String JOB_COLOR = "color";
     String JOB_LAST_BUILD = "lastBuild";
+    String JOB_LAST_COMPLETED_BUILD = "lastCompletedBuild";
     String JOB_LAST_SUCCESSFUL_BUILD = "lastSuccessfulBuild";
     String JOB_LAST_FAILED_BUILD = "lastFailedBuild";
     String JOB_IS_BUILDABLE = "buildable";

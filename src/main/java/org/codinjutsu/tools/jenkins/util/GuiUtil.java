@@ -16,12 +16,19 @@
 
 package org.codinjutsu.tools.jenkins.util;
 
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.ui.ComponentContainer;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.openapi.util.Disposer;
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.ui.content.Content;
+import com.intellij.ui.content.ContentManager;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
@@ -55,6 +62,24 @@ public class GuiUtil {
         JComponent actionToolbar = ActionManager.getInstance()
                 .createActionToolbar(toolBarName, actionGroup, true).getComponent();
         toolWindowPanel.setToolbar(actionToolbar);
+    }
+
+    public static void showInToolWindow(ToolWindow toolWindow, ComponentContainer consoleView, String tabName) {
+        showInToolWindow(toolWindow, consoleView.getComponent(), consoleView, tabName);
+    }
+
+    public static void showInToolWindow(ToolWindow toolWindow, JComponent toolWindowComponent,
+                                        @NotNull Disposable toolWindowDisposable, String tabName) {
+        runInSwingThread(() -> {
+            toolWindow.setAvailable(true, null);
+            toolWindow.activate(null);
+            toolWindow.show(null);
+            ContentManager contentManager = toolWindow.getContentManager();
+            Content content = contentManager.getFactory().createContent(toolWindowComponent, tabName, false);
+            Disposer.register(content, toolWindowDisposable);
+            contentManager.addContent(content);
+            contentManager.setSelectedContent(content);
+        });
     }
 
     private static class TaskRunner implements Runnable{

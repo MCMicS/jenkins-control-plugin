@@ -26,16 +26,20 @@ import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.logic.ExecutorService;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
+import org.codinjutsu.tools.jenkins.model.Build;
+import org.codinjutsu.tools.jenkins.model.BuildType;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.util.HtmlUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.codinjutsu.tools.jenkins.view.BuildParamDialog;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import static org.codinjutsu.tools.jenkins.view.BrowserPanel.POPUP_PLACE;
 
@@ -86,8 +90,20 @@ public class RunBuildAction extends AnAction implements DumbAware {
             public void onSuccess() {
                 ExecutorService.getInstance(project).getExecutor().schedule(() -> GuiUtil.runInSwingThread(() -> {
                     final Optional<Job> newJob = browserPanel.getJob(job.getNameToRenderSingleJob());
-                    newJob.ifPresent(browserPanel::loadJob);
+                    final Optional<Build> previousLastBuild = newJob.map(Job::getLastBuild);
+                    final Consumer<Job> openLogAfterReload = loaded -> openLogIfRunning(loaded, previousLastBuild.orElse(null));
+                    newJob.ifPresent(j -> browserPanel.loadJob(j, openLogAfterReload));
                 }), BUILD_STATUS_UPDATE_DELAY, TimeUnit.SECONDS);
+            }
+
+            private void openLogIfRunning(Job jobToCheckIfIsNewer, @Nullable Build previousLastBuild) {
+                final Build lastBuild = jobToCheckIfIsNewer.getLastBuild();
+                final boolean isNewerBuild = lastBuild != null &&
+                        (previousLastBuild == null || previousLastBuild.getNumber() < lastBuild.getNumber());
+                if (isNewerBuild && lastBuild.isBuilding()) {
+                    final LogToolWindow logToolWindow = new LogToolWindow(project);
+                    logToolWindow.showLog(BuildType.LAST, job, browserPanel);
+                }
             }
 
             @Override
