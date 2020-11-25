@@ -19,10 +19,7 @@ package org.codinjutsu.tools.jenkins;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
-import org.codinjutsu.tools.jenkins.logic.BrowserPanelAuthenticationHandler;
-import org.codinjutsu.tools.jenkins.logic.ExecutorService;
-import org.codinjutsu.tools.jenkins.logic.LoginService;
-import org.codinjutsu.tools.jenkins.logic.RssAuthenticationActionHandler;
+import org.codinjutsu.tools.jenkins.logic.*;
 import org.codinjutsu.tools.jenkins.view.JenkinsWidget;
 import org.jetbrains.annotations.NotNull;
 
@@ -49,9 +46,8 @@ public class JenkinsWindowManager implements Disposable {
     public void dispose() {
         RssAuthenticationActionHandler.getInstance(project).dispose();
         BrowserPanelAuthenticationHandler.getInstance(project).dispose();
-
         JenkinsWidget.getInstance(project).dispose();
-
-        ExecutorService.getInstance(project).getExecutor().shutdown();
+        ExecutorService.getInstance(project).dispose();
+        RequestManager.getInstance(project).dispose();
     }
 }

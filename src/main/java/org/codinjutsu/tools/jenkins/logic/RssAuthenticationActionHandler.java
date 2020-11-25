@@ -14,8 +14,7 @@ public class RssAuthenticationActionHandler implements AuthenticationNotifier, D
 
     public RssAuthenticationActionHandler(final Project project) {
         this.project = project;
-        final MessageBus myBus = ApplicationManager.getApplication().getMessageBus();
-        connection = myBus.connect();
+        connection = ApplicationManager.getApplication().getMessageBus().connect();
     }
 
     public void subscribe() {

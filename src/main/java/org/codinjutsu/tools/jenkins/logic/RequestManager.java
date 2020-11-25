@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -57,7 +58,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class RequestManager implements RequestManagerInterface {
+public class RequestManager implements RequestManagerInterface, Disposable {
 
     private static final Logger logger = Logger.getLogger(RequestManager.class);
 
@@ -71,9 +72,8 @@ public class RequestManager implements RequestManagerInterface {
 
     private JenkinsPlateform jenkinsPlateform = JenkinsPlateform.CLASSIC;
 
-    private RssParser rssParser = new RssParser();
-
-    private JenkinsParser jsonParser = new JenkinsJsonParser();
+    private final RssParser rssParser = new RssParser();
+    private final JenkinsParser jsonParser = new JenkinsJsonParser();
     private JenkinsServer jenkinsServer;
 
     public RequestManager(Project project) {
@@ -493,5 +493,10 @@ public class RequestManager implements RequestManagerInterface {
 
     void setJenkinsServer(JenkinsServer jenkinsServer) {
         this.jenkinsServer = jenkinsServer;
+    }
+
+    @Override
+    public void dispose() {
+        Optional.ofNullable(jenkinsServer).ifPresent(JenkinsServer::close);
     }
 }
