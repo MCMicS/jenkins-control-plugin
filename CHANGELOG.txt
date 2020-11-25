@@ -1,3 +1,6 @@
+Version 0.13.11
+    *
+
 Version 0.13.10
     * #253 [Feature Request] Log in progress
     * #181 Change to Dynamic Plugin for 2020.3+
