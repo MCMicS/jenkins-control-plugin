@@ -5,6 +5,7 @@ import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.process.NopProcessHandler;
 import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.process.ProcessOutputType;
+import com.intellij.execution.process.ProcessOutputTypes;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ExecutionConsole;
 import com.intellij.execution.ui.RunContentDescriptor;
@@ -128,7 +129,7 @@ public class LogToolWindow {
 
         @Override
         public void onData(String consoleContent) {
-            notifyTextAvailable(consoleContent, ProcessOutputType.STDOUT);
+            notifyTextAvailable(consoleContent, ProcessOutputTypes.STDOUT);
         }
 
         @Override

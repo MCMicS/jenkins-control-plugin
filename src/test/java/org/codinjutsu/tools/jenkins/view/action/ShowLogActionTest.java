@@ -12,11 +12,14 @@ import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.picocontainer.PicoContainer;
 
 import java.util.EnumSet;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 public class ShowLogActionTest {
@@ -132,8 +135,9 @@ public class ShowLogActionTest {
     public void setUp() {
         final DataContext dataContext = mock(DataContext.class);
         when(dataContext.getData(PlatformDataKeys.PROJECT.getName())).thenReturn(project);
-        when(project.getService(BrowserPanel.class)).thenReturn(browserPanel);
-        when(project.getService(BrowserPanel.class, true)).thenReturn(browserPanel);
+        final PicoContainer container = mock(PicoContainer.class);
+        Mockito.when(project.getPicoContainer()).thenReturn(container);
+        Mockito.when(container.getComponentInstance(BrowserPanel.class.getName())).thenReturn(browserPanel);
         when(actionEvent.getPresentation()).thenReturn(presentation);
         when(actionEvent.getDataContext()).thenReturn(dataContext);
         when(browserPanel.getSelectedJob()).thenReturn(job);
