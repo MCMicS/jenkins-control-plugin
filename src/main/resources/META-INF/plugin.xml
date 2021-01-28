@@ -15,7 +15,6 @@
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.vcs</depends>
     <depends>com.intellij.modules.lang</depends>
-    <!--    <depends>com.intellij.modules.java</depends>-->
     <depends optional="true" config-file="JavaSupport.xml">com.intellij.java</depends>
     <xi:include href="/META-INF/JobParameterRenderer.xml" xpointer="xpointer(/idea-plugin/*)"/>
 

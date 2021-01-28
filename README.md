@@ -18,6 +18,7 @@
 * [Idea 2019.3](../../releases/latest/download/jenkins-control-plugin-2019.3.zip)
 * [Idea 2020.1](../../releases/latest/download/jenkins-control-plugin-2020.1.zip)
 * [Idea 2020.3](../../releases/latest/download/jenkins-control-plugin-2020.3.zip)
+* [Idea 2021.1](../../releases/latest/download/jenkins-control-plugin-2021.1.zip) (coming soon)
 
 ### Use EAP Builds
 * add https://plugins.jetbrains.com/plugins/eap/list as Plugin Repository
@@ -31,7 +32,7 @@ with Multibranch support.
 ![Multibranch Support](doc/images/MultiBranch.png?raw=true)
 
 ## Plugin Compatibility
-This plugin was built with JDK 8 for IDEA 2018, 2019 versions. Jenkins CIs of jenkins-ci and apache.org are used for manual and stress testing.
+This plugin was built with JDK 11 but Java 8 Source level for older IDEA versions. Jenkins CIs of jenkins-ci and apache.org are used for manual and stress testing.
 https://ci.jenkins.io/
 ## Installation steps
 Download this plugin from your IDE or [from the plugin website](http://plugins.jetbrains.com/plugin/6110).
@@ -117,6 +118,10 @@ The RSS reader has moved to the Event Log. If you need to refresh manually, clic
 ## How to build
 
 This project is built with Gradle. Just run `./gradlew buildPlugin`.
+
+## Update Gradle versin
+
+`gradle wrapper --gradle-version 6.8.1 --distribution-type bin`
 
 ### Open the plugin source in Intellij
 
