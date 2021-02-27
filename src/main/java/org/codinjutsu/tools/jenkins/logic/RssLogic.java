@@ -31,7 +31,7 @@ import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.ui.awt.RelativePoint;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JobTracker;
-import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
+import org.codinjutsu.tools.jenkins.exception.JenkinsPluginRuntimeException;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
@@ -85,6 +85,7 @@ public class RssLogic implements Disposable {
         }
     }
 
+    @SuppressWarnings("java:S3824")
     private Map<String, Build> loadAndReturnNewLatestBuilds() {
         final Map<String, Build> latestBuildMap = requestManager.loadJenkinsRssLatestBuilds(jenkinsAppSettings);
         final Map<String, Build> newBuildMap = new HashMap<>();
@@ -186,7 +187,7 @@ public class RssLogic implements Disposable {
             final Map<String, Build> finishedBuilds;
             try {
                 finishedBuilds = loadAndReturnNewLatestBuilds();
-            } catch (ConfigurationException ex) {
+            } catch (JenkinsPluginRuntimeException ex) {
                 displayErrorMessageInABalloon(ex.getMessage());
                 return;
             }

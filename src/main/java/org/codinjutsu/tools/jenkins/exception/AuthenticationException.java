@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package org.codinjutsu.tools.jenkins.security;
+package org.codinjutsu.tools.jenkins.exception;
 
-public class AuthenticationException extends RuntimeException {
+public class AuthenticationException extends JenkinsPluginRuntimeException {
 
     private final String responseBody;
 
