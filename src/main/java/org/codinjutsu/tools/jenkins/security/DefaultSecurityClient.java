@@ -26,6 +26,7 @@ import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.methods.multipart.StringPart;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHeaders;
+import org.codinjutsu.tools.jenkins.exception.AuthenticationException;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.model.FileParameter;
 import org.codinjutsu.tools.jenkins.model.RequestData;

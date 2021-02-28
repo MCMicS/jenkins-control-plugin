@@ -21,6 +21,7 @@ import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHeaders;
+import org.codinjutsu.tools.jenkins.exception.AuthenticationException;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.util.IOUtils;
 import org.jetbrains.annotations.Nullable;

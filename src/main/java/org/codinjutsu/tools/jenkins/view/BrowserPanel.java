@@ -33,7 +33,7 @@ import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.JenkinsTree;
 import org.codinjutsu.tools.jenkins.JenkinsTreeState;
-import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
+import org.codinjutsu.tools.jenkins.exception.JenkinsPluginRuntimeException;
 import org.codinjutsu.tools.jenkins.logic.*;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.util.CollectionUtil;
@@ -476,7 +476,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements PersistentSta
                 }
                 currentSelectedView = viewToLoad;
                 loadJobs();
-            } catch (ConfigurationException ex) {
+            } catch (JenkinsPluginRuntimeException ex) {
                 notifyErrorJenkinsToolWindow(ex.getMessage());
             } finally {
                 setTreeBusy(false);

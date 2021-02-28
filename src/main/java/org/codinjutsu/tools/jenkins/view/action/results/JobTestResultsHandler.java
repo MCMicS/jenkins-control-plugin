@@ -13,7 +13,7 @@ import com.offbytwo.jenkins.model.TestCase;
 import com.offbytwo.jenkins.model.TestResult;
 import com.offbytwo.jenkins.model.TestSuites;
 import jetbrains.buildServer.messages.serviceMessages.TestFailed;
-import org.codinjutsu.tools.jenkins.exception.NoJobFoundException;
+import org.codinjutsu.tools.jenkins.exception.JenkinsPluginRuntimeException;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
@@ -43,7 +43,7 @@ class JobTestResultsHandler {
                     : Arrays.stream(clazz.getMethods())
                     .filter(m -> method.equals(m.getName()))
                     .findFirst()
-                    .map(m -> (PsiElement) m)
+                    .map(PsiElement.class::cast)
                     .orElse(clazz);
 
             return clazz == null ? Collections.emptyList() : Collections.singletonList(new PsiLocation<>(element));
@@ -56,7 +56,7 @@ class JobTestResultsHandler {
         try {
             List<TestResult> testResults = RequestManager.getInstance(project).loadTestResultsFor(job);
             testResults.forEach(this::handleTestResult);
-        } catch (NoJobFoundException e) {
+        } catch (JenkinsPluginRuntimeException e) {
             browserPanel.notifyErrorJenkinsToolWindow(e.getMessage());
         }
         testEventsProcessor.onFinishTesting();
