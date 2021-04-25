@@ -1,4 +1,4 @@
-# Jenkins Plugin 0.13.9 for Jetbrains products
+# Jenkins Plugin 0.13.11 for Jetbrains products
 [![Build Status](https://travis-ci.com/MCMicS/jenkins-control-plugin.svg?branch=master)](https://travis-ci.com/MCMicS/jenkins-control-plugin)
 [![Gitter](https://badges.gitter.im/jenkins-control-plugin/community.svg)](https://gitter.im/jenkins-control-plugin/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=MCMicS_jenkins-control-plugin&metric=alert_status)](https://sonarcloud.io/dashboard?id=MCMicS_jenkins-control-plugin)
@@ -14,7 +14,6 @@
 * [Changelog](CHANGELOG.txt)
 
 ### Current Release
-* [Idea 2018.3](../../releases/latest/download/jenkins-control-plugin-2018.3.zip)
 * [Idea 2019.3](../../releases/latest/download/jenkins-control-plugin-2019.3.zip)
 * [Idea 2020.1](../../releases/latest/download/jenkins-control-plugin-2020.1.zip)
 * [Idea 2020.3](../../releases/latest/download/jenkins-control-plugin-2020.3.zip)
@@ -31,7 +30,7 @@ with Multibranch support.
 ![Multibranch Support](doc/images/MultiBranch.png?raw=true)
 
 ## Plugin Compatibility
-This plugin was built with JDK 8 for IDEA 2018, 2019 versions. Jenkins CIs of jenkins-ci and apache.org are used for manual and stress testing.
+This plugin was built with JDK 11 but Java 8 Source level for older IDEA versions. Jenkins CIs of jenkins-ci and apache.org are used for manual and stress testing.
 https://ci.jenkins.io/
 ## Installation steps
 Download this plugin from your IDE or [from the plugin website](http://plugins.jetbrains.com/plugin/6110).
@@ -117,6 +116,10 @@ The RSS reader has moved to the Event Log. If you need to refresh manually, clic
 ## How to build
 
 This project is built with Gradle. Just run `./gradlew buildPlugin`.
+
+## Update Gradle versin
+
+`gradle wrapper --gradle-version 6.8.1 --distribution-type bin`
 
 ### Open the plugin source in Intellij
 

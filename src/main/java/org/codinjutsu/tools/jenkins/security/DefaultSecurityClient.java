@@ -26,6 +26,7 @@ import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.methods.multipart.StringPart;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHeaders;
+import org.codinjutsu.tools.jenkins.exception.AuthenticationException;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.model.FileParameter;
 import org.codinjutsu.tools.jenkins.model.RequestData;
@@ -40,12 +41,14 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 
 class DefaultSecurityClient implements SecurityClient {
 
     private static final String BAD_CRUMB_DATA = "No valid crumb was included in the request";
+    static final String CHARSET = StandardCharsets.UTF_8.name();
     protected final HttpClient httpClient;
     private final int connectionTimout;
     protected String crumbData;
@@ -76,6 +79,23 @@ class DefaultSecurityClient implements SecurityClient {
         return responseCollector.data;
     }
 
+    /**
+     * send parameter via Json:<br>
+     * <pre>
+     * {
+     *   "parameter": [
+     *     {
+     *       "name": "Parameter-Name",
+     *       "value": "Parameter-Value"
+     *     },
+     *     {
+     *       "name": "File-Parameter",
+     *       "file": "fileName-same-as-in-parts"
+     *     }
+     *   ]
+     * }
+     * </pre>
+     */
     @NotNull
     PostMethod createPost(String url, @NotNull Collection<RequestData> data) {
         final PostMethod post = new PostMethod(url);
@@ -83,15 +103,22 @@ class DefaultSecurityClient implements SecurityClient {
             final ArrayList<Part> parts = new ArrayList<>();
             data.stream().filter(FileParameter.class::isInstance)
                     .map(FileParameter.class::cast)
-                    .map(fileParameter -> new FilePart(fileParameter.getFileName(), new VirtualFilePartSource(fileParameter.getFile())))
+                    .map(this::createFilePart)
                     .forEach(parts::add);
             final JsonObject parameterJson = new JsonObject();
             parameterJson.put("parameter", data);
-            parts.add(new StringPart("json", Jsoner.serialize(parameterJson)));
+            parts.add(new StringPart("json", Jsoner.serialize(parameterJson), DefaultSecurityClient.CHARSET));
             post.setRequestEntity(new MultipartRequestEntity(parts.toArray(new Part[0]), post.getParams()));
         }
 
         return post;
+    }
+
+    @NotNull
+    private FilePart createFilePart(FileParameter fileParameter) {
+        final String CONTENT_TYPE= null;
+        return new FilePart(fileParameter.getFileName(), new VirtualFilePartSource(fileParameter.getFile()),
+                CONTENT_TYPE, DefaultSecurityClient.CHARSET);
     }
 
     private void runMethod(String url, @NotNull Collection<RequestData> data, ResponseCollector responseCollector) {
@@ -101,6 +128,7 @@ class DefaultSecurityClient implements SecurityClient {
             post.addRequestHeader(jenkinsVersion.getCrumbName(), crumbData);
         }
         post.addRequestHeader(HttpHeaders.ACCEPT_LANGUAGE, "en-US,en;q=0.5");
+        post.getParams().setContentCharset(StandardCharsets.UTF_8.name());
 
         try {
             httpClient.getParams().setParameter("http.socket.timeout", connectionTimout);

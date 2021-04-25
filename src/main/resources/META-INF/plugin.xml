@@ -1,6 +1,6 @@
 <idea-plugin xmlns:xi="http://www.w3.org/2001/XInclude">
     <!--suppress PluginXmlValidity -->
-    <name>Jenkins Control Plugin</name>
+    <name>Jenkins Control</name>
     <id>Jenkins Control Plugin</id>
     <description><![CDATA[A Jenkins Plugin for Intellij. Will be replaced by gradle build]]></description>
     <version>0.11.0</version>
@@ -15,7 +15,6 @@
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.vcs</depends>
     <depends>com.intellij.modules.lang</depends>
-    <!--    <depends>com.intellij.modules.java</depends>-->
     <depends optional="true" config-file="JavaSupport.xml">com.intellij.java</depends>
     <xi:include href="/META-INF/JobParameterRenderer.xml" xpointer="xpointer(/idea-plugin/*)"/>
 
