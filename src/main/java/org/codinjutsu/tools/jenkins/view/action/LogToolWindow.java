@@ -16,7 +16,7 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.offbytwo.jenkins.helper.BuildConsoleStreamListener;
 import lombok.Value;
-import org.codinjutsu.tools.jenkins.exception.NoJobFoundException;
+import org.codinjutsu.tools.jenkins.exception.JenkinsPluginRuntimeException;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildType;
@@ -59,7 +59,7 @@ public class LogToolWindow {
                 try {
                     final RequestManager requestManager = browserPanel.getJenkinsManager();
                     requestManager.loadConsoleTextFor(job, buildType, processHandler);
-                } catch (NoJobFoundException e) {
+                } catch (JenkinsPluginRuntimeException e) {
                     browserPanel.notifyErrorJenkinsToolWindow(e.getMessage());
                 }
             }
@@ -90,9 +90,7 @@ public class LogToolWindow {
     }
 
     private static ActionToolbar createToolbar(ActionGroup actions) {
-        final ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar(
-                ActionPlaces.UNKNOWN, actions, false);
-        return actionToolbar;
+        return ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, actions, false);
     }
 
     private void showInToolWindow(ShowLogConsoleView showLogConsoleView, String tabName) {
@@ -160,7 +158,6 @@ public class LogToolWindow {
         }
 
         public void init() {
-            //setContentToolWindowId(TOOL_WINDOW_ID);
             setActivateToolWindowWhenAdded(true);
             setAutoFocusContent(true);
         }

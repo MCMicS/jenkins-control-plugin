@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.text.MessageFormat;
 
-public class NoJobFoundException extends RuntimeException {
+public class NoJobFoundException extends JenkinsPluginRuntimeException {
 
     public NoJobFoundException(@NotNull Job job) {
         super(createMessage(job));

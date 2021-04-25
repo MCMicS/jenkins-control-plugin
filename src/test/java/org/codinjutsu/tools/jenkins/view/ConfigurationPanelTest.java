@@ -18,16 +18,6 @@ package org.codinjutsu.tools.jenkins.view;
 
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
-import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
-import org.codinjutsu.tools.jenkins.logic.RequestManager;
-import org.codinjutsu.tools.jenkins.security.AuthenticationException;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
-import static org.codinjutsu.tools.jenkins.JenkinsAppSettings.DEFAULT_BUILD_DELAY;
-import static org.codinjutsu.tools.jenkins.JenkinsAppSettings.DUMMY_JENKINS_SERVER_URL;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doThrow;
 
 public class ConfigurationPanelTest {
 

@@ -37,19 +37,7 @@ public class UrlBuilderTest {
         configuration.setDelay(20);
 
         URL url = urlBuilder.createRunJobUrl("http://localhost:8080/jenkins/My%20Job", configuration);
-        assertThat(url.toString()).isEqualTo("http://localhost:8080/jenkins/My%20Job/build?delay=20sec");
-    }
-
-    @Test
-    public void createRunParameterizedJobUrl() {
-        configuration.setDelay(20);
-
-        Map<String, String> valueByNameParams = new LinkedHashMap<>();
-        valueByNameParams.put("param1", "value1");
-        valueByNameParams.put("param2", "value2");
-
-        URL url = urlBuilder.createRunParameterizedJobUrl("http://localhost:8080/jenkins/My%20Job", configuration, valueByNameParams);
-        assertThat(url.toString()).isEqualTo("http://localhost:8080/jenkins/My%20Job/buildWithParameters?delay=20sec&param1=value1&param2=value2");
+        assertThat(url).hasToString("http://localhost:8080/jenkins/My%20Job/build?delay=20sec");
     }
 
     @Test
@@ -57,43 +45,43 @@ public class UrlBuilderTest {
         configuration.setServerUrl("http://localhost:8080/jenkins");
 
         URL url = urlBuilder.createJenkinsWorkspaceUrl(configuration);
-        assertThat(url.toString()).isEqualTo("http://localhost:8080/jenkins/api/json?tree=url,description,nodeName,nodeDescription,primaryView%5Bname,url%5D,views%5Bname,url,views%5Bname,url%5D%5D");
+        assertThat(url).hasToString("http://localhost:8080/jenkins/api/json?tree=url,description,nodeName,nodeDescription,primaryView%5Bname,url%5D,views%5Bname,url,views%5Bname,url%5D%5D");
     }
 
     @Test
     public void createViewUrlForClassicPlateform() {
         URL url = urlBuilder.createViewUrl(JenkinsPlateform.CLASSIC, "http://localhost:8080/jenkins/My%20View");
-        assertThat(url.toString()).isEqualTo("http://localhost:8080/jenkins/My%20View/api/json?tree=name,url,jobs%5Bname,fullName,displayName,fullDisplayName,jobs,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Burl,id,building,result,number,displayName,fullDisplayName,timestamp,duration,actions%5Bparameters%5Bname,value%5D%5D%5D,lastFailedBuild%5Burl%5D,lastSuccessfulBuild%5Burl%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,description,choices%5D%5D%5D");
+        assertThat(url).hasToString("http://localhost:8080/jenkins/My%20View/api/json?tree=name,url,jobs%5Bname,fullName,displayName,fullDisplayName,jobs,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Burl,id,building,result,number,displayName,fullDisplayName,timestamp,duration,actions%5Bparameters%5Bname,value%5D%5D%5D,lastFailedBuild%5Burl%5D,lastSuccessfulBuild%5Burl%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,description,choices%5D%5D%5D");
     }
 
     @Test
     public void createJobJSONUrl() {
         URL url = urlBuilder.createJobUrl("http://localhost:8080/jenkins/my%20Job");
-        assertThat(url.toString()).isEqualTo("http://localhost:8080/jenkins/my%20Job/api/json?tree=name,fullName,displayName,fullDisplayName,jobs,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Burl,id,building,result,number,displayName,fullDisplayName,timestamp,duration,actions%5Bparameters%5Bname,value%5D%5D%5D,lastFailedBuild%5Burl%5D,lastSuccessfulBuild%5Burl%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,description,choices%5D%5D");
+        assertThat(url).hasToString("http://localhost:8080/jenkins/my%20Job/api/json?tree=name,fullName,displayName,fullDisplayName,jobs,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Burl,id,building,result,number,displayName,fullDisplayName,timestamp,duration,actions%5Bparameters%5Bname,value%5D%5D%5D,lastFailedBuild%5Burl%5D,lastSuccessfulBuild%5Burl%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,description,choices%5D%5D");
     }
 
     @Test
     public void createViewUrlForCloudbeesPlateform() {
         URL url = urlBuilder.createViewUrl(JenkinsPlateform.CLOUDBEES, "http://localhost:8080/jenkins/My%20View");
-        assertThat(url.toString()).isEqualTo("http://localhost:8080/jenkins/My%20View/api/json?tree=name,url,views%5Bjobs%5Bname,fullName,displayName,fullDisplayName,jobs,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Burl,id,building,result,number,displayName,fullDisplayName,timestamp,duration,actions%5Bparameters%5Bname,value%5D%5D%5D,lastFailedBuild%5Burl%5D,lastSuccessfulBuild%5Burl%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,description,choices%5D%5D%5D%5D");
+        assertThat(url).hasToString("http://localhost:8080/jenkins/My%20View/api/json?tree=name,url,views%5Bjobs%5Bname,fullName,displayName,fullDisplayName,jobs,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Burl,id,building,result,number,displayName,fullDisplayName,timestamp,duration,actions%5Bparameters%5Bname,value%5D%5D%5D,lastFailedBuild%5Burl%5D,lastSuccessfulBuild%5Burl%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,description,choices%5D%5D%5D%5D");
     }
 
     @Test
     public void createRssLastBuildUrl() {
         URL url = urlBuilder.createRssLatestUrl("http://localhost:8080/jenkins");
-        assertThat(url.toString()).isEqualTo("http://localhost:8080/jenkins/rssLatest");
+        assertThat(url).hasToString("http://localhost:8080/jenkins/rssLatest");
     }
 
     @Test
     public void createAuthenticationJSONUrl() {
         URL url = urlBuilder.createAuthenticationUrl("http://localhost:8080/jenkins");
-        assertThat(url.toString()).isEqualTo("http://localhost:8080/jenkins/api/json?tree=nodeName,url,description,primaryView%5Bname,url%5D");
+        assertThat(url).hasToString("http://localhost:8080/jenkins/api/json?tree=nodeName,url,description,primaryView%5Bname,url%5D");
     }
 
     @Test
     public void createComputerJSONUrl() {
         URL url = urlBuilder.createComputerUrl("http://localhost:8080/jenkins");
-        assertThat(url.toString()).isEqualTo("http://localhost:8080/jenkins/computer/api/json?tree=computer%5BdisplayName,description,offline,assignedLabels%5Bname%5D%5D");
+        assertThat(url).hasToString("http://localhost:8080/jenkins/computer/api/json?tree=computer%5BdisplayName,description,offline,assignedLabels%5Bname%5D%5D");
     }
 
     @Before
