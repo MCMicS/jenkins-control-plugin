@@ -1,6 +1,7 @@
 Version 0.13.11
     * #84 Handle connection exceptions
     * #270 Multiline String Parameter Turkish Character Problem
+    * #240 PT_MULTI_SELECT and PT_CHECKBOX not supported: Render Select items as text input
 
 Version 0.13.10
     * #253 [Feature Request] Log in progress
