@@ -29,22 +29,11 @@ public class GitParameterRenderer implements JobParameterRenderer {
     private final Map<JobParameterType, BiFunction<JobParameter, String, JobParameterComponent<String>>> converter = new HashMap<>();
 
     public GitParameterRenderer() {
-        converter.put(PT_TAG, GitParameterRenderer::createComponent);
-        converter.put(PT_BRANCH, GitParameterRenderer::createComponent);
-        converter.put(PT_BRANCH_TAG, GitParameterRenderer::createComponent);
-        converter.put(PT_REVISION, GitParameterRenderer::createComponent);
-        converter.put(PT_PULL_REQUEST, GitParameterRenderer::createComponent);
-    }
-
-    @NotNull
-    public static JobParameterComponent<String> createComponent(@NotNull JobParameter jobParameter, String defaultValue) {
-        final BiFunction<JobParameter, String, JobParameterComponent<String>> renderer;
-        if (jobParameter.getChoices().isEmpty()) {
-            renderer = JobParameterRenderers::createTextField;
-        } else {
-            renderer = JobParameterRenderers::createComboBox;
-        }
-        return renderer.apply(jobParameter, defaultValue);
+        converter.put(PT_TAG, JobParameterRenderers::createComboBoxIfChoicesExists);
+        converter.put(PT_BRANCH, JobParameterRenderers::createComboBoxIfChoicesExists);
+        converter.put(PT_BRANCH_TAG, JobParameterRenderers::createComboBoxIfChoicesExists);
+        converter.put(PT_REVISION, JobParameterRenderers::createComboBoxIfChoicesExists);
+        converter.put(PT_PULL_REQUEST, JobParameterRenderers::createComboBoxIfChoicesExists);
     }
 
     @NotNull

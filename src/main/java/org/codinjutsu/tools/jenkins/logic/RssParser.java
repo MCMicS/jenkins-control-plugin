@@ -34,6 +34,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.text.SimpleDateFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,14 +44,13 @@ public class RssParser {
 
     private static final Logger LOG = Logger.getLogger(RssParser.class);
 
+    public final SimpleDateFormat rssDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
     private static final String RSS_ENTRY = "entry";
     private static final String RSS_TITLE = "title";
     private static final String RSS_LINK = "link";
     private static final String RSS_LINK_HREF = "href";
     private static final String RSS_PUBLISHED = "published";
-
-    public RssParser() {
-    }
 
     @NotNull
     public Map<String, Build> loadJenkinsRssLatestBuilds(String rssData) {
@@ -94,10 +94,15 @@ public class RssParser {
 
             if (!BuildStatusEnum.NULL.equals(status)) {
                 buildMap.put(jobName, Build.createBuildFromRss(buildUrl.orElse(StringUtils.EMPTY), number,
-                        status.getStatus(), false, publishedBuild, title));
+                        status.getStatus(), false, publishedBuild, title, rssDateFormat));
             }
         }
 
         return buildMap;
+    }
+
+    @NotNull
+    SimpleDateFormat getDateFormat() {
+        return rssDateFormat;
     }
 }

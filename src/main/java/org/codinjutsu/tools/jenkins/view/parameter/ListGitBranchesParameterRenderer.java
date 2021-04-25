@@ -25,9 +25,9 @@ public class ListGitBranchesParameterRenderer implements JobParameterRenderer {
     private final Map<JobParameterType, BiFunction<JobParameter, String, JobParameterComponent<String>>> converter = new HashMap<>();
 
     public ListGitBranchesParameterRenderer() {
-        converter.put(PT_TAG, GitParameterRenderer::createComponent);
-        converter.put(PT_BRANCH, GitParameterRenderer::createComponent);
-        converter.put(PT_BRANCH_TAG, GitParameterRenderer::createComponent);
+        converter.put(PT_TAG, JobParameterRenderers::createComboBoxIfChoicesExists);
+        converter.put(PT_BRANCH, JobParameterRenderers::createComboBoxIfChoicesExists);
+        converter.put(PT_BRANCH_TAG, JobParameterRenderers::createComboBoxIfChoicesExists);
     }
 
     @NotNull

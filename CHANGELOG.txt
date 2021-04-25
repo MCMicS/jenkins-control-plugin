@@ -1,3 +1,6 @@
+Version 0.13.12
+    *
+
 Version 0.13.11
     * #84 Handle connection exceptions
     * #270 Multiline String Parameter Turkish Character Problem

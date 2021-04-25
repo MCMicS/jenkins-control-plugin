@@ -38,6 +38,7 @@ import org.codinjutsu.tools.jenkins.util.DateUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -51,6 +52,8 @@ import java.util.stream.Collectors;
 public class JenkinsJsonParser implements JenkinsParser {
 
     private static final Logger LOG = Logger.getLogger(JenkinsJsonParser.class);
+
+    private final SimpleDateFormat workspaceDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 
     private static boolean getBoolean(Object obj) {
         return Boolean.TRUE.equals(obj);
@@ -175,8 +178,8 @@ public class JenkinsJsonParser implements JenkinsParser {
         final String buildDate = lastBuildObject.getString(createJsonKey(BUILD_ID));
         // BUILD_ID
         //    Die aktuelle Build-ID. In Builds ab Jenkins 1.597 ist dies die Build-Nummer, vorher ein Zeitstempel im Format YYYY-MM-DD_hh-mm-ss.
-        if (buildDate != null && DateUtil.isValidJenkinsDate(buildDate)) {
-            builder.buildDate(DateUtil.parseDate(buildDate, DateUtil.WORKSPACE_DATE_FORMAT));
+        if (buildDate != null && DateUtil.isValidJenkinsDate(buildDate, workspaceDateFormat)) {
+            builder.buildDate(DateUtil.parseDate(buildDate, workspaceDateFormat));
         } else {
             builder.buildDate(timestamp);
         }

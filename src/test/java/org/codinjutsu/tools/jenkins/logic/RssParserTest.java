@@ -3,17 +3,19 @@ package org.codinjutsu.tools.jenkins.logic;
 import com.intellij.util.ResourceUtil;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
-import org.codinjutsu.tools.jenkins.util.DateUtil;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.*;
 
 public class RssParserTest {
+
+    public static final SimpleDateFormat RSS_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
     private final RssParser rssParser = new RssParser();
 
@@ -31,7 +33,7 @@ public class RssParserTest {
                         "</feed>";
         final Map<String, Build> singleEntry = rssParser.loadJenkinsRssLatestBuilds(rssEntry);
         assertThat(singleEntry).hasSize(1);
-        final Date buildDate = DateUtil.RSS_DATE_FORMAT.parse("2020-05-12T20:07:51Z");
+        final Date buildDate = rssParser.getDateFormat().parse("2020-05-12T20:07:51Z");
         final Build build = Build.builder()
                 .url("http://jenkins.example.org/job/single_build/42/")
                 .number(42)
@@ -55,7 +57,7 @@ public class RssParserTest {
                 .url("http://ci.jenkins-ci.org/job/TESTING-HUDSON-7434/2/")
                 .number(2)
                 .status(BuildStatusEnum.FAILURE)
-                .buildDate(DateUtil.RSS_DATE_FORMAT.parse("2011-03-02T05:27:56Z"))
+                .buildDate(rssParser.getDateFormat().parse("2011-03-02T05:27:56Z"))
                 .building(false)
                 .timestamp(new Date(0L))
                 .duration(0L)
@@ -66,7 +68,7 @@ public class RssParserTest {
                 .url("http://ci.jenkins-ci.org/job/infra_jenkins-ci.org_webcontents/2/")
                 .number(2)
                 .status(BuildStatusEnum.SUCCESS)
-                .buildDate(DateUtil.RSS_DATE_FORMAT.parse("2011-02-02T00:49:58Z"))
+                .buildDate(rssParser.getDateFormat().parse("2011-02-02T00:49:58Z"))
                 .building(false)
                 .timestamp(new Date(0L))
                 .duration(0L)
@@ -77,7 +79,7 @@ public class RssParserTest {
                 .url("http://ci.jenkins-ci.org/job/jenkins_main_trunk/600/")
                 .number(600)
                 .status(BuildStatusEnum.NULL)
-                .buildDate(DateUtil.RSS_DATE_FORMAT.parse("2011-03-15T23:30:58Z"))
+                .buildDate(rssParser.getDateFormat().parse("2011-03-15T23:30:58Z"))
                 .building(false)
                 .timestamp(new Date(0L))
                 .duration(0L)
@@ -101,7 +103,7 @@ public class RssParserTest {
                 .url("http://localhost:8080/job/Version%20Number/job/VersionNumber/3/")
                 .number(3)
                 .status(BuildStatusEnum.FAILURE)
-                .buildDate(DateUtil.RSS_DATE_FORMAT.parse("2020-05-07T18:18:13Z"))
+                .buildDate(rssParser.getDateFormat().parse("2020-05-07T18:18:13Z"))
                 .building(false)
                 .timestamp(new Date(0L))
                 .duration(0L)
@@ -112,7 +114,7 @@ public class RssParserTest {
                 .url("http://localhost:8080/job/Version%20Number/job/With%20Build%20Display/5/")
                 .number(5)
                 .status(BuildStatusEnum.SUCCESS)
-                .buildDate(DateUtil.RSS_DATE_FORMAT.parse("2020-05-07T18:18:38Z"))
+                .buildDate(rssParser.getDateFormat().parse("2020-05-07T18:18:38Z"))
                 .building(false)
                 .timestamp(new Date(0L))
                 .duration(0L)

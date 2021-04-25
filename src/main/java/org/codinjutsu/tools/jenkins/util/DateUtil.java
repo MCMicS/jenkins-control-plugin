@@ -17,8 +17,10 @@
 package org.codinjutsu.tools.jenkins.util;
 
 import com.intellij.openapi.diagnostic.Logger;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -26,10 +28,6 @@ import java.util.Date;
 public class DateUtil {
 
     private static final Logger LOG = Logger.getInstance(DateUtil.class.getName());
-
-    public static final SimpleDateFormat WORKSPACE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-    public static final SimpleDateFormat RSS_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-
 
     private DateUtil() {
     }
@@ -51,11 +49,11 @@ public class DateUtil {
     /**
      * In Builds bis Jenkins 1.597 ein Zeitstempel im Format YYYY-MM-DD_hh-mm-ss.
      */
-    public static boolean isValidJenkinsDate(@Nullable String buildDate) {
+    public static boolean isValidJenkinsDate(@Nullable String buildDate, @NotNull DateFormat dateFormat) {
         try {
             Date parsedDate = null;
             if (buildDate != null && buildDate.length() > 10) {
-                parsedDate = WORKSPACE_DATE_FORMAT.parse(buildDate);
+                parsedDate = dateFormat.parse(buildDate);
             }
             return parsedDate != null;
         } catch (ParseException | NumberFormatException e) {
