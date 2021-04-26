@@ -39,13 +39,12 @@ Download this plugin from your IDE or [from the plugin website](http://plugins.j
 * Click on the **Jenkins Settings** button located on the upper toolbar (or you can also open IntelliJ Settings Screen and select the Jenkins Control Plugin option).
 * Enter your Jenkins Server URL (e.g: https://ci.jenkins.io/).
 * If Security is enabled on the server, you have to provide credentials. Enter your username and the password. The password will be stored in Intellij Password Manager. It could ask you a Master password.
-* If Cross Site Request Forgery Prevention is enabled on the server, then you have to provide your crumb data. To get the value, you will have to open the following URL in your browser *_jenkins_url_/crumbIssuer/api/xml?tree=crumb*. Just copy and paste the crumb value in the field. please note for the authentication case, you have to run the crumb URL after login.
-  * Since Jenkins 2.176 the CSRF handling was improved. The crumb not work anymore with different sessions.
+* If Cross Site Request Forgery Prevention is enabled on the server, then (for older Jenkins version) you have to provide your crumb data. To get the value, you will have to open the following URL in your browser `_jenkins_url_/crumbIssuer/api/xml?tree=crumb`. Just copy and paste the crumb value in the field. please note for the authentication case, you have to run the crumb URL after login.
+* Since Jenkins 2.176 the CSRF handling was changed. The crumb does not work anymore with different sessions.
 It is recommended to use an API token for authenticate the plugin:
-   To do this do following:
-     1. Go to user setting: http://<jenkinsUrl>:8080/user/<user>/configure
-     2. Add New API Token for Jenkins Plugin
-     3. Use this API Token as your Password
+     1. Go to user setting: `_jenkins_url_/user/_username_/configure`
+     2. Add New API Token (recommended new one specifically for Jenkins Plugin)
+     3. Use this newly added API Token as your Password, no need to specify Crump Data.
 * To make sure that all parameters are correct, you can click on the **Test Connection** button. A feedback message will appear.
 
 ![Connection succeeded](doc/images/Configuration-Success.png?raw=true)
