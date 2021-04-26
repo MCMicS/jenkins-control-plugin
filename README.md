@@ -40,7 +40,7 @@ Download this plugin from your IDE or [from the plugin website](http://plugins.j
 * Enter your Jenkins Server URL (e.g: https://ci.jenkins.io/).
 * If Security is enabled on the server, you have to provide credentials. Enter your username and the password. The password will be stored in Intellij Password Manager. It could ask you a Master password.
 * If Cross Site Request Forgery Prevention is enabled on the server, then (for older Jenkins version) you have to provide your crumb data. To get the value, you will have to open the following URL in your browser `_jenkins_url_/crumbIssuer/api/xml?tree=crumb`. Just copy and paste the crumb value in the field. please note for the authentication case, you have to run the crumb URL after login.
-* Since Jenkins 2.176 the CSRF handling was changed. The crumb not work anymore with different sessions.
+* Since Jenkins 2.176 the CSRF handling was changed. The crumb does not work anymore with different sessions.
 It is recommended to use an API token for authenticate the plugin:
      1. Go to user setting: `_jenkins_url_/user/_username_/configure`
      2. Add New API Token (recommended new one specifically for Jenkins Plugin)
