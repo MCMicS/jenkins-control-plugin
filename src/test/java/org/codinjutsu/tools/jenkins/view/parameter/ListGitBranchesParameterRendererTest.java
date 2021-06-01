@@ -36,17 +36,17 @@ public class ListGitBranchesParameterRendererTest implements JobParameterTest {
 
     @Test
     public void renderAsComboBox() {
-        JobParameter jobParameter = createJobParameter(ListGitBranchesParameterRenderer.PT_TAG, "master", "tag/v0.13.6");
+        JobParameter jobParameter = createJobParameterChoices(ListGitBranchesParameterRenderer.PT_TAG, "master", "tag/v0.13.6");
         JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(ComboBox.class);
         assertThat(jobParameterComponent.getJobParameter()).isEqualTo(jobParameter);
 
-        jobParameter = createJobParameter(ListGitBranchesParameterRenderer.PT_BRANCH, "master", "bug/225");
+        jobParameter = createJobParameterChoices(ListGitBranchesParameterRenderer.PT_BRANCH, "master", "bug/225");
         jobParameterComponent = jobParameterRenderer.render(jobParameter);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(ComboBox.class);
         assertThat(jobParameterComponent.getJobParameter()).isEqualTo(jobParameter);
 
-        jobParameter = createJobParameter(ListGitBranchesParameterRenderer.PT_BRANCH_TAG, "master", "tag/v0.13.6");
+        jobParameter = createJobParameterChoices(ListGitBranchesParameterRenderer.PT_BRANCH_TAG, "master", "tag/v0.13.6");
         jobParameterComponent = jobParameterRenderer.render(jobParameter);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(ComboBox.class);
         assertThat(jobParameterComponent.getJobParameter()).isEqualTo(jobParameter);

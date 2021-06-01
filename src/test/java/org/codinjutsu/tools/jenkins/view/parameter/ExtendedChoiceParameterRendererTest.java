@@ -34,13 +34,13 @@ public class ExtendedChoiceParameterRendererTest implements JobParameterTest {
 
     @Test
     public void renderAsComboboxIfApiValuesAreAvailable() {
-        JobParameter jobParameter = createJobParameter(ExtendedChoiceParameterRenderer.PT_SINGLE_SELECT,
+        JobParameter jobParameter = createJobParameterChoices(ExtendedChoiceParameterRenderer.PT_SINGLE_SELECT,
                 "Value1", "Selected", "Value3");
         JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(ComboBox.class);
         assertThat(jobParameterComponent.getJobParameter()).isEqualTo(jobParameter);
 
-        jobParameter = createJobParameter(ExtendedChoiceParameterRenderer.PT_MULTI_SELECT,
+        jobParameter = createJobParameterChoices(ExtendedChoiceParameterRenderer.PT_MULTI_SELECT,
                 "Value1", "Selected", "Value3");
         jobParameterComponent = jobParameterRenderer.render(jobParameter);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(ComboBox.class);
