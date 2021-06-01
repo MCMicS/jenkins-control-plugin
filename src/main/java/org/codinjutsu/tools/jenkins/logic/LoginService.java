@@ -1,7 +1,6 @@
 package org.codinjutsu.tools.jenkins.logic;
 
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -65,6 +64,6 @@ public class LoginService {
     }
 
     public static LoginService getInstance(Project project) {
-        return ServiceManager.getService(project, LoginService.class);
+        return project.getService(LoginService.class);
     }
 }

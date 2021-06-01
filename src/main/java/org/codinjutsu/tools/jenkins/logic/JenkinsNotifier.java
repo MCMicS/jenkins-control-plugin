@@ -2,13 +2,12 @@ package org.codinjutsu.tools.jenkins.logic;
 
 import com.intellij.notification.*;
 import com.intellij.openapi.components.Service;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Service
-public class JenkinsNotifier {
+public final class JenkinsNotifier {
 
     private final NotificationGroup jenkinsGroup;
     @Nullable
@@ -21,7 +20,7 @@ public class JenkinsNotifier {
 
     @NotNull
     public static JenkinsNotifier getInstance(@NotNull Project project) {
-        JenkinsNotifier jenkinsNotifier = ServiceManager.getService(project, JenkinsNotifier.class);
+        JenkinsNotifier jenkinsNotifier = project.getService(JenkinsNotifier.class);
         return jenkinsNotifier == null ? new JenkinsNotifier(project) : jenkinsNotifier;
     }
 

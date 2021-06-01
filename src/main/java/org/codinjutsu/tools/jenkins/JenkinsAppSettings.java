@@ -17,7 +17,6 @@
 package org.codinjutsu.tools.jenkins;
 
 import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -43,7 +42,7 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
     private State myState = new State();
 
     public static JenkinsAppSettings getSafeInstance(Project project) {
-        JenkinsAppSettings settings = ServiceManager.getService(project, JenkinsAppSettings.class);
+        JenkinsAppSettings settings = project.getService(JenkinsAppSettings.class);
         return settings != null ? settings : new JenkinsAppSettings();
     }
 

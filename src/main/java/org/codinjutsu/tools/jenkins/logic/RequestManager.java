@@ -17,7 +17,6 @@
 package org.codinjutsu.tools.jenkins.logic;
 
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.net.IdeHttpClientHelpers;
@@ -82,7 +81,7 @@ public class RequestManager implements RequestManagerInterface, Disposable {
     }
 
     public static RequestManager getInstance(Project project) {
-        return ServiceManager.getService(project, RequestManager.class);
+        return project.getService(RequestManager.class);
     }
 
     private static boolean canContainNestedJobs(@NotNull Job job) {

@@ -112,7 +112,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements PersistentSta
     }
 
     public static BrowserPanel getInstance(Project project) {
-        return ServiceManager.getService(project, BrowserPanel.class);
+        return project.getService(BrowserPanel.class);
     }
 
     private static void visit(Job job, BuildStatusVisitor buildStatusVisitor) {

@@ -1,7 +1,6 @@
 package org.codinjutsu.tools.jenkins.logic;
 
 import com.intellij.openapi.components.Service;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import lombok.Builder;
 import lombok.Singular;
@@ -14,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ConfigurationValidator {
+public final class ConfigurationValidator {
     @NotNull
     private final UrlBuilder urlBuilder;
 
@@ -23,7 +22,7 @@ public class ConfigurationValidator {
     }
 
     public static ConfigurationValidator getInstance(Project project) {
-        return Optional.ofNullable(ServiceManager.getService(project, ConfigurationValidator.class))
+        return Optional.ofNullable(project.getService(ConfigurationValidator.class))
                 .orElseGet(() -> new ConfigurationValidator(project));
     }
 
