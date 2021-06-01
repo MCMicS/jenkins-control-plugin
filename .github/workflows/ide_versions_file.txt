@@ -1,0 +1,7 @@
+ideaIC:2020.1
+ideaIC:2021.1
+ideaIU:2020.1
+pycharmPC:2020.1
+goland:2020.1
+clion:2020.1
+ideaIC:LATEST-EAP-SNAPSHOT
