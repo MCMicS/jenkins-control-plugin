@@ -8,13 +8,13 @@ plugins {
 }
 
 group 'org.codinjutsu'
-version '0.13.12-2020.3'
+version '0.13.12-2021.2-eap'
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'java'
 apply plugin: 'idea'
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
 
 intellij {
     version 'LATEST-EAP-SNAPSHOT'
@@ -44,7 +44,7 @@ patchPluginXml {
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
-    options.release = 8
+    options.release = 11
 }
 
 configurations {
@@ -152,7 +152,7 @@ jacocoTestReport {
 }
 
 import org.jetbrains.intellij.tasks.RunPluginVerifierTask
-def ideaVersionToVerify = "2021.1"
+def ideaVersionToVerify = "212.3116.43"
 def verifyFailureLevel = EnumSet.copyOf(RunPluginVerifierTask.FailureLevel.ALL)
 verifyFailureLevel.remove(RunPluginVerifierTask.FailureLevel.NOT_DYNAMIC)
 runPluginVerifier {
