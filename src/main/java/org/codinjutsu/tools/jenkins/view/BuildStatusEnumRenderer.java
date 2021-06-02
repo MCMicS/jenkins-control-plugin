@@ -2,7 +2,6 @@ package org.codinjutsu.tools.jenkins.view;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.components.Service;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import icons.JenkinsControlIcons;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
@@ -11,7 +10,8 @@ import org.codinjutsu.tools.jenkins.model.Color;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import java.util.*;
+import java.util.EnumMap;
+import java.util.Map;
 
 @Service
 public final class BuildStatusEnumRenderer implements BuildStatusRenderer {
@@ -35,7 +35,7 @@ public final class BuildStatusEnumRenderer implements BuildStatusRenderer {
 
     @NotNull
     public static BuildStatusEnumRenderer getInstance(@NotNull Project project) {
-        BuildStatusEnumRenderer renderer = ServiceManager.getService(project, BuildStatusEnumRenderer.class);
+        BuildStatusEnumRenderer renderer = project.getService(BuildStatusEnumRenderer.class);
         return renderer == null ? new BuildStatusEnumRenderer(project) : renderer;
     }
 

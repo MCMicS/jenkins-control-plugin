@@ -2,9 +2,7 @@ package org.codinjutsu.tools.jenkins.logic;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.MessageBusConnection;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
 
@@ -22,7 +20,7 @@ public class RssAuthenticationActionHandler implements AuthenticationNotifier, D
     }
 
     public static RssAuthenticationActionHandler getInstance(Project project) {
-        return ServiceManager.getService(project, RssAuthenticationActionHandler.class);
+        return project.getService(RssAuthenticationActionHandler.class);
     }
 
     @Override
