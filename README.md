@@ -1,4 +1,4 @@
-# Jenkins Plugin 0.13.11 for Jetbrains products
+# Jenkins Plugin 0.13.12 for Jetbrains products
 [![Build Status](https://travis-ci.com/MCMicS/jenkins-control-plugin.svg?branch=master)](https://travis-ci.com/MCMicS/jenkins-control-plugin)
 [![Gitter](https://badges.gitter.im/jenkins-control-plugin/community.svg)](https://gitter.im/jenkins-control-plugin/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=MCMicS_jenkins-control-plugin&metric=alert_status)](https://sonarcloud.io/dashboard?id=MCMicS_jenkins-control-plugin)
@@ -17,6 +17,7 @@
 * [Idea 2019.3](../../releases/latest/download/jenkins-control-plugin-2019.3.zip)
 * [Idea 2020.1](../../releases/latest/download/jenkins-control-plugin-2020.1.zip)
 * [Idea 2020.3](../../releases/latest/download/jenkins-control-plugin-2020.3.zip)
+* [Idea 2021.2](../../releases/latest/download/jenkins-control-plugin-2021.2.zip)
 
 ### Use EAP Builds
 * add https://plugins.jetbrains.com/plugins/eap/list as Plugin Repository
