@@ -1,30 +1,54 @@
+//import org.jetbrains.changelog.ExtensionsKt
 plugins {
     id 'java'
     id 'org.jetbrains.intellij' version '1.0'
+    id 'org.jetbrains.changelog' version "1.1.2"
     id "io.freefair.lombok" version "5.3.3.3"
     id 'idea'
     id "org.sonarqube" version "3.3"
     id 'jacoco'
 }
+def jenkinsPluginName = 'jenkins-control-plugin'
+def jenkinsPluginVersion = '0.13.12'
+def javaVersion = 11
 
 group 'org.codinjutsu'
-version '0.13.12-2021.2-eap2'
+version "${jenkinsPluginVersion}-2021.2-eap2"
 apply plugin: 'org.jetbrains.intellij'
+apply plugin: 'org.jetbrains.changelog'
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: "io.freefair.lombok"
 
-sourceCompatibility = JavaVersion.VERSION_11
-targetCompatibility = JavaVersion.VERSION_11
-
 intellij {
-    pluginName.set('jenkins-control-plugin')
+    pluginName.set(jenkinsPluginName)
     version.set('LATEST-EAP-SNAPSHOT')
     updateSinceUntilBuild.set(false)
     downloadSources.set(true)
     type.set('IC')
     //type.set('RD') //Rider
     plugins.set(['com.intellij.java'])
+
+    patchPluginXml {
+        version.set("${project.version}")
+        pluginDescription.set(file('includes/pluginDescription.html').text)
+        //changeNotes.set(provider { changelog.getLatest().toHTML() })
+        def allChanges = { changelog.getAll().values().collect { it.withHeader(true) }.collect {it.toHTML()}.join('\n<br>\n') }
+        changeNotes.set(provider { allChanges() } )
+    }
+}
+
+changelog {
+    version = jenkinsPluginVersion
+    path = "${project.projectDir}/CHANGELOG.md"
+    //header = { "[$version] - ${ExtensionsKt.date('yyyy-MM-dd')}\" }
+    header = { "[$version]" }
+    //headerParserRegex = ~/\d+\.\d+/
+    itemPrefix = "-"
+    keepUnreleasedSection = true
+    unreleasedTerm = "[Unreleased]"
+    //groups = ["Added", "Changed", "Deprecated", "Removed"]
+    groups = []
 }
 
 lombok {
@@ -39,15 +63,15 @@ idea {
     }
 }
 
-patchPluginXml {
-    version.set("${project.version}")
-    pluginDescription.set(file('includes/pluginDescription.html').text)
-    changeNotes.set(file('includes/pluginChanges.html').text)
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(javaVersion)
+    }
 }
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
-    options.release.set(11)
+    options.release.set(javaVersion)
 }
 
 configurations {
@@ -128,7 +152,7 @@ buildPlugin {
     doLast {
         copy {
             from 'build/distributions'
-            include "${intellij.pluginName}-${project.version}.zip"
+            include "${jenkinsPluginName}-${project.version}.zip"
             into "snapshot"
         }
     }
@@ -136,7 +160,7 @@ buildPlugin {
 
 prepareSandbox {
     from (['README.md', 'CHANGELOG.txt', 'LICENSE.txt']) {
-        into "${intellij.pluginName}/"
+        into "${jenkinsPluginName}/"
     }
 }
 
@@ -159,7 +183,7 @@ def ideaVersionToVerify = "212.3116.43"
 def verifyFailureLevel = EnumSet.copyOf(RunPluginVerifierTask.FailureLevel.ALL)
 verifyFailureLevel.remove(RunPluginVerifierTask.FailureLevel.NOT_DYNAMIC)
 runPluginVerifier {
-    //distributionFile = "${intellij.pluginName}-${project.version}"
+    //distributionFile = "${jenkinsPluginName}-${project.version}"
     ideVersions = ["IU-${ideaVersionToVerify}"]
 //    ideVersions = ["IC-2020.3", "PS-2020.3", "IU-2020.3"]
     failureLevel = verifyFailureLevel
