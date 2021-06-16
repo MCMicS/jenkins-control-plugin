@@ -340,7 +340,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements PersistentSta
         popupGroup.addSeparator();
         popupGroup.add(new UploadPatchToJobAction(this));
 
-        PopupHandler.installPopupHandler(jobTree.asComponent(), popupGroup, POPUP_PLACE, ActionManager.getInstance());
+        PopupHandler.installPopupMenu(jobTree.asComponent(), popupGroup, POPUP_PLACE);
     }
 
     public void loadView(final View view) {

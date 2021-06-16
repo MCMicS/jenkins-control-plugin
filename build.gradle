@@ -159,7 +159,7 @@ buildPlugin {
 }
 
 prepareSandbox {
-    from (['README.md', 'CHANGELOG.txt', 'LICENSE.txt']) {
+    from (['README.md', 'CHANGELOG.md', 'LICENSE.txt']) {
         into "${jenkinsPluginName}/"
     }
 }
@@ -179,7 +179,7 @@ jacocoTestReport {
 }
 
 import org.jetbrains.intellij.tasks.RunPluginVerifierTask
-def ideaVersionToVerify = "212.3116.43"
+def ideaVersionToVerify = "212.4037.9"
 def verifyFailureLevel = EnumSet.copyOf(RunPluginVerifierTask.FailureLevel.ALL)
 verifyFailureLevel.remove(RunPluginVerifierTask.FailureLevel.NOT_DYNAMIC)
 runPluginVerifier {
