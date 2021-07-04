@@ -17,6 +17,7 @@
 package org.codinjutsu.tools.jenkins.view.annotation;
 
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
+import org.codinjutsu.tools.jenkins.exception.JenkinsPluginRuntimeException;
 import org.codinjutsu.tools.jenkins.view.ConfigurationPanel;
 import org.codinjutsu.tools.jenkins.view.validator.UIValidator;
 import org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum;
@@ -64,18 +65,19 @@ public class FormValidator<T extends JComponent> {
         }
     }
 
-
+    @SuppressWarnings("java:S3011")
     private static JComponent getFieldObject(Object formToValidate, Field field) {
         try {
+            boolean accessible = field.canAccess(formToValidate);
             field.setAccessible(true);
             Object obj = field.get(formToValidate);
-            field.setAccessible(false);
+            field.setAccessible(accessible);
             if (obj instanceof JComponent) {
                 return (JComponent) obj;
             }
-            throw new RuntimeException("Field to be validated should be extends JComponent");
+            throw new JenkinsPluginRuntimeException("Field to be validated should be extends JComponent");
         } catch (IllegalAccessException ex) {
-            throw new RuntimeException(ex);
+            throw new JenkinsPluginRuntimeException(ex.getMessage(), ex);
         }
     }
 }

@@ -91,6 +91,20 @@ public class RssUtilTest {
                     5,
                     "Version Number » With Build Display"
                 },
+                {
+                    "ignore_query_path #600 (stable)",
+                    "http://localhost/job/ignore_query_path/601/?test=ignore",
+                    BuildStatusEnum.SUCCESS,
+                    601,
+                    "ignore_query_path"
+                },
+                {
+                    "use_IP_adress #600 (stable)",
+                    "http://127.0.0.1/job/use_IP_adress/602",
+                    BuildStatusEnum.SUCCESS,
+                    602,
+                    "use_IP_adress"
+                },
         });
     }
 
