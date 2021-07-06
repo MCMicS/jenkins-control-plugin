@@ -10,7 +10,7 @@ plugins {
 }
 def jenkinsPluginName = 'jenkins-control-plugin'
 def jenkinsPluginVersion = '0.13.12'
-def javaVersion = 11
+def javaVersion = JavaVersion.VERSION_11.toString()
 
 group 'org.codinjutsu'
 version "${jenkinsPluginVersion}-2021.2-eap2"
@@ -41,8 +41,7 @@ intellij {
 changelog {
     version = jenkinsPluginVersion
     path = "${project.projectDir}/CHANGELOG.md"
-    //header = { "[$version] - ${ExtensionsKt.date('yyyy-MM-dd')}\" }
-    header = { "[$version]" }
+    header = provider { "[${version.get()}]" }
     //headerParserRegex = ~/\d+\.\d+/
     itemPrefix = "-"
     keepUnreleasedSection = true
