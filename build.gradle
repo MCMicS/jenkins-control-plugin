@@ -10,7 +10,7 @@ plugins {
 }
 def jenkinsPluginName = 'jenkins-control-plugin'
 def jenkinsPluginVersion = '0.13.12'
-def javaVersion = JavaVersion.VERSION_11.toString()
+def javaVersion = 11
 
 group 'org.codinjutsu'
 version "${jenkinsPluginVersion}-2021.2-eap2"
