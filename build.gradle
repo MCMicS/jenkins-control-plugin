@@ -13,7 +13,7 @@ def jenkinsPluginVersion = '0.13.12'
 def javaVersion = 11
 
 group 'org.codinjutsu'
-version "${jenkinsPluginVersion}-2021.2-eap2"
+version "${jenkinsPluginVersion}-2021.2-eap3"
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'org.jetbrains.changelog'
 apply plugin: 'java'
@@ -187,4 +187,16 @@ runPluginVerifier {
 //    ideVersions = ["IC-2020.3", "PS-2020.3", "IU-2020.3"]
     failureLevel = verifyFailureLevel
     verifierVersion = "latest"
+}
+signPlugin {
+    certificateChain.set(file('private/signing.pem').text)
+    privateKey.set(file('private/signing.key').text)
+    doLast {
+        copy {
+            from 'build/distributions'
+            include "${jenkinsPluginName}-signed.zip"
+            into "snapshot"
+            rename "${jenkinsPluginName}-signed.zip", "${jenkinsPluginName}-${project.version}-signed.zip"
+        }
+    }
 }
