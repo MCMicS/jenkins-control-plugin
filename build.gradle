@@ -189,8 +189,10 @@ runPluginVerifier {
     verifierVersion = "latest"
 }
 signPlugin {
-    certificateChain.set(file('private/signing.pem').text)
-    privateKey.set(file('private/signing.key').text)
+    def _privateKey = file('private/signing.pem')
+    def _certificateChain = file('private/signing.key')
+    certificateChain.set(_certificateChain.exists() ?  _certificateChain.text : null)
+    privateKey.set(_privateKey.exists() ?  _privateKey.text : null)
     doLast {
         copy {
             from 'build/distributions'
