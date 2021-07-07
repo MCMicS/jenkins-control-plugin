@@ -103,7 +103,7 @@ repositories {
 }
 
 dependencies {
-    implementation ('com.github.cliftonlabs:json-simple:3.1.1') {
+    implementation ('com.github.cliftonlabs:json-simple:4.0.0') {
         exclude group: 'junit'
     }
     implementation('com.offbytwo.jenkins:jenkins-client:0.3.8') {
