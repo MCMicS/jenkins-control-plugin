@@ -2,7 +2,7 @@
 plugins {
     id 'java'
     id 'org.jetbrains.intellij' version '1.1.2'
-    id 'org.jetbrains.changelog' version "1.1.2"
+    id 'org.jetbrains.changelog' version "1.2.0"
     id "io.freefair.lombok" version "5.3.3.3"
     id 'idea'
     id "org.sonarqube" version "3.3"
@@ -41,8 +41,7 @@ intellij {
 changelog {
     version = jenkinsPluginVersion
     path = "${project.projectDir}/CHANGELOG.md"
-    //header = { "[$version] - ${ExtensionsKt.date('yyyy-MM-dd')}\" }
-    header = { "[$version]" }
+    header = provider { "[${version.get()}]" }
     //headerParserRegex = ~/\d+\.\d+/
     itemPrefix = "-"
     keepUnreleasedSection = true
