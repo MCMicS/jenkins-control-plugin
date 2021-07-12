@@ -351,6 +351,25 @@ public class JenkinsJsonParserTest {
         assertThat(actualJobs).containsAll(expectedJobs);
     }
 
+    @Test
+    public void testLoadJobWithNullAction() throws Exception {
+        Job actualJob = jsonParser.createJob(IOUtils.toString(getClass().getResourceAsStream(
+                "JsonRequestManager_jobWithNullAction.json")));
+        final String buildUrl = "http://localhost/job/test/8/";
+        final Job expectedJob = new JobBuilder()
+                .job("test", "blue", "http://localhost/job/test/", false, true)
+                .lastBuild(buildUrl, 8, "SUCCESS", false, "2012-04-02_16-26-29", 1477640156281l, 4386421l)
+                .availableBuildTypes(EnumSet.of(BuildType.LAST))
+                .get();
+        assertThat(actualJob).isNotNull();
+        final Build lastBuild = actualJob.getLastBuild();
+        assertThat(lastBuild).isNotNull();
+        assertThat(lastBuild.getUrl()).isEqualTo(buildUrl);
+        assertThat(lastBuild.getBuildParameterList()).hasSize(1);
+        assertThat(lastBuild.getBuildParameterList()).containsExactly(BuildParameter.of("Test Parameter", null,
+                buildUrl));
+    }
+
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);

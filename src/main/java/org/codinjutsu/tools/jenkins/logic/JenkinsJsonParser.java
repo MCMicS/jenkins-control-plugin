@@ -39,14 +39,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.OptionalInt;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class JenkinsJsonParser implements JenkinsParser {
@@ -199,24 +192,39 @@ public class JenkinsJsonParser implements JenkinsParser {
         return builder.build();
     }
 
-    @Nullable
+    @NotNull
     private JsonArray getActions(@NotNull JsonObject lastBuildObject) {
-        return lastBuildObject.getCollection(createJsonKey(ACTIONS));
+        final JsonArray actions = lastBuildObject.getCollection(createJsonKey(ACTIONS));
+        if (actions == null) {
+            return new JsonArray();
+        }
+        actions.removeIf(Objects::isNull);
+        return actions;
+    }
+
+    @NotNull
+    private Collection<JsonObject> getActionsParameter(@NotNull JsonObject action) {
+        final Collection<JsonObject> parameters = action.getCollection(createJsonKey(PARAMETERS));
+        if (parameters == null) {
+            return Collections.emptySet();
+        }
+        parameters.removeIf(Objects::isNull);
+        return parameters;
     }
 
     @NotNull
     private List<BuildParameter> getBuildParameters(JsonObject action, String buildUrl) {
-        return action.getCollection(createJsonKey(PARAMETERS)).stream()
+        return getActionsParameter(action).stream()
                 .map(parameter -> BuildParameter.of(
-                        ((JsonObject) parameter).getString(createJsonKey("name")),
-                        ((JsonObject) parameter).getString(createJsonKey("value")),
+                        parameter.getString(createJsonKey("name")),
+                        parameter.getString(createJsonKey("value")),
                         buildUrl
                 ))
                 .collect(Collectors.toList());
     }
 
     private boolean isContainParameters(JsonObject action) {
-        return ObjectUtils.isNotEmpty(action.getCollection(createJsonKey(PARAMETERS)));
+        return ObjectUtils.isNotEmpty(getActionsParameter(action));
     }
 
     @NotNull
@@ -326,9 +334,9 @@ public class JenkinsJsonParser implements JenkinsParser {
 
             final JsonArray definitions = parameterProperty.getCollectionOrDefault(createJsonKey(PARAMETER_DEFINITIONS,
                     new JsonArray()));
+            definitions.removeIf(Objects::isNull);
             for (Object defObj : definitions) {
-                JsonObject parameterObj = (JsonObject) defObj;
-                jobParameters.add(getJobParameter(parameterObj));
+                jobParameters.add(getJobParameter((JsonObject) defObj));
             }
         }
         return jobParameters;

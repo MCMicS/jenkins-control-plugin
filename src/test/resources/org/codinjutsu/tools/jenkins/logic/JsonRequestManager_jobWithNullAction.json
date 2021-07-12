@@ -1,0 +1,26 @@
+{
+    "name": "test",
+    "url": "http://localhost/job/test/",
+    "buildable":true,
+    "inQueue":false,
+    "lastBuild": {
+        "id": "t1",
+        "url":"http://localhost/job/test/8/",
+        "building":false,
+        "number":8,
+        "result":"SUCCESS",
+        "timestamp": 1477640156281,
+        "duration": 4386421,
+        "actions": [
+            {},
+            null,
+            {
+                "parameters": [
+                    {
+                        "name": "Test Parameter"
+                    }
+                ]
+            }
+        ]
+    }
+}

@@ -4,6 +4,7 @@
 ### Added
 - \#280 render DateParameterDefinition as textfield
 - 2021.2 API Compatibility
+- \#297 NPE on Startup
 
 ## [0.13.11]
 - Rename Plugin to 'Jenkins Control' to respect Jetbrains naming convention
