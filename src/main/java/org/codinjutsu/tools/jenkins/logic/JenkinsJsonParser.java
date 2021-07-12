@@ -192,9 +192,12 @@ public class JenkinsJsonParser implements JenkinsParser {
         return builder.build();
     }
 
-    @Nullable
+    @NotNull
     private JsonArray getActions(@NotNull JsonObject lastBuildObject) {
         final JsonArray actions = lastBuildObject.getCollection(createJsonKey(ACTIONS));
+        if (actions == null) {
+            return new JsonArray();
+        }
         actions.removeIf(Objects::isNull);
         return actions;
     }
