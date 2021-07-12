@@ -13,7 +13,7 @@ def jenkinsPluginVersion = '0.13.12'
 def javaVersion = 11
 
 group 'org.codinjutsu'
-version "${jenkinsPluginVersion}-2021.2-eap3"
+version "${jenkinsPluginVersion}-2021.2-eap4"
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'org.jetbrains.changelog'
 apply plugin: 'java'
