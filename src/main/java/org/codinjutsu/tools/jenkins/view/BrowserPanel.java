@@ -29,10 +29,7 @@ import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
-import org.codinjutsu.tools.jenkins.JenkinsSettings;
-import org.codinjutsu.tools.jenkins.JenkinsTree;
-import org.codinjutsu.tools.jenkins.JenkinsTreeState;
+import org.codinjutsu.tools.jenkins.*;
 import org.codinjutsu.tools.jenkins.exception.JenkinsPluginRuntimeException;
 import org.codinjutsu.tools.jenkins.logic.*;
 import org.codinjutsu.tools.jenkins.model.*;
@@ -45,6 +42,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.util.Comparator;
 import java.util.List;
@@ -60,7 +59,7 @@ import java.util.stream.Collectors;
 @State(name = "JenkinsBrowserPanel", storages = {
         @Storage(value = StoragePathMacros.PRODUCT_WORKSPACE_FILE, roamingType = RoamingType.DISABLED)
 })
-public class BrowserPanel extends SimpleToolWindowPanel implements PersistentStateComponent<JenkinsTreeState> {
+public final class BrowserPanel extends SimpleToolWindowPanel implements PersistentStateComponent<JenkinsTreeState> {
 
     @NonNls
     public static final String POPUP_PLACE = "POPUP";
@@ -99,11 +98,29 @@ public class BrowserPanel extends SimpleToolWindowPanel implements PersistentSta
 
         jenkins = Jenkins.byDefault();
         jobTree = new JenkinsTree(project, jenkinsSettings, jenkins);
+        updateDoubleClickAction(getDoubleClickAction(jenkinsAppSettings.getDoubleClickAction()));
 
         jobPanel.setLayout(new BorderLayout());
         jobPanel.add(ScrollPaneFactory.createScrollPane(jobTree.asComponent()), BorderLayout.CENTER);
 
         setContent(rootPanel);
+    }
+
+    @NotNull
+    private static JobAction getDoubleClickAction(@NotNull DoubleClickAction doubleClickAction) {
+        final JobAction action;
+        switch (doubleClickAction) {
+            case LOAD_BUILDS:
+                action = JobActions.loadBuilds();
+                break;
+            case SHOW_LAST_LOG:
+                action = JobActions.showLastLog();
+                break;
+            case TRIGGER_BUILD:
+            default:
+                action = JobActions.triggerBuild();
+        }
+        return action;
     }
 
     @NotNull
@@ -146,6 +163,10 @@ public class BrowserPanel extends SimpleToolWindowPanel implements PersistentSta
         }
 
         buildStatusVisitor.visitUnknown();
+    }
+
+    private void updateDoubleClickAction(@NotNull JobAction doubleClickAction) {
+        jobTree.updateDoubleClickAction(doubleClickAction);
     }
 
     /*whole method could be moved inside of ExecutorProvider (executor would expose interface that would allow to schedule
@@ -458,6 +479,16 @@ public class BrowserPanel extends SimpleToolWindowPanel implements PersistentSta
     @Override
     public void loadState(@NotNull JenkinsTreeState state) {
         jobTree.loadState(state);
+    }
+
+    public void reloadConfiguration(@NotNull JenkinsAppSettings newJenkinsAppSettings) {
+        updateDoubleClickAction(getDoubleClickAction(newJenkinsAppSettings.getDoubleClickAction()));
+    }
+
+    public void expandJob(@NotNull Job job) {
+        Optional.ofNullable(jobTree.getLastSelectedPathComponent())
+                .filter(node -> node.getUserObject() instanceof JenkinsTreeNode.JobNode)
+                .ifPresent(node -> jobTree.getTree().expandPath(new TreePath(node.getPath())));
     }
 
     private class LoadSelectedViewJob extends Task.Backgroundable {

@@ -46,9 +46,12 @@ import static org.codinjutsu.tools.jenkins.view.BrowserPanel.POPUP_PLACE;
 public class RunBuildAction extends AnAction implements DumbAware {
 
     public static final String ACTION_ID = "Jenkins.RunBuild";
-
-    private static final Logger LOG = Logger.getLogger(RunBuildAction.class.getName());
     public static final int BUILD_STATUS_UPDATE_DELAY = 1;
+    private static final Logger LOG = Logger.getLogger(RunBuildAction.class.getName());
+
+    public static boolean isBuildable(@Nullable Job job) {
+        return job != null && job.isBuildable();
+    }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
@@ -69,7 +72,7 @@ public class RunBuildAction extends AnAction implements DumbAware {
         final BrowserPanel browserPanel = ActionUtil.getBrowserPanel(event);
         Job selectedJob = browserPanel.getSelectedJob();
 
-        final boolean isBuildable = selectedJob != null && selectedJob.isBuildable();
+        final boolean isBuildable = isBuildable(selectedJob);
         if (event.getPlace().equals(POPUP_PLACE)) {
             event.getPresentation().setVisible(isBuildable);
         } else {
