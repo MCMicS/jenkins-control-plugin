@@ -96,10 +96,6 @@ public class ShowLogAction extends AnAction implements DumbAware {
         event.getPresentation().setVisible(canShowLogForLastBuild);
     }
 
-    private boolean isLogAvailable(@NotNull Job buildableJob) {
-        return isLogAvailable(buildableJob, buildType);
-    }
-
     @Value
     static class ShowLogActionText {
 

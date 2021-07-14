@@ -42,7 +42,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.util.Comparator;
@@ -485,7 +484,7 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
         updateDoubleClickAction(getDoubleClickAction(newJenkinsAppSettings.getDoubleClickAction()));
     }
 
-    public void expandJob(@NotNull Job job) {
+    public void expandSelectedJob() {
         Optional.ofNullable(jobTree.getLastSelectedPathComponent())
                 .filter(node -> node.getUserObject() instanceof JenkinsTreeNode.JobNode)
                 .ifPresent(node -> jobTree.getTree().expandPath(new TreePath(node.getPath())));

@@ -37,7 +37,7 @@ public class LoadBuildsAction extends AnAction implements DumbAware {
                     super.onSuccess();
                     browserPanel.refreshJob(job);
                     if (expandAfterLoad) {
-                        browserPanel.expandJob(job);
+                        browserPanel.expandSelectedJob();
                     }
                 }
 

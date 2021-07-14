@@ -3,6 +3,7 @@ package org.codinjutsu.tools.jenkins.view.action;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.ui.playback.commands.ActionCommand;
+import lombok.experimental.UtilityClass;
 import org.codinjutsu.tools.jenkins.model.BuildType;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
@@ -11,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.event.InputEvent;
 
+@UtilityClass
 public class JobActions {
 
     private static void execute(@NonNls @NotNull String actionId,
