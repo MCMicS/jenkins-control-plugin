@@ -13,7 +13,7 @@ def jenkinsPluginVersion = '0.13.12'
 def javaVersion = 11
 
 group 'org.codinjutsu'
-version "${jenkinsPluginVersion}-2021.2-eap4"
+version "${jenkinsPluginVersion}-2021.2-eap5"
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'org.jetbrains.changelog'
 apply plugin: 'java'
@@ -23,11 +23,13 @@ apply plugin: "io.freefair.lombok"
 intellij {
     pluginName.set(jenkinsPluginName)
     version.set('LATEST-EAP-SNAPSHOT')
+    //version.set('2021.1')
     updateSinceUntilBuild.set(false)
     downloadSources.set(true)
     type.set('IC')
-    //type.set('RD') //Rider
     plugins.set(['com.intellij.java'])
+    //type.set('PC')
+    //type.set('RD') //Rider
 
     patchPluginXml {
         version.set("${project.version}")
