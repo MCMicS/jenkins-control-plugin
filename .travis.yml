@@ -2,14 +2,14 @@ language: java
 os: linux
 jdk:
   openjdk11
-script: ./gradlew verifyPlugin test --scan --no-daemon
+script: ./gradlew verifyPlugin test
 
 jobs:
   include:
     - stage: test
     - stage: SonarCloud
       if: branch = master OR branch =~ ^release\/.*$ OR branch =~ ^sonar\/.*$
-      script: ./gradlew jacocoTestReport sonarqube --scan --no-daemon
+      script: ./gradlew jacocoTestReport sonarqube
 git:
   depth: false
 
