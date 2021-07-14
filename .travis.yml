@@ -2,20 +2,22 @@ language: java
 os: linux
 jdk:
   openjdk11
-script: ./gradlew verifyPlugin test
+script: ./gradlew verifyPlugin test --scan --no-daemon
 
 jobs:
   include:
     - stage: test
     - stage: SonarCloud
       if: branch = master OR branch =~ ^release\/.*$ OR branch =~ ^sonar\/.*$
-      script: ./gradlew jacocoTestReport sonarqube
+      script: ./gradlew jacocoTestReport sonarqube --scan --no-daemon
 git:
   depth: false
 
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+  - rm -fr $HOME/.gradle/caches/modules-2/files-*/com.jetbrains.intellij.idea/
+  - rm -fr $HOME/.gradle/caches/modules-2/metadata-*/descriptors/com.jetbrains.intellij.idea/
 cache:
   timeout: 900
   directories:
