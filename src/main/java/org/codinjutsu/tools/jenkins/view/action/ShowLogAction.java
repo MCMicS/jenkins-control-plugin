@@ -47,28 +47,11 @@ public class ShowLogAction extends AnAction implements DumbAware {
         this.buildType = buildType;
     }
 
-    @Override
-    public void actionPerformed(AnActionEvent event) {
-        final Project project = ActionUtil.getProject(event);
-        final BrowserPanel browserPanelForAction = ActionUtil.getBrowserPanel(event);
-        final Job job = browserPanelForAction.getSelectedJob();
-        final LogToolWindow logToolWindow = new LogToolWindow(project);
-        logToolWindow.showLog(buildType, job, browserPanelForAction);
-    }
-
-    @Override
-    public void update(AnActionEvent event) {
-        final BrowserPanel browserPanel = ActionUtil.getBrowserPanel(event);
-        final Job selectedJob = browserPanel.getSelectedJob();
-        final boolean canShowLogForLastBuild = selectedJob != null
-                && selectedJob.isBuildable()
-                && isLogAvailable(selectedJob)
-                && !selectedJob.isInQueue();
-        event.getPresentation().setVisible(canShowLogForLastBuild);
-    }
-
-    private boolean isLogAvailable(@NotNull Job buildableJob) {
-        return buildableJob.getAvailableBuildTypes().contains(buildType);
+    public static boolean isAvailable(@Nullable Job job, @NotNull BuildType buildType) {
+        return job != null
+                && job.isBuildable()
+                && isLogAvailable(job, buildType)
+                && !job.isInQueue();
     }
 
     @NotNull
@@ -86,6 +69,31 @@ public class ShowLogAction extends AnAction implements DumbAware {
                 logActionText = new ShowLogActionText("Show last log", "Show last build's log");
         }
         return logActionText;
+    }
+
+    private static boolean isLogAvailable(@NotNull Job buildableJob, @NotNull BuildType buildType) {
+        return buildableJob.getAvailableBuildTypes().contains(buildType);
+    }
+
+    @Override
+    public void actionPerformed(AnActionEvent event) {
+        final Project project = ActionUtil.getProject(event);
+        final BrowserPanel browserPanelForAction = ActionUtil.getBrowserPanel(event);
+        final Job job = browserPanelForAction.getSelectedJob();
+        final LogToolWindow logToolWindow = new LogToolWindow(project);
+        logToolWindow.showLog(buildType, job, browserPanelForAction);
+    }
+
+    public boolean isAvailable(@Nullable Job job) {
+        return isAvailable(job, buildType);
+    }
+
+    @Override
+    public void update(AnActionEvent event) {
+        final BrowserPanel browserPanel = ActionUtil.getBrowserPanel(event);
+        final Job selectedJob = browserPanel.getSelectedJob();
+        final boolean canShowLogForLastBuild = isAvailable(selectedJob);
+        event.getPresentation().setVisible(canShowLogForLastBuild);
     }
 
     @Value

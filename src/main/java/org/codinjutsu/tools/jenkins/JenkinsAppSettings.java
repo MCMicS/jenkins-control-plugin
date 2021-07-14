@@ -25,6 +25,7 @@ import lombok.Data;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
+import org.jetbrains.annotations.NotNull;
 
 @State(
         name = "Jenkins.Application.Settings",
@@ -176,6 +177,15 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
         myState.setAutoLoadBuilds(autoLoadBuilds);
     }
 
+    @NotNull
+    public DoubleClickAction getDoubleClickAction() {
+        return myState.getDoubleClickAction();
+    }
+
+    public void setDoubleClickAction(@NotNull DoubleClickAction doubleClickAction) {
+        myState.setDoubleClickAction(doubleClickAction);
+    }
+
     @Data
     public static class State {
 
@@ -190,6 +200,7 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
         private boolean useGreenColor = false;
         private boolean showAllInStatusbar = false;
         private boolean autoLoadBuilds = false;
+        private DoubleClickAction doubleClickAction = DoubleClickAction.DEFAULT;
     }
 
     @Data
