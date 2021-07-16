@@ -370,6 +370,20 @@ public class JenkinsJsonParserTest {
                 buildUrl));
     }
 
+    @Test
+    public void testLoadJobExtensibleChoiceParameter() throws Exception {
+        Job actualJob = jsonParser.createJob(IOUtils.toString(getClass().getResourceAsStream(
+                "JobWithExtensibleChoiceParameter.json")));
+        assertThat(actualJob).isNotNull();
+        assertThat(actualJob.getParameters()).hasSize(2);
+        final JobParameter firstParameter = actualJob.getParameters().get(0);
+        final JobParameter secondParameter = actualJob.getParameters().get(1);
+        assertThat(firstParameter.getName()).isEqualTo("ExtensibleChoice");
+        assertThat(firstParameter.getDefaultValue()).isEqualTo("Test");
+        assertThat(secondParameter.getName()).isEqualTo("SimpleChoice");
+        assertThat(secondParameter.getDefaultValue()).isEqualTo("Hello");
+    }
+
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
