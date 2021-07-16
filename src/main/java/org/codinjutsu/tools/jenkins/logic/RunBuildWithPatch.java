@@ -144,7 +144,7 @@ public final class RunBuildWithPatch {
         @Override
         public void run(@NotNull ProgressIndicator progressIndicator) {
             progressIndicator.setIndeterminate(true);
-            RequestManager requestManager = browserPanel.getJenkinsManager();
+            RequestManagerInterface requestManager = browserPanel.getJenkinsManager();
 
             final JenkinsAppSettings settings = JenkinsAppSettings.getSafeInstance(project);
             final Map<String, VirtualFile> files = new HashMap<>(Collections.singletonMap(PARAMETER_NAME, patchFile));

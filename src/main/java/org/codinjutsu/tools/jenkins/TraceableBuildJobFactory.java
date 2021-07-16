@@ -1,6 +1,6 @@
 package org.codinjutsu.tools.jenkins;
 
-import org.codinjutsu.tools.jenkins.logic.RequestManager;
+import org.codinjutsu.tools.jenkins.logic.RequestManagerInterface;
 import org.codinjutsu.tools.jenkins.model.Job;
 
 import java.text.MessageFormat;
@@ -10,7 +10,7 @@ public class TraceableBuildJobFactory {
     private static int RETRY_LIMIT = 10;
 
     public static TraceableBuildJob newBuildJob(Job job, JenkinsAppSettings configuration, Map<String, ?> paramValueMap,
-            RequestManager requestManager) {
+                                                RequestManagerInterface requestManager) {
         final int numBuildRetries = configuration.getNumBuildRetries();
         ensureRetryLimit(numBuildRetries);
         final Runnable runBuild = () -> requestManager.runBuild(job, configuration, paramValueMap);

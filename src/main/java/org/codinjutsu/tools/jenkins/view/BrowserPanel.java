@@ -20,6 +20,7 @@ import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.components.*;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -28,7 +29,6 @@ import com.intellij.ui.PopupHandler;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.*;
 import org.codinjutsu.tools.jenkins.exception.JenkinsPluginRuntimeException;
 import org.codinjutsu.tools.jenkins.logic.*;
@@ -64,27 +64,31 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
     public static final String POPUP_PLACE = "POPUP";
     @NonNls
     public static final String JENKINS_PANEL_PLACE = "jenkinsBrowserActions";
-    private static final Logger logger = Logger.getLogger(BrowserPanel.class);
+    private static final Logger logger = Logger.getInstance(BrowserPanel.class);
     private static final JobNameComparator JOB_NAME_COMPARATOR = new JobNameComparator();
     private static final Comparator<Job> sortByStatusComparator = Comparator.comparing(BrowserPanel::toBuildStatus);
     private static final Comparator<Job> sortByNameComparator = Comparator.comparing(Job::getNameToRenderSingleJob, JOB_NAME_COMPARATOR);
+    @NotNull
     private final JenkinsTree jobTree;
+    @NotNull
     private final Runnable refreshViewJob;
+    @NotNull
     private final Project project;
     private final JenkinsAppSettings jenkinsAppSettings;
     @NotNull
     private final JenkinsSettings jenkinsSettings;
     private final Jenkins jenkins;
-    private final RequestManager requestManager;
+    private final RequestManagerInterface requestManager;
     private final Map<String, Job> watchedJobs = new ConcurrentHashMap<>();
     private JPanel rootPanel;
     private JPanel jobPanel;
     private boolean sortedByBuildStatus;
     private ScheduledFuture<?> refreshViewFutureTask;
     private FavoriteView favoriteView;
+    @Nullable
     private View currentSelectedView;
 
-    public BrowserPanel(final Project project) {
+    public BrowserPanel(@NotNull Project project) {
         super(true);
         this.project = project;
 
@@ -229,7 +233,8 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
         return currentSelectedView;
     }
 
-    public RequestManager getJenkinsManager() {
+    @NotNull
+    public RequestManagerInterface getJenkinsManager() {
         return requestManager;
     }
 
@@ -368,14 +373,16 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
         if (!SwingUtilities.isEventDispatchThread()) {
             logger.warn("BrowserPanel.loadView called from outside EDT");
         }
-        new LoadSelectedViewJob(project).queue();
+        refreshViewJob.run();
     }
 
     public void refreshCurrentView() {
         if (!SwingUtilities.isEventDispatchThread()) {
             logger.warn("BrowserPanel.refreshCurrentView called outside EDT");
         }
-        new LoadSelectedViewJob(project).queue();
+        logger.info("Test");
+        logger.debug("Test Debug");
+        refreshViewJob.run();
     }
 
     public void setAsFavorite(final List<Job> jobs) {
@@ -529,28 +536,27 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
                 logger.warn("BrowserPanel.loadJobs called from EDT");
             }
             final List<Job> jobList;
-            if (currentSelectedView instanceof FavoriteView) {
+            final View viewToLoadJobs = currentSelectedView;
+            if (viewToLoadJobs instanceof FavoriteView) {
                 jobList = requestManager.loadFavoriteJobs(jenkinsSettings.getFavoriteJobs());
             } else {
-                jobList = requestManager.loadJenkinsView(currentSelectedView);
+                jobList = requestManager.loadJenkinsView(viewToLoadJobs);
             }
             if (jenkinsAppSettings.isAutoLoadBuilds()) {
                 for(Job job : jobList) {
                     job.setLastBuilds(requestManager.loadBuilds(job));
                 }
             }
-
-            jenkinsSettings.setLastSelectedView(currentSelectedView.getName());
-
+            jenkinsSettings.setLastSelectedView(viewToLoadJobs.getName());
             jenkins.setJobs(jobList);
         }
 
         @Nullable
         private View getViewToLoad() {
-            if (currentSelectedView != null) {
-                return currentSelectedView;
+            if (currentSelectedView == null) {
+                return jenkins.getPrimaryView();
             }
-            return jenkins.getPrimaryView();
+            return currentSelectedView;
         }
 
         private void fillJobTree(final BuildStatusVisitor buildStatusVisitor) {

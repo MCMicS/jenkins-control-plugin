@@ -18,14 +18,14 @@ package org.codinjutsu.tools.jenkins.view.action;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
-import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.logic.ExecutorService;
-import org.codinjutsu.tools.jenkins.logic.RequestManager;
+import org.codinjutsu.tools.jenkins.logic.RequestManagerInterface;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildType;
 import org.codinjutsu.tools.jenkins.model.Job;
@@ -47,7 +47,7 @@ public class RunBuildAction extends AnAction implements DumbAware {
 
     public static final String ACTION_ID = "Jenkins.RunBuild";
     public static final int BUILD_STATUS_UPDATE_DELAY = 1;
-    private static final Logger LOG = Logger.getLogger(RunBuildAction.class.getName());
+    private static final Logger LOG = Logger.getInstance(RunBuildAction.class.getName());
 
     public static boolean isBuildable(@Nullable Job job) {
         return job != null && job.isBuildable();
@@ -112,9 +112,10 @@ public class RunBuildAction extends AnAction implements DumbAware {
             @Override
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 progressIndicator.setIndeterminate(true);
-                RequestManager requestManager = browserPanel.getJenkinsManager();
+                RequestManagerInterface requestManager = browserPanel.getJenkinsManager();
                 if (job.hasParameters()) {
-                    BuildParamDialog.showDialog(project, job, JenkinsAppSettings.getSafeInstance(project), requestManager, new BuildParamDialog.RunBuildCallback() {
+                    BuildParamDialog.showDialog(project, job, JenkinsAppSettings.getSafeInstance(project),
+                            requestManager, new BuildParamDialog.RunBuildCallback() {
 
                         public void notifyOnOk(Job job) {
                             notifyOnGoingMessage(browserPanel, job);

@@ -1,10 +1,10 @@
 package org.codinjutsu.tools.jenkins.logic;
 
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class LoginService {
 
-    private static final Logger logger = Logger.getLogger(LoginService.class);
+    private static final Logger logger = Logger.getInstance(LoginService.class);
     private final Project project;
 
     public LoginService(final Project project) {

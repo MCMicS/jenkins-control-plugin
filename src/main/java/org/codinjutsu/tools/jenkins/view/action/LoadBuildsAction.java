@@ -6,7 +6,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
-import org.codinjutsu.tools.jenkins.logic.RequestManager;
+import org.codinjutsu.tools.jenkins.logic.RequestManagerInterface;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.model.JobType;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
@@ -44,7 +44,7 @@ public class LoadBuildsAction extends AnAction implements DumbAware {
                 @Override
                 public void run(@NotNull ProgressIndicator progressIndicator) {
                     progressIndicator.setIndeterminate(true);
-                    RequestManager requestManager = browserPanel.getJenkinsManager();
+                    RequestManagerInterface requestManager = browserPanel.getJenkinsManager();
                     job.setLastBuilds(requestManager.loadBuilds(job));
                 }
             }.queue();

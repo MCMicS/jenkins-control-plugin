@@ -20,20 +20,10 @@ import com.github.cliftonlabs.json_simple.JsonArray;
 import com.github.cliftonlabs.json_simple.JsonKey;
 import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
+import com.intellij.openapi.diagnostic.Logger;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.log4j.Logger;
-import org.codinjutsu.tools.jenkins.model.Build;
-import org.codinjutsu.tools.jenkins.model.BuildParameter;
-import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
-import org.codinjutsu.tools.jenkins.model.BuildType;
-import org.codinjutsu.tools.jenkins.model.Computer;
-import org.codinjutsu.tools.jenkins.model.Jenkins;
-import org.codinjutsu.tools.jenkins.model.Job;
-import org.codinjutsu.tools.jenkins.model.JobParameter;
-import org.codinjutsu.tools.jenkins.model.JobParameterType;
-import org.codinjutsu.tools.jenkins.model.JobType;
-import org.codinjutsu.tools.jenkins.model.View;
+import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.util.DateUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -44,7 +34,7 @@ import java.util.stream.Collectors;
 
 public class JenkinsJsonParser implements JenkinsParser {
 
-    private static final Logger LOG = Logger.getLogger(JenkinsJsonParser.class);
+    private static final Logger LOG = Logger.getInstance(JenkinsJsonParser.class);
 
     private final SimpleDateFormat workspaceDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 

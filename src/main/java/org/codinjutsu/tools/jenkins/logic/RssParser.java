@@ -18,8 +18,8 @@ package org.codinjutsu.tools.jenkins.logic;
 
 //import org.apache.commons.io.IOUtils;
 
+import com.intellij.openapi.diagnostic.Logger;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
 import org.codinjutsu.tools.jenkins.util.RssUtil;
@@ -42,7 +42,7 @@ import java.util.Optional;
 
 public class RssParser {
 
-    private static final Logger LOG = Logger.getLogger(RssParser.class);
+    private static final Logger LOG = Logger.getInstance(RssParser.class);
 
     public final SimpleDateFormat rssDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 

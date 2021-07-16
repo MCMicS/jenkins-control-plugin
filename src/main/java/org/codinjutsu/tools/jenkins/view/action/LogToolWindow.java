@@ -18,7 +18,7 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.offbytwo.jenkins.helper.BuildConsoleStreamListener;
 import lombok.Value;
 import org.codinjutsu.tools.jenkins.exception.JenkinsPluginRuntimeException;
-import org.codinjutsu.tools.jenkins.logic.RequestManager;
+import org.codinjutsu.tools.jenkins.logic.RequestManagerInterface;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildType;
 import org.codinjutsu.tools.jenkins.model.Job;
@@ -58,7 +58,7 @@ public class LogToolWindow {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 try {
-                    final RequestManager requestManager = browserPanel.getJenkinsManager();
+                    final RequestManagerInterface requestManager = browserPanel.getJenkinsManager();
                     requestManager.loadConsoleTextFor(job, buildType, processHandler);
                 } catch (JenkinsPluginRuntimeException e) {
                     browserPanel.notifyErrorJenkinsToolWindow(e.getMessage());

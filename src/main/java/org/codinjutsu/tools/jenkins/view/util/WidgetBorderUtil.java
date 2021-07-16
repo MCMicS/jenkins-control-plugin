@@ -1,10 +1,9 @@
 package org.codinjutsu.tools.jenkins.view.util;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.util.ui.JBEmptyBorder;
 import com.intellij.util.ui.JBUI;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,7 +14,7 @@ import java.lang.reflect.Field;
  * Created by Cezary Butler on 2015-11-13.
  */
 public class WidgetBorderUtil {
-    private static final Logger logger = Logger.getLogger(WidgetBorderUtil.class);
+    private static final Logger logger = Logger.getInstance(WidgetBorderUtil.class);
 
     private static Border INSTANCE;
 
@@ -48,7 +47,7 @@ public class WidgetBorderUtil {
             final Field borderInstance = StatusBarWidget.WidgetBorder.class.getField("INSTANCE");
             return (Border) borderInstance.get(null);
         } catch (NoSuchFieldException | IllegalAccessException e ) {
-            logger.log(Level.WARN, "Exception occurred while trying to fetch border", e);
+            logger.warn("Exception occurred while trying to fetch border", e);
         }
         return null;
     }
