@@ -77,11 +77,16 @@ public class ShowLogAction extends AnAction implements DumbAware {
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        final Project project = ActionUtil.getProject(event);
-        final BrowserPanel browserPanelForAction = ActionUtil.getBrowserPanel(event);
+        ActionUtil.getProject(event).ifPresent(this::actionPerformed);
+    }
+
+    private void actionPerformed(Project project) {
+        final BrowserPanel browserPanelForAction = BrowserPanel.getInstance(project);
         final Job job = browserPanelForAction.getSelectedJob();
-        final LogToolWindow logToolWindow = new LogToolWindow(project);
-        logToolWindow.showLog(buildType, job, browserPanelForAction);
+        if (job != null) {
+            final LogToolWindow logToolWindow = new LogToolWindow(project);
+            logToolWindow.showLog(buildType, job, browserPanelForAction);
+        }
     }
 
     public boolean isAvailable(@Nullable Job job) {
@@ -90,9 +95,8 @@ public class ShowLogAction extends AnAction implements DumbAware {
 
     @Override
     public void update(AnActionEvent event) {
-        final BrowserPanel browserPanel = ActionUtil.getBrowserPanel(event);
-        final Job selectedJob = browserPanel.getSelectedJob();
-        final boolean canShowLogForLastBuild = isAvailable(selectedJob);
+        final boolean canShowLogForLastBuild = ActionUtil.getBrowserPanel(event).map(BrowserPanel::getSelectedJob)
+                .map(this::isAvailable).orElse(Boolean.FALSE);
         event.getPresentation().setVisible(canShowLogForLastBuild);
     }
 

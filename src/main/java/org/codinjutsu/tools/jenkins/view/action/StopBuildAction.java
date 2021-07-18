@@ -30,16 +30,17 @@ public class StopBuildAction extends AnAction implements DumbAware {
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        final Project project = ActionUtil.getProject(event);
+        ActionUtil.getProject(event).ifPresent(this::actionPerformed);
+    }
 
+    private void actionPerformed(Project project) {
         try {
             final Job job = browserPanel.getSelectedJob();
-            new Task.Backgroundable(project, "Stopping build", false){
+            new Task.Backgroundable(project, "Stopping build", false) {
 
                 @Override
                 public void onSuccess() {
                     browserPanel.loadJob(job);
-//                    browserPanel.refreshCurrentView();
                 }
 
                 @Override

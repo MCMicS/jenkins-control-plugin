@@ -186,6 +186,14 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
         myState.setDoubleClickAction(doubleClickAction);
     }
 
+    public boolean isShowLogIfTriggerBuild() {
+        return myState.isShowLogIfTriggerBuild();
+    }
+
+    public void setShowLogIfTriggerBuild(boolean showLogIfTriggerBuild) {
+        myState.setShowLogIfTriggerBuild(showLogIfTriggerBuild);
+    }
+
     @Data
     public static class State {
 
@@ -201,6 +209,7 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
         private boolean showAllInStatusbar = false;
         private boolean autoLoadBuilds = false;
         private DoubleClickAction doubleClickAction = DoubleClickAction.DEFAULT;
+        private boolean showLogIfTriggerBuild = true;
     }
 
     @Data

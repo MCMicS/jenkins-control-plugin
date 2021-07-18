@@ -13,6 +13,8 @@ import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 public class LoadBuildsAction extends AnAction implements DumbAware {
 
     public static final String ACTION_ID = "Jenkins.LoadBuilds";
@@ -23,7 +25,12 @@ public class LoadBuildsAction extends AnAction implements DumbAware {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
-        loadBuilds(ActionUtil.getProject(event), ActionUtil.getBrowserPanel(event).getSelectedJob());
+        ActionUtil.getProject(event).ifPresent(this::loadBuildsForSelectedJob);
+    }
+
+    private void loadBuildsForSelectedJob(Project project) {
+        final BrowserPanel browserPanel = BrowserPanel.getInstance(project);
+        Optional.ofNullable(browserPanel.getSelectedJob()).ifPresent(job -> loadBuilds(project, job));
     }
 
     public void loadBuilds(Project project, Job job) {
@@ -55,7 +62,9 @@ public class LoadBuildsAction extends AnAction implements DumbAware {
 
     @Override
     public void update(@NotNull AnActionEvent event) {
-        Job selectedJob = ActionUtil.getBrowserPanel(event).getSelectedJob();
-        event.getPresentation().setEnabled(isAvailable(selectedJob));
+        boolean isAvailable = ActionUtil.getBrowserPanel(event).map(BrowserPanel::getSelectedJob)
+                .map(LoadBuildsAction::isAvailable)
+                .orElse(Boolean.FALSE);
+        event.getPresentation().setEnabled(isAvailable);
     }
 }

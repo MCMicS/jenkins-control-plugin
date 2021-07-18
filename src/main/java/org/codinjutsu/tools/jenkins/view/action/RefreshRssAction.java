@@ -34,8 +34,7 @@ public class RefreshRssAction extends AnAction implements DumbAware {
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        Project project = ActionUtil.getProject(event);
-        RssLogic.getInstance(project).loadLatestBuilds(true);
+        ActionUtil.getProject(event).map(RssLogic::getInstance).ifPresent(rss -> rss.loadLatestBuilds(true));
     }
 
     @Override

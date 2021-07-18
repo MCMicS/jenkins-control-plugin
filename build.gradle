@@ -191,8 +191,8 @@ runPluginVerifier {
     verifierVersion = "latest"
 }
 signPlugin {
-    def _privateKey = file('private/signing.pem')
-    def _certificateChain = file('private/signing.key')
+    def _privateKey = file('private/signing.key')
+    def _certificateChain = file('private/signing.pem')
     certificateChain.set(_certificateChain.exists() ?  _certificateChain.text : null)
     privateKey.set(_privateKey.exists() ?  _privateKey.text : null)
     doLast {

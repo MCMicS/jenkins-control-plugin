@@ -82,6 +82,7 @@ public class ConfigurationPanel {
     private JBIntSpinner timeout;
     private JCheckBox autoLoadBuildsOnFirstLevel;
     private JComboBox<DoubleClickAction> doubleClickAction;
+    private JCheckBox showLogIfTriggerBuild;
     private boolean myPasswordModified = false;
 
     public ConfigurationPanel(final Project project) {
@@ -203,6 +204,7 @@ public class ConfigurationPanel {
         boolean isShowAllInStatusbar = isShowAllInStatusbar() != jenkinsAppSettings.isShowAllInStatusbar();
         boolean isAutoLoadBuilds = getAutoLoadBuilds() != jenkinsAppSettings.isAutoLoadBuilds();
         boolean isDoubleClickActionChanged = getDoubleClickAction() != jenkinsAppSettings.getDoubleClickAction();
+        boolean isShowLogIfTriggerBuildChanged = isShowLogIfTriggerBuild() != jenkinsAppSettings.isShowLogIfTriggerBuild();
 
         return !jenkinsAppSettings.getServerUrl().equals(serverUrl.getText())
                 || jenkinsAppSettings.getBuildDelay() != getBuildDelay()
@@ -215,6 +217,7 @@ public class ConfigurationPanel {
                 || isShowAllInStatusbar
                 || isAutoLoadBuilds
                 || isDoubleClickActionChanged
+                || isShowLogIfTriggerBuildChanged
                 || jenkinsSettings.getConnectionTimeout() != getConnectionTimeout()
                 || statusToIgnoreModified || (!jenkinsAppSettings.getSuffix().equals(replaceWithSuffix.getText()));
     }
@@ -243,6 +246,7 @@ public class ConfigurationPanel {
         jenkinsAppSettings.setShowAllInStatusbar(isShowAllInStatusbar());
         jenkinsAppSettings.setAutoLoadBuilds(getAutoLoadBuilds());
         jenkinsAppSettings.setDoubleClickAction(getDoubleClickAction());
+        jenkinsAppSettings.setShowLogIfTriggerBuild(isShowLogIfTriggerBuild());
         jenkinsSettings.setConnectionTimeout(getConnectionTimeout());
 
         if (StringUtils.isNotBlank(username.getText())) {
@@ -293,6 +297,14 @@ public class ConfigurationPanel {
         this.showAllInStatusbar.setSelected(useGreenColor);
     }
 
+    private boolean isShowLogIfTriggerBuild() {
+        return showLogIfTriggerBuild.isSelected();
+    }
+
+    private void setShowLogIfTriggerBuild(boolean isShowLogIfTriggerBuild) {
+        this.showLogIfTriggerBuild.setSelected(isShowLogIfTriggerBuild);
+    }
+
     public void loadConfigurationData(JenkinsAppSettings jenkinsAppSettings, JenkinsSettings jenkinsSettings) {
         serverUrl.setText(jenkinsAppSettings.getServerUrl());
         buildDelay.setText(String.valueOf(jenkinsAppSettings.getBuildDelay()));
@@ -319,6 +331,7 @@ public class ConfigurationPanel {
         setShowAllInStatusbar(jenkinsAppSettings.isShowAllInStatusbar());
         setAutoLoadBuilds(jenkinsAppSettings.isAutoLoadBuilds());
         doubleClickAction.setSelectedItem(jenkinsAppSettings.getDoubleClickAction());
+        setShowLogIfTriggerBuild(jenkinsAppSettings.isShowLogIfTriggerBuild());
         timeout.setNumber(jenkinsSettings.getConnectionTimeout());
 
         if (jenkinsSettings.getVersion().equals(JenkinsVersion.VERSION_1)) {

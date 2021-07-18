@@ -48,6 +48,8 @@ public class RunBuildAction extends AnAction implements DumbAware {
     public static final String ACTION_ID = "Jenkins.RunBuild";
     public static final int BUILD_STATUS_UPDATE_DELAY = 1;
     private static final Logger LOG = Logger.getInstance(RunBuildAction.class.getName());
+    private static final Consumer<Job> DO_NOTHING = job -> {
+    };
 
     public static boolean isBuildable(@Nullable Job job) {
         return job != null && job.isBuildable();
@@ -55,8 +57,11 @@ public class RunBuildAction extends AnAction implements DumbAware {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
-        final Project project = ActionUtil.getProject(event);
-        final BrowserPanel browserPanel = ActionUtil.getBrowserPanel(event);
+        ActionUtil.getProject(event).ifPresent(this::actionPerformed);
+    }
+
+    private void actionPerformed(@NotNull Project project) {
+        final BrowserPanel browserPanel = BrowserPanel.getInstance(project);
         try {
             Optional.ofNullable(browserPanel.getSelectedJob())
                     .ifPresent(job -> queueRunBuild(project, browserPanel, job));
@@ -69,10 +74,8 @@ public class RunBuildAction extends AnAction implements DumbAware {
 
     @Override
     public void update(@NotNull AnActionEvent event) {
-        final BrowserPanel browserPanel = ActionUtil.getBrowserPanel(event);
-        Job selectedJob = browserPanel.getSelectedJob();
-
-        final boolean isBuildable = isBuildable(selectedJob);
+        final boolean isBuildable = ActionUtil.getBrowserPanel(event).map(BrowserPanel::getSelectedJob)
+                .map(RunBuildAction::isBuildable).orElse(Boolean.FALSE);
         if (event.getPlace().equals(POPUP_PLACE)) {
             event.getPresentation().setVisible(isBuildable);
         } else {
@@ -87,14 +90,19 @@ public class RunBuildAction extends AnAction implements DumbAware {
     }
 
     private void queueRunBuild(@NotNull Project project, @NotNull BrowserPanel browserPanel, @NotNull Job job) {
+        final Optional<Build> previousLastBuild = Optional.ofNullable(job.getLastBuild());
         new Task.Backgroundable(project, "Running build", false) {
 
             @Override
             public void onSuccess() {
                 ExecutorService.getInstance(project).getExecutor().schedule(() -> GuiUtil.runInSwingThread(() -> {
                     final Optional<Job> newJob = browserPanel.getJob(job.getNameToRenderSingleJob());
-                    final Optional<Build> previousLastBuild = newJob.map(Job::getLastBuild);
-                    final Consumer<Job> openLogAfterReload = loaded -> openLogIfRunning(loaded, previousLastBuild.orElse(null));
+                    final Consumer<Job> openLogAfterReload;
+                    if (JenkinsAppSettings.getSafeInstance(project).isShowLogIfTriggerBuild()) {
+                        openLogAfterReload = loaded -> openLogIfRunning(loaded, previousLastBuild.orElse(null));
+                    } else {
+                        openLogAfterReload = DO_NOTHING;
+                    }
                     newJob.ifPresent(j -> browserPanel.loadJob(j, openLogAfterReload));
                 }), BUILD_STATUS_UPDATE_DELAY, TimeUnit.SECONDS);
             }
@@ -117,17 +125,17 @@ public class RunBuildAction extends AnAction implements DumbAware {
                     BuildParamDialog.showDialog(project, job, JenkinsAppSettings.getSafeInstance(project),
                             requestManager, new BuildParamDialog.RunBuildCallback() {
 
-                        public void notifyOnOk(Job job) {
-                            notifyOnGoingMessage(browserPanel, job);
-                            browserPanel.loadJob(job);
-                        }
+                                public void notifyOnOk(Job job) {
+                                    notifyOnGoingMessage(browserPanel, job);
+                                    browserPanel.loadJob(job);
+                                }
 
-                        public void notifyOnError(Job job, Throwable ex) {
-                            browserPanel.notifyErrorJenkinsToolWindow("Build '" + job.getNameToRenderSingleJob() + "' cannot be run: " + ex.getMessage());
-                            browserPanel.loadJob(job);
-                        }
+                                public void notifyOnError(Job job, Throwable ex) {
+                                    browserPanel.notifyErrorJenkinsToolWindow("Build '" + job.getNameToRenderSingleJob() + "' cannot be run: " + ex.getMessage());
+                                    browserPanel.loadJob(job);
+                                }
 
-                    });
+                            });
 
                 } else {
                     requestManager.runBuild(job, JenkinsAppSettings.getSafeInstance(project), Collections.emptyMap());

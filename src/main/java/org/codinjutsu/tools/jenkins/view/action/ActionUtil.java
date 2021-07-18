@@ -21,19 +21,24 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.project.Project;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 class ActionUtil {
 
     private ActionUtil() {
     }
 
-    static Project getProject(AnActionEvent event) {
+    @NotNull
+    static Optional<Project> getProject(AnActionEvent event) {
         DataContext dataContext = event.getDataContext();
-        return PlatformDataKeys.PROJECT.getData(dataContext);
+        return Optional.ofNullable(PlatformDataKeys.PROJECT.getData(dataContext));
     }
 
-    static BrowserPanel getBrowserPanel(AnActionEvent event) {
-        final Project project = getProject(event);
-        return BrowserPanel.getInstance(project);
+    @NotNull
+    static Optional<BrowserPanel> getBrowserPanel(AnActionEvent event) {
+        return getProject(event).map(BrowserPanel::getInstance);
     }
 }

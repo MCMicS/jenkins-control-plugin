@@ -54,10 +54,11 @@ public class UploadPatchToJobAction extends AnAction implements DumbAware {
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        Project project = ActionUtil.getProject(event);
-        final BrowserPanel browserPanel = ActionUtil.getBrowserPanel(event);
-        String message = "";
+        ActionUtil.getProject(event).ifPresent(project -> actionPerformed(project, BrowserPanel.getInstance(project)));
+    }
 
+    private void actionPerformed(Project project, BrowserPanel browserPanel) {
+        String message = "";
         try {
             Job job = browserPanel.getSelectedJob();
             if (job.hasParameter(RunBuildWithPatch.PARAMETER_NAME)) {

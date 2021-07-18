@@ -24,11 +24,14 @@ import com.intellij.openapi.vcs.VcsDataKeys;
 import com.intellij.openapi.vcs.changes.ChangeList;
 import com.intellij.openapi.vcs.changes.ChangeListManager;
 import com.intellij.openapi.vcs.changes.ChangeListManagerEx;
+import lombok.Value;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.codinjutsu.tools.jenkins.view.SelectJobDialog;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.*;
 
 /**
  * CreatePatchAndBuildAction class
@@ -37,25 +40,23 @@ import java.awt.*;
  */
 public class CreatePatchAndBuildAction extends AnAction {
 
-    private Project project;
-    private ChangeList[] selectedChangeLists;
-
     public void actionPerformed(AnActionEvent event) {
-        project = ActionUtil.getProject(event);
-        DataContext dataContext = event.getDataContext();
+        getProjectChangeList(event).ifPresent(this::actionPerformed);
+    }
 
-        selectedChangeLists = VcsDataKeys.CHANGE_LISTS.getData(dataContext);
-        if (selectedChangeLists != null) {
-            showDialog();
+    private void actionPerformed(ProjectChangeList projectChangeList) {
+        if (!projectChangeList.getChangeLists().isEmpty()) {
+            showDialog(projectChangeList);
         }
     }
 
-    private void showDialog() {
+    private void showDialog(ProjectChangeList projectChangeList) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                final BrowserPanel browserPanel = BrowserPanel.getInstance(project);
+                final BrowserPanel browserPanel = BrowserPanel.getInstance(projectChangeList.getProject());
 
-                SelectJobDialog dialog = new SelectJobDialog(selectedChangeLists, browserPanel.getAllJobs(), project);
+                SelectJobDialog dialog = new SelectJobDialog(projectChangeList.getChangeLists(),
+                        browserPanel.getAllJobs(), projectChangeList.getProject());
                 dialog.setLocationRelativeTo(null);
                 dialog.setMaximumSize(new Dimension(300, 200));
                 dialog.pack();
@@ -66,15 +67,19 @@ public class CreatePatchAndBuildAction extends AnAction {
 
     @Override
     public void update(AnActionEvent event) {
-        boolean enabled = false;
-        project = ActionUtil.getProject(event);
-        DataContext dataContext = event.getDataContext();
+        boolean enabled = getProjectChangeList(event).map(this::isEnabled).orElse(Boolean.FALSE);
+        event.getPresentation().setEnabled(enabled);
+    }
 
-        selectedChangeLists = VcsDataKeys.CHANGE_LISTS.getData(dataContext);
-        if (selectedChangeLists != null && (selectedChangeLists.length > 0)) {
-            ChangeListManagerEx changeListManager = (ChangeListManagerEx) ChangeListManager.getInstance(project);
+    private boolean isEnabled(ProjectChangeList projectChangeList) {
+        boolean enabled = false;
+
+        final Collection<ChangeList> selectedChangeLists = projectChangeList.getChangeLists();
+        if (!selectedChangeLists.isEmpty()) {
+            ChangeListManagerEx changeListManager = (ChangeListManagerEx) ChangeListManager.getInstance(
+                    projectChangeList.getProject());
             if (!changeListManager.isInUpdate()) {
-                for(ChangeList list: selectedChangeLists) {
+                for (ChangeList list : selectedChangeLists) {
                     if (list.getChanges().size() > 0) {
                         enabled = true;
                         break;
@@ -82,7 +87,26 @@ public class CreatePatchAndBuildAction extends AnAction {
                 }
             }
         }
-        event.getPresentation().setEnabled(enabled);
+        return enabled;
+    }
 
+    @NotNull
+    private Collection<ChangeList> getSelectedChangeLists(DataContext dataContext) {
+        final ChangeList[] changeLists = VcsDataKeys.CHANGE_LISTS.getData(dataContext);
+        return changeLists == null ? Collections.emptySet() : new ArrayList<>(Arrays.asList(changeLists));
+    }
+
+    @NotNull
+    private Optional<ProjectChangeList> getProjectChangeList(AnActionEvent event) {
+        return ActionUtil.getProject(event)
+                .map(project -> new ProjectChangeList(project, getSelectedChangeLists(event.getDataContext())));
+    }
+
+    @Value
+    private static class ProjectChangeList {
+        @NotNull
+        private final Project project;
+        @NotNull
+        private Collection<ChangeList> changeLists;
     }
 }
