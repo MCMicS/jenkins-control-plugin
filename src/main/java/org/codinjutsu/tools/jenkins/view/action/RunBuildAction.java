@@ -18,6 +18,7 @@ package org.codinjutsu.tools.jenkins.view.action;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.UpdateInBackground;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
@@ -43,7 +44,7 @@ import java.util.function.Consumer;
 
 import static org.codinjutsu.tools.jenkins.view.BrowserPanel.POPUP_PLACE;
 
-public class RunBuildAction extends AnAction implements DumbAware {
+public class RunBuildAction extends AnAction implements DumbAware, UpdateInBackground {
 
     public static final String ACTION_ID = "Jenkins.RunBuild";
     public static final int BUILD_STATUS_UPDATE_DELAY = 1;
@@ -122,26 +123,31 @@ public class RunBuildAction extends AnAction implements DumbAware {
                 progressIndicator.setIndeterminate(true);
                 RequestManagerInterface requestManager = browserPanel.getJenkinsManager();
                 if (job.hasParameters()) {
-                    BuildParamDialog.showDialog(project, job, JenkinsAppSettings.getSafeInstance(project),
-                            requestManager, new BuildParamDialog.RunBuildCallback() {
-
-                                public void notifyOnOk(Job job) {
-                                    notifyOnGoingMessage(browserPanel, job);
-                                    browserPanel.loadJob(job);
-                                }
-
-                                public void notifyOnError(Job job, Throwable ex) {
-                                    browserPanel.notifyErrorJenkinsToolWindow("Build '" + job.getNameToRenderSingleJob() + "' cannot be run: " + ex.getMessage());
-                                    browserPanel.loadJob(job);
-                                }
-
-                            });
-
+                    GuiUtil.runInSwingThread(() -> browserPanel.loadJob(job,//
+                            reloadedJob -> showRunDialog(project, reloadedJob, browserPanel)));
                 } else {
                     requestManager.runBuild(job, JenkinsAppSettings.getSafeInstance(project), Collections.emptyMap());
                     notifyOnGoingMessage(browserPanel, job);
                 }
             }
         }.queue();
+    }
+
+    private void showRunDialog(@NotNull Project project, @NotNull Job job, @NotNull BrowserPanel browserPanel) {
+        RequestManagerInterface requestManager = browserPanel.getJenkinsManager();
+        BuildParamDialog.showDialog(project, job, JenkinsAppSettings.getSafeInstance(project),
+                requestManager, new BuildParamDialog.RunBuildCallback() {
+
+                    public void notifyOnOk(Job job) {
+                        notifyOnGoingMessage(browserPanel, job);
+                        browserPanel.loadJob(job);
+                    }
+
+                    public void notifyOnError(Job job, Throwable ex) {
+                        browserPanel.notifyErrorJenkinsToolWindow("Build '" + job.getNameToRenderSingleJob() + "' cannot be run: " + ex.getMessage());
+                        browserPanel.loadJob(job);
+                    }
+
+                });
     }
 }

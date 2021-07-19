@@ -2,6 +2,7 @@ package org.codinjutsu.tools.jenkins.view.action;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.UpdateInBackground;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAware;
@@ -15,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-public class LoadBuildsAction extends AnAction implements DumbAware {
+public class LoadBuildsAction extends AnAction implements DumbAware, UpdateInBackground {
 
     public static final String ACTION_ID = "Jenkins.LoadBuilds";
 
