@@ -88,12 +88,12 @@ public class ConfigurationPanel {
     public ConfigurationPanel(final Project project) {
         serverUrl.setName("serverUrl");
         buildDelay.setName("buildDelay");
-        jobRefreshPeriod.setName("jobRefreshPeriod");
+        jobRefreshPeriod.setName("job refresh period");
         rssRefreshPeriod.setName("rssRefreshPeriod");
         numBuildRetries.setName("numBuildRetries");
         username.setName("_username_");
 
-        passwordField.setName("passwordFile");
+        passwordField.setName("API Token");
         crumbDataField.setName("crumbDataFile");
 
         testConnectionButton.setName("testConnectionButton");
