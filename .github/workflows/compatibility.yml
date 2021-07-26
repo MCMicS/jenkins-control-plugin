@@ -5,7 +5,7 @@ on:
 
 jobs:
   compatibility:
-    name: Ensure plugin compatibility against 2019.3 for IDEA Community, IDEA Ultimate, PyCharm Community, GoLand, CLion, and the latest EAP snapshot of IDEA Community.
+    name: Ensure plugin compatibility for IDEA Community, IDEA Ultimate, PyCharm Community, GoLand, CLion, and the latest EAP snapshot of IDEA Community.
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
