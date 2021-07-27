@@ -29,7 +29,8 @@ public interface RequestManagerInterface {
     @NotNull
     Job loadJob(Job job);
 
-    List<Job>loadJenkinsView (View view);
+    @NotNull
+    List<Job> loadJenkinsView(@NotNull View view);
 
     @NotNull
     Build loadBuild(Build build);

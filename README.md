@@ -1,4 +1,4 @@
-# Jenkins Plugin 0.13.11 for Jetbrains products
+# Jenkins Plugin 0.13.12 for Jetbrains products
 [![Build Status](https://travis-ci.com/MCMicS/jenkins-control-plugin.svg?branch=master)](https://travis-ci.com/MCMicS/jenkins-control-plugin)
 [![Gitter](https://badges.gitter.im/jenkins-control-plugin/community.svg)](https://gitter.im/jenkins-control-plugin/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=MCMicS_jenkins-control-plugin&metric=alert_status)](https://sonarcloud.io/dashboard?id=MCMicS_jenkins-control-plugin)
@@ -17,6 +17,7 @@
 * [Idea 2019.3](../../releases/latest/download/jenkins-control-plugin-2019.3.zip)
 * [Idea 2020.1](../../releases/latest/download/jenkins-control-plugin-2020.1.zip)
 * [Idea 2020.3](../../releases/latest/download/jenkins-control-plugin-2020.3.zip)
+* [Idea 2021.2](../../releases/latest/download/jenkins-control-plugin-2021.2.zip)
 
 ### Use EAP Builds
 * add https://plugins.jetbrains.com/plugins/eap/list as Plugin Repository
@@ -39,13 +40,12 @@ Download this plugin from your IDE or [from the plugin website](http://plugins.j
 * Click on the **Jenkins Settings** button located on the upper toolbar (or you can also open IntelliJ Settings Screen and select the Jenkins Control Plugin option).
 * Enter your Jenkins Server URL (e.g: https://ci.jenkins.io/).
 * If Security is enabled on the server, you have to provide credentials. Enter your username and the password. The password will be stored in Intellij Password Manager. It could ask you a Master password.
-* If Cross Site Request Forgery Prevention is enabled on the server, then you have to provide your crumb data. To get the value, you will have to open the following URL in your browser *_jenkins_url_/crumbIssuer/api/xml?tree=crumb*. Just copy and paste the crumb value in the field. please note for the authentication case, you have to run the crumb URL after login.
-  * Since Jenkins 2.176 the CSRF handling was improved. The crumb not work anymore with different sessions.
-It is recommended to use an API token for authenticate the plugin:
-   To do this do following:
-     1. Go to user setting: http://<jenkinsUrl>:8080/user/<user>/configure
-     2. Add New API Token for Jenkins Plugin
-     3. Use this API Token as your Password
+* If CSRF (Cross Site Request Forgery Prevention) is enabled on the server, then 
+  * Since Jenkins 2.176 it is recommended to use an API token to authenticate the plugin:
+     1. Go to user setting: `_jenkins_url_/user/_username_/configure`
+     2. Add New API Token (recommended new one specifically for Jenkins Plugin)
+     3. Use this newly added API Token as your Password, no need to specify Crump Data.
+   * For older Jenkins version (<2.176) you have to provide your crumb data. To get the value, you will have to open the following URL in your browser `_jenkins_url_/crumbIssuer/api/xml?tree=crumb`. Just copy and paste the crumb value in the field. Please note for the authentication case, you have to run the crumb URL after login.
 * To make sure that all parameters are correct, you can click on the **Test Connection** button. A feedback message will appear.
 
 ![Connection succeeded](doc/images/Configuration-Success.png?raw=true)

@@ -33,24 +33,12 @@ public class ExtendedChoiceParameterRenderer implements JobParameterRenderer {
             new HashMap<>();
 
     public ExtendedChoiceParameterRenderer() {
-        converter.put(PT_SINGLE_SELECT, ExtendedChoiceParameterRenderer::createComboBoxIfChoicesExists);
-        converter.put(PT_MULTI_SELECT, ExtendedChoiceParameterRenderer::createComboBoxIfChoicesExists);
+        converter.put(PT_SINGLE_SELECT, JobParameterRenderers::createComboBoxIfChoicesExists);
+        converter.put(PT_MULTI_SELECT, JobParameterRenderers::createComboBoxIfChoicesExists);
         converter.put(PT_CHECKBOX, JobParameterRenderers::createErrorLabel);
         converter.put(PT_RADIO, JobParameterRenderers::createErrorLabel);
         converter.put(PT_TEXTBOX, JobParameterRenderers::createTextField);
         converter.put(PT_HIDDEN, (jobParameter, name) -> new JobParameterComponent<>(jobParameter, new JLabel(), false));
-    }
-
-    @NotNull
-    public static JobParameterComponent<String> createComboBoxIfChoicesExists(@NotNull JobParameter jobParameter,
-                                                                              String defaultValue) {
-        final BiFunction<JobParameter, String, JobParameterComponent<String>> renderer;
-        if (jobParameter.getChoices().isEmpty()) {
-            renderer = JobParameterRenderers::createTextField;
-        } else {
-            renderer = JobParameterRenderers::createComboBox;
-        }
-        return renderer.apply(jobParameter, defaultValue);
     }
 
     @NotNull

@@ -17,7 +17,6 @@
 package org.codinjutsu.tools.jenkins;
 
 import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -26,6 +25,7 @@ import lombok.Data;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
+import org.jetbrains.annotations.NotNull;
 
 @State(
         name = "Jenkins.Application.Settings",
@@ -43,7 +43,7 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
     private State myState = new State();
 
     public static JenkinsAppSettings getSafeInstance(Project project) {
-        JenkinsAppSettings settings = ServiceManager.getService(project, JenkinsAppSettings.class);
+        JenkinsAppSettings settings = project.getService(JenkinsAppSettings.class);
         return settings != null ? settings : new JenkinsAppSettings();
     }
 
@@ -177,6 +177,23 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
         myState.setAutoLoadBuilds(autoLoadBuilds);
     }
 
+    @NotNull
+    public DoubleClickAction getDoubleClickAction() {
+        return myState.getDoubleClickAction();
+    }
+
+    public void setDoubleClickAction(@NotNull DoubleClickAction doubleClickAction) {
+        myState.setDoubleClickAction(doubleClickAction);
+    }
+
+    public boolean isShowLogIfTriggerBuild() {
+        return myState.isShowLogIfTriggerBuild();
+    }
+
+    public void setShowLogIfTriggerBuild(boolean showLogIfTriggerBuild) {
+        myState.setShowLogIfTriggerBuild(showLogIfTriggerBuild);
+    }
+
     @Data
     public static class State {
 
@@ -191,6 +208,8 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
         private boolean useGreenColor = false;
         private boolean showAllInStatusbar = false;
         private boolean autoLoadBuilds = false;
+        private DoubleClickAction doubleClickAction = DoubleClickAction.DEFAULT;
+        private boolean showLogIfTriggerBuild = true;
     }
 
     @Data

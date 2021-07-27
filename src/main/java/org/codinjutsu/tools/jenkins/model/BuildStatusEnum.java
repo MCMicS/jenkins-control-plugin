@@ -16,8 +16,8 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
+import com.intellij.openapi.diagnostic.Logger;
 import lombok.RequiredArgsConstructor;
-import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -41,7 +41,7 @@ public enum BuildStatusEnum {
     RUNNING("Running", Color.GRAY);
 
 
-    private static final Logger log = Logger.getLogger(BuildStatusEnum.class);
+    private static final Logger log = Logger.getInstance(BuildStatusEnum.class);
 
     private final String status;
     private final Color color;

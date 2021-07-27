@@ -20,6 +20,7 @@ import org.codinjutsu.tools.jenkins.view.BuildStatusEnumRenderer;
 import org.codinjutsu.tools.jenkins.view.JenkinsTreeNode;
 import org.codinjutsu.tools.jenkins.view.JenkinsTreeRenderer;
 import org.codinjutsu.tools.jenkins.view.JobClickHandler;
+import org.codinjutsu.tools.jenkins.view.action.JobAction;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,40 +30,29 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class JenkinsTree implements PersistentStateComponent<JenkinsTreeState> {
     private static final String LOADING = "Loading...";
     private static final String UNAVAILABLE = "No Jenkins server available";
     private static final TreeState NO_TREE_STATE = null;
     private static final Logger LOG = Logger.getInstance(JenkinsTree.class);
-    @NotNull
-    private final JenkinsSettings jenkinsSettings;
-    private final Jenkins jenkins;
     private final SimpleTree tree;
     @NotNull
     private JenkinsTreeState state = new JenkinsTreeState();
     @Nullable
     private TreeState lastTreeState = NO_TREE_STATE;
+    @Nullable
+    private JobClickHandler clickHandler;
 
     public JenkinsTree(Project project, @NotNull JenkinsSettings jenkinsSettings, Jenkins jenkins) {
-        super();
-        this.jenkinsSettings = jenkinsSettings;
-        this.jenkins = jenkins;
         this.tree = new TreeWithoutDefaultSearch();
 
         this.tree.getEmptyText().setText(LOADING);
-        this.tree.setCellRenderer(new JenkinsTreeRenderer(this.jenkinsSettings::isFavoriteJob,
+        this.tree.setCellRenderer(new JenkinsTreeRenderer(jenkinsSettings::isFavoriteJob,
                 BuildStatusEnumRenderer.getInstance(project)));
         this.tree.setName("jobTree");
-        this.tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode(new JenkinsTreeNode.RootNode(this.jenkins)), false));
-        this.tree.addMouseListener(new JobClickHandler());
+        this.tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode(new JenkinsTreeNode.RootNode(jenkins)), false));
     }
 
     @NotNull
@@ -282,6 +272,12 @@ public class JenkinsTree implements PersistentStateComponent<JenkinsTreeState> {
         final DefaultTreeModel model = getModel();
         TreeUtil.sort(model, wrapJobSorter(comparator));
         GuiUtil.runInSwingThread(() -> model.nodeStructureChanged((TreeNode) model.getRoot()));
+    }
+
+    public void updateDoubleClickAction(@NotNull JobAction doubleClickAction) {
+        Optional.ofNullable(clickHandler).ifPresent(this.tree::removeMouseListener);
+        this.clickHandler = new JobClickHandler(doubleClickAction);
+        this.tree.addMouseListener(clickHandler);
     }
 
     @SuppressWarnings("java:S110")

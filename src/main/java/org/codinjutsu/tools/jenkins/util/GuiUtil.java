@@ -19,6 +19,7 @@ package org.codinjutsu.tools.jenkins.util;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.Task;
@@ -59,9 +60,9 @@ public class GuiUtil {
             return;
         }
 
-        JComponent actionToolbar = ActionManager.getInstance()
-                .createActionToolbar(toolBarName, actionGroup, true).getComponent();
-        toolWindowPanel.setToolbar(actionToolbar);
+        final ActionToolbar actionToolbar = ActionManager.getInstance() .createActionToolbar(toolBarName, actionGroup, true);
+        actionToolbar.setTargetComponent(toolWindowPanel.getComponent());
+        toolWindowPanel.setToolbar(actionToolbar.getComponent());
     }
 
     public static void showInToolWindow(ToolWindow toolWindow, ComponentContainer consoleView, String tabName) {

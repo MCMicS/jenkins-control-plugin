@@ -16,6 +16,10 @@
 
 package org.codinjutsu.tools.jenkins.view.validator;
 
+import org.jetbrains.annotations.NotNull;
+
+import javax.swing.*;
+
 public enum ValidatorTypeEnum {
 
     POSITIVE_INTEGER(new PositiveIntegerValidator()),
@@ -23,15 +27,15 @@ public enum ValidatorTypeEnum {
     NOTNULL(new NotNullValidator()),
     FILE(new FileValidator());
 
-    private final UIValidator validator;
+    private final UIValidator<JComponent> validator;
 
-
-    ValidatorTypeEnum(UIValidator validator) {
-        this.validator = validator;
+    @SuppressWarnings("unchecked")
+    ValidatorTypeEnum(UIValidator<? extends JComponent> validator) {
+        this.validator = (UIValidator<JComponent>) validator;
     }
 
-
-    public UIValidator getValidator() {
+    @NotNull
+    public UIValidator<JComponent> getValidator() {
         return validator;
     }
 }

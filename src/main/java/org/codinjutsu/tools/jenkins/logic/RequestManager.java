@@ -17,7 +17,7 @@
 package org.codinjutsu.tools.jenkins.logic;
 
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.net.IdeHttpClientHelpers;
@@ -35,7 +35,6 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
-import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
@@ -60,7 +59,7 @@ import java.util.stream.Collectors;
 
 public class RequestManager implements RequestManagerInterface, Disposable {
 
-    private static final Logger logger = Logger.getLogger(RequestManager.class);
+    private static final Logger logger = Logger.getInstance(RequestManager.class);
 
     private static final String BUILDHIVE_CLOUDBEES = "buildhive";
 
@@ -82,7 +81,7 @@ public class RequestManager implements RequestManagerInterface, Disposable {
     }
 
     public static RequestManager getInstance(Project project) {
-        return ServiceManager.getService(project, RequestManager.class);
+        return project.getService(RequestManager.class);
     }
 
     private static boolean canContainNestedJobs(@NotNull Job job) {
@@ -340,8 +339,9 @@ public class RequestManager implements RequestManagerInterface, Disposable {
         return withNodeParameterFix(loadJob(job.getUrl()), () -> loadComputer(JenkinsAppSettings.getSafeInstance(project)));
     }
 
+    @NotNull
     @Override
-    public List<Job> loadJenkinsView(View view) {
+    public List<Job> loadJenkinsView(@NotNull View view) {
         return loadJenkinsView(view.getUrl());
     }
 

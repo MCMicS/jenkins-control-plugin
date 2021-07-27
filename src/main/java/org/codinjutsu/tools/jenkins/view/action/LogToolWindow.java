@@ -17,7 +17,7 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.offbytwo.jenkins.helper.BuildConsoleStreamListener;
 import lombok.Value;
 import org.codinjutsu.tools.jenkins.exception.JenkinsPluginRuntimeException;
-import org.codinjutsu.tools.jenkins.logic.RequestManager;
+import org.codinjutsu.tools.jenkins.logic.RequestManagerInterface;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildType;
 import org.codinjutsu.tools.jenkins.model.Job;
@@ -57,7 +57,7 @@ public class LogToolWindow {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 try {
-                    final RequestManager requestManager = browserPanel.getJenkinsManager();
+                    final RequestManagerInterface requestManager = browserPanel.getJenkinsManager();
                     requestManager.loadConsoleTextFor(job, buildType, processHandler);
                 } catch (JenkinsPluginRuntimeException e) {
                     browserPanel.notifyErrorJenkinsToolWindow(e.getMessage());
@@ -73,9 +73,8 @@ public class LogToolWindow {
         final ConsoleView consoleView = builder.getConsole();
 
         final DefaultActionGroup toolbarActions = new DefaultActionGroup();
+        // panel creation for call to #createConsoleActions needed
         final JComponent panel = createConsolePanel(consoleView, toolbarActions);
-        final ActionToolbar actionToolbar = createToolbar(toolbarActions);
-        actionToolbar.setTargetComponent(panel);
         toolbarActions.addAll(consoleView.createConsoleActions());
         toolbarActions.addAction(new ShowJobResultsAsJUnitViewAction(browserPanelForAction));
         panel.updateUI();
@@ -83,14 +82,16 @@ public class LogToolWindow {
     }
 
     private static JComponent createConsolePanel(ConsoleView view, ActionGroup actions) {
+        final ActionToolbar actionToolbar = createToolbar(actions);
         final JPanel panel = new JPanel(new BorderLayout());
         panel.add(view.getComponent(), BorderLayout.CENTER);
-        panel.add(createToolbar(actions).getComponent(), BorderLayout.WEST);
+        panel.add(actionToolbar.getComponent(), BorderLayout.WEST);
+        actionToolbar.setTargetComponent(panel);
         return panel;
     }
 
     private static ActionToolbar createToolbar(ActionGroup actions) {
-        return ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, actions, false);
+        return ActionManager.getInstance().createActionToolbar("JenkinsLogWindow", actions, false);
     }
 
     private void showInToolWindow(ShowLogConsoleView showLogConsoleView, String tabName) {

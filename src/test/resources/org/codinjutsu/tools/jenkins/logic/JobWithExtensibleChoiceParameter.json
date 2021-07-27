@@ -1,0 +1,72 @@
+{
+  "_class": "hudson.model.FreeStyleProject",
+  "description": "",
+  "displayName": "ExtensibleChoiceParameter",
+  "displayNameOrNull": null,
+  "fullDisplayName": "ExtensibleChoiceParameter",
+  "fullName": "ExtensibleChoiceParameter",
+  "name": "ExtensibleChoiceParameter",
+  "url": "https://localhost:8443/view/Parameter%20Builds/job/ExtensibleChoiceParameter/",
+  "buildable": true,
+  "builds": [],
+  "color": "notbuilt",
+  "firstBuild": null,
+  "healthReport": [],
+  "inQueue": false,
+  "keepDependencies": false,
+  "lastBuild": null,
+  "lastCompletedBuild": null,
+  "lastFailedBuild": null,
+  "lastStableBuild": null,
+  "lastSuccessfulBuild": null,
+  "lastUnstableBuild": null,
+  "lastUnsuccessfulBuild": null,
+  "nextBuildNumber": 1,
+  "property": [
+    {
+      "_class": "hudson.model.ParametersDefinitionProperty",
+      "parameterDefinitions": [
+        {
+          "_class": "jp.ikedam.jenkins.plugins.extensible_choice_parameter.ExtensibleChoiceParameterDefinition",
+          "defaultParameterValue": {
+            "_class": "hudson.model.StringParameterValue",
+            "name": "ExtensibleChoice",
+            "value": "Test"
+          },
+          "description": null,
+          "name": "ExtensibleChoice",
+          "type": "ExtensibleChoiceParameterDefinition",
+          "choices": [
+            "Test",
+            "Foo",
+            "Bar"
+          ]
+        },
+        {
+          "_class": "hudson.model.ChoiceParameterDefinition",
+          "defaultParameterValue": {
+            "_class": "hudson.model.StringParameterValue",
+            "name": "SimpleChoice",
+            "value": "Hello"
+          },
+          "description": null,
+          "name": "SimpleChoice",
+          "type": "ChoiceParameterDefinition",
+          "choices": [
+            "Hello",
+            "World"
+          ]
+        }
+      ]
+    }
+  ],
+  "queueItem": null,
+  "concurrentBuild": false,
+  "disabled": false,
+  "downstreamProjects": [],
+  "labelExpression": null,
+  "scm": {
+    "_class": "hudson.scm.NullSCM"
+  },
+  "upstreamProjects": []
+}

@@ -1,31 +1,59 @@
+//import org.jetbrains.changelog.ExtensionsKt
 plugins {
     id 'java'
-    id 'org.jetbrains.intellij' version '0.7.2'
-    id "io.freefair.lombok" version "5.3.0"
+    id 'org.jetbrains.intellij' version '1.1.4'
+    id 'org.jetbrains.changelog' version "1.2.1"
+    id "io.freefair.lombok" version "5.3.3.3"
     id 'idea'
-    id "org.sonarqube" version "3.1.1"
+    id "org.sonarqube" version "3.3"
     id 'jacoco'
 }
+def jenkinsPluginName = 'jenkins-control-plugin'
+def jenkinsPluginVersion = '0.13.12'
+def javaVersion = 11
 
 group 'org.codinjutsu'
-version '0.13.11-2019.3'
+version "${jenkinsPluginVersion}-2019.3"
 apply plugin: 'org.jetbrains.intellij'
+apply plugin: 'org.jetbrains.changelog'
 apply plugin: 'java'
 apply plugin: 'idea'
-
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+apply plugin: "io.freefair.lombok"
 
 intellij {
-    version '2019.3'
-    plugins 'java'
-    updateSinceUntilBuild false
-    pluginName 'jenkins-control-plugin'
-    type = 'IC'
+    pluginName.set(jenkinsPluginName)
+    version.set('2019.3')
+    //version.set('2021.1')
+    updateSinceUntilBuild.set(false)
+    downloadSources.set(true)
+    type.set('IC')
+    plugins.set(['com.intellij.java'])
+    //type.set('PC')
+    //type.set('RD') //Rider
+
+    patchPluginXml {
+        version.set("${project.version}")
+        pluginDescription.set(file('includes/pluginDescription.html').text)
+        //changeNotes.set(provider { changelog.getLatest().toHTML() })
+        def allChanges = { changelog.getAll().values().collect { it.withHeader(true) }.collect {it.toHTML()}.join('\n<br>\n') }
+        changeNotes.set(provider { allChanges() } )
+    }
+}
+
+changelog {
+    version = jenkinsPluginVersion
+    path = "${project.projectDir}/CHANGELOG.md"
+    header = provider { "[${version.get()}]" }
+    //headerParserRegex = ~/\d+\.\d+/
+    itemPrefix = "-"
+    keepUnreleasedSection = true
+    unreleasedTerm = "[Unreleased]"
+    //groups = ["Added", "Changed", "Deprecated", "Removed"]
+    groups = []
 }
 
 lombok {
-    version = "1.18.16"
+    version = "1.18.20"
     generateLombokConfig.enabled = false
 }
 
@@ -36,15 +64,15 @@ idea {
     }
 }
 
-patchPluginXml {
-    version "${project.version}"
-    pluginDescription (file('includes/pluginDescription.html').text)
-    changeNotes (file('includes/pluginChanges.html').text)
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(javaVersion)
+    }
 }
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
-    options.release = 8
+    options.release.set(javaVersion)
 }
 
 configurations {
@@ -76,7 +104,7 @@ repositories {
 }
 
 dependencies {
-    implementation ('com.github.cliftonlabs:json-simple:3.1.1') {
+    implementation ('com.github.cliftonlabs:json-simple:4.0.0') {
         exclude group: 'junit'
     }
     implementation('com.offbytwo.jenkins:jenkins-client:0.3.8') {
@@ -93,12 +121,12 @@ dependencies {
     }
 
     testImplementation(
-            'junit:junit:4.13',
-            'org.mockito:mockito-core:3.3.3',
-            'org.powermock:powermock-api-mockito2:2.0.5',
-            'org.powermock:powermock-core:2.0.5',
-            'org.assertj:assertj-core:3.15.0',
-            'org.assertj:assertj-swing-junit:3.9.2'
+            'junit:junit:4.13.2',
+            'org.mockito:mockito-core:3.11.2',
+            'org.powermock:powermock-api-mockito2:2.0.9',
+            'org.powermock:powermock-core:2.0.9',
+            'org.assertj:assertj-core:3.20.2',
+            'org.assertj:assertj-swing-junit:3.17.1'
     )
 }
 
@@ -125,15 +153,15 @@ buildPlugin {
     doLast {
         copy {
             from 'build/distributions'
-            include "${intellij.pluginName}-${project.version}.zip"
+            include "${jenkinsPluginName}-${project.version}.zip"
             into "snapshot"
         }
     }
 }
 
 prepareSandbox {
-    from (['README.md', 'CHANGELOG.txt', 'LICENSE.txt']) {
-        into "${intellij.pluginName}/"
+    from (['README.md', 'CHANGELOG.md', 'LICENSE.txt']) {
+        into "${jenkinsPluginName}/"
     }
 }
 
@@ -152,11 +180,26 @@ jacocoTestReport {
 }
 
 import org.jetbrains.intellij.tasks.RunPluginVerifierTask
-def ideaVersionToVerify = "${intellij.version}"
+def ideaVersionToVerify = "212.4638.7"
 def verifyFailureLevel = EnumSet.copyOf(RunPluginVerifierTask.FailureLevel.ALL)
 verifyFailureLevel.remove(RunPluginVerifierTask.FailureLevel.NOT_DYNAMIC)
 runPluginVerifier {
+    //distributionFile = "${jenkinsPluginName}-${project.version}"
     ideVersions = ["IU-${ideaVersionToVerify}"]
     failureLevel = verifyFailureLevel
     verifierVersion = "latest"
+}
+signPlugin {
+    def _privateKey = file('private/signing.key')
+    def _certificateChain = file('private/signing.pem')
+    certificateChain.set(_certificateChain.exists() ?  _certificateChain.text : null)
+    privateKey.set(_privateKey.exists() ?  _privateKey.text : null)
+    doLast {
+        copy {
+            from 'build/distributions'
+            include "${jenkinsPluginName}-signed.zip"
+            into "snapshot"
+            rename "${jenkinsPluginName}-signed.zip", "${jenkinsPluginName}-${project.version}-signed.zip"
+        }
+    }
 }

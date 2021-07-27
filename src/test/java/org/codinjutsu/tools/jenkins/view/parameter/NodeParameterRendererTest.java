@@ -32,7 +32,7 @@ public class NodeParameterRendererTest implements JobParameterTest {
 
     @Test
     public void renderNode() {
-        final JobParameter jobParameter = createJobParameter(nodeParameter, "Test", "default", "master");
+        final JobParameter jobParameter = createJobParameter(nodeParameter, "default", "Test", "default", "master");
         JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter);
         final JComponent viewElement = jobParameterComponent.getViewElement();
         assertThat(viewElement).isInstanceOf(JComboBox.class);

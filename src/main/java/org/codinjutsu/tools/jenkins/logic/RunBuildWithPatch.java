@@ -2,7 +2,6 @@ package org.codinjutsu.tools.jenkins.logic;
 
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.components.Service;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
@@ -35,7 +34,7 @@ public final class RunBuildWithPatch {
 
     @NotNull
     public static RunBuildWithPatch getInstance(@NotNull Project project) {
-        RunBuildWithPatch service = ServiceManager.getService(project, RunBuildWithPatch.class);
+        RunBuildWithPatch service = project.getService(RunBuildWithPatch.class);
         return service == null ? new RunBuildWithPatch(project) : service;
     }
 
@@ -145,7 +144,7 @@ public final class RunBuildWithPatch {
         @Override
         public void run(@NotNull ProgressIndicator progressIndicator) {
             progressIndicator.setIndeterminate(true);
-            RequestManager requestManager = browserPanel.getJenkinsManager();
+            RequestManagerInterface requestManager = browserPanel.getJenkinsManager();
 
             final JenkinsAppSettings settings = JenkinsAppSettings.getSafeInstance(project);
             final Map<String, VirtualFile> files = new HashMap<>(Collections.singletonMap(PARAMETER_NAME, patchFile));
