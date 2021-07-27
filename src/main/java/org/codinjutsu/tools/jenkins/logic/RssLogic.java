@@ -113,8 +113,7 @@ public class RssLogic implements Disposable {
                 notificationType = NotificationType.WARNING;
             }
             NotificationGroupManager.getInstance().getNotificationGroup("Jenkins Rss")
-                    .createNotification("", buildMessage(build), notificationType)
-                    .setListener(NotificationListener.URL_OPENING_LISTENER)
+                    .createNotification("", buildMessage(build), notificationType, NotificationListener.URL_OPENING_LISTENER)
                     .notify(project);
         }
     }
