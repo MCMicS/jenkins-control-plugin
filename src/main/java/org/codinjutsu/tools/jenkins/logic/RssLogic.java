@@ -113,8 +113,9 @@ public class RssLogic implements Disposable {
             } else {
                 notificationType = NotificationType.WARNING;
             }
-            JENKINS_RSS_GROUP.createNotification("", buildMessage(build), notificationType,
-                    NotificationListener.URL_OPENING_LISTENER)
+            JENKINS_RSS_GROUP
+                    .createNotification("", buildMessage(build), notificationType,
+                            NotificationListener.URL_OPENING_LISTENER)
                     .notify(project);
         }
     }

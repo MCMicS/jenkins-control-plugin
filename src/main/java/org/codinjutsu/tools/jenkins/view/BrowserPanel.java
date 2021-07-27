@@ -365,7 +365,7 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
         popupGroup.addSeparator();
         popupGroup.add(new UploadPatchToJobAction(this));
 
-        PopupHandler.installPopupMenu(jobTree.asComponent(), popupGroup, POPUP_PLACE);
+        PopupHandler.installPopupHandler(jobTree.asComponent(), popupGroup, POPUP_PLACE);
     }
 
     public void loadView(final View view) {

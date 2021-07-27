@@ -68,7 +68,7 @@ public class FormValidator<T extends JComponent> {
     @SuppressWarnings("java:S3011")
     private static JComponent getFieldObject(Object formToValidate, Field field) {
         try {
-            boolean accessible = field.canAccess(formToValidate);
+            boolean accessible = field.isAccessible();
             field.setAccessible(true);
             Object obj = field.get(formToValidate);
             field.setAccessible(accessible);

@@ -23,15 +23,11 @@ import com.github.cliftonlabs.json_simple.Jsoner;
 import org.apache.commons.collections.CollectionUtils;
 import com.intellij.openapi.diagnostic.Logger;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.codinjutsu.tools.jenkins.model.*;
-import org.apache.commons.lang3.ObjectUtils;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.util.DateUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -218,7 +214,7 @@ public class JenkinsJsonParser implements JenkinsParser {
     }
 
     private boolean isContainParameters(JsonObject action) {
-        return ObjectUtils.isNotEmpty(getActionsParameter(action));
+        return CollectionUtils.isNotEmpty(getActionsParameter(action));
     }
 
     @NotNull
