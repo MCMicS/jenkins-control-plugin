@@ -20,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.text.JTextComponent;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 @UtilityClass
@@ -114,6 +115,18 @@ public final class JobParameterRenderers {
     @NotNull
     public static JobParameterComponent<String> createErrorLabel(@NotNull JobParameter jobParameter, String defaultValue) {
         return createErrorLabel(jobParameter);
+    }
+
+    @NotNull
+    public static JobParameterComponent<String> createComboBoxIfChoicesExists(@NotNull JobParameter jobParameter,
+                                                                              String defaultValue) {
+        final BiFunction<JobParameter, String, JobParameterComponent<String>> renderer;
+        if (jobParameter.getChoices().isEmpty()) {
+            renderer = JobParameterRenderers::createTextField;
+        } else {
+            renderer = JobParameterRenderers::createComboBox;
+        }
+        return renderer.apply(jobParameter, defaultValue);
     }
 
     @NotNull

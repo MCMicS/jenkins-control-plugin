@@ -12,5 +12,8 @@
         <buildParameterRenderer
                 implementation="org.codinjutsu.tools.jenkins.view.parameter.PersistentParameterRenderer"/>
         <buildParameterRenderer implementation="org.codinjutsu.tools.jenkins.view.parameter.ListGitBranchesParameterRenderer" />
+        <buildParameterRenderer implementation="org.codinjutsu.tools.jenkins.view.parameter.ExtendedChoiceParameterRenderer" />
+        <buildParameterRenderer implementation="org.codinjutsu.tools.jenkins.view.parameter.DateParameterRenderer" />
+        <buildParameterRenderer implementation="org.codinjutsu.tools.jenkins.view.parameter.ExtensibleChoiceParameterRenderer" />
     </extensions>
 </idea-plugin>

@@ -16,30 +16,23 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
+import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.NotificationListener;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.MessageType;
-import com.intellij.openapi.ui.popup.Balloon;
-import com.intellij.openapi.ui.popup.BalloonBuilder;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
-import com.intellij.ui.awt.RelativePoint;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JobTracker;
-import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
+import org.codinjutsu.tools.jenkins.exception.JenkinsPluginRuntimeException;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
-import org.codinjutsu.tools.jenkins.view.JenkinsWidget;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.awt.*;
-import java.util.List;
 import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -56,7 +49,7 @@ public class RssLogic implements Disposable {
     private ScheduledFuture<?> refreshRssBuildFutureTask;
 
     public static RssLogic getInstance(Project project) {
-        return ServiceManager.getService(project, RssLogic.class);
+        return project.getService(RssLogic.class);
     }
 
     public RssLogic(final Project project) {
@@ -85,6 +78,7 @@ public class RssLogic implements Disposable {
         }
     }
 
+    @SuppressWarnings({"java:S3824", "java:S3398"})
     private Map<String, Build> loadAndReturnNewLatestBuilds() {
         final Map<String, Build> latestBuildMap = requestManager.loadJenkinsRssLatestBuilds(jenkinsAppSettings);
         final Map<String, Build> newBuildMap = new HashMap<>();
@@ -106,6 +100,7 @@ public class RssLogic implements Disposable {
         return newBuildMap;
     }
 
+    @SuppressWarnings("java:S3398")
     private void sendNotificationForEachBuild(List<Build> buildToSortByDateDescending) {
         for (Build build : buildToSortByDateDescending) {
             BuildStatusEnum status = build.getStatus();
@@ -118,11 +113,13 @@ public class RssLogic implements Disposable {
                 notificationType = NotificationType.WARNING;
             }
             NotificationGroupManager.getInstance().getNotificationGroup("Jenkins Rss")
-                    .createNotification("", buildMessage(build), notificationType, NotificationListener.URL_OPENING_LISTENER)
+                    .createNotification("", buildMessage(build), notificationType)
+                    .setListener(NotificationListener.URL_OPENING_LISTENER)
                     .notify(project);
         }
     }
 
+    @SuppressWarnings("java:S3398")
     private List<Build> sortByDateDescending(Map<String, Build> finishedBuilds) {
         final List<Build> buildToSortByDateDescending = new ArrayList<>(finishedBuilds.values());
 
@@ -130,23 +127,19 @@ public class RssLogic implements Disposable {
         return buildToSortByDateDescending;
     }
 
-    private void displayTheFirstFailedBuildInABalloon(Map.Entry<String, Build> firstFailedBuild) {
+    @SuppressWarnings("java:S3398")
+    private void notifyFirstFailedBuild(Map.Entry<String, Build> firstFailedBuild) {
         if (firstFailedBuild != null) {
             final String jobName = firstFailedBuild.getKey();
             final Build build = firstFailedBuild.getValue();
             final String message = Optional.ofNullable(build.getFullDisplayName())
                     .orElseGet(() -> jobName + build.getDisplayNumber()) + ": FAILED";
-            displayErrorMessageInABalloon(message);
+            JenkinsNotifier.getInstance(project).notify(message, NotificationType.WARNING);
         }
     }
 
-    private void displayErrorMessageInABalloon(String message) {
-        BalloonBuilder balloonBuilder = JBPopupFactory.getInstance().createHtmlTextBalloonBuilder(message, MessageType.ERROR, null);
-        final Balloon balloon = balloonBuilder.setFadeoutTime(TimeUnit.SECONDS.toMillis(1)).createBalloon();
-        GuiUtil.runInSwingThread(() -> balloon.show(new RelativePoint(JenkinsWidget.getInstance(project).getComponent(),
-                new Point(0, 0)), Balloon.Position.above));
-    }
-
+    @SuppressWarnings("java:S3398")
+    @Nullable
     private Map.Entry<String, Build> getFirstFailedBuild(Map<String, Build> finishedBuilds) {
         for (Map.Entry<String, Build> buildByJobName : finishedBuilds.entrySet()) {
             Build build = buildByJobName.getValue();
@@ -186,8 +179,8 @@ public class RssLogic implements Disposable {
             final Map<String, Build> finishedBuilds;
             try {
                 finishedBuilds = loadAndReturnNewLatestBuilds();
-            } catch (ConfigurationException ex) {
-                displayErrorMessageInABalloon(ex.getMessage());
+            } catch (JenkinsPluginRuntimeException ex) {
+                JenkinsNotifier.getInstance(project).error(ex.getMessage());
                 return;
             }
             if (!shouldDisplayResult || finishedBuilds.isEmpty()) {
@@ -195,10 +188,8 @@ public class RssLogic implements Disposable {
             }
 
             JobTracker.getInstance().onNewFinishedBuilds(finishedBuilds);
-
             sendNotificationForEachBuild(sortByDateDescending(finishedBuilds));
-
-            displayTheFirstFailedBuildInABalloon(getFirstFailedBuild(finishedBuilds));
+            notifyFirstFailedBuild(getFirstFailedBuild(finishedBuilds));
         }
 
 

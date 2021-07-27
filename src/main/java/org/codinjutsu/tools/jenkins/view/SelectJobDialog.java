@@ -43,10 +43,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class SelectJobDialog extends JDialog {
 
@@ -62,9 +59,10 @@ public class SelectJobDialog extends JDialog {
 
     private Project project;
 
-    private ChangeList[] changeLists;
+    @NotNull
+    private final Collection<ChangeList> changeLists;
 
-    public SelectJobDialog(ChangeList[] changeLists, @NotNull List<Job> jobs, Project project) {
+    public SelectJobDialog(Collection<ChangeList> changeLists, @NotNull List<Job> jobs, Project project) {
         this.project = project;
         this.changeLists = changeLists;
 
@@ -98,7 +96,7 @@ public class SelectJobDialog extends JDialog {
     }
 
     public static void main(String[] args) {
-        SelectJobDialog dialog = new SelectJobDialog(new ChangeList[]{}, Collections.emptyList(), null);
+        SelectJobDialog dialog = new SelectJobDialog(Collections.emptyList(), Collections.emptyList(), null);
         dialog.pack();
         dialog.setVisible(true);
         System.exit(0);
@@ -116,13 +114,13 @@ public class SelectJobDialog extends JDialog {
     private void fillChangedFilesList() {
         final DefaultListModel<String> model = new DefaultListModel<>();
 
-        if (changeLists != null && (changeLists.length > 0)) {
+        if (hasChangelist()) {
             StringBuilder builder = new StringBuilder();
 
             int count = 1;
             for (ChangeList changeList : changeLists) {
                 builder.append(changeList.getName());
-                if (count < changeLists.length) {
+                if (count < changeLists.size()) {
                     builder.append(", ");
                 }
                 if (!changeList.getChanges().isEmpty()) {
@@ -135,12 +133,15 @@ public class SelectJobDialog extends JDialog {
                 }
                 count++;
             }
-
-            changedFilesPane.setBorder(IdeBorderFactory.createTitledBorder(String.format("Changelists: %s", builder.toString()), true));
-
+            changedFilesPane.setBorder(IdeBorderFactory.createTitledBorder(String.format("Changelists: %s",
+                    builder.toString()), true));
         }
 
         changedFilesList.setModel(model);
+    }
+
+    private boolean hasChangelist() {
+        return !changeLists.isEmpty();
     }
 
     @NotNull
@@ -148,10 +149,8 @@ public class SelectJobDialog extends JDialog {
         final File patchFile = FileUtil.createTempFile(FILENAME_PREFIX, FILENAME_SUFFIX);
         try (FileWriter writer = new FileWriter(patchFile)) {
             final ArrayList<Change> changes = new ArrayList<>();
-            if (changeLists.length > 0) {
-                for (ChangeList changeList : changeLists) {
-                    changes.addAll(changeList.getChanges());
-                }
+            for (ChangeList changeList : changeLists) {
+                changes.addAll(changeList.getChanges());
             }
             final Path base = PatchWriter.calculateBaseDirForWritingPatch(project, changes);
             final List<FilePatch> patches = IdeaTextPatchBuilder.buildPatch(project, changes, base, false);
@@ -161,10 +160,8 @@ public class SelectJobDialog extends JDialog {
     }
 
     private void watchJob(BrowserPanel browserPanel, Job job) {
-        if (changeLists.length > 0) {
-            for (ChangeList list : changeLists) {
-                browserPanel.addToWatch(list.getName(), job);
-            }
+        for (ChangeList list : changeLists) {
+            browserPanel.addToWatch(list.getName(), job);
         }
     }
 

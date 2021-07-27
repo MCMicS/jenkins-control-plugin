@@ -17,7 +17,6 @@
 package org.codinjutsu.tools.jenkins.view;
 
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.CustomStatusBarWidget;
 import com.intellij.openapi.wm.StatusBar;
@@ -32,8 +31,8 @@ import org.codinjutsu.tools.jenkins.view.util.BuildStatusIcon;
 import org.codinjutsu.tools.jenkins.view.util.WidgetBorderUtil;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.JComponent;
-import java.awt.BorderLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.stream.Stream;
@@ -47,7 +46,7 @@ public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidg
     private final JenkinsAppSettings jenkinsAppSettings;
 
     public static JenkinsWidget getInstance(Project project) {
-        return ServiceManager.getService(project, JenkinsWidget.class);
+        return project.getService(JenkinsWidget.class);
     }
 
     public JenkinsWidget(Project project) {

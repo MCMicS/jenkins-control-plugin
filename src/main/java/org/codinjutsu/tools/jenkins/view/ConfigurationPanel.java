@@ -22,12 +22,13 @@ import com.intellij.ui.JBColor;
 import com.intellij.ui.JBIntSpinner;
 import com.intellij.ui.NumberDocument;
 import org.apache.commons.lang.StringUtils;
+import org.codinjutsu.tools.jenkins.DoubleClickAction;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
+import org.codinjutsu.tools.jenkins.exception.AuthenticationException;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.logic.ConfigurationValidator;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
-import org.codinjutsu.tools.jenkins.security.AuthenticationException;
 import org.codinjutsu.tools.jenkins.security.JenkinsVersion;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.annotation.FormValidator;
@@ -35,6 +36,7 @@ import org.codinjutsu.tools.jenkins.view.annotation.GuiField;
 import org.codinjutsu.tools.jenkins.view.validator.NotNullValidator;
 import org.codinjutsu.tools.jenkins.view.validator.PositiveIntegerValidator;
 import org.codinjutsu.tools.jenkins.view.validator.UrlValidator;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -42,6 +44,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 import java.awt.*;
+import java.util.Optional;
 
 import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.POSITIVE_INTEGER;
 import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.URL;
@@ -78,17 +81,19 @@ public class ConfigurationPanel {
     @GuiField(validators = POSITIVE_INTEGER)
     private JBIntSpinner timeout;
     private JCheckBox autoLoadBuildsOnFirstLevel;
+    private JComboBox<DoubleClickAction> doubleClickAction;
+    private JCheckBox showLogIfTriggerBuild;
     private boolean myPasswordModified = false;
 
     public ConfigurationPanel(final Project project) {
         serverUrl.setName("serverUrl");
         buildDelay.setName("buildDelay");
-        jobRefreshPeriod.setName("jobRefreshPeriod");
+        jobRefreshPeriod.setName("job refresh period");
         rssRefreshPeriod.setName("rssRefreshPeriod");
         numBuildRetries.setName("numBuildRetries");
         username.setName("_username_");
 
-        passwordField.setName("passwordFile");
+        passwordField.setName("API Token");
         crumbDataField.setName("crumbDataFile");
 
         testConnectionButton.setName("testConnectionButton");
@@ -129,6 +134,11 @@ public class ConfigurationPanel {
                 myPasswordModified = true;
             }
         });
+        doubleClickAction.setEditable(false);
+        doubleClickAction.setRenderer(new DoubleClickActionRenderer());
+        doubleClickAction.addItem(DoubleClickAction.TRIGGER_BUILD);
+        doubleClickAction.addItem(DoubleClickAction.LOAD_BUILDS);
+        doubleClickAction.addItem(DoubleClickAction.SHOW_LAST_LOG);
 
         testConnectionButton.addActionListener(event -> testConnection(project));
 
@@ -193,6 +203,8 @@ public class ConfigurationPanel {
         boolean isUseGreenColor = isUseGreenColor() != jenkinsAppSettings.isUseGreenColor();
         boolean isShowAllInStatusbar = isShowAllInStatusbar() != jenkinsAppSettings.isShowAllInStatusbar();
         boolean isAutoLoadBuilds = getAutoLoadBuilds() != jenkinsAppSettings.isAutoLoadBuilds();
+        boolean isDoubleClickActionChanged = getDoubleClickAction() != jenkinsAppSettings.getDoubleClickAction();
+        boolean isShowLogIfTriggerBuildChanged = isShowLogIfTriggerBuild() != jenkinsAppSettings.isShowLogIfTriggerBuild();
 
         return !jenkinsAppSettings.getServerUrl().equals(serverUrl.getText())
                 || jenkinsAppSettings.getBuildDelay() != getBuildDelay()
@@ -204,6 +216,8 @@ public class ConfigurationPanel {
                 || isUseGreenColor
                 || isShowAllInStatusbar
                 || isAutoLoadBuilds
+                || isDoubleClickActionChanged
+                || isShowLogIfTriggerBuildChanged
                 || jenkinsSettings.getConnectionTimeout() != getConnectionTimeout()
                 || statusToIgnoreModified || (!jenkinsAppSettings.getSuffix().equals(replaceWithSuffix.getText()));
     }
@@ -231,6 +245,8 @@ public class ConfigurationPanel {
         jenkinsAppSettings.setUseGreenColor(isUseGreenColor());
         jenkinsAppSettings.setShowAllInStatusbar(isShowAllInStatusbar());
         jenkinsAppSettings.setAutoLoadBuilds(getAutoLoadBuilds());
+        jenkinsAppSettings.setDoubleClickAction(getDoubleClickAction());
+        jenkinsAppSettings.setShowLogIfTriggerBuild(isShowLogIfTriggerBuild());
         jenkinsSettings.setConnectionTimeout(getConnectionTimeout());
 
         if (StringUtils.isNotBlank(username.getText())) {
@@ -266,12 +282,27 @@ public class ConfigurationPanel {
         this.autoLoadBuildsOnFirstLevel.setSelected(autoLoadBuilds);
     }
 
+    @NotNull
+    private DoubleClickAction getDoubleClickAction() {
+        return Optional.ofNullable(doubleClickAction.getSelectedItem())
+                .map(DoubleClickAction.class::cast)
+                .orElse(DoubleClickAction.DEFAULT);
+    }
+
     private boolean isShowAllInStatusbar() {
         return showAllInStatusbar.isSelected();
     }
 
     private void setShowAllInStatusbar(boolean useGreenColor) {
         this.showAllInStatusbar.setSelected(useGreenColor);
+    }
+
+    private boolean isShowLogIfTriggerBuild() {
+        return showLogIfTriggerBuild.isSelected();
+    }
+
+    private void setShowLogIfTriggerBuild(boolean isShowLogIfTriggerBuild) {
+        this.showLogIfTriggerBuild.setSelected(isShowLogIfTriggerBuild);
     }
 
     public void loadConfigurationData(JenkinsAppSettings jenkinsAppSettings, JenkinsSettings jenkinsSettings) {
@@ -299,6 +330,8 @@ public class ConfigurationPanel {
         setUseGreenColor(jenkinsAppSettings.isUseGreenColor());
         setShowAllInStatusbar(jenkinsAppSettings.isShowAllInStatusbar());
         setAutoLoadBuilds(jenkinsAppSettings.isAutoLoadBuilds());
+        doubleClickAction.setSelectedItem(jenkinsAppSettings.getDoubleClickAction());
+        setShowLogIfTriggerBuild(jenkinsAppSettings.isShowLogIfTriggerBuild());
         timeout.setNumber(jenkinsSettings.getConnectionTimeout());
 
         if (jenkinsSettings.getVersion().equals(JenkinsVersion.VERSION_1)) {

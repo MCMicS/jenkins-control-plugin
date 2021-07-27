@@ -16,7 +16,6 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
@@ -27,14 +26,12 @@ import org.jetbrains.annotations.Nullable;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.util.Map;
 import java.util.Optional;
 
 public class UrlBuilder {
 
     private static final String API_JSON = "/api/json";
     private static final String BUILD = "/build";
-    private static final String PARAMETERIZED_BUILD = "/buildWithParameters";
     private static final String RSS_LATEST = "/rssLatest";
     private static final String TREE_PARAM = "?tree=";
     private static final String URL = "url";
@@ -51,7 +48,7 @@ public class UrlBuilder {
     private static final String COMPUTER_INFO = "computer[displayName,description,offline,assignedLabels[name]]";
 
     public static UrlBuilder getInstance(Project project) {
-        return Optional.ofNullable(ServiceManager.getService(project, UrlBuilder.class))
+        return Optional.ofNullable(project.getService(UrlBuilder.class))
                 .orElseGet(UrlBuilder::new);
     }
 
@@ -73,17 +70,6 @@ public class UrlBuilder {
     public URL createStopBuildUrl(String buildUrl) {
         try {//http://jenkins.internal/job/it4em-it4em-DPD-GEOR-UAT-RO/27/stop
             return new URL(buildUrl + URIUtil.encodePath("stop"));
-        } catch (Exception ex) {
-            handleException(ex);
-        }
-        return null;
-    }
-
-    public URL createRunParameterizedJobUrl(String jobUrl, JenkinsAppSettings configuration, Map<String, String> paramValueMap) {
-        StringBuilder strBuilder = new StringBuilder(String.format("%s?delay=%dsec", PARAMETERIZED_BUILD, configuration.getBuildDelay()));
-        paramValueMap.forEach((name, value) -> strBuilder.append("&").append(name).append("=").append(value));
-        try {
-            return new URL(jobUrl + URIUtil.encodePathQuery(strBuilder.toString()));
         } catch (Exception ex) {
             handleException(ex);
         }

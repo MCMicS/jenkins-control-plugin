@@ -1,7 +1,6 @@
 package org.codinjutsu.tools.jenkins.logic;
 
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 
 import java.util.concurrent.ScheduledFuture;
@@ -20,7 +19,7 @@ public class ExecutorService implements Disposable {
     }
 
     public static ExecutorService getInstance(Project project) {
-        return ServiceManager.getService(project, ExecutorService.class);
+        return project.getService(ExecutorService.class);
     }
 
     public void safeTaskCancel(ScheduledFuture<?> futureTask) {

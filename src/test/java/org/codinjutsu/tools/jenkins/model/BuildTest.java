@@ -18,6 +18,8 @@ package org.codinjutsu.tools.jenkins.model;
 
 import org.junit.Test;
 
+import java.text.SimpleDateFormat;
+
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.codinjutsu.tools.jenkins.model.BuildStatusEnum.SUCCESS;
@@ -50,8 +52,9 @@ public class BuildTest {
 
 
     private static Build build(int buildNumber) {
+        final SimpleDateFormat rssDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         return Build.createBuildFromRss("http://jenkinsserver/agf-sql/815",
                 buildNumber,
-                SUCCESS.getStatus(), true, "2011-03-16T14:28:59Z", "a message");
+                SUCCESS.getStatus(), true, "2011-03-16T14:28:59Z", "a message", rssDateFormat);
     }
 }

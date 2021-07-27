@@ -20,6 +20,7 @@ import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.components.*;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -28,12 +29,8 @@ import com.intellij.ui.PopupHandler;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
-import org.codinjutsu.tools.jenkins.JenkinsSettings;
-import org.codinjutsu.tools.jenkins.JenkinsTree;
-import org.codinjutsu.tools.jenkins.JenkinsTreeState;
-import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
+import org.codinjutsu.tools.jenkins.*;
+import org.codinjutsu.tools.jenkins.exception.JenkinsPluginRuntimeException;
 import org.codinjutsu.tools.jenkins.logic.*;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.util.CollectionUtil;
@@ -45,6 +42,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.util.Comparator;
 import java.util.List;
@@ -60,33 +58,37 @@ import java.util.stream.Collectors;
 @State(name = "JenkinsBrowserPanel", storages = {
         @Storage(value = StoragePathMacros.PRODUCT_WORKSPACE_FILE, roamingType = RoamingType.DISABLED)
 })
-public class BrowserPanel extends SimpleToolWindowPanel implements PersistentStateComponent<JenkinsTreeState> {
+public final class BrowserPanel extends SimpleToolWindowPanel implements PersistentStateComponent<JenkinsTreeState> {
 
     @NonNls
     public static final String POPUP_PLACE = "POPUP";
     @NonNls
     public static final String JENKINS_PANEL_PLACE = "jenkinsBrowserActions";
-    private static final Logger logger = Logger.getLogger(BrowserPanel.class);
+    private static final Logger logger = Logger.getInstance(BrowserPanel.class);
     private static final JobNameComparator JOB_NAME_COMPARATOR = new JobNameComparator();
     private static final Comparator<Job> sortByStatusComparator = Comparator.comparing(BrowserPanel::toBuildStatus);
     private static final Comparator<Job> sortByNameComparator = Comparator.comparing(Job::getNameToRenderSingleJob, JOB_NAME_COMPARATOR);
+    @NotNull
     private final JenkinsTree jobTree;
+    @NotNull
     private final Runnable refreshViewJob;
+    @NotNull
     private final Project project;
     private final JenkinsAppSettings jenkinsAppSettings;
     @NotNull
     private final JenkinsSettings jenkinsSettings;
     private final Jenkins jenkins;
-    private final RequestManager requestManager;
+    private final RequestManagerInterface requestManager;
     private final Map<String, Job> watchedJobs = new ConcurrentHashMap<>();
     private JPanel rootPanel;
     private JPanel jobPanel;
     private boolean sortedByBuildStatus;
     private ScheduledFuture<?> refreshViewFutureTask;
     private FavoriteView favoriteView;
+    @Nullable
     private View currentSelectedView;
 
-    public BrowserPanel(final Project project) {
+    public BrowserPanel(@NotNull Project project) {
         super(true);
         this.project = project;
 
@@ -99,6 +101,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements PersistentSta
 
         jenkins = Jenkins.byDefault();
         jobTree = new JenkinsTree(project, jenkinsSettings, jenkins);
+        updateDoubleClickAction(getDoubleClickAction(jenkinsAppSettings.getDoubleClickAction()));
 
         jobPanel.setLayout(new BorderLayout());
         jobPanel.add(ScrollPaneFactory.createScrollPane(jobTree.asComponent()), BorderLayout.CENTER);
@@ -107,12 +110,29 @@ public class BrowserPanel extends SimpleToolWindowPanel implements PersistentSta
     }
 
     @NotNull
+    private static JobAction getDoubleClickAction(@NotNull DoubleClickAction doubleClickAction) {
+        final JobAction action;
+        switch (doubleClickAction) {
+            case LOAD_BUILDS:
+                action = JobActions.loadBuilds();
+                break;
+            case SHOW_LAST_LOG:
+                action = JobActions.showLastLog();
+                break;
+            case TRIGGER_BUILD:
+            default:
+                action = JobActions.triggerBuild();
+        }
+        return action;
+    }
+
+    @NotNull
     private static BuildStatusEnum toBuildStatus(Job job) {
         return BuildStatusEnum.getStatusByColor(job.getColor());
     }
 
     public static BrowserPanel getInstance(Project project) {
-        return ServiceManager.getService(project, BrowserPanel.class);
+        return project.getService(BrowserPanel.class);
     }
 
     private static void visit(Job job, BuildStatusVisitor buildStatusVisitor) {
@@ -146,6 +166,10 @@ public class BrowserPanel extends SimpleToolWindowPanel implements PersistentSta
         }
 
         buildStatusVisitor.visitUnknown();
+    }
+
+    private void updateDoubleClickAction(@NotNull JobAction doubleClickAction) {
+        jobTree.updateDoubleClickAction(doubleClickAction);
     }
 
     /*whole method could be moved inside of ExecutorProvider (executor would expose interface that would allow to schedule
@@ -209,7 +233,8 @@ public class BrowserPanel extends SimpleToolWindowPanel implements PersistentSta
         return currentSelectedView;
     }
 
-    public RequestManager getJenkinsManager() {
+    @NotNull
+    public RequestManagerInterface getJenkinsManager() {
         return requestManager;
     }
 
@@ -340,7 +365,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements PersistentSta
         popupGroup.addSeparator();
         popupGroup.add(new UploadPatchToJobAction(this));
 
-        PopupHandler.installPopupHandler(jobTree.asComponent(), popupGroup, POPUP_PLACE, ActionManager.getInstance());
+        PopupHandler.installPopupMenu(jobTree.asComponent(), popupGroup, POPUP_PLACE);
     }
 
     public void loadView(final View view) {
@@ -348,14 +373,16 @@ public class BrowserPanel extends SimpleToolWindowPanel implements PersistentSta
         if (!SwingUtilities.isEventDispatchThread()) {
             logger.warn("BrowserPanel.loadView called from outside EDT");
         }
-        new LoadSelectedViewJob(project).queue();
+        refreshViewJob.run();
     }
 
     public void refreshCurrentView() {
         if (!SwingUtilities.isEventDispatchThread()) {
             logger.warn("BrowserPanel.refreshCurrentView called outside EDT");
         }
-        new LoadSelectedViewJob(project).queue();
+        logger.info("Test");
+        logger.debug("Test Debug");
+        refreshViewJob.run();
     }
 
     public void setAsFavorite(final List<Job> jobs) {
@@ -460,6 +487,16 @@ public class BrowserPanel extends SimpleToolWindowPanel implements PersistentSta
         jobTree.loadState(state);
     }
 
+    public void reloadConfiguration(@NotNull JenkinsAppSettings newJenkinsAppSettings) {
+        updateDoubleClickAction(getDoubleClickAction(newJenkinsAppSettings.getDoubleClickAction()));
+    }
+
+    public void expandSelectedJob() {
+        Optional.ofNullable(jobTree.getLastSelectedPathComponent())
+                .filter(node -> node.getUserObject() instanceof JenkinsTreeNode.JobNode)
+                .ifPresent(node -> jobTree.getTree().expandPath(new TreePath(node.getPath())));
+    }
+
     private class LoadSelectedViewJob extends Task.Backgroundable {
         public LoadSelectedViewJob(@Nullable Project project) {
             super(project, "Loading Jenkins Jobs", true, JenkinsLoadingTaskOption.INSTANCE);
@@ -476,7 +513,7 @@ public class BrowserPanel extends SimpleToolWindowPanel implements PersistentSta
                 }
                 currentSelectedView = viewToLoad;
                 loadJobs();
-            } catch (ConfigurationException ex) {
+            } catch (JenkinsPluginRuntimeException ex) {
                 notifyErrorJenkinsToolWindow(ex.getMessage());
             } finally {
                 setTreeBusy(false);
@@ -499,28 +536,27 @@ public class BrowserPanel extends SimpleToolWindowPanel implements PersistentSta
                 logger.warn("BrowserPanel.loadJobs called from EDT");
             }
             final List<Job> jobList;
-            if (currentSelectedView instanceof FavoriteView) {
+            final View viewToLoadJobs = currentSelectedView;
+            if (viewToLoadJobs instanceof FavoriteView) {
                 jobList = requestManager.loadFavoriteJobs(jenkinsSettings.getFavoriteJobs());
             } else {
-                jobList = requestManager.loadJenkinsView(currentSelectedView);
+                jobList = requestManager.loadJenkinsView(viewToLoadJobs);
             }
             if (jenkinsAppSettings.isAutoLoadBuilds()) {
                 for(Job job : jobList) {
                     job.setLastBuilds(requestManager.loadBuilds(job));
                 }
             }
-
-            jenkinsSettings.setLastSelectedView(currentSelectedView.getName());
-
+            jenkinsSettings.setLastSelectedView(viewToLoadJobs.getName());
             jenkins.setJobs(jobList);
         }
 
         @Nullable
         private View getViewToLoad() {
-            if (currentSelectedView != null) {
-                return currentSelectedView;
+            if (currentSelectedView == null) {
+                return jenkins.getPrimaryView();
             }
-            return jenkins.getPrimaryView();
+            return currentSelectedView;
         }
 
         private void fillJobTree(final BuildStatusVisitor buildStatusVisitor) {

@@ -18,7 +18,7 @@ package org.codinjutsu.tools.jenkins.exception;
 
 import org.jetbrains.annotations.NotNull;
 
-public class ConfigurationException extends RuntimeException {
+public class ConfigurationException extends JenkinsPluginRuntimeException {
 
     public ConfigurationException(String message) {
         super(message);

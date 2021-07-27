@@ -351,6 +351,39 @@ public class JenkinsJsonParserTest {
         assertThat(actualJobs).containsAll(expectedJobs);
     }
 
+    @Test
+    public void testLoadJobWithNullAction() throws Exception {
+        Job actualJob = jsonParser.createJob(IOUtils.toString(getClass().getResourceAsStream(
+                "JsonRequestManager_jobWithNullAction.json")));
+        final String buildUrl = "http://localhost/job/test/8/";
+        final Job expectedJob = new JobBuilder()
+                .job("test", "blue", "http://localhost/job/test/", false, true)
+                .lastBuild(buildUrl, 8, "SUCCESS", false, "2012-04-02_16-26-29", 1477640156281l, 4386421l)
+                .availableBuildTypes(EnumSet.of(BuildType.LAST))
+                .get();
+        assertThat(actualJob).isNotNull();
+        final Build lastBuild = actualJob.getLastBuild();
+        assertThat(lastBuild).isNotNull();
+        assertThat(lastBuild.getUrl()).isEqualTo(buildUrl);
+        assertThat(lastBuild.getBuildParameterList()).hasSize(1);
+        assertThat(lastBuild.getBuildParameterList()).containsExactly(BuildParameter.of("Test Parameter", null,
+                buildUrl));
+    }
+
+    @Test
+    public void testLoadJobExtensibleChoiceParameter() throws Exception {
+        Job actualJob = jsonParser.createJob(IOUtils.toString(getClass().getResourceAsStream(
+                "JobWithExtensibleChoiceParameter.json")));
+        assertThat(actualJob).isNotNull();
+        assertThat(actualJob.getParameters()).hasSize(2);
+        final JobParameter firstParameter = actualJob.getParameters().get(0);
+        final JobParameter secondParameter = actualJob.getParameters().get(1);
+        assertThat(firstParameter.getName()).isEqualTo("ExtensibleChoice");
+        assertThat(firstParameter.getDefaultValue()).isEqualTo("Test");
+        assertThat(secondParameter.getName()).isEqualTo("SimpleChoice");
+        assertThat(secondParameter.getDefaultValue()).isEqualTo("Hello");
+    }
+
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
