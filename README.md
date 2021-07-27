@@ -17,7 +17,7 @@
 * [Idea 2019.3](../../releases/latest/download/jenkins-control-plugin-2019.3.zip)
 * [Idea 2020.1](../../releases/latest/download/jenkins-control-plugin-2020.1.zip)
 * [Idea 2020.3](../../releases/latest/download/jenkins-control-plugin-2020.3.zip)
-* [Idea 2021.2]
+* [Idea 2021.2](../../releases/latest/download/jenkins-control-plugin-2021.2.zip)
 
 ### Use EAP Builds
 * add https://plugins.jetbrains.com/plugins/eap/list as Plugin Repository

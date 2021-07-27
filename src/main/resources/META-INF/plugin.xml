@@ -10,7 +10,7 @@
         Yuri Novitsky (support of PPP),
         Michael Suhr
     </vendor>
-    <idea-version since-build="212.4037"/>
+    <idea-version since-build="212.4638"/>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.vcs</depends>
