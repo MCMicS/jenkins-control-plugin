@@ -18,18 +18,17 @@ package org.codinjutsu.tools.jenkins.view;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JobTracker;
 import org.codinjutsu.tools.jenkins.TraceableBuildJob;
 import org.codinjutsu.tools.jenkins.TraceableBuildJobFactory;
-import org.codinjutsu.tools.jenkins.logic.RequestManager;
+import org.codinjutsu.tools.jenkins.logic.RequestManagerInterface;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
 import org.codinjutsu.tools.jenkins.view.extension.JobParameterRenderer;
@@ -45,17 +44,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 public class BuildParamDialog extends DialogWrapper {
-    private static final Logger logger = Logger.getLogger(BuildParamDialog.class);
+    private static final Logger logger = Logger.getInstance(BuildParamDialog.class);
     private final Job job;
     private final @NotNull Project project;
     private final JenkinsAppSettings configuration;
-    private final RequestManager requestManager;
+    private final RequestManagerInterface requestManager;
     private final RunBuildCallback runBuildCallback;
     private final Collection<JobParameterComponent<?>> inputFields = new LinkedHashSet<>();
     private JPanel contentPane;
     private JPanel contentPanel;
 
-    BuildParamDialog(@NotNull Project project, Job job, JenkinsAppSettings configuration, RequestManager requestManager, RunBuildCallback runBuildCallback) {
+    BuildParamDialog(@NotNull Project project, Job job, JenkinsAppSettings configuration,
+                     RequestManagerInterface requestManager, RunBuildCallback runBuildCallback) {
         super(project);
         this.project = project;
         init();
@@ -71,7 +71,8 @@ public class BuildParamDialog extends DialogWrapper {
         setModal(true);
     }
 
-    public static void showDialog(@NotNull Project project, final Job job, final JenkinsAppSettings configuration, final RequestManager requestManager,
+    public static void showDialog(@NotNull Project project, final Job job, final JenkinsAppSettings configuration,
+                                  final RequestManagerInterface requestManager,
                                   final RunBuildCallback runBuildCallback) {
         ApplicationManager.getApplication().invokeLater(() -> {
             BuildParamDialog dialog = new BuildParamDialog(project, job, configuration, requestManager, runBuildCallback);
@@ -201,10 +202,11 @@ public class BuildParamDialog extends DialogWrapper {
         private final Job job;
         private final JenkinsAppSettings configuration;
         private final Map<String, ?> paramValueMap;
-        private final RequestManager requestManager;
+        private final RequestManagerInterface requestManager;
         private final RunBuildCallback runBuildCallback;
 
-        RunBuild(Project project, Job job, JenkinsAppSettings configuration, Map<String, ?> paramValueMap, RequestManager requestManager, RunBuildCallback runBuildCallback) {
+        RunBuild(Project project, Job job, JenkinsAppSettings configuration, Map<String, ?> paramValueMap,
+                 RequestManagerInterface requestManager, RunBuildCallback runBuildCallback) {
             super(project, "Running Jenkins build", false);
             this.job = job;
             this.configuration = configuration;
@@ -221,8 +223,7 @@ public class BuildParamDialog extends DialogWrapper {
 
         @Override
         public void onThrowable(@NotNull Throwable error) {
-            //super.onThrowable(error);
-            logger.log(Level.WARN, "Exception occured while trying to invoke build", error);
+            logger.warn("Exception occured while trying to invoke build", error);
             runBuildCallback.notifyOnError(job, error);
         }
 

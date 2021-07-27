@@ -11,3 +11,4 @@ snapshot
 target/
 .idea/
 out/
+private/

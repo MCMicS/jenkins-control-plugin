@@ -16,7 +16,6 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
@@ -49,7 +48,7 @@ public class UrlBuilder {
     private static final String COMPUTER_INFO = "computer[displayName,description,offline,assignedLabels[name]]";
 
     public static UrlBuilder getInstance(Project project) {
-        return Optional.ofNullable(ServiceManager.getService(project, UrlBuilder.class))
+        return Optional.ofNullable(project.getService(UrlBuilder.class))
                 .orElseGet(UrlBuilder::new);
     }
 

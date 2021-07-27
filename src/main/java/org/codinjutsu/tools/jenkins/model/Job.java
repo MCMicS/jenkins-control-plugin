@@ -68,7 +68,7 @@ public class Job {
     private final String url;
     @Singular
     @NotNull
-    private final List<JobParameter> parameters;
+    private List<JobParameter> parameters;
     private boolean inQueue;
     @Builder.Default
     @Nullable
@@ -111,6 +111,7 @@ public class Job {
         this.inQueue = updatedJob.isInQueue();
         this.lastBuild = updatedJob.getLastBuild();
         this.lastBuilds = updatedJob.getLastBuilds();
+        this.parameters = updatedJob.getParameters();
     }
 
     @NotNull

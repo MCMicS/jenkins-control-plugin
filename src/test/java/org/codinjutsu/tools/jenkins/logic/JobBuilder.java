@@ -19,6 +19,7 @@ package org.codinjutsu.tools.jenkins.logic;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.jetbrains.annotations.NotNull;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -26,6 +27,8 @@ import java.util.List;
 public class JobBuilder {
 
     private final Job.JobBuilder jobBuilder = Job.builder();
+
+    private final SimpleDateFormat workspaceDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 
     public JobBuilder job(String jobName, String jobColor, String jobUrl, boolean inQueue, boolean buildable) {
         jobBuilder.name(jobName).color(jobColor).url(jobUrl).inQueue(inQueue).buildable(buildable);
@@ -51,7 +54,7 @@ public class JobBuilder {
     }
 
     public JobBuilder lastBuild(String buildUrl, int number, String status, boolean isBuilding, String buildingDate, Long timestamp, Long duration) {
-        return lastBuild(Build.createBuildFromWorkspace(buildUrl, number, status, isBuilding, buildingDate, timestamp, duration));
+        return lastBuild(Build.createBuildFromWorkspace(buildUrl, number, status, isBuilding, buildingDate, timestamp, duration, workspaceDateFormat));
     }
 
     public JobBuilder lastBuild(Build lastBuild) {

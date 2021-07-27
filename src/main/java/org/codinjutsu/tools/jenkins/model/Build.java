@@ -62,16 +62,21 @@ public class Build {
     @NotNull
     private final List<BuildParameter> buildParameterList = new LinkedList<>();
 
+    @SuppressWarnings("java:S107")
     @NotNull
-    public static Build createBuildFromWorkspace(String buildUrl, int number, String status, boolean isBuilding, String buildDate, Long timestamp, Long duration) {
-        return createBuild(buildUrl, number, status, isBuilding, buildDate, DateUtil.WORKSPACE_DATE_FORMAT, null, timestamp, duration);
+    public static Build createBuildFromWorkspace(String buildUrl, int number, String status, boolean isBuilding,
+                                                 String buildDate, Long timestamp, Long duration, SimpleDateFormat dateFormat) {
+        return createBuild(buildUrl, number, status, isBuilding, buildDate, dateFormat, null, timestamp, duration);
     }
 
+    @SuppressWarnings("java:S107")
     @NotNull
-    public static Build createBuildFromRss(String buildUrl, int number, String status, boolean isBuilding, String buildDate, String message) {
-        return createBuild(buildUrl, number, status, isBuilding, buildDate, DateUtil.RSS_DATE_FORMAT, message, 0L, 0L);
+    public static Build createBuildFromRss(String buildUrl, int number, String status, boolean isBuilding,
+                                           String buildDate, String message, SimpleDateFormat dateFormat) {
+        return createBuild(buildUrl, number, status, isBuilding, buildDate, dateFormat, message, 0L, 0L);
     }
 
+    @SuppressWarnings("java:S107")
     @NotNull
     private static Build createBuild(String buildUrl, int number, String status, boolean isBuilding, String buildDate, SimpleDateFormat simpleDateFormat, String message, Long timestamp, Long duration) {
         return Build.builder()

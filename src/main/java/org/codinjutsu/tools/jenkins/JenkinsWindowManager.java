@@ -17,9 +17,9 @@
 package org.codinjutsu.tools.jenkins;
 
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import org.codinjutsu.tools.jenkins.logic.*;
+import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.codinjutsu.tools.jenkins.view.JenkinsWidget;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,7 +31,7 @@ public class JenkinsWindowManager implements Disposable {
 
     @NotNull
     public static Optional<JenkinsWindowManager> getInstance(Project project) {
-        return Optional.ofNullable(ServiceManager.getService(project, JenkinsWindowManager.class));
+        return Optional.ofNullable(project.getService(JenkinsWindowManager.class));
     }
 
     public JenkinsWindowManager(Project project) {
@@ -40,6 +40,7 @@ public class JenkinsWindowManager implements Disposable {
 
     public void reloadConfiguration() {
         LoginService.getInstance(project).performAuthentication();
+        BrowserPanel.getInstance(project).reloadConfiguration(JenkinsAppSettings.getSafeInstance(project));
     }
 
     @Override

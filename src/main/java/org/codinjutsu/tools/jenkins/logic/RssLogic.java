@@ -20,7 +20,6 @@ import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationListener;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -51,7 +50,7 @@ public class RssLogic implements Disposable {
     private ScheduledFuture<?> refreshRssBuildFutureTask;
 
     public static RssLogic getInstance(Project project) {
-        return ServiceManager.getService(project, RssLogic.class);
+        return project.getService(RssLogic.class);
     }
 
     public RssLogic(final Project project) {

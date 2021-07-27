@@ -17,23 +17,22 @@
 package org.codinjutsu.tools.jenkins.util;
 
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.util.Url;
+import lombok.experimental.UtilityClass;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusVisitor;
 import org.codinjutsu.tools.jenkins.logic.RssBuildStatusVisitor;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@UtilityClass
 public class RssUtil {
 
-    private static final Pattern JOBNAME_FROM_TITLE = Pattern.compile("^(.*) (\\S+) \\((.+)\\)$");
+    private static final Pattern JOBNAME_FROM_TITLE = Pattern.compile("^(.*) (?>\\S+) (?>\\(.*\\))$");
     private static final int JOB_NAME_GROUP = 1;
-    private static final int DISPLAY_NUMBER_GROUP = 2;
-    private static final int STATUS_GROUP = 3;
+    private static final Pattern BUILDNUMBER_PATTERN = Pattern.compile(".*/(\\d+)/?(?>\\??.*)");
+    private static final int BUILDNUMBER_GROUP = 1;
 
     private static final Pattern SUCCESS_MATCHER = Pattern.compile("normal|stable");
 
@@ -54,8 +53,10 @@ public class RssUtil {
 
     public static int extractBuildNumber(@NotNull String buildUrl) {
         try {
-            final String buildNumber = buildUrl.replaceFirst(".*/([^/?]+).*", "$1");
-            return Integer.parseInt(buildNumber);
+            final Matcher matcher = BUILDNUMBER_PATTERN.matcher(buildUrl);
+            if (matcher.matches()) {
+                return Integer.parseInt(matcher.group(BUILDNUMBER_GROUP));
+            }
         } catch (NumberFormatException e) {
             LOG.debug(e);
         }

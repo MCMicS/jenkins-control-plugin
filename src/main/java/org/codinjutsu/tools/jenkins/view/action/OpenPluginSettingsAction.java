@@ -24,7 +24,6 @@ import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import org.codinjutsu.tools.jenkins.JenkinsComponent;
-import org.codinjutsu.tools.jenkins.util.GuiUtil;
 
 import javax.swing.*;
 
@@ -39,7 +38,7 @@ public class OpenPluginSettingsAction extends AnAction implements DumbAware {
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        showSettingsFor(ActionUtil.getProject(event));
+        ActionUtil.getProject(event).ifPresent(OpenPluginSettingsAction::showSettingsFor);
     }
 
     private static void showSettingsFor(Project project) {
