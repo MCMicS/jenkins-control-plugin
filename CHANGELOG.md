@@ -1,14 +1,16 @@
 # Changelog
 
-## [Unreleased]
-### Added
+## [0.13.12]
 - \#280 render DateParameterDefinition as textfield
 - 2021.2 API Compatibility
 - \#297 NPE on Startup
 - \#298 Configure Action for Double Click Build
+- \#289 Light service class class org.codinjutsu.tools.jenkins.logic.JenkinsNotifier must be final
 - Expand Job Node after Load Build for first time
 - \#301 ExtensibleChoiceParameterDefinition support request
 - \#159 "Unknown parameter" for "Extensible Choice" parameters
+- Reload job if trigger build and paramter exists
+- \#275 Please rename password label to "Password/API Token"
 
 ## [0.13.11]
 - Rename Plugin to 'Jenkins Control' to respect Jetbrains naming convention
