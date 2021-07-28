@@ -9,11 +9,10 @@ plugins {
     id 'jacoco'
 }
 def jenkinsPluginName = 'jenkins-control-plugin'
-def jenkinsPluginVersion = '0.13.12'
-def javaVersion = 11
+def jenkinsPluginVersion = '0.13.13'
 
 group 'org.codinjutsu'
-version "${jenkinsPluginVersion}-2021.2"
+version "${jenkinsPluginVersion}-2021.2-eap"
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'org.jetbrains.changelog'
 apply plugin: 'java'
@@ -23,7 +22,6 @@ apply plugin: "io.freefair.lombok"
 intellij {
     pluginName.set(jenkinsPluginName)
     version.set('212-EAP-SNAPSHOT')
-    //version.set('2021.1')
     updateSinceUntilBuild.set(false)
     downloadSources.set(true)
     type.set('IC')
@@ -66,13 +64,13 @@ idea {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(javaVersion)
+        languageVersion = JavaLanguageVersion.of(11)
     }
 }
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
-    options.release.set(javaVersion)
+    options.release.set(11)
 }
 
 configurations {
@@ -142,7 +140,6 @@ test {
 }
 
 runIde {
-    //jvmArgs '-Djava.awt.headless=true'
     jvmArgs = ['-XX:+UnlockDiagnosticVMOptions']
     systemProperty('ide.plugins.snapshot.on.unload.fail', 'true')
     systemProperty('ide.plugins.analyze.snapshot', 'true')
@@ -184,7 +181,6 @@ def ideaVersionToVerify = "212.4638.7"
 def verifyFailureLevel = EnumSet.copyOf(RunPluginVerifierTask.FailureLevel.ALL)
 verifyFailureLevel.remove(RunPluginVerifierTask.FailureLevel.NOT_DYNAMIC)
 runPluginVerifier {
-    //distributionFile = "${jenkinsPluginName}-${project.version}"
     ideVersions = ["IU-${ideaVersionToVerify}"]
 //    ideVersions = ["IC-2020.3", "PS-2020.3", "IU-2020.3"]
     failureLevel = verifyFailureLevel
