@@ -12,5 +12,5 @@ public interface AuthenticationNotifier {
 
     void loginCancelled();
 
-    void loginFailed(Exception ex);
+    void loginFailed(Throwable ex);
 }

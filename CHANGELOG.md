@@ -1,6 +1,7 @@
 # Changelog
 
 ## [Unreleased]
+- \#309  Exception in plugin Jenkins Control
 
 ## [0.13.12]
 - \#280 render DateParameterDefinition as textfield
@@ -131,7 +132,7 @@ Add Notification group to configure the behaviour in IDE settings.(Settings -> A
 - [fix] Fix major issue on Idea 15
 
 ## [0.9.3] (thx Cezary for your great work)
-- [update] Improve background task running
+- [update] Improve background jenkinsTask running
 - [fix] fix Idea 14 and 15 compatibility
 - [fix] Fixed threading issues
 

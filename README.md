@@ -127,7 +127,7 @@ Import the plugin as Gradle project into IntelliJ.
 
 ### Run Intellij from IntelliJ
 
-Create a Gradle Run configuration with task `runIdea` and just run it.
+Create a Gradle Run configuration with jenkinsTask `runIdea` and just run it.
 
 ## Limitations
 * This software is written under Apache License 2.0.

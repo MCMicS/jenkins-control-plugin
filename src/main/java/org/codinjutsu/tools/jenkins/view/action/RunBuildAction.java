@@ -20,12 +20,12 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.UpdateInBackground;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.logic.ExecutorService;
+import org.codinjutsu.tools.jenkins.logic.JenkinsBackgroundTask;
+import org.codinjutsu.tools.jenkins.logic.JenkinsBackgroundTaskFactory;
 import org.codinjutsu.tools.jenkins.logic.RequestManagerInterface;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildType;
@@ -92,45 +92,46 @@ public class RunBuildAction extends AnAction implements DumbAware, UpdateInBackg
 
     private void queueRunBuild(@NotNull Project project, @NotNull BrowserPanel browserPanel, @NotNull Job job) {
         final Optional<Build> previousLastBuild = Optional.ofNullable(job.getLastBuild());
-        new Task.Backgroundable(project, "Running build", false) {
+        JenkinsBackgroundTaskFactory.getInstance(project).createBackgroundTask("Running build",
+                new JenkinsBackgroundTask.JenkinsTask() {
 
-            @Override
-            public void onSuccess() {
-                ExecutorService.getInstance(project).getExecutor().schedule(() -> GuiUtil.runInSwingThread(() -> {
-                    final Optional<Job> newJob = browserPanel.getJob(job.getNameToRenderSingleJob());
-                    final Consumer<Job> openLogAfterReload;
-                    if (JenkinsAppSettings.getSafeInstance(project).isShowLogIfTriggerBuild()) {
-                        openLogAfterReload = loaded -> openLogIfRunning(loaded, previousLastBuild.orElse(null));
-                    } else {
-                        openLogAfterReload = DO_NOTHING;
+                    @Override
+                    public void run(@NotNull RequestManagerInterface requestManager) {
+                        if (job.hasParameters()) {
+                            GuiUtil.runInSwingThread(() -> browserPanel.loadJob(job,//
+                                    reloadedJob -> showRunDialog(project, reloadedJob, browserPanel)));
+                        } else {
+                            requestManager.runBuild(job, JenkinsAppSettings.getSafeInstance(project),
+                                    Collections.emptyMap());
+                            notifyOnGoingMessage(browserPanel, job);
+                        }
                     }
-                    newJob.ifPresent(j -> browserPanel.loadJob(j, openLogAfterReload));
-                }), BUILD_STATUS_UPDATE_DELAY, TimeUnit.SECONDS);
-            }
 
-            private void openLogIfRunning(Job jobToCheckIfIsNewer, @Nullable Build previousLastBuild) {
-                final Build lastBuild = jobToCheckIfIsNewer.getLastBuild();
-                final boolean isNewerBuild = lastBuild != null &&
-                        (previousLastBuild == null || previousLastBuild.getNumber() < lastBuild.getNumber());
-                if (isNewerBuild && lastBuild.isBuilding()) {
-                    final LogToolWindow logToolWindow = new LogToolWindow(project);
-                    logToolWindow.showLog(BuildType.LAST, job, browserPanel);
-                }
-            }
+                    @Override
+                    public void onSuccess() {
+                        JenkinsBackgroundTask.JenkinsTask.super.onSuccess();
+                        ExecutorService.getInstance(project).getExecutor().schedule(() -> GuiUtil.runInSwingThread(() -> {
+                            final Optional<Job> newJob = browserPanel.getJob(job.getNameToRenderSingleJob());
+                            final Consumer<Job> openLogAfterReload;
+                            if (JenkinsAppSettings.getSafeInstance(project).isShowLogIfTriggerBuild()) {
+                                openLogAfterReload = loaded -> openLogIfRunning(loaded, previousLastBuild.orElse(null));
+                            } else {
+                                openLogAfterReload = DO_NOTHING;
+                            }
+                            newJob.ifPresent(j -> browserPanel.loadJob(j, openLogAfterReload));
+                        }), BUILD_STATUS_UPDATE_DELAY, TimeUnit.SECONDS);
+                    }
 
-            @Override
-            public void run(@NotNull ProgressIndicator progressIndicator) {
-                progressIndicator.setIndeterminate(true);
-                RequestManagerInterface requestManager = browserPanel.getJenkinsManager();
-                if (job.hasParameters()) {
-                    GuiUtil.runInSwingThread(() -> browserPanel.loadJob(job,//
-                            reloadedJob -> showRunDialog(project, reloadedJob, browserPanel)));
-                } else {
-                    requestManager.runBuild(job, JenkinsAppSettings.getSafeInstance(project), Collections.emptyMap());
-                    notifyOnGoingMessage(browserPanel, job);
-                }
-            }
-        }.queue();
+                    private void openLogIfRunning(Job jobToCheckIfIsNewer, @Nullable Build previousLastBuild) {
+                        final Build lastBuild = jobToCheckIfIsNewer.getLastBuild();
+                        final boolean isNewerBuild = lastBuild != null &&
+                                (previousLastBuild == null || previousLastBuild.getNumber() < lastBuild.getNumber());
+                        if (isNewerBuild && lastBuild.isBuilding()) {
+                            final LogToolWindow logToolWindow = new LogToolWindow(project);
+                            logToolWindow.showLog(BuildType.LAST, job, browserPanel);
+                        }
+                    }
+                }).queue();
     }
 
     private void showRunDialog(@NotNull Project project, @NotNull Job job, @NotNull BrowserPanel browserPanel) {

@@ -16,20 +16,15 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
-import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.NotificationListener;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JobTracker;
-import org.codinjutsu.tools.jenkins.exception.JenkinsPluginRuntimeException;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
-import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,26 +37,26 @@ public class RssLogic implements Disposable {
 
     private final Project project;
     private final JenkinsAppSettings jenkinsAppSettings;
-    private final RequestManager requestManager;
     private final Map<String, Build> currentBuildMap = new HashMap<>();
 
     private final Runnable refreshRssBuildsJob;
+    private final LoadLatestBuildsJob loadLatestBuildsJob;
     private ScheduledFuture<?> refreshRssBuildFutureTask;
+
+    public RssLogic(final Project project) {
+        this.project = project;
+        this.jenkinsAppSettings = JenkinsAppSettings.getSafeInstance(project);
+        this.loadLatestBuildsJob = new LoadLatestBuildsJob(project);
+        this.refreshRssBuildsJob = loadLatestBuildsJob::queue;
+    }
 
     public static RssLogic getInstance(Project project) {
         return project.getService(RssLogic.class);
     }
 
-    public RssLogic(final Project project) {
-        this.project = project;
-        this.jenkinsAppSettings = JenkinsAppSettings.getSafeInstance(project);
-        this.requestManager = RequestManager.getInstance(project);
-        refreshRssBuildsJob = () -> GuiUtil.runInSwingThread(new LoadLatestBuildsJob(project, true));
-    }
-
-    public void loadLatestBuilds(boolean shouldDisplayResult) {
+    public void loadLatestBuilds() {
         if (jenkinsAppSettings.isServerUrlSet()) {
-            new LoadLatestBuildsJob(project, shouldDisplayResult).queue();
+            loadLatestBuildsJob.queue();
         }
     }
 
@@ -74,12 +69,13 @@ public class RssLogic implements Disposable {
         executor.remove(refreshRssBuildsJob);
 
         if (jenkinsAppSettings.isServerUrlSet() && jenkinsAppSettings.getRssRefreshPeriod() > 0) {
-            refreshRssBuildFutureTask = executor.scheduleWithFixedDelay(refreshRssBuildsJob, 0, jenkinsAppSettings.getRssRefreshPeriod(), TimeUnit.MINUTES);
+            refreshRssBuildFutureTask = executor.scheduleWithFixedDelay(refreshRssBuildsJob, 0,
+                    jenkinsAppSettings.getRssRefreshPeriod(), TimeUnit.MINUTES);
         }
     }
 
     @SuppressWarnings({"java:S3824", "java:S3398"})
-    private Map<String, Build> loadAndReturnNewLatestBuilds() {
+    private Map<String, Build> loadAndReturnNewLatestBuilds(RequestManagerInterface requestManager) {
         final Map<String, Build> latestBuildMap = requestManager.loadJenkinsRssLatestBuilds(jenkinsAppSettings);
         final Map<String, Build> newBuildMap = new HashMap<>();
         for (Map.Entry<String, Build> entry : latestBuildMap.entrySet()) {
@@ -165,25 +161,20 @@ public class RssLogic implements Disposable {
         currentBuildMap.clear();
     }
 
-    private class LoadLatestBuildsJob extends Task.Backgroundable {
-        private final boolean shouldDisplayResult;
+    private class LoadLatestBuildsJob implements JenkinsBackgroundTask.JenkinsTask {
 
-        public LoadLatestBuildsJob(Project project, boolean shouldDisplayResult) {
-            super(project, "Load last builds", true, JenkinsLoadingTaskOption.INSTANCE);
-            this.shouldDisplayResult = shouldDisplayResult;
+        @NotNull
+        private final JenkinsBackgroundTask task;
+
+        public LoadLatestBuildsJob(Project project) {
+            this.task = JenkinsBackgroundTaskFactory.getInstance(project).createBackgroundTask(
+                    "Load last builds", true, LoadLatestBuildsJob.this);
         }
 
         @Override
-        public void run(@NotNull ProgressIndicator indicator) {
-            indicator.setIndeterminate(true);
-            final Map<String, Build> finishedBuilds;
-            try {
-                finishedBuilds = loadAndReturnNewLatestBuilds();
-            } catch (JenkinsPluginRuntimeException ex) {
-                JenkinsNotifier.getInstance(project).error(ex.getMessage());
-                return;
-            }
-            if (!shouldDisplayResult || finishedBuilds.isEmpty()) {
+        public void run(@NotNull RequestManagerInterface requestManager) {
+            final Map<String, Build> finishedBuilds = loadAndReturnNewLatestBuilds(requestManager);
+            if (finishedBuilds.isEmpty()) {
                 return;
             }
 
@@ -192,8 +183,8 @@ public class RssLogic implements Disposable {
             notifyFirstFailedBuild(getFirstFailedBuild(finishedBuilds));
         }
 
-
+        public void queue() {
+            task.queue();
+        }
     }
-
-
 }

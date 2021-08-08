@@ -40,7 +40,7 @@ public class RssAuthenticationActionHandler implements AuthenticationNotifier, D
     }
 
     @Override
-    public void loginFailed(Exception ex) {
+    public void loginFailed(Throwable ex) {
         //nothing to do
     }
 
