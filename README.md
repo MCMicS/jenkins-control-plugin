@@ -11,7 +11,7 @@
 ![GitHub](https://img.shields.io/github/license/MCMicS/jenkins-control-plugin)
 
 * [Jetbrains plugin page](https://plugins.jetbrains.com/idea/plugin/6110)
-* [Changelog](CHANGELOG.txt)
+* [Changelog](CHANGELOG.md)
 
 ### Current Release
 * [Idea 2019.3](../../releases/latest/download/jenkins-control-plugin-2019.3.zip)
@@ -127,7 +127,7 @@ Import the plugin as Gradle project into IntelliJ.
 
 ### Run Intellij from IntelliJ
 
-Create a Gradle Run configuration with jenkinsTask `runIdea` and just run it.
+Create a Gradle Run configuration with task `runIdea` and just run it.
 
 ## Limitations
 * This software is written under Apache License 2.0.
