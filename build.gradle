@@ -164,7 +164,8 @@ prepareSandbox {
 
 sonarqube {
     properties {
-        //property "sonar.host.url", "https://sonarcloud.io"
+        property "sonar.organization", "mcmics-github"
+        property "sonar.host.url", "https://sonarcloud.io"
         property "sonar.projectKey", "MCMicS_jenkins-control-plugin"
     }
 }
