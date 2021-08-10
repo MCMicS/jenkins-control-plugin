@@ -8,17 +8,17 @@ import com.intellij.execution.process.ProcessOutputType;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ExecutionConsole;
 import com.intellij.execution.ui.RunContentDescriptor;
-import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.actionSystem.ActionGroup;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.offbytwo.jenkins.helper.BuildConsoleStreamListener;
 import lombok.Value;
-import org.codinjutsu.tools.jenkins.exception.JenkinsPluginRuntimeException;
-import org.codinjutsu.tools.jenkins.logic.RequestManagerInterface;
+import org.codinjutsu.tools.jenkins.logic.JenkinsBackgroundTaskFactory;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildType;
 import org.codinjutsu.tools.jenkins.model.Job;
@@ -52,19 +52,8 @@ public class LogToolWindow {
         consoleView.attachToProcess(processHandler);
         processHandler.startNotify();
         showInToolWindow(showLogConsoleView, logTabTitle);
-
-        new Task.Backgroundable(project, "Loading log for " + jobName, false) {
-
-            @Override
-            public void run(@NotNull ProgressIndicator indicator) {
-                try {
-                    final RequestManagerInterface requestManager = browserPanel.getJenkinsManager();
-                    requestManager.loadConsoleTextFor(job, buildType, processHandler);
-                } catch (JenkinsPluginRuntimeException e) {
-                    browserPanel.notifyErrorJenkinsToolWindow(e.getMessage());
-                }
-            }
-        }.queue();
+        JenkinsBackgroundTaskFactory.getInstance(project).createBackgroundTask("Loading log for " + jobName,
+                requestManager -> requestManager.loadConsoleTextFor(job, buildType, processHandler)).queue();
     }
 
     @NotNull

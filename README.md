@@ -11,7 +11,7 @@
 ![GitHub](https://img.shields.io/github/license/MCMicS/jenkins-control-plugin)
 
 * [Jetbrains plugin page](https://plugins.jetbrains.com/idea/plugin/6110)
-* [Changelog](CHANGELOG.txt)
+* [Changelog](CHANGELOG.md)
 
 ### Current Release
 * [Idea 2019.3](../../releases/latest/download/jenkins-control-plugin-2019.3.zip)

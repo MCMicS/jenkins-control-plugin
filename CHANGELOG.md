@@ -1,6 +1,7 @@
 # Changelog
 
 ## [Unreleased]
+- \#309  Exception in plugin Jenkins Control
 
 ## [0.13.12]
 - \#280 render DateParameterDefinition as textfield
