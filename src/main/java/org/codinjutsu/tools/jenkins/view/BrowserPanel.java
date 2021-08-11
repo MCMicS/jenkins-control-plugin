@@ -501,7 +501,7 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
         @NotNull
         private final JenkinsBackgroundTask task;
 
-        public LoadSelectedViewJob(@Nullable Project project) {
+        public LoadSelectedViewJob(@NotNull Project project) {
             this.task = JenkinsBackgroundTaskFactory.getInstance(project).createBackgroundTask(
                     "Loading Jenkins Jobs", true, LoadSelectedViewJob.this);
         }
