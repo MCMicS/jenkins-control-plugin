@@ -52,7 +52,7 @@ changelog {
 
 lombok {
     version = "1.18.20"
-    generateLombokConfig.enabled = false
+    disableConfig = false
 }
 
 idea {
