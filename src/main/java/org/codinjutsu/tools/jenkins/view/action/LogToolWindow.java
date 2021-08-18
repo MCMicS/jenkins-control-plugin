@@ -52,7 +52,7 @@ public class LogToolWindow {
         consoleView.attachToProcess(processHandler);
         processHandler.startNotify();
         showInToolWindow(showLogConsoleView, logTabTitle);
-        JenkinsBackgroundTaskFactory.getInstance(project).createBackgroundTask("Loading log for " + jobName,
+        JenkinsBackgroundTaskFactory.getInstance(project).createBackgroundTask("Loading log for " + jobName, true,
                 requestManager -> requestManager.loadConsoleTextFor(job, buildType, processHandler)).queue();
     }
 
