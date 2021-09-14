@@ -8,8 +8,8 @@ on:
       - sonar/**
   pull_request:
     types: [opened, synchronize, reopened]
-      branches-ignore:
-      - 'dependabot/**'
+    branches-ignore:
+    - 'dependabot/**'
 
 jobs:
   build:
