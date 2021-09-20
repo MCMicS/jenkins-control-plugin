@@ -123,7 +123,7 @@ dependencies {
             'org.mockito:mockito-core:3.12.4',
             'org.powermock:powermock-api-mockito2:2.0.9',
             'org.powermock:powermock-core:2.0.9',
-            'org.assertj:assertj-core:3.20.2',
+            'org.assertj:assertj-core:3.21.0',
             'org.assertj:assertj-swing-junit:3.17.1'
     )
 }
