@@ -8,13 +8,12 @@ on:
       - sonar/**
   pull_request:
     types: [opened, synchronize, reopened]
-    branches-ignore:
-    - 'dependabot/**'
 
 jobs:
   build:
     name: Analyse with SonarCloud
     runs-on: ubuntu-latest
+    if: (github.actor != 'dependabot[bot]')
     steps:
       - name: Check out repository
         uses: actions/checkout@v2.3.4
