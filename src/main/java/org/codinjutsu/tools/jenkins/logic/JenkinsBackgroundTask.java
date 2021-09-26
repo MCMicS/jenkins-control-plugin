@@ -38,6 +38,7 @@ public final class JenkinsBackgroundTask extends Task.Backgroundable {
             jenkinsTask.run(requestManager);
         } catch (JenkinsPluginRuntimeException jenkinsPluginRuntimeException) {
             handleJenkinsPluginException(jenkinsPluginRuntimeException);
+            throw jenkinsPluginRuntimeException;
         }
     }
 
@@ -68,7 +69,9 @@ public final class JenkinsBackgroundTask extends Task.Backgroundable {
     @Override
     public void onThrowable(@NotNull Throwable error) {
         try {
-            super.onThrowable(error);
+            if (!(error instanceof JenkinsPluginRuntimeException)) {
+                super.onThrowable(error);
+            }
             jenkinsTask.onThrowable(error);
         } catch (JenkinsPluginRuntimeException jenkinsPluginRuntimeException) {
             handleJenkinsPluginException(jenkinsPluginRuntimeException);
