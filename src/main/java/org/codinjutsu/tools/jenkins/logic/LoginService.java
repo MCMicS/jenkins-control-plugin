@@ -42,8 +42,8 @@ public class LoginService {
                             requestManager.authenticate(settings, jenkinsSettings);
                             jenkinsWorkspace = requestManager.loadJenkinsWorkspace(settings);
                         } catch (Exception ex) {
-                            publisher.loginFailed(ex);
                             publisher.loginCancelled();
+                            throw ex;
                         }
                     }
 
