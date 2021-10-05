@@ -21,13 +21,18 @@ apply plugin: "io.freefair.lombok"
 
 intellij {
     pluginName.set(jenkinsPluginName)
-    version.set('212-EAP-SNAPSHOT')
+    version.set('213-EAP-SNAPSHOT')
     updateSinceUntilBuild.set(false)
     downloadSources.set(true)
     type.set('IC')
     plugins.set(['com.intellij.java'])
+
     //type.set('PC')
     //type.set('RD') //Rider
+    //type.set('AI') // Android
+    //type.set('CWMG') // Code With Me Gueast
+    //type.set('GW') // Jetbrains Gateway
+    //version.set('213.4579-CUSTOM-SNAPSHOT')
 
     patchPluginXml {
         version.set("${project.version}")
