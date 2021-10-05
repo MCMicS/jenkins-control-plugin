@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.codinjutsu.tools.jenkins.view.action;
+package org.codinjutsu.tools.jenkins.view.vcs.action;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -26,7 +26,8 @@ import com.intellij.openapi.vcs.changes.ChangeListManager;
 import com.intellij.openapi.vcs.changes.ChangeListManagerEx;
 import lombok.Value;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
-import org.codinjutsu.tools.jenkins.view.SelectJobDialog;
+import org.codinjutsu.tools.jenkins.view.action.ActionUtil;
+import org.codinjutsu.tools.jenkins.view.vcs.SelectJobDialog;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
