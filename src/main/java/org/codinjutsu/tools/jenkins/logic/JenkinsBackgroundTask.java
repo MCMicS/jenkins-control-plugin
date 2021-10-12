@@ -3,8 +3,8 @@ package org.codinjutsu.tools.jenkins.logic;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.NlsContexts;
 import org.codinjutsu.tools.jenkins.exception.JenkinsPluginRuntimeException;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 public final class JenkinsBackgroundTask extends Task.Backgroundable {
@@ -14,14 +14,14 @@ public final class JenkinsBackgroundTask extends Task.Backgroundable {
     private final RequestManagerInterface requestManager;
 
     public JenkinsBackgroundTask(@NotNull Project project,
-                                 @NlsContexts.ProgressTitle @NotNull String title,
+                                 @Nls(capitalization = Nls.Capitalization.Sentence) @NotNull String title,
                                  @NotNull JenkinsBackgroundTask.JenkinsTask jenkinsTask,
                                  @NotNull RequestManagerInterface requestManager) {
         this(project, title, false, jenkinsTask, requestManager);
     }
 
     public JenkinsBackgroundTask(@NotNull Project project,
-                                 @NlsContexts.ProgressTitle @NotNull String title,
+                                 @Nls(capitalization = Nls.Capitalization.Sentence) @NotNull String title,
                                  boolean canBeCancelled,
                                  @NotNull JenkinsBackgroundTask.JenkinsTask jenkinsTask,
                                  @NotNull RequestManagerInterface requestManager) {

@@ -5,6 +5,7 @@
 - \#322 Nullpointer if Jenkins if not running
 - move classes with module 'com.intellij.modules.vcs' to optional dependency
 - \#308 Log streaming should cancelable
+- last Build for 2019.3
 
 ## [0.13.12]
 - \#280 render DateParameterDefinition as textfield

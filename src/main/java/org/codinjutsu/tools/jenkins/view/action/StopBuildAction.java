@@ -88,10 +88,10 @@ public class StopBuildAction extends AnAction implements DumbAware {
     @Nonnull
     private LastSelection calculateLastSelection() {
         final Optional<Job> job = Optional.ofNullable(browserPanel).map(BrowserPanel::getSelectedJob);
-        final Optional<Build> build = Optional.ofNullable(browserPanel).map(BrowserPanel::getSelectedBuild)
-                .or(() -> job.map(Job::getLastBuild));
+        final Build build = Optional.ofNullable(browserPanel).map(BrowserPanel::getSelectedBuild)
+                .orElseGet(() -> job.map(Job::getLastBuild).orElse(null));
         // TODO find job for selected Build
-        return new LastSelection(job.orElse(null), build.orElse(null));
+        return new LastSelection(job.orElse(null), build);
     }
 
     @Value
