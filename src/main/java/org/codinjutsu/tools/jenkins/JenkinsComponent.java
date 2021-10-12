@@ -29,13 +29,12 @@ import javax.swing.*;
 
 public class JenkinsComponent implements SearchableConfigurable {
 
-    private static final String JENKINS_CONTROL_COMPONENT_NAME = "JenkinsComponent";
-
     private final JenkinsAppSettings jenkinsAppSettings;
     private final JenkinsSettings jenkinsSettings;
 
     private final Project project;
 
+    @Nullable
     private ConfigurationPanel configurationPanel;
 
     public JenkinsComponent(Project project) {
@@ -55,10 +54,12 @@ public class JenkinsComponent implements SearchableConfigurable {
         return configurationPanel != null && configurationPanel.isModified(jenkinsAppSettings, jenkinsSettings);
     }
 
+    @Override
     public void disposeUIResources() {
         configurationPanel = null;
     }
 
+    @Override
     public String getHelpTopic() {
         return "preferences.jenkins";
     }
@@ -74,36 +75,21 @@ public class JenkinsComponent implements SearchableConfigurable {
         }
     }
 
-    @NotNull
-    public String getComponentName() {
-        return JENKINS_CONTROL_COMPONENT_NAME;
-    }
-
-
     @Nls
     public String getDisplayName() {
         return Version.PLUGIN_NAME;
     }
 
-
-    public Icon getIcon() {
-        return null;
-    }
-
-
+    @Override
     public void reset() {
-        configurationPanel.loadConfigurationData(jenkinsAppSettings, jenkinsSettings);
+        if (configurationPanel != null) {
+            configurationPanel.loadConfigurationData(jenkinsAppSettings, jenkinsSettings);
+        }
     }
 
     @NotNull
     @Override
     public String getId() {
         return "preferences.Jenkins";
-    }
-
-    @Nullable
-    @Override
-    public Runnable enableSearch(String option) {
-        return null;
     }
 }
