@@ -13,10 +13,10 @@
     <idea-version since-build="203" until-build="212.3116"/>
 
     <depends>com.intellij.modules.platform</depends>
-    <depends>com.intellij.modules.vcs</depends>
-    <depends>com.intellij.modules.lang</depends>
-    <depends optional="true" config-file="JavaSupport.xml">com.intellij.java</depends>
-    <xi:include href="/META-INF/JobParameterRenderer.xml" xpointer="xpointer(/idea-plugin/*)"/>
+    <depends optional="true" config-file="org.codinjutsu.tools.jenkins-VcsSupport.xml">com.intellij.modules.vcs</depends>
+    <depends optional="true" config-file="org.codinjutsu.tools.jenkins-LangSupport.xml">com.intellij.modules.lang</depends>
+    <depends optional="true" config-file="org.codinjutsu.tools.jenkins-JavaSupport.xml">com.intellij.java</depends>
+    <xi:include href="/META-INF/org.codinjutsu.tools.jenkins-JobParameterRenderer.xml" xpointer="xpointer(/idea-plugin/*)"/>
 
     <extensions defaultExtensionNs="com.intellij">
         <projectConfigurable parentId="tools" groupWeight="110" dynamic="true" displayName="Jenkins Plugin"
@@ -59,14 +59,9 @@
         <aboutPopupDescriptionProvider implementation="org.codinjutsu.tools.jenkins.view.JenkinsAbout" />
         <notificationGroup displayType="NONE" id="Jenkins Rss" />
         <notificationGroup displayType="TOOL_WINDOW" id="Jenkins Notification" toolWindowId="Jenkins"/>
-        <vcs.changeListDecorator implementation="org.codinjutsu.tools.jenkins.WatchedJobsDecorator" />
     </extensions>
 
     <actions>
-        <action id="Jenkins.CreatePatchAndBuildOnJenkins" class="org.codinjutsu.tools.jenkins.view.action.CreatePatchAndBuildAction"
-                text="Create Patch and Build on Jenkins">
-            <add-to-group group-id="ChangesViewPopupMenu" anchor="last"/>
-        </action>
         <action id="Jenkins.LoadBuilds" class="org.codinjutsu.tools.jenkins.view.action.LoadBuildsAction"
                 text="Load Builds"
                 description="Load builds for selected Job"

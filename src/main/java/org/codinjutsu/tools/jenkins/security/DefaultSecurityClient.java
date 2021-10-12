@@ -18,7 +18,10 @@ package org.codinjutsu.tools.jenkins.security;
 
 import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
-import org.apache.commons.httpclient.*;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethodBase;
+import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.multipart.FilePart;
 import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
@@ -149,9 +152,6 @@ class DefaultSecurityClient implements SecurityClient {
             }
         } catch (UnknownHostException uhEx) {
             throw new ConfigurationException(String.format("Unknown server: %s", uhEx.getMessage()), uhEx);
-        } catch (HttpException httpEx) {
-            throw new ConfigurationException(String.format("HTTP Error during method execution [%s] for URL '%s'",
-                    httpEx.getMessage(), createUrlForNotification(post)), httpEx);
         } catch (IOException ioEx) {
             throw new ConfigurationException(String.format("IO Error during method execution [%s] for URL '%s'",
                     ioEx.getMessage(), createUrlForNotification(post)), ioEx);

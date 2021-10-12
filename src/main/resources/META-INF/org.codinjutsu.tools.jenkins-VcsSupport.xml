@@ -1,0 +1,11 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <vcs.changeListDecorator implementation="org.codinjutsu.tools.jenkins.view.vcs.WatchedJobsDecorator" />
+    </extensions>
+    <actions>
+        <action id="Jenkins.CreatePatchAndBuildOnJenkins" class="org.codinjutsu.tools.jenkins.view.vcs.action.CreatePatchAndBuildAction"
+                text="Create Patch and Build on Jenkins">
+            <add-to-group group-id="ChangesViewPopupMenu" anchor="last"/>
+        </action>
+    </actions>
+</idea-plugin>
