@@ -1,4 +1,4 @@
-<idea-plugin xmlns:xi="http://www.w3.org/2001/XInclude">
+<idea-plugin xmlns:xi="http://www.w3.org/2001/XInclude" require-restart="false">
     <!--suppress PluginXmlValidity -->
     <name>Jenkins Control</name>
     <id>Jenkins Control Plugin</id>
@@ -13,16 +13,10 @@
     <idea-version since-build="193.1546" until-build="201.6487.11"/>
 
     <depends>com.intellij.modules.platform</depends>
-    <depends>com.intellij.modules.vcs</depends>
-    <depends>com.intellij.modules.lang</depends>
-    <depends optional="true" config-file="JavaSupport.xml">com.intellij.java</depends>
-    <xi:include href="/META-INF/JobParameterRenderer.xml" xpointer="xpointer(/idea-plugin/*)"/>
-
-    <project-components>
-        <component>
-            <implementation-class>org.codinjutsu.tools.jenkins.WatchedJobsDecorator</implementation-class>
-        </component>
-    </project-components>
+    <depends optional="true" config-file="org.codinjutsu.tools.jenkins-VcsSupport.xml">com.intellij.modules.vcs</depends>
+    <depends optional="true" config-file="org.codinjutsu.tools.jenkins-LangSupport.xml">com.intellij.modules.lang</depends>
+    <depends optional="true" config-file="org.codinjutsu.tools.jenkins-JavaSupport.xml">com.intellij.java</depends>
+    <xi:include href="/META-INF/org.codinjutsu.tools.jenkins-JobParameterRenderer.xml" xpointer="xpointer(/idea-plugin/*)"/>
 
     <extensions defaultExtensionNs="com.intellij">
         <projectConfigurable parentId="tools" groupWeight="110" dynamic="true" displayName="Jenkins Plugin"
@@ -62,10 +56,6 @@
     </extensions>
 
     <actions>
-        <action id="Jenkins.CreatePatchAndBuildOnJenkins" class="org.codinjutsu.tools.jenkins.view.action.CreatePatchAndBuildAction"
-                text="Create Patch and Build on Jenkins">
-            <add-to-group group-id="ChangesViewPopupMenu" anchor="last"/>
-        </action>
         <action id="Jenkins.LoadBuilds" class="org.codinjutsu.tools.jenkins.view.action.LoadBuildsAction"
                 text="Load Builds"
                 description="Load builds for selected Job"

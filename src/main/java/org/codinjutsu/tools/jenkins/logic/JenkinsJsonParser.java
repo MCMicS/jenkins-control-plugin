@@ -23,6 +23,7 @@ import com.github.cliftonlabs.json_simple.Jsoner;
 import org.apache.commons.collections.CollectionUtils;
 import com.intellij.openapi.diagnostic.Logger;
 import org.apache.commons.lang.StringUtils;
+import org.codinjutsu.tools.jenkins.exception.JenkinsPluginRuntimeException;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.util.DateUtil;
 import org.jetbrains.annotations.NotNull;
@@ -140,11 +141,17 @@ public class JenkinsJsonParser implements JenkinsParser {
         }
 
         final Build.BuildBuilder builder = Build.builder();
-        builder.building(getBoolean(lastBuildObject.getBoolean(createJsonKey((BUILD_IS_BUILDING)))));
+        final boolean isBuilding = getBoolean(lastBuildObject.getBoolean(createJsonKey((BUILD_IS_BUILDING))));
+        builder.building(isBuilding);
         final OptionalInt number = OptionalInt.of(lastBuildObject.getInteger(createJsonKey(BUILD_NUMBER)));
         builder.number(number.orElse(0));
         final String status = lastBuildObject.getStringOrDefault(createJsonKey(BUILD_RESULT, BuildStatusEnum.NULL.getStatus()));
-        builder.status(BuildStatusEnum.parseStatus(status));
+        final BuildStatusEnum buildStatusEnum = BuildStatusEnum.parseStatus(status);
+        if (buildStatusEnum == BuildStatusEnum.NULL && isBuilding) {
+            builder.status(BuildStatusEnum.RUNNING);
+        } else {
+            builder.status(buildStatusEnum);
+        }
         final String url = lastBuildObject.getString(createJsonKey(BUILD_URL));
         builder.url(url);
         final Long timestampMillis = lastBuildObject.getLong(createJsonKey(BUILD_TIMESTAMP));
@@ -503,9 +510,9 @@ public class JenkinsJsonParser implements JenkinsParser {
 
     private void checkJsonDataAndThrowExceptionIfNecessary(String jsonData) {
         if (StringUtils.isEmpty(jsonData) || "{}".equals(jsonData)) {
-            String message = "Empty JSON data!";
+            final String message = "Empty JSON data!";
             LOG.error(message);
-            throw new IllegalStateException(message);
+            throw new JenkinsPluginRuntimeException(message);
         }
     }
 }

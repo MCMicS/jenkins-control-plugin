@@ -18,6 +18,7 @@ package org.codinjutsu.tools.jenkins.logic;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.net.IdeHttpClientHelpers;
@@ -25,9 +26,7 @@ import com.intellij.util.net.ssl.CertificateManager;
 import com.offbytwo.jenkins.JenkinsServer;
 import com.offbytwo.jenkins.client.JenkinsHttpClient;
 import com.offbytwo.jenkins.helper.BuildConsoleStreamListener;
-import com.offbytwo.jenkins.model.JobWithDetails;
-import com.offbytwo.jenkins.model.TestChildReport;
-import com.offbytwo.jenkins.model.TestResult;
+import com.offbytwo.jenkins.model.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
@@ -38,7 +37,12 @@ import org.apache.http.message.BasicHeader;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
+import org.codinjutsu.tools.jenkins.exception.JenkinsPluginRuntimeException;
 import org.codinjutsu.tools.jenkins.exception.NoJobFoundException;
+import org.codinjutsu.tools.jenkins.model.Build;
+import org.codinjutsu.tools.jenkins.model.Computer;
+import org.codinjutsu.tools.jenkins.model.Job;
+import org.codinjutsu.tools.jenkins.model.View;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.security.JenkinsVersion;
 import org.codinjutsu.tools.jenkins.security.SecurityClient;
@@ -66,13 +70,10 @@ public class RequestManager implements RequestManagerInterface, Disposable {
     private final Project project;
 
     private final UrlBuilder urlBuilder;
-
-    private SecurityClient securityClient;
-
-    private JenkinsPlateform jenkinsPlateform = JenkinsPlateform.CLASSIC;
-
     private final RssParser rssParser = new RssParser();
     private final JenkinsParser jsonParser = new JenkinsJsonParser();
+    private SecurityClient securityClient;
+    private JenkinsPlateform jenkinsPlateform = JenkinsPlateform.CLASSIC;
     private JenkinsServer jenkinsServer;
 
     public RequestManager(Project project) {
@@ -380,12 +381,45 @@ public class RequestManager implements RequestManagerInterface, Disposable {
                 buildConsoleStreamListener.finished();
             } else {
                 buildConsoleStreamListener.onData("Log for Build " + build.getUrl() + "console\n");
-                build.details().streamConsoleOutput(buildConsoleStreamListener, pollingInSeconds, poolingTimeout);
+                streamConsoleOutput(build.details(), buildConsoleStreamListener, pollingInSeconds, poolingTimeout);
             }
         } catch (IOException | InterruptedException e) {
             logger.warn("cannot load log for " + job.getNameToRenderSingleJob());
             Thread.currentThread().interrupt();
             buildConsoleStreamListener.finished();
+        }
+    }
+
+    private void streamConsoleOutput(BuildWithDetails buildWithDetails,
+                                     BuildConsoleStreamListener listener,
+                                     int poolingInterval,
+                                     int poolingTimeout) throws InterruptedException, IOException {
+        // Calculate start and timeout
+        final long startTime = System.currentTimeMillis();
+        final long timeoutTime = startTime + (poolingTimeout * 1000L);
+        final long sleepMillis = poolingInterval * 1000L;
+
+        final AtomicInteger bufferOffset = new AtomicInteger(0);
+        while (true) {
+            //noinspection BusyWait
+            Thread.sleep(sleepMillis);
+            ProgressManager.checkCanceled();
+            final ConsoleLog consoleLog = buildWithDetails.getConsoleOutputText(bufferOffset.get());
+            String logString = consoleLog.getConsoleLog();
+            if (logString != null && !logString.isEmpty()) {
+                listener.onData(logString);
+            }
+            if (Boolean.TRUE.equals(consoleLog.getHasMoreData())) {
+                bufferOffset.set(consoleLog.getCurrentBufferSize());
+            } else {
+                listener.finished();
+                break;
+            }
+            if (System.currentTimeMillis() > timeoutTime) {
+                throw new JenkinsPluginRuntimeException(String.format("Pooling for build %s - %d timeout! " +
+                                "Check if job stuck in jenkins",
+                        buildWithDetails.getDisplayName(), buildWithDetails.getNumber()));
+            }
         }
     }
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.codinjutsu.tools.jenkins.view;
+package org.codinjutsu.tools.jenkins.view.vcs;
 
 import com.intellij.application.options.CodeStyle;
 import com.intellij.openapi.diagnostic.Logger;
@@ -33,6 +33,7 @@ import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.components.JBList;
 import org.codinjutsu.tools.jenkins.logic.RunBuildWithPatch;
 import org.codinjutsu.tools.jenkins.model.Job;
+import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;

@@ -21,8 +21,6 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.components.*;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.PopupHandler;
@@ -30,7 +28,6 @@ import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.*;
-import org.codinjutsu.tools.jenkins.exception.JenkinsPluginRuntimeException;
 import org.codinjutsu.tools.jenkins.logic.*;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.util.CollectionUtil;
@@ -92,7 +89,8 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
         super(true);
         this.project = project;
 
-        refreshViewJob = () -> GuiUtil.runInSwingThread(new LoadSelectedViewJob(project));
+        final LoadSelectedViewJob loadSelectedViewJob = new LoadSelectedViewJob(project);
+        this.refreshViewJob = loadSelectedViewJob::queue;
 
         requestManager = RequestManager.getInstance(project);
         jenkinsAppSettings = JenkinsAppSettings.getSafeInstance(project);
@@ -246,23 +244,24 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
         if (!SwingUtilities.isEventDispatchThread()) {
             logger.warn("BrowserPanel.loadJob called from outside of EDT");
         }
-        GuiUtil.runInSwingThread(new Task.Backgroundable(project, "Loading job", true, JenkinsLoadingTaskOption.INSTANCE) {
+        JenkinsBackgroundTaskFactory.getInstance(project).createBackgroundTask(
+                "Loading job", true, new JenkinsBackgroundTask.JenkinsTask() {
 
-            private Job returnJob;
+                    private Job returnJob;
 
-            @Override
-            public void run(@NotNull ProgressIndicator indicator) {
-                returnJob = requestManager.loadJob(job);
-            }
+                    @Override
+                    public void run(@NotNull RequestManagerInterface requestManager) {
+                        returnJob = requestManager.loadJob(job);
+                    }
 
-            @Override
-            public void onSuccess() {
-                job.updateContentWith(returnJob);
-                refreshJob(job);
-                loadedJob.accept(job);
-            }
-
-        });
+                    @Override
+                    public void onSuccess() {
+                        JenkinsBackgroundTask.JenkinsTask.super.onSuccess();
+                        job.updateContentWith(returnJob);
+                        refreshJob(job);
+                        loadedJob.accept(job);
+                    }
+                }).queue();
     }
 
     public void refreshJob(Job job) {
@@ -380,8 +379,6 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
         if (!SwingUtilities.isEventDispatchThread()) {
             logger.warn("BrowserPanel.refreshCurrentView called outside EDT");
         }
-        logger.info("Test");
-        logger.debug("Test Debug");
         refreshViewJob.run();
     }
 
@@ -443,31 +440,33 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
             for (final Map.Entry<String, Job> entry : watchedJobs.entrySet()) {
                 final Job job = entry.getValue();
                 final Build lastBuild = job.getLastBuild();
-                new Task.Backgroundable(project, "Jenkins build watch", true, JenkinsLoadingTaskOption.INSTANCE) {
+                JenkinsBackgroundTaskFactory.getInstance(project).createBackgroundTask("Jenkins build watch", true,
+                        new JenkinsBackgroundTask.JenkinsTask() {
 
-                    private Build build;
+                            private Build build;
 
-                    @Override
-                    public void onSuccess() {
-                        if (lastBuild.isBuilding() && !build.isBuilding()) {
-                            notifyInfoJenkinsToolWindow(String.format("Status of build for Changelist \"%s\" is %s",
-                                    entry.getKey(), build.getStatus().getStatus()));
-                        }
-                        job.setLastBuild(build);
-                    }
+                            @Override
+                            public void run(@NotNull RequestManagerInterface requestManager) {
+                                build = requestManager.loadBuild(lastBuild);
+                            }
 
-                    @Override
-                    public void onThrowable(@NotNull Throwable error) {
-                        notifyErrorJenkinsToolWindow(String.format("Error while watch for Changelist \"%s\" is %s",
-                                entry.getKey(), error.getMessage()));
-                    }
+                            @Override
+                            public void onSuccess() {
+                                JenkinsBackgroundTask.JenkinsTask.super.onSuccess();
+                                if (lastBuild.isBuilding() && !build.isBuilding()) {
+                                    notifyInfoJenkinsToolWindow(String.format("Status of build for Changelist \"%s\" is %s",
+                                            entry.getKey(), build.getStatus().getStatus()));
+                                }
+                                job.setLastBuild(build);
+                            }
 
-                    @Override
-                    public void run(@NotNull ProgressIndicator indicator) {
-                        indicator.setIndeterminate(true);
-                        build = requestManager.loadBuild(lastBuild);
-                    }
-                }.queue();
+                            @Override
+                            public void onThrowable(@NotNull Throwable error) {
+                                JenkinsBackgroundTask.JenkinsTask.super.onThrowable(error);
+                                notifyErrorJenkinsToolWindow(String.format("Error while watch for Changelist \"%s\" is %s",
+                                        entry.getKey(), error.getMessage()));
+                            }
+                        }).queue();
             }
         }
     }
@@ -497,14 +496,18 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
                 .ifPresent(node -> jobTree.getTree().expandPath(new TreePath(node.getPath())));
     }
 
-    private class LoadSelectedViewJob extends Task.Backgroundable {
-        public LoadSelectedViewJob(@Nullable Project project) {
-            super(project, "Loading Jenkins Jobs", true, JenkinsLoadingTaskOption.INSTANCE);
+    private class LoadSelectedViewJob implements JenkinsBackgroundTask.JenkinsTask {
+
+        @NotNull
+        private final JenkinsBackgroundTask task;
+
+        public LoadSelectedViewJob(@NotNull Project project) {
+            this.task = JenkinsBackgroundTaskFactory.getInstance(project).createBackgroundTask(
+                    "Loading Jenkins Jobs", true, LoadSelectedViewJob.this);
         }
 
         @Override
-        public void run(@NotNull ProgressIndicator indicator) {
-            indicator.setIndeterminate(true);
+        public void run(@NotNull RequestManagerInterface requestManager) {
             try {
                 setTreeBusy(true);
                 View viewToLoad = getViewToLoad();
@@ -513,8 +516,6 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
                 }
                 currentSelectedView = viewToLoad;
                 loadJobs();
-            } catch (JenkinsPluginRuntimeException ex) {
-                notifyErrorJenkinsToolWindow(ex.getMessage());
             } finally {
                 setTreeBusy(false);
             }
@@ -528,7 +529,6 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
                 fillJobTree(buildStatusAggregator);
                 JenkinsWidget.getInstance(project).updateStatusIcon(buildStatusAggregator);
             });
-
         }
 
         private void loadJobs() {
@@ -571,6 +571,10 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
 
         private void setTreeBusy(final boolean isBusy) {
             GuiUtil.runInSwingThread(() -> jobTree.getTree().setPaintBusy(isBusy));
+        }
+
+        public void queue() {
+            task.queue();
         }
     }
 }

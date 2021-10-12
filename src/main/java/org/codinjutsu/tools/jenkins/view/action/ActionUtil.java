@@ -25,19 +25,19 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
-class ActionUtil {
+public class ActionUtil {
 
     private ActionUtil() {
     }
 
     @NotNull
-    static Optional<Project> getProject(AnActionEvent event) {
+    public static Optional<Project> getProject(AnActionEvent event) {
         DataContext dataContext = event.getDataContext();
         return Optional.ofNullable(PlatformDataKeys.PROJECT.getData(dataContext));
     }
 
     @NotNull
-    static Optional<BrowserPanel> getBrowserPanel(AnActionEvent event) {
+    public static Optional<BrowserPanel> getBrowserPanel(AnActionEvent event) {
         return getProject(event).map(BrowserPanel::getInstance);
     }
 }

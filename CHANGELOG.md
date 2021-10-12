@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.13.13]
+- \#309 Exception in plugin Jenkins Control
+- \#322 Nullpointer if Jenkins if not running
+- move classes with module 'com.intellij.modules.vcs' to optional dependency
+- \#308 Log streaming should cancelable
+
 ## [0.13.12]
 - \#280 render DateParameterDefinition as textfield
 - 2021.2 API Compatibility
