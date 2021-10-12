@@ -2,7 +2,7 @@ package org.codinjutsu.tools.jenkins.logic;
 
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.NlsContexts;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 @Service
@@ -23,13 +23,13 @@ public final class JenkinsBackgroundTaskFactory {
     }
 
     @NotNull
-    public JenkinsBackgroundTask createBackgroundTask(@NlsContexts.ProgressTitle @NotNull String title,
+    public JenkinsBackgroundTask createBackgroundTask(@Nls(capitalization = Nls.Capitalization.Sentence) @NotNull String title,
                                                       @NotNull JenkinsBackgroundTask.JenkinsTask jenkinsTask) {
         return createBackgroundTask(title, false, jenkinsTask);
     }
 
     @NotNull
-    public JenkinsBackgroundTask createBackgroundTask(@NlsContexts.ProgressTitle @NotNull String title,
+    public JenkinsBackgroundTask createBackgroundTask(@Nls(capitalization = Nls.Capitalization.Sentence) @NotNull String title,
                                                       boolean canBeCancelled,
                                                       @NotNull JenkinsBackgroundTask.JenkinsTask jenkinsTask) {
         return new JenkinsBackgroundTask(project, title, canBeCancelled, jenkinsTask, RequestManager.getInstance(project));

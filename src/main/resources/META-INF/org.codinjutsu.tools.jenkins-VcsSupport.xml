@@ -1,7 +1,9 @@
 <idea-plugin>
-    <extensions defaultExtensionNs="com.intellij">
-        <vcs.changeListDecorator implementation="org.codinjutsu.tools.jenkins.view.vcs.WatchedJobsDecorator" />
-    </extensions>
+    <project-components>
+        <component>
+            <implementation-class>org.codinjutsu.tools.jenkins.view.vcs.WatchedJobsDecorator</implementation-class>
+        </component>
+    </project-components>
     <actions>
         <action id="Jenkins.CreatePatchAndBuildOnJenkins" class="org.codinjutsu.tools.jenkins.view.vcs.action.CreatePatchAndBuildAction"
                 text="Create Patch and Build on Jenkins">
