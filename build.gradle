@@ -1,16 +1,15 @@
 //import org.jetbrains.changelog.ExtensionsKt
 plugins {
     id 'java'
-    id 'org.jetbrains.intellij' version '1.1.4'
-    id 'org.jetbrains.changelog' version "1.2.1"
-    id "io.freefair.lombok" version "5.3.3.3"
+    id 'org.jetbrains.intellij' version '1.2.0'
+    id 'org.jetbrains.changelog' version "1.3.0"
+    id "io.freefair.lombok" version "6.2.0"
     id 'idea'
     id "org.sonarqube" version "3.3"
     id 'jacoco'
 }
 def jenkinsPluginName = 'jenkins-control-plugin'
-def jenkinsPluginVersion = '0.13.12'
-def javaVersion = 11
+def jenkinsPluginVersion = '0.13.13'
 
 group 'org.codinjutsu'
 version "${jenkinsPluginVersion}-2021.2"
@@ -22,14 +21,18 @@ apply plugin: "io.freefair.lombok"
 
 intellij {
     pluginName.set(jenkinsPluginName)
-    version.set('212-EAP-SNAPSHOT')
-    //version.set('2021.1')
+    version.set('213-EAP-SNAPSHOT')
     updateSinceUntilBuild.set(false)
     downloadSources.set(true)
     type.set('IC')
     plugins.set(['com.intellij.java'])
+
     //type.set('PC')
     //type.set('RD') //Rider
+    //type.set('AI') // Android
+    //type.set('CWMG') // Code With Me Gueast
+    //type.set('GW') // Jetbrains Gateway
+    //version.set('213.4579-CUSTOM-SNAPSHOT')
 
     patchPluginXml {
         version.set("${project.version}")
@@ -54,7 +57,7 @@ changelog {
 
 lombok {
     version = "1.18.20"
-    generateLombokConfig.enabled = false
+    disableConfig = false
 }
 
 idea {
@@ -66,13 +69,13 @@ idea {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(javaVersion)
+        languageVersion = JavaLanguageVersion.of(11)
     }
 }
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
-    options.release.set(javaVersion)
+    options.release.set(11)
 }
 
 configurations {
@@ -122,10 +125,10 @@ dependencies {
 
     testImplementation(
             'junit:junit:4.13.2',
-            'org.mockito:mockito-core:3.11.2',
+            'org.mockito:mockito-core:3.12.4',
             'org.powermock:powermock-api-mockito2:2.0.9',
             'org.powermock:powermock-core:2.0.9',
-            'org.assertj:assertj-core:3.20.2',
+            'org.assertj:assertj-core:3.21.0',
             'org.assertj:assertj-swing-junit:3.17.1'
     )
 }
@@ -142,7 +145,6 @@ test {
 }
 
 runIde {
-    //jvmArgs '-Djava.awt.headless=true'
     jvmArgs = ['-XX:+UnlockDiagnosticVMOptions']
     systemProperty('ide.plugins.snapshot.on.unload.fail', 'true')
     systemProperty('ide.plugins.analyze.snapshot', 'true')
@@ -167,7 +169,8 @@ prepareSandbox {
 
 sonarqube {
     properties {
-        //property "sonar.host.url", "https://sonarcloud.io"
+        property "sonar.organization", "mcmics-github"
+        property "sonar.host.url", "https://sonarcloud.io"
         property "sonar.projectKey", "MCMicS_jenkins-control-plugin"
     }
 }
@@ -184,23 +187,25 @@ def ideaVersionToVerify = "212.4638.7"
 def verifyFailureLevel = EnumSet.copyOf(RunPluginVerifierTask.FailureLevel.ALL)
 verifyFailureLevel.remove(RunPluginVerifierTask.FailureLevel.NOT_DYNAMIC)
 runPluginVerifier {
-    //distributionFile = "${jenkinsPluginName}-${project.version}"
     ideVersions = ["IU-${ideaVersionToVerify}"]
 //    ideVersions = ["IC-2020.3", "PS-2020.3", "IU-2020.3"]
     failureLevel = verifyFailureLevel
     verifierVersion = "latest"
 }
 signPlugin {
-    def _privateKey = file('private/signing.key')
-    def _certificateChain = file('private/signing.pem')
-    certificateChain.set(_certificateChain.exists() ?  _certificateChain.text : null)
-    privateKey.set(_privateKey.exists() ?  _privateKey.text : null)
+    def _privateKey = file('private/mcmics.pem')
+    def _certificateChain = file('private/mcmics-sign.crt')
+    privateKey.set(_privateKey.exists() ?  _privateKey.text : System.getenv("PRIVATE_KEY"))
+    certificateChain.set(_certificateChain.exists() ?  _certificateChain.text : System.getenv("CERTIFICATE_CHAIN"))
+    password.set(System.getenv("PRIVATE_KEY_PASSWORD"))
     doLast {
         copy {
             from 'build/distributions'
-            include "${jenkinsPluginName}-signed.zip"
+            include "${jenkinsPluginName}-${project.version}-signed.zip"
             into "snapshot"
-            rename "${jenkinsPluginName}-signed.zip", "${jenkinsPluginName}-${project.version}-signed.zip"
         }
     }
+}
+publishPlugin {
+    token.set(System.getenv("PUBLISH_TOKEN"))
 }

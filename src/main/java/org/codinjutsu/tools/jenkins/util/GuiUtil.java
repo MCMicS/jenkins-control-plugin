@@ -22,17 +22,18 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.ui.ComponentContainer;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
+import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
+@UtilityClass
 public class GuiUtil {
 
     public static void runInSwingThread(Runnable runnable) {
@@ -41,15 +42,6 @@ public class GuiUtil {
             runnable.run();
         } else {
             application.invokeLater(runnable);
-        }
-    }
-
-    public static void runInSwingThread(final Task.Backgroundable task){
-        Application application = ApplicationManager.getApplication();
-        if (application.isDispatchThread()) {
-            task.queue();
-        } else {
-            application.invokeLater(new TaskRunner(task));
         }
     }
 
@@ -81,18 +73,5 @@ public class GuiUtil {
             contentManager.addContent(content);
             contentManager.setSelectedContent(content);
         });
-    }
-
-    private static class TaskRunner implements Runnable{
-        private final Task.Backgroundable task;
-
-        public TaskRunner(Task.Backgroundable task) {
-            this.task = task;
-        }
-
-        @Override
-        public void run() {
-            task.queue();
-        }
     }
 }

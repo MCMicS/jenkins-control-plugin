@@ -19,7 +19,6 @@ package org.codinjutsu.tools.jenkins.view.action;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
-import com.intellij.openapi.project.Project;
 import icons.JenkinsControlIcons;
 import org.codinjutsu.tools.jenkins.logic.RssLogic;
 
@@ -34,7 +33,7 @@ public class RefreshRssAction extends AnAction implements DumbAware {
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        ActionUtil.getProject(event).map(RssLogic::getInstance).ifPresent(rss -> rss.loadLatestBuilds(true));
+        ActionUtil.getProject(event).map(RssLogic::getInstance).ifPresent(RssLogic::loadLatestBuilds);
     }
 
     @Override
