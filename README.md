@@ -1,8 +1,12 @@
-# Jenkins Plugin 0.13.12 for Jetbrains products
+# Jenkins Plugin 0.13.13 for Jetbrains products
 [![Build Status](https://travis-ci.com/MCMicS/jenkins-control-plugin.svg?branch=master)](https://travis-ci.com/MCMicS/jenkins-control-plugin)
-[![Gitter](https://badges.gitter.im/jenkins-control-plugin/community.svg)](https://gitter.im/jenkins-control-plugin/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Plugin Compatibility](https://github.com/MCMicS/jenkins-control-plugin/actions/workflows/compatibility.yml/badge.svg)](https://github.com/MCMicS/jenkins-control-plugin/actions/workflows/compatibility.yml)
+
+[![SonarCloud Analysis](https://github.com/MCMicS/jenkins-control-plugin/actions/workflows/sonar.yml/badge.svg)](https://github.com/MCMicS/jenkins-control-plugin/actions/workflows/sonar.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=MCMicS_jenkins-control-plugin&metric=alert_status)](https://sonarcloud.io/dashboard?id=MCMicS_jenkins-control-plugin)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=MCMicS_jenkins-control-plugin&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=MCMicS_jenkins-control-plugin)
+
+[![Gitter](https://badges.gitter.im/jenkins-control-plugin/community.svg)](https://gitter.im/jenkins-control-plugin/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 ![GitHub Release Date](https://img.shields.io/github/release-date/MCMicS/jenkins-control-plugin)
 [![Version](https://img.shields.io/jetbrains/plugin/v/6110?label=version)](https://plugins.jetbrains.com/plugin/6110-jenkins-control-plugin)
@@ -11,7 +15,7 @@
 ![GitHub](https://img.shields.io/github/license/MCMicS/jenkins-control-plugin)
 
 * [Jetbrains plugin page](https://plugins.jetbrains.com/idea/plugin/6110)
-* [Changelog](CHANGELOG.txt)
+  * [Changelog](CHANGELOG.md)
 
 ### Current Release
 * [Idea 2019.3](../../releases/latest/download/jenkins-control-plugin-2019.3.zip)

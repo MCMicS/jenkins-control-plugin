@@ -1,5 +1,4 @@
 <idea-plugin>
-
     <extensions defaultExtensionNs="Jenkins Control Plugin">
         <viewTestResults implementation="org.codinjutsu.tools.jenkins.view.extension.ViewTestResultsAsJUnit"/>
     </extensions>
