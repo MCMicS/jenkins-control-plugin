@@ -16,7 +16,7 @@ jobs:
     if: (github.actor != 'dependabot[bot]')
     steps:
       - name: Check out repository
-        uses: actions/checkout@v2.3.5
+        uses: actions/checkout@v2.4.0
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
