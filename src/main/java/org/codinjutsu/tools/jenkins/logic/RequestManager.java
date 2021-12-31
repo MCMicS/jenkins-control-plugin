@@ -486,6 +486,12 @@ public class RequestManager implements RequestManagerInterface, Disposable {
         return jsonParser.createComputers(securityClient.execute(url));
     }
 
+    @Override
+    public List<String> getGitParameterChoices(Job job, JobParameter jobParameter) {
+        final URL url = urlBuilder.createFillValueItemsUrl(job.getUrl(), jobParameter.getJobParameterType().getClassName(), jobParameter.getName());
+        return jsonParser.getFillValueItems(securityClient.execute(url));
+    }
+
     @NotNull
     private HttpClientBuilder createHttpClientBuilder(String serverUrl, JenkinsSettings jenkinsSettings) {
         final CredentialsProvider provider = new BasicCredentialsProvider();

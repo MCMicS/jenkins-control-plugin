@@ -33,6 +33,7 @@ import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
 import org.codinjutsu.tools.jenkins.view.extension.JobParameterRenderer;
 import org.codinjutsu.tools.jenkins.view.extension.JobParameterRenderers;
+import org.codinjutsu.tools.jenkins.view.parameter.GitParameterRenderer;
 import org.codinjutsu.tools.jenkins.view.parameter.JobParameterComponent;
 import org.codinjutsu.tools.jenkins.view.util.SpringUtilities;
 import org.jetbrains.annotations.NotNull;
@@ -117,7 +118,20 @@ public class BuildParamDialog extends DialogWrapper {
         for (JobParameter jobParameter : parameters) {
             final JobParameterRenderer jobParameterRenderer = JobParameterRenderer.findRenderer(jobParameter)
                     .orElseGet(ErrorRenderer::new);
-            final JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter);
+            JobParameterComponent<?> jobParameterComponent;
+            if (jobParameter.getChoices().isEmpty() && jobParameterRenderer instanceof GitParameterRenderer) {
+                JobParameter gitParameter = JobParameter.builder()
+                        .name(jobParameter.getName())
+                        .description(jobParameter.getDescription())
+                        .jobParameterType(jobParameter.getJobParameterType())
+                        .defaultValue(jobParameter.getDefaultValue())
+                        .choices(requestManager.getGitParameterChoices(job, jobParameter))
+                        .build();
+                jobParameterComponent = jobParameterRenderer.render(gitParameter);
+            } else {
+                jobParameterComponent = jobParameterRenderer.render(jobParameter);
+            }
+
             if (jobParameterComponent.isVisible()) {
                 rows.incrementAndGet();
                 jobParameterComponent.getViewElement().setName(jobParameter.getName());
