@@ -31,9 +31,9 @@ import org.codinjutsu.tools.jenkins.TraceableBuildJobFactory;
 import org.codinjutsu.tools.jenkins.logic.RequestManagerInterface;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
+import org.codinjutsu.tools.jenkins.model.ProjectJob;
 import org.codinjutsu.tools.jenkins.view.extension.JobParameterRenderer;
 import org.codinjutsu.tools.jenkins.view.extension.JobParameterRenderers;
-import org.codinjutsu.tools.jenkins.view.parameter.GitParameterRenderer;
 import org.codinjutsu.tools.jenkins.view.parameter.JobParameterComponent;
 import org.codinjutsu.tools.jenkins.view.util.SpringUtilities;
 import org.jetbrains.annotations.NotNull;
@@ -118,19 +118,8 @@ public class BuildParamDialog extends DialogWrapper {
         for (JobParameter jobParameter : parameters) {
             final JobParameterRenderer jobParameterRenderer = JobParameterRenderer.findRenderer(jobParameter)
                     .orElseGet(ErrorRenderer::new);
-            JobParameterComponent<?> jobParameterComponent;
-            if (jobParameter.getChoices().isEmpty() && jobParameterRenderer instanceof GitParameterRenderer) {
-                JobParameter gitParameter = JobParameter.builder()
-                        .name(jobParameter.getName())
-                        .description(jobParameter.getDescription())
-                        .jobParameterType(jobParameter.getJobParameterType())
-                        .defaultValue(jobParameter.getDefaultValue())
-                        .choices(requestManager.getGitParameterChoices(job, jobParameter))
-                        .build();
-                jobParameterComponent = jobParameterRenderer.render(gitParameter);
-            } else {
-                jobParameterComponent = jobParameterRenderer.render(jobParameter);
-            }
+            final ProjectJob projectJob = ProjectJob.builder().project(project).job(job).build();
+            final JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter, projectJob);;
 
             if (jobParameterComponent.isVisible()) {
                 rows.incrementAndGet();
@@ -201,7 +190,7 @@ public class BuildParamDialog extends DialogWrapper {
 
         @NotNull
         @Override
-        public JobParameterComponent<String> render(@NotNull JobParameter jobParameter) {
+        public JobParameterComponent<String> render(@NotNull JobParameter jobParameter, @Nullable ProjectJob projectJob) {
             return JobParameterRenderers.createErrorLabel(jobParameter);
         }
 

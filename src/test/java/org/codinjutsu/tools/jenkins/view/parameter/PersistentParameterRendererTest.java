@@ -17,20 +17,20 @@ public class PersistentParameterRendererTest implements JobParameterTest {
     @Test
     public void render() {
         final JobParameter jobParameter = createJobParameter(PersistentParameterRenderer.BOOLEAN);
-        JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter);
+        JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter, PROJECT_JOB);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JCheckBox.class);
         assertThat(jobParameterComponent.getJobParameter()).isEqualTo(jobParameter);
 
-        jobParameterComponent = jobParameterRenderer.render(createJobParameter(PersistentParameterRenderer.STRING));
+        jobParameterComponent = jobParameterRenderer.render(createJobParameter(PersistentParameterRenderer.STRING), PROJECT_JOB);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JTextField.class);
 
-        jobParameterComponent = jobParameterRenderer.render(createJobParameter(PersistentParameterRenderer.TEXT));
+        jobParameterComponent = jobParameterRenderer.render(createJobParameter(PersistentParameterRenderer.TEXT), PROJECT_JOB);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JTextArea.class);
 
-        jobParameterComponent = jobParameterRenderer.render(createJobParameter(PersistentParameterRenderer.CHOICE));
+        jobParameterComponent = jobParameterRenderer.render(createJobParameter(PersistentParameterRenderer.CHOICE), PROJECT_JOB);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JComboBox.class);
 
-        jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.ChoiceParameterDefinition));
+        jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.ChoiceParameterDefinition), PROJECT_JOB);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JobParameterRenderers.ErrorLabel.class);
     }
 

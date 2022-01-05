@@ -1,5 +1,8 @@
 # Changelog
 
+## [Unreleased]
+- \#349 Extend support for Git Parameter. Thanks to @chrisxiao
+
 ## [0.13.13]
 - \#309 Exception in plugin Jenkins Control
 - \#322 Nullpointer if Jenkins if not running

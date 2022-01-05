@@ -216,7 +216,7 @@ public class UrlBuilder {
 
     public URL createFillValueItemsUrl(String jobUrl, String className, String param) {
         try {
-            return new URL(jobUrl + String.format(FILL_VALUE_ITEMS, className, param));
+            return new URL(jobUrl +  URIUtil.encodePathQuery(String.format(FILL_VALUE_ITEMS, className, param)));
         } catch (Exception ex) {
             handleException(ex);
         }
