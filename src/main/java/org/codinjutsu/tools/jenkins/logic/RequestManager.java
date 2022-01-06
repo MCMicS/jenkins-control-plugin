@@ -82,7 +82,8 @@ public class RequestManager implements RequestManagerInterface, Disposable {
     }
 
     public static RequestManager getInstance(Project project) {
-        return project.getService(RequestManager.class);
+        return Optional.ofNullable(project.getService(RequestManager.class))
+                .orElseGet(() -> new RequestManager(project));
     }
 
     private static boolean canContainNestedJobs(@NotNull Job job) {

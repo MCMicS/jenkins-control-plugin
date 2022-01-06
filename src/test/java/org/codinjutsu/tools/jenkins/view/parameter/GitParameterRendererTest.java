@@ -1,17 +1,32 @@
 package org.codinjutsu.tools.jenkins.view.parameter;
 
 import com.intellij.openapi.ui.ComboBox;
+import org.assertj.core.util.Lists;
+import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.model.BuildInJobParameter;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
 import org.codinjutsu.tools.jenkins.model.JobParameterType;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import javax.swing.*;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.*;
 
 public class GitParameterRendererTest implements JobParameterTest {
     private final GitParameterRenderer jobParameterRenderer = new GitParameterRenderer();
+
+    private final RequestManager requestManager = Mockito.mock(RequestManager.class);
+
+    @Before
+    public void setUp() {
+        Mockito.when(PROJECT_JOB.getProject().getService(RequestManager.class))
+                .thenReturn(requestManager);
+        Mockito.when(requestManager.getGitParameterChoices(Mockito.any(), Mockito.any()))
+                .thenReturn(Collections.emptyList());
+    }
 
     @Test
     public void renderAsInputField() {
@@ -41,6 +56,40 @@ public class GitParameterRendererTest implements JobParameterTest {
         assertThat(jobParameterComponent.getJobParameter()).isEqualTo(jobParameter);
 
         jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.ChoiceParameterDefinition), PROJECT_JOB);
+        assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JLabel.class);
+    }
+
+    @Test
+    public void loadFromRequestManager() {
+        Mockito.when(requestManager.getGitParameterChoices(Mockito.any(), Mockito.any()))
+                .thenReturn(Lists.newArrayList("First", "Second"));
+        JobParameter jobParameter = createJobParameter(GitParameterRenderer.PT_TAG);
+        JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter, PROJECT_JOB);
+        assertThat(jobParameterComponent.getViewElement()).isInstanceOf(ComboBox.class);
+        assertThat(jobParameterComponent.getJobParameter().getChoices()).contains("First", "Second");
+
+        jobParameter = createJobParameter(GitParameterRenderer.PT_BRANCH);
+        jobParameterComponent = jobParameterRenderer.render(jobParameter, PROJECT_JOB);
+        assertThat(jobParameterComponent.getViewElement()).isInstanceOf(ComboBox.class);
+        assertThat(jobParameterComponent.getJobParameter().getChoices()).contains("First", "Second");
+
+        jobParameter = createJobParameter(GitParameterRenderer.PT_BRANCH_TAG);
+        jobParameterComponent = jobParameterRenderer.render(jobParameter, PROJECT_JOB);
+        assertThat(jobParameterComponent.getViewElement()).isInstanceOf(ComboBox.class);
+        assertThat(jobParameterComponent.getJobParameter().getChoices()).contains("First", "Second");
+
+        jobParameter = createJobParameter(GitParameterRenderer.PT_REVISION);
+        jobParameterComponent = jobParameterRenderer.render(jobParameter, PROJECT_JOB);
+        assertThat(jobParameterComponent.getViewElement()).isInstanceOf(ComboBox.class);
+        assertThat(jobParameterComponent.getJobParameter().getChoices()).contains("First", "Second");
+
+        jobParameter = createJobParameter(GitParameterRenderer.PT_PULL_REQUEST);
+        jobParameterComponent = jobParameterRenderer.render(jobParameter, PROJECT_JOB);
+        assertThat(jobParameterComponent.getViewElement()).isInstanceOf(ComboBox.class);
+        assertThat(jobParameterComponent.getJobParameter().getChoices()).contains("First", "Second");
+
+        jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.ChoiceParameterDefinition),
+                PROJECT_JOB);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JLabel.class);
     }
 
