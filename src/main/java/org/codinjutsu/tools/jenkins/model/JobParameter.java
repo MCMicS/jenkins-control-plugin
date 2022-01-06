@@ -16,7 +16,6 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
-import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Builder;
 import lombok.Singular;
 import lombok.Value;

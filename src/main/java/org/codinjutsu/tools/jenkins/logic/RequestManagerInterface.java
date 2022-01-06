@@ -45,4 +45,6 @@ public interface RequestManagerInterface {
 
     @NotNull
     List<Computer> loadComputer(JenkinsAppSettings settings);
+
+    List<String> getGitParameterChoices(Job job, JobParameter jobParameter);
 }

@@ -2,10 +2,12 @@ package org.codinjutsu.tools.jenkins.view.parameter;
 
 import org.codinjutsu.tools.jenkins.model.JobParameter;
 import org.codinjutsu.tools.jenkins.model.JobParameterType;
+import org.codinjutsu.tools.jenkins.model.ProjectJob;
 import org.codinjutsu.tools.jenkins.view.extension.JobParameterRenderer;
 import org.codinjutsu.tools.jenkins.view.extension.JobParameterRenderers;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +29,7 @@ public class ExtensibleChoiceParameterRenderer implements JobParameterRenderer {
 
     @NotNull
     @Override
-    public JobParameterComponent<String> render(@NotNull JobParameter jobParameter) {
+    public JobParameterComponent<String> render(@NotNull JobParameter jobParameter, @Nullable ProjectJob projectJob) {
         return converter.getOrDefault(jobParameter.getJobParameterType(), JobParameterRenderers::createErrorLabel)
                 .apply(jobParameter, jobParameter.getDefaultValue());
     }

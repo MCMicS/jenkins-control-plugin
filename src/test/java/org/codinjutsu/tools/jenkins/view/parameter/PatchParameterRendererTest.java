@@ -6,11 +6,7 @@ import org.codinjutsu.tools.jenkins.model.JobParameter;
 import org.codinjutsu.tools.jenkins.model.JobParameterType;
 import org.junit.Test;
 
-import javax.swing.*;
-
 import static org.assertj.core.api.Assertions.*;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
 
 public class PatchParameterRendererTest implements JobParameterTest {
 
@@ -19,11 +15,11 @@ public class PatchParameterRendererTest implements JobParameterTest {
     @Test
     public void render() {
         final JobParameter jobParameter = createJobParameter(PatchParameterRenderer.TYPE);
-        JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter);
+        JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter, PROJECT_JOB);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(TextFieldWithBrowseButton.class);
         assertThat(jobParameterComponent.getJobParameter()).isEqualTo(jobParameter);
 
-        jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.ChoiceParameterDefinition));
+        jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.ChoiceParameterDefinition), PROJECT_JOB);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(TextFieldWithBrowseButton.class);
     }
 

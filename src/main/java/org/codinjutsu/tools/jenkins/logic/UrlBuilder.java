@@ -46,6 +46,7 @@ public class UrlBuilder {
     private static final String NESTED_JOBS_INFO =  URL + "name,displayName,fullDisplayName,jobs[" + BASIC_JOB_INFO + "]";
     private static final String COMPUTER = "/computer";
     private static final String COMPUTER_INFO = "computer[displayName,description,offline,assignedLabels[name]]";
+    private static final String FILL_VALUE_ITEMS = "descriptorByName/%s/fillValueItems?param=%s";
 
     public static UrlBuilder getInstance(Project project) {
         return Optional.ofNullable(project.getService(UrlBuilder.class))
@@ -211,5 +212,14 @@ public class UrlBuilder {
             withoutTrailingSlash = url;
         }
         return withoutTrailingSlash;
+    }
+
+    public URL createFillValueItemsUrl(String jobUrl, String className, String param) {
+        try {
+            return new URL(jobUrl +  URIUtil.encodePathQuery(String.format(FILL_VALUE_ITEMS, className, param)));
+        } catch (Exception ex) {
+            handleException(ex);
+        }
+        return null;
     }
 }

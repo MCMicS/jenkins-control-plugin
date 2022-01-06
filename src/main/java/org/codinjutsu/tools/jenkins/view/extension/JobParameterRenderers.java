@@ -11,8 +11,11 @@ import com.intellij.ui.components.JBTextArea;
 import com.intellij.ui.components.JBTextField;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang.StringUtils;
+import org.codinjutsu.tools.jenkins.logic.RequestManager;
+import org.codinjutsu.tools.jenkins.logic.RequestManagerInterface;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
 import org.codinjutsu.tools.jenkins.model.JobParameterType;
+import org.codinjutsu.tools.jenkins.model.ProjectJob;
 import org.codinjutsu.tools.jenkins.view.parameter.JobParameterComponent;
 import org.codinjutsu.tools.jenkins.view.parameter.PasswordComponent;
 import org.jetbrains.annotations.NotNull;
@@ -127,6 +130,31 @@ public final class JobParameterRenderers {
             renderer = JobParameterRenderers::createComboBox;
         }
         return renderer.apply(jobParameter, defaultValue);
+    }
+
+    @NotNull
+    public static BiFunction<JobParameter, String, JobParameterComponent<String>> createGitParameterChoices(
+            @NotNull ProjectJob projectJob) {
+        return (jobParameter, defaultValue) -> createGitParameterChoices(projectJob, jobParameter, defaultValue);
+    }
+
+    @NotNull
+    public static JobParameterComponent<String> createGitParameterChoices(@NotNull ProjectJob projectJob,
+                                                                         @NotNull JobParameter jobParameter,
+                                                                         String defaultValue) {
+        if (jobParameter.getChoices().isEmpty()) {
+            final RequestManagerInterface requestManager = RequestManager.getInstance(projectJob.getProject());
+            JobParameter gitParameter = JobParameter.builder()
+                    .name(jobParameter.getName())
+                    .description(jobParameter.getDescription())
+                    .jobParameterType(jobParameter.getJobParameterType())
+                    .defaultValue(jobParameter.getDefaultValue())
+                    .choices(requestManager.getGitParameterChoices(projectJob.getJob(), jobParameter))
+                    .build();
+            return createComboBoxIfChoicesExists(gitParameter, defaultValue);
+        } else {
+            return createComboBoxIfChoicesExists(jobParameter, defaultValue);
+        }
     }
 
     @NotNull

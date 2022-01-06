@@ -468,6 +468,19 @@ public class JenkinsJsonParser implements JenkinsParser {
         return getServerUrl(parseJson(serverData));
     }
 
+    @Override
+    public List<String> getFillValueItems(String fillValueItemsData) {
+        checkJsonDataAndThrowExceptionIfNecessary(fillValueItemsData);
+        JsonObject fillValueJson = parseJson(fillValueItemsData);
+        JsonArray fillValueArray = (JsonArray) fillValueJson.get("values");
+        List<String> values = new ArrayList<>();
+        for (Object obj : fillValueArray) {
+           JsonObject valueJson = (JsonObject) obj;
+           values.add(valueJson.getString(createJsonKey("value")));
+        }
+        return values;
+    }
+
     @NotNull
     private String getServerUrl(JsonObject jsonObject) {
         final Optional<View> primaryView = Optional.ofNullable((JsonObject) jsonObject.get(PRIMARY_VIEW)).map(this::getView);
