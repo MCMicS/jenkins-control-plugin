@@ -9,7 +9,7 @@ plugins {
     id 'jacoco'
 }
 def jenkinsPluginName = 'jenkins-control-plugin'
-def jenkinsPluginVersion = '0.13.14'
+def jenkinsPluginVersion = '0.13.14-eap1'
 
 group 'org.codinjutsu'
 version "${jenkinsPluginVersion}-2021.2"
