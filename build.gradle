@@ -21,7 +21,7 @@ apply plugin: "io.freefair.lombok"
 
 intellij {
     pluginName.set(jenkinsPluginName)
-    version.set('213-EAP-SNAPSHOT')
+    version.set('221-EAP-SNAPSHOT')
     updateSinceUntilBuild.set(false)
     downloadSources.set(true)
     type.set('IC')
@@ -56,7 +56,7 @@ changelog {
 }
 
 lombok {
-    version = "1.18.20"
+    version = "1.18.22"
     disableConfig = false
 }
 
