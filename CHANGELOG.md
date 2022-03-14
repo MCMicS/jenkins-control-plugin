@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 - \#349 Extend support for Git Parameter. Thanks to @chrisxiao
+- 2022.1 API Compatibility
 
 ## [0.13.13]
 - \#309 Exception in plugin Jenkins Control

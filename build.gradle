@@ -12,7 +12,7 @@ def jenkinsPluginName = 'jenkins-control-plugin'
 def jenkinsPluginVersion = '0.13.14'
 
 group 'org.codinjutsu'
-version "${jenkinsPluginVersion}-2021.2"
+version "${jenkinsPluginVersion}-2022.1"
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'org.jetbrains.changelog'
 apply plugin: 'java'
