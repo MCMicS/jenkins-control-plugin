@@ -34,7 +34,7 @@ import javax.swing.*;
 
 public class ShowLogAction extends AnAction implements DumbAware {
 
-    private static final Icon ICON = AllIcons.Actions.ShowHiddens;//AllIcons.Nodes.Console
+    private static final Icon ICON = AllIcons.Actions.Show;//AllIcons.Nodes.Console
     private static final Logger LOG = Logger.getInstance(UploadPatchToJobAction.class.getName());
 
     private final BuildType buildType;

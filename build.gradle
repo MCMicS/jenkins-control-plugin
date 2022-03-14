@@ -12,7 +12,7 @@ def jenkinsPluginName = 'jenkins-control-plugin'
 def jenkinsPluginVersion = '0.13.14'
 
 group 'org.codinjutsu'
-version "${jenkinsPluginVersion}-2022.1"
+version "${jenkinsPluginVersion}-2021.2"
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'org.jetbrains.changelog'
 apply plugin: 'java'
@@ -21,7 +21,8 @@ apply plugin: "io.freefair.lombok"
 
 intellij {
     pluginName.set(jenkinsPluginName)
-    version.set('221-EAP-SNAPSHOT')
+    //version.set('221-EAP-SNAPSHOT')
+    version.set('2021.2')
     updateSinceUntilBuild.set(false)
     downloadSources.set(true)
     type.set('IC')

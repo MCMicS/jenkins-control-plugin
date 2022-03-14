@@ -28,7 +28,6 @@ import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsToolWindowFactory;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
 import org.codinjutsu.tools.jenkins.view.util.BuildStatusIcon;
-import org.codinjutsu.tools.jenkins.view.util.WidgetBorderUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -84,9 +83,7 @@ public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidg
             }
         };
         Stream.concat(Stream.of(statusIcon.getComponents()), Stream.of(statusIcon)).forEach(c -> c.addMouseListener(adapter));
-
-        setBorder(WidgetBorderUtil.getBorderInstance());
-
+        // Default border is set in com.intellij.openapi.wm.impl.status.IdeStatusBarImpl.wrap
         return statusIcon;
     }
 
