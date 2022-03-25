@@ -1,5 +1,5 @@
 # Jenkins Plugin 0.13.14 for Jetbrains products
-[![Build Status](https://travis-ci.com/MCMicS/jenkins-control-plugin.svg?branch=master)](https://travis-ci.com/MCMicS/jenkins-control-plugin)
+[![Build Status](https://app.travis-ci.com/MCMicS/jenkins-control-plugin.svg?branch=master)](https://app.travis-ci.com/MCMicS/jenkins-control-plugin)
 [![Plugin Compatibility](https://github.com/MCMicS/jenkins-control-plugin/actions/workflows/compatibility.yml/badge.svg)](https://github.com/MCMicS/jenkins-control-plugin/actions/workflows/compatibility.yml)
 
 [![SonarCloud Analysis](https://github.com/MCMicS/jenkins-control-plugin/actions/workflows/sonar.yml/badge.svg)](https://github.com/MCMicS/jenkins-control-plugin/actions/workflows/sonar.yml)
