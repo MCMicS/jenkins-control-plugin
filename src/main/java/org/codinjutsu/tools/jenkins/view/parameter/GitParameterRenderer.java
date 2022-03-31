@@ -27,6 +27,8 @@ public class GitParameterRenderer implements JobParameterRenderer {
 
     static final JobParameterType PT_PULL_REQUEST = new JobParameterType("PT_PULL_REQUEST", TYPE_CLASS);
 
+    static final JobParameterType GIT_PARAMETER_DEFINITION = new JobParameterType("GitParameterDefinition", TYPE_CLASS);
+
     private final Set<JobParameterType> validTypes = new HashSet<>();
 
     public GitParameterRenderer() {
@@ -35,6 +37,7 @@ public class GitParameterRenderer implements JobParameterRenderer {
         validTypes.add(PT_BRANCH_TAG);
         validTypes.add(PT_REVISION);
         validTypes.add(PT_PULL_REQUEST);
+        validTypes.add(GIT_PARAMETER_DEFINITION);
     }
 
     @NotNull

@@ -55,6 +55,11 @@ public class GitParameterRendererTest implements JobParameterTest {
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JTextField.class);
         assertThat(jobParameterComponent.getJobParameter()).isEqualTo(jobParameter);
 
+        jobParameter = createJobParameter(GitParameterRenderer.GIT_PARAMETER_DEFINITION);
+        jobParameterComponent = jobParameterRenderer.render(jobParameter, PROJECT_JOB);
+        assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JTextField.class);
+        assertThat(jobParameterComponent.getJobParameter()).isEqualTo(jobParameter);
+
         jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.ChoiceParameterDefinition), PROJECT_JOB);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JLabel.class);
     }
@@ -84,6 +89,11 @@ public class GitParameterRendererTest implements JobParameterTest {
         assertThat(jobParameterComponent.getJobParameter().getChoices()).contains("First", "Second");
 
         jobParameter = createJobParameter(GitParameterRenderer.PT_PULL_REQUEST);
+        jobParameterComponent = jobParameterRenderer.render(jobParameter, PROJECT_JOB);
+        assertThat(jobParameterComponent.getViewElement()).isInstanceOf(ComboBox.class);
+        assertThat(jobParameterComponent.getJobParameter().getChoices()).contains("First", "Second");
+
+        jobParameter = createJobParameter(GitParameterRenderer.GIT_PARAMETER_DEFINITION);
         jobParameterComponent = jobParameterRenderer.render(jobParameter, PROJECT_JOB);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(ComboBox.class);
         assertThat(jobParameterComponent.getJobParameter().getChoices()).contains("First", "Second");
@@ -121,6 +131,11 @@ public class GitParameterRendererTest implements JobParameterTest {
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(ComboBox.class);
         assertThat(jobParameterComponent.getJobParameter()).isEqualTo(jobParameter);
 
+        jobParameter = createJobParameterChoices(GitParameterRenderer.GIT_PARAMETER_DEFINITION, "master", "pr/226");
+        jobParameterComponent = jobParameterRenderer.render(jobParameter, PROJECT_JOB);
+        assertThat(jobParameterComponent.getViewElement()).isInstanceOf(ComboBox.class);
+        assertThat(jobParameterComponent.getJobParameter()).isEqualTo(jobParameter);
+
         jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.ChoiceParameterDefinition),
                 PROJECT_JOB);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JLabel.class);
@@ -133,6 +148,7 @@ public class GitParameterRendererTest implements JobParameterTest {
         assertThat(jobParameterRenderer.isForJobParameter(createJobParameter(GitParameterRenderer.PT_BRANCH_TAG))).isTrue();
         assertThat(jobParameterRenderer.isForJobParameter(createJobParameter(GitParameterRenderer.PT_REVISION))).isTrue();
         assertThat(jobParameterRenderer.isForJobParameter(createJobParameter(GitParameterRenderer.PT_PULL_REQUEST))).isTrue();
+        assertThat(jobParameterRenderer.isForJobParameter(createJobParameter(GitParameterRenderer.GIT_PARAMETER_DEFINITION))).isTrue();
         assertThat(jobParameterRenderer.isForJobParameter(createJobParameter(new JobParameterType(//
                 GitParameterRenderer.PT_TAG.getName(), "net.uaznia.lukanus.hudson.plugins.gitparameter.invalid.GitParameterDefinition"))))
                 .isFalse();
