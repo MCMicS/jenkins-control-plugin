@@ -46,7 +46,12 @@ public class UrlBuilder {
     private static final String NESTED_JOBS_INFO =  URL + "name,displayName,fullDisplayName,jobs[" + BASIC_JOB_INFO + "]";
     private static final String COMPUTER = "/computer";
     private static final String COMPUTER_INFO = "computer[displayName,description,offline,assignedLabels[name]]";
+    /**
+     * in git-parameter-plugin
+     * also field 'allValueItems' could be used: property[parameterDefinitions[name,type,defaultParameterValue[value],description,allValueItems]]
+     */
     private static final String FILL_VALUE_ITEMS = "descriptorByName/%s/fillValueItems?param=%s";
+    private static final String ERROR_DURING_URL_CREATION = "Error during URL creation";
 
     public static UrlBuilder getInstance(Project project) {
         return Optional.ofNullable(project.getService(UrlBuilder.class))
@@ -158,7 +163,7 @@ public class UrlBuilder {
         if (ex instanceof MalformedURLException) {
             throw new IllegalArgumentException("URL is malformed", ex);
         } else if (ex instanceof URIException) {
-            throw new IllegalArgumentException("Error during URL creation", ex);
+            throw new IllegalArgumentException(ERROR_DURING_URL_CREATION, ex);
         }
     }
 
@@ -179,7 +184,7 @@ public class UrlBuilder {
                     COMPUTER_INFO));
         } catch (Exception ex) {
             handleException(ex);
-            throw new IllegalArgumentException("Error during URL creation", ex);
+            throw new IllegalArgumentException(ERROR_DURING_URL_CREATION, ex);
         }
     }
 
@@ -189,7 +194,7 @@ public class UrlBuilder {
             return new URL(removeTrailingSlash(serverUrl) + "/configure");
         } catch (Exception ex) {
             handleException(ex);
-            throw new IllegalArgumentException("Error during URL creation", ex);
+            throw new IllegalArgumentException(ERROR_DURING_URL_CREATION, ex);
         }
     }
 

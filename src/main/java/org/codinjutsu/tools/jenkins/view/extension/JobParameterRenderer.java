@@ -35,7 +35,6 @@ public interface JobParameterRenderer {
         } else {
             label = new JLabel(name);
         }
-        //label.setHorizontalAlignment(SwingConstants.TRAILING);
         return Optional.of(label);
     }
 

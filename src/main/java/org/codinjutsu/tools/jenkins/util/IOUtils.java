@@ -8,6 +8,10 @@ import java.io.*;
  */
 public class IOUtils {
 
+    private IOUtils() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static String toString(InputStream input) throws IOException {
         StringWriter sw = new StringWriter();
         copy(input, sw);

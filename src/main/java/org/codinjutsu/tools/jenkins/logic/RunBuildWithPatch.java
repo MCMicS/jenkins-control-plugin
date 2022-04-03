@@ -148,7 +148,6 @@ public final class RunBuildWithPatch {
             final JenkinsAppSettings settings = JenkinsAppSettings.getSafeInstance(project);
             final Map<String, VirtualFile> files = new HashMap<>(Collections.singletonMap(PARAMETER_NAME, patchFile));
             requestManager.runBuild(job, settings, files);
-            //browserPanel.loadJob(job);
             browserPanel.refreshCurrentView();
         }
 

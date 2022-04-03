@@ -7,7 +7,11 @@ import java.text.MessageFormat;
 import java.util.Map;
 
 public class TraceableBuildJobFactory {
-    private static int RETRY_LIMIT = 10;
+    private static final int RETRY_LIMIT = 10;
+
+    private TraceableBuildJobFactory() {
+        throw new IllegalStateException("Utility class");
+    }
 
     public static TraceableBuildJob newBuildJob(Job job, JenkinsAppSettings configuration, Map<String, ?> paramValueMap,
                                                 RequestManagerInterface requestManager) {
