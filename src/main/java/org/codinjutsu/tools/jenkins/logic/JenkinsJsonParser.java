@@ -450,7 +450,7 @@ public class JenkinsJsonParser implements JenkinsParser {
         checkJsonDataAndThrowExceptionIfNecessary(computerJsonArray);
         final JsonObject jsonObject = parseJson(computerJsonArray);
         JsonArray jobObjects = (JsonArray) jsonObject.get(COMPUTER);
-        return jobObjects.stream().map(object -> (JsonObject) object).map(this::getComputer).collect(
+        return jobObjects.stream().map(JsonObject.class::cast).map(this::getComputer).collect(
                 Collectors.toCollection(LinkedList::new));
     }
 

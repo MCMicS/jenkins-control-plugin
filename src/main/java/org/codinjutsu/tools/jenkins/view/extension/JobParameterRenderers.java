@@ -133,9 +133,9 @@ public final class JobParameterRenderers {
     }
 
     @NotNull
-    public static BiFunction<JobParameter, String, JobParameterComponent<String>> createGitParameterChoices(
+    public static Function<JobParameter, JobParameterComponent<String>> createGitParameterChoices(
             @NotNull ProjectJob projectJob) {
-        return (jobParameter, defaultValue) -> createGitParameterChoices(projectJob, jobParameter, defaultValue);
+        return jobParameter -> createGitParameterChoices(projectJob, jobParameter, jobParameter.getDefaultValue());
     }
 
     @NotNull

@@ -40,16 +40,20 @@ public class GitParameterRenderer implements JobParameterRenderer {
         validTypes.add(GIT_PARAMETER_DEFINITION);
     }
 
+    public GitParameterRenderer(Set<JobParameterType> validTypes) {
+        this.validTypes.addAll(validTypes);
+    }
+
     @NotNull
     @Override
     public JobParameterComponent<String> render(@NotNull JobParameter jobParameter, @Nullable ProjectJob projectJob) {
         if (!validTypes.contains(jobParameter.getJobParameterType())) {
             return JobParameterRenderers.createErrorLabel(jobParameter);
         }
-        if (projectJob != null) {
-            return JobParameterRenderers.createGitParameterChoices(projectJob, jobParameter, jobParameter.getDefaultValue());
-        } else {
+        if (projectJob == null) {
             return JobParameterRenderers.createComboBoxIfChoicesExists(jobParameter, jobParameter.getDefaultValue());
+        } else {
+            return JobParameterRenderers.createGitParameterChoices(projectJob).apply(jobParameter);
         }
     }
 

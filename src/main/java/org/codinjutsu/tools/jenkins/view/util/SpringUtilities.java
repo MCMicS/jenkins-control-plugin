@@ -16,6 +16,8 @@
 
 package org.codinjutsu.tools.jenkins.view.util;
 
+import com.intellij.openapi.diagnostic.Logger;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -26,6 +28,12 @@ import java.awt.*;
  * SpringBox and SpringCompactGrid.
  */
 public class SpringUtilities {
+
+    private static final Logger LOG = Logger.getInstance(SpringUtilities.class);
+
+    private SpringUtilities() {
+        throw new IllegalStateException("Utility class");
+    }
 
     /* Used by makeCompactGrid. */
     private static SpringLayout.Constraints getConstraintsForCell(
@@ -61,7 +69,7 @@ public class SpringUtilities {
         try {
             layout = (SpringLayout) parent.getLayout();
         } catch (ClassCastException exc) {
-            System.err.println("The first argument to makeCompactGrid must use SpringLayout.");
+            LOG.error("The first argument to makeCompactGrid must use SpringLayout.");
             return;
         }
 

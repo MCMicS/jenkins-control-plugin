@@ -17,8 +17,8 @@
 package org.codinjutsu.tools.jenkins.view.action;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.project.Project;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.jetbrains.annotations.NotNull;
@@ -33,7 +33,7 @@ public class ActionUtil {
     @NotNull
     public static Optional<Project> getProject(AnActionEvent event) {
         DataContext dataContext = event.getDataContext();
-        return Optional.ofNullable(PlatformDataKeys.PROJECT.getData(dataContext));
+        return Optional.ofNullable(CommonDataKeys.PROJECT.getData(dataContext));
     }
 
     @NotNull

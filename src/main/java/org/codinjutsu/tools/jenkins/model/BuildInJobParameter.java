@@ -28,4 +28,8 @@ public final class BuildInJobParameter {
                 StringParameterDefinition);
     }
 
+    private BuildInJobParameter() {
+        throw new IllegalStateException("Utility class with BuiltInParameter");
+    }
+
 }
