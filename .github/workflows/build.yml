@@ -59,11 +59,23 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: ./gradlew jacocoTestReport sonarqube --info
 
+      # Prepare plugin archive content for creating artifact
+      - name: Prepare Plugin Artifact
+        id: artifact
+        shell: bash
+        run: |
+          cd ${{ github.workspace }}/build/distributions
+          FILENAME=`ls *.zip`
+          unzip "$FILENAME" -d content
+
+          echo "::set-output name=filename::${FILENAME:0:-4}"
+
       # Store already-built plugin as an artifact for downloading
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          path: ./build/distributions/jenkins-control-plugin-*.zip
+          name: ${{ steps.artifact.outputs.filename }}
+          path: ./build/distributions/content/*/*
 
       - name: Cleanup Cache
         run:  |
