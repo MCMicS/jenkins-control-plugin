@@ -11,7 +11,7 @@ plugins {
 def readPropertyString = (key) -> property(key).toString()
 
 group readPropertyString('pluginGroup')
-version "${readPropertyString('pluginVersion')}-2021.2"
+version "${readPropertyString('pluginVersion')}-${readPropertyString('pluginSincePlatformVersion')}"
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'org.jetbrains.changelog'
 apply plugin: 'java'
@@ -19,14 +19,14 @@ apply plugin: 'idea'
 apply plugin: "io.freefair.lombok"
 
 intellij {
-    type.set(readPropertyString('platformType'))
-    version.set(readPropertyString('platformVersion'))
     pluginName.set(readPropertyString('pluginName'))
+    version.set(readPropertyString('platformVersion'))
+    type.set(readPropertyString('platformType'))
     downloadSources.set(true)
     plugins.set(Arrays.asList(readPropertyString("platformPlugins").split(',')))
 
     patchPluginXml {
-        version.set(readPropertyString('pluginVersion'))
+        version.set(project.version)
         sinceBuild.set(readPropertyString("pluginSinceBuild"))
         untilBuild.set(readPropertyString("pluginUntilBuild"))
         pluginDescription.set(file('includes/pluginDescription.html').text)
@@ -183,7 +183,8 @@ def ideaVersionToVerify = readPropertyString('platformVersionToVerify')
 def verifyFailureLevel = EnumSet.copyOf(RunPluginVerifierTask.FailureLevel.ALL)
 verifyFailureLevel.remove(RunPluginVerifierTask.FailureLevel.NOT_DYNAMIC)
 runPluginVerifier {
-    ideVersions = ["IU-${ideaVersionToVerify}"]
+    // filled by task listProductsReleases
+    //ideVersions = ["IU-${ideaVersionToVerify}"]
 //    ideVersions = ["IC-2020.3", "PS-2020.3", "IU-2020.3"]
     failureLevel = verifyFailureLevel
     verifierVersion = "latest"
@@ -202,7 +203,21 @@ signPlugin {
         }
     }
 }
+def getChannel(String version) {
+    def semVerPreReleaseIndex = version.indexOf('-')
+    final preReleaseVersion = semVerPreReleaseIndex != -1 ? version.substring(semVerPreReleaseIndex + 1) : 'default';
+    final firstDotInPreRelease = preReleaseVersion.indexOf('.');
+    return firstDotInPreRelease == -1 ? preReleaseVersion : preReleaseVersion.substring(0, firstDotInPreRelease);
+}
 publishPlugin {
-    evaluationDependsOn('patchChangelog')
+    def channel = getChannel(readPropertyString('pluginVersion'))
+    def isRelease = channel == 'default';
+    if (isRelease) {
+        dependsOn patchChangelog
+    }
     token.set(System.getenv("PUBLISH_TOKEN"))
+    // pluginVersion is based on the SemVer (https://semver.org) and supports pre-release labels, like 2.1.7-alpha.3
+    // Specify pre-release label to publish the plugin in a custom Release Channel automatically. Read more:
+    // https://plugins.jetbrains.com/docs/intellij/deployment.html#specifying-a-release-channel
+    channels.set([channel])
 }

@@ -1,4 +1,4 @@
-name: SonarCloud Analysis
+name: Build + SonarCloud Analysis
 
 on:
   push:
@@ -20,11 +20,16 @@ jobs:
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
+      # Validate wrapper
+      - name: Gradle Wrapper Validation
+        uses: gradle/wrapper-validation-action@v1.0.4
+
       - name: Setup Java 11
         uses: actions/setup-java@v3
         with:
           distribution: 'adopt'
           java-version: 11
+          cache: gradle
 
       - name: Cache SonarCloud packages
         uses: actions/cache@v3
@@ -32,6 +37,7 @@ jobs:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
+
       - name: Cache Gradle packages
         uses: actions/cache@v3
         with:
@@ -41,11 +47,23 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: ${{ runner.os }}-gradle
 
+      - name: Build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: ./gradlew listProductsReleases buildPlugin
+
       - name: Test and analyze
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: ./gradlew jacocoTestReport sonarqube --info
+
+      # Store already-built plugin as an artifact for downloading
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          path: ./build/distributions/jenkins-control-plugin-*.zip
 
       - name: Cleanup Cache
         run:  |
