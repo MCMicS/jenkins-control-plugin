@@ -150,7 +150,7 @@ public class GitParameterRendererTest implements JobParameterTest {
         assertThat(jobParameterRenderer.isForJobParameter(createJobParameter(GitParameterRenderer.PT_PULL_REQUEST))).isTrue();
         assertThat(jobParameterRenderer.isForJobParameter(createJobParameter(GitParameterRenderer.GIT_PARAMETER_DEFINITION))).isTrue();
         assertThat(jobParameterRenderer.isForJobParameter(createJobParameter(new JobParameterType(//
-                GitParameterRenderer.PT_TAG.getName(), "net.uaznia.lukanus.hudson.plugins.gitparameter.invalid.GitParameterDefinition"))))
+                GitParameterRenderer.PT_TAG.getType(), "net.uaznia.lukanus.hudson.plugins.gitparameter.invalid.GitParameterDefinition"))))
                 .isFalse();
         assertThat(jobParameterRenderer.isForJobParameter(createJobParameter(BuildInJobParameter.ChoiceParameterDefinition)))
                 .isFalse();

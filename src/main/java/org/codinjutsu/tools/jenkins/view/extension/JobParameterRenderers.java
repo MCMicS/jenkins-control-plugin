@@ -7,6 +7,7 @@ import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBTextArea;
 import com.intellij.ui.components.JBTextField;
 import lombok.experimental.UtilityClass;
@@ -93,13 +94,23 @@ public final class JobParameterRenderers {
         return new JobParameterComponent<>(jobParameter, comboBox, asString(JComboBox::getSelectedItem));
     }
 
+    @SuppressWarnings("unused")
+    @NotNull
+    public static JobParameterComponent<String> createLabel(@NotNull JobParameter jobParameter, String defaultValue) {
+        final JBLabel label = new JBLabel();
+        if (StringUtils.isNotEmpty(defaultValue)) {
+            label.setText(defaultValue);
+        }
+        return new JobParameterComponent<>(jobParameter, label, JLabel::getText);
+    }
+
     @NotNull
     public static JLabel createErrorLabel(@Nullable JobParameterType jobParameterType) {
         final String text;
         if (jobParameterType == null) {
             text = "Unknown parameter type";
         } else {
-            text = jobParameterType.getName() + " is unsupported.";
+            text = jobParameterType.getType() + " is unsupported.";
         }
         return createErrorLabel(text);
     }

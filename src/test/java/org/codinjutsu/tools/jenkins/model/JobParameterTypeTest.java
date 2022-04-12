@@ -35,4 +35,16 @@ public class JobParameterTypeTest {
                 .isEqualTo(new JobParameterType("ParameterSeparatorDefinition",
                         "jenkins.plugins.parameter_separator.ParameterSeparatorDefinition"));
     }
+
+    @Test
+    public void createTypeForClassPrefix() {
+        assertThat(JobParameterType.createTypeForClassPrefix("Test", "org.codinjutsu.tools.jenkins."))
+                .isEqualTo(new JobParameterType("Test", "org.codinjutsu.tools.jenkins.Test"));
+        assertThat(JobParameterType.createTypeForClassPrefix("Test", "org.codinjutsu.tools.jenkins"))
+                .isEqualTo(new JobParameterType("Test", "org.codinjutsu.tools.jenkins.Test"));
+        assertThat(JobParameterType.createTypeForClassPrefix("Test", EMPTY_CLASS))
+                .isEqualTo(new JobParameterType("Test", EMPTY_CLASS));
+        assertThat(JobParameterType.createTypeForClassPrefix("StringParameterDefinition", EMPTY_CLASS))
+                .isEqualTo(BuildInJobParameter.StringParameterDefinition);
+    }
 }

@@ -18,7 +18,7 @@ public final class BuildInJobParameter {
 
     @NotNull
     private static JobParameterType create(@NotNull String name) {
-        return new JobParameterType(name, "hudson.model." + name);
+        return JobParameterType.createTypeForClassPrefix(name, "hudson.model.");
     }
 
     @Nonnull

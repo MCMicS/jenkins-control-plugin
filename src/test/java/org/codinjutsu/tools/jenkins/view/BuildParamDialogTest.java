@@ -59,18 +59,17 @@ public class BuildParamDialogTest {
             new JobBuilder()
                     .job("myJob", "blue", "http://dummyserver/jobs/myJob", false, true)
                     .health("health-80plus", "0 tests en échec sur un total de 24 tests")
-                    .parameter("integrationTest", BuildInJobParameter.BooleanParameterDefinition.getName(),
-                            "true")
-                    .parameter("environment", BuildInJobParameter.ChoiceParameterDefinition.getName(), "development",
+                    .parameter("integrationTest", BuildInJobParameter.BooleanParameterDefinition.getType(), "true")
+                    .parameter("environment", BuildInJobParameter.ChoiceParameterDefinition.getType(), "development",
                             "development", "integration", "acceptance", "production")
-                    .parameter("message", BuildInJobParameter.StringParameterDefinition.getName(), "")
+                    .parameter("message", BuildInJobParameter.StringParameterDefinition.getType(), "")
                     .get();
 
     private static final Job JOB_WITH_UNSUPPORTED_PARAMS =
             new JobBuilder()
                     .job("myJob", "blue", "http://dummyserver/jobs/myJob", false, true)
                     .health("health-80plus", "0 tests en échec sur un total de 24 tests")
-                    .parameter("run", BuildInJobParameter.RunParameterDefinition.getName(), "blah")
+                    .parameter("run", BuildInJobParameter.RunParameterDefinition.getType(), "blah")
                     .get();
 
     @NonNls
