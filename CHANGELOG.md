@@ -4,6 +4,7 @@
 - \#349 Extend support for Git Parameter. Thanks to @chrisxiao
 - 2022.1 API Compatibility
 - Change icons for show log actions
+- \#251 Enable ActiveChoicesParameter. Rendered as Textfield because missing API.
 
 ## [0.13.13]
 - \#309 Exception in plugin Jenkins Control

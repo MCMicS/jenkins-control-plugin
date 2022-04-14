@@ -35,14 +35,14 @@ public class BuiltInJobParameterRendererTest implements JobParameterTest {
         assertThat(jobParameterRenderer.isForJobParameter(createJobParameter(BuildInJobParameter.TextParameterDefinition)))
                 .isTrue();
 
-        assertThat(jobParameterRenderer.isForJobParameter(createJobParameter(new JobParameterType(BuildInJobParameter.ChoiceParameterDefinition.getName(), "otherClass"))))
-                .isFalse();
+        assertThat(jobParameterRenderer.isForJobParameter(createJobParameter(new JobParameterType(
+                BuildInJobParameter.ChoiceParameterDefinition.getType(), "otherClass")))).isFalse();
     }
 
     @Test
     public void isForJobParameterForWrongBuiltInClass() {
-        assertThat(jobParameterRenderer.isForJobParameter(createJobParameter(new JobParameterType(BuildInJobParameter.ChoiceParameterDefinition.getName(), "otherClass"))))
-                .isFalse();
+        assertThat(jobParameterRenderer.isForJobParameter(createJobParameter(new JobParameterType(
+                BuildInJobParameter.ChoiceParameterDefinition.getType(), "otherClass")))).isFalse();
     }
 
     @Test

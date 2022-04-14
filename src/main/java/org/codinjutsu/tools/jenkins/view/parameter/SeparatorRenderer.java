@@ -31,7 +31,7 @@ public class SeparatorRenderer implements JobParameterRenderer {
     @Override
     public boolean isForJobParameter(@NotNull JobParameter jobParameter) {
         return Optional.of(jobParameter).map(JobParameter::getJobParameterType)
-                .map(JobParameterType::getName)
+                .map(JobParameterType::getType)
                 .filter("ParameterSeparatorDefinition"::equals).isPresent();
     }
 }
