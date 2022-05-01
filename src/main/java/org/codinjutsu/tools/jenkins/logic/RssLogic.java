@@ -16,12 +16,9 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
-import com.intellij.ide.BrowserUtil;
 import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationAction;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationListener;
-import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
@@ -116,17 +113,13 @@ public class RssLogic implements Disposable {
                 notificationType = NotificationType.WARNING;
             }
             final RssNotification rssNotification = buildMessage(build);
-            final Notification notification = NotificationGroupManager.getInstance().getNotificationGroup("Jenkins Rss")
-                    .createNotification("", rssNotification.getMessage(), notificationType);
+            StringBuilder rssMessage = new StringBuilder(rssNotification.getMessage());
             Optional.ofNullable(rssNotification.getUrlToOpen())
-                    .map(url -> NotificationAction.createSimple("Open in browser", () -> BrowserUtil.browse(url)))
-                    .ifPresent(notification::addAction);
+                    .map(url -> "<br><a href=\""+url+"\">Open in browser</a>")
+                    .ifPresent(rssMessage::append);
+            final Notification notification = JENKINS_RSS_GROUP.createNotification("", rssMessage.toString(),
+                    notificationType, NotificationListener.URL_OPENING_LISTENER);
             notification.notify(project);
-
-            JENKINS_RSS_GROUP
-                    .createNotification("", buildMessage(build), notificationType,
-                            NotificationListener.URL_OPENING_LISTENER)
-                    .notify(project);
         }
     }
 

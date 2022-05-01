@@ -46,7 +46,7 @@ public final class JenkinsBackgroundTask extends Task.Backgroundable {
     }
 
     private void handleJenkinsPluginException(JenkinsPluginRuntimeException jenkinsPluginRuntimeException) {
-        LOG.warnWithDebug(jenkinsPluginRuntimeException);
+        LOG.warn(jenkinsPluginRuntimeException);
         JenkinsNotifier.getInstance(project).error(jenkinsPluginRuntimeException.getMessage());
     }
 

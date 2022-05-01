@@ -1,12 +1,16 @@
 package org.codinjutsu.tools.jenkins.logic;
 
-import com.intellij.ide.BrowserUtil;
-import com.intellij.notification.*;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationGroup;
+import com.intellij.notification.NotificationListener;
+import com.intellij.notification.NotificationType;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import org.codinjutsu.tools.jenkins.JenkinsToolWindowFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 @Service
 public final class JenkinsNotifier {
@@ -67,16 +71,18 @@ public final class JenkinsNotifier {
     @NotNull
     public Notification notify(@Nullable Project project, String content, String urlToOpen,
                                NotificationType notificationType) {
-        final Notification notification = createNotification(content, notificationType);
-        final NotificationAction openInBrowser = NotificationAction.createSimple("Open in browser",
-                () -> BrowserUtil.browse(urlToOpen));
-        notification.addAction(openInBrowser);
+        final StringBuilder message = new StringBuilder(content);
+        Optional.ofNullable(urlToOpen)
+                .map(url -> "<br><a href=\""+url+"\">Open in browser</a>")
+                .ifPresent(message::append);
+        final Notification notification = createNotification(message.toString(), notificationType);
         notification.notify(project);
         return notification;
     }
 
     @NotNull
     private Notification createNotification(String content, NotificationType notificationType) {
-        return jenkinsGroup.createNotification(content, notificationType);
+        return jenkinsGroup.createNotification(content, notificationType)
+                .setListener(NotificationListener.URL_OPENING_LISTENER);
     }
 }

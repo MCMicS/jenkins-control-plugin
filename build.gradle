@@ -62,7 +62,7 @@ idea {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(readPropertyString("javaVersion"))
+        languageVersion = JavaLanguageVersion.of(11)
     }
 }
 
