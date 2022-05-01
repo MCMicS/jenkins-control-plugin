@@ -20,6 +20,10 @@ import org.jetbrains.annotations.NotNull;
 
 public class SecurityClientFactory {
 
+    private SecurityClientFactory() {
+        throw new IllegalStateException("Utility class");
+    }
+
     private static JenkinsVersion _version;
 
     public static void setVersion(JenkinsVersion version) {

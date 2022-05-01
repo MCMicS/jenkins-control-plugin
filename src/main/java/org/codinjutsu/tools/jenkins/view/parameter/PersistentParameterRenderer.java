@@ -2,9 +2,11 @@ package org.codinjutsu.tools.jenkins.view.parameter;
 
 import org.codinjutsu.tools.jenkins.model.JobParameter;
 import org.codinjutsu.tools.jenkins.model.JobParameterType;
+import org.codinjutsu.tools.jenkins.model.ProjectJob;
 import org.codinjutsu.tools.jenkins.view.extension.JobParameterRenderer;
 import org.codinjutsu.tools.jenkins.view.extension.JobParameterRenderers;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +37,7 @@ public class PersistentParameterRenderer implements JobParameterRenderer {
 
     @NotNull
     @Override
-    public JobParameterComponent<?> render(@NotNull JobParameter jobParameter) {
+    public JobParameterComponent<?> render(@NotNull JobParameter jobParameter, @Nullable ProjectJob projectJob) {
         final JobParameterType jobParameterType = jobParameter.getJobParameterType();
         final String defaultValue = jobParameter.getDefaultValue();
         return converter.getOrDefault(jobParameterType, JobParameterRenderers::createErrorLabel).apply(jobParameter, defaultValue);

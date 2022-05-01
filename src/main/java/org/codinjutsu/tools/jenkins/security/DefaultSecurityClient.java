@@ -34,7 +34,6 @@ import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.model.FileParameter;
 import org.codinjutsu.tools.jenkins.model.RequestData;
 import org.codinjutsu.tools.jenkins.model.VirtualFilePartSource;
-import org.codinjutsu.tools.jenkins.util.HtmlUtil;
 import org.codinjutsu.tools.jenkins.util.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -194,9 +193,9 @@ class DefaultSecurityClient implements SecurityClient {
     protected final String createUrlForNotification(@NotNull String url) {
         int startQueryParamtersIndex = url.indexOf('?');
         if (startQueryParamtersIndex != -1) {
-            return HtmlUtil.wrapUrl(url.substring(0, startQueryParamtersIndex), url);
+            return url.substring(0, startQueryParamtersIndex);
         }
-        return HtmlUtil.wrapUrl(url, url);
+        return url;
     }
 
     protected final String createUrlForNotification(HttpMethodBase httpMethod) {

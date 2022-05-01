@@ -16,10 +16,9 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
-//import org.apache.commons.io.IOUtils;
-
 import com.intellij.openapi.diagnostic.Logger;
 import org.apache.commons.lang.StringUtils;
+import org.codinjutsu.tools.jenkins.exception.JenkinsPluginRuntimeException;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
 import org.codinjutsu.tools.jenkins.util.RssUtil;
@@ -68,10 +67,10 @@ public class RssParser {
             return new SAXBuilder(XMLReaders.NONVALIDATING).build(jenkinsDataReader);
         } catch (JDOMException e) {
             LOG.error("Invalid data received from the Jenkins Server. Actual :\n" + xmlData, e);
-            throw new RuntimeException("Invalid data received from the Jenkins Server. Please retry");
+            throw new JenkinsPluginRuntimeException("Invalid data received from the Jenkins Server. Please retry");
         } catch (IOException e) {
             LOG.error("Error during analyzing the Jenkins data.", e);
-            throw new RuntimeException("Error during analyzing the Jenkins data.");
+            throw new JenkinsPluginRuntimeException("Error during analyzing the Jenkins data.");
         }
     }
 

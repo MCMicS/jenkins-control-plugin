@@ -15,13 +15,13 @@ public class ExtensibleChoiceParameterRendererTest implements JobParameterTest {
     public void renderAsCombobox() {
         JobParameter jobParameter = createJobParameterChoices(ExtensibleChoiceParameterRenderer.TYPE,
                 "Value1", "Selected", "Value3");
-        JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter);
+        JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter, PROJECT_JOB);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(ComboBox.class);
         assertThat(jobParameterComponent.getJobParameter()).isEqualTo(jobParameter);
 
         JobParameter jobParameterWithDefault = createJobParameterChoices(ExtensibleChoiceParameterRenderer.TYPE,
                 "Value1", "Selected", "Value3").toBuilder().defaultValue("Selected").build();
-        jobParameterComponent = jobParameterRenderer.render(jobParameterWithDefault);
+        jobParameterComponent = jobParameterRenderer.render(jobParameterWithDefault, PROJECT_JOB);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(ComboBox.class);
         assertThat(jobParameterComponent.getJobParameter()).isEqualTo(jobParameterWithDefault);
         final ComboBox<?> comboBox = (ComboBox<?>) jobParameterComponent.getViewElement();

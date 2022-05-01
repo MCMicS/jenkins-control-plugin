@@ -16,7 +16,6 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
-import lombok.Builder;
 import lombok.Singular;
 import lombok.Value;
 import lombok.experimental.NonFinal;
@@ -24,7 +23,6 @@ import lombok.experimental.SuperBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.LinkedList;
 import java.util.List;
 
 @SuperBuilder

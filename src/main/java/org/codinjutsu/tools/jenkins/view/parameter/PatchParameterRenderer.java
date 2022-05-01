@@ -3,9 +3,11 @@ package org.codinjutsu.tools.jenkins.view.parameter;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
 import org.codinjutsu.tools.jenkins.model.JobParameterType;
+import org.codinjutsu.tools.jenkins.model.ProjectJob;
 import org.codinjutsu.tools.jenkins.view.extension.JobParameterRenderer;
 import org.codinjutsu.tools.jenkins.view.extension.JobParameterRenderers;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class PatchParameterRenderer implements JobParameterRenderer {
 
@@ -14,7 +16,7 @@ public class PatchParameterRenderer implements JobParameterRenderer {
 
     @NotNull
     @Override
-    public JobParameterComponent<VirtualFile> render(@NotNull JobParameter jobParameter) {
+    public JobParameterComponent<VirtualFile> render(@NotNull JobParameter jobParameter, @Nullable ProjectJob projectJob) {
         return JobParameterRenderers.createFileUpload(jobParameter, jobParameter.getDefaultValue());
     }
 

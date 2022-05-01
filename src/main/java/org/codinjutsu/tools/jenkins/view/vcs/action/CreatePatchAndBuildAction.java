@@ -52,17 +52,15 @@ public class CreatePatchAndBuildAction extends AnAction {
     }
 
     private void showDialog(ProjectChangeList projectChangeList) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                final BrowserPanel browserPanel = BrowserPanel.getInstance(projectChangeList.getProject());
+        SwingUtilities.invokeLater(() -> {
+            final BrowserPanel browserPanel = BrowserPanel.getInstance(projectChangeList.getProject());
 
-                SelectJobDialog dialog = new SelectJobDialog(projectChangeList.getChangeLists(),
-                        browserPanel.getAllJobs(), projectChangeList.getProject());
-                dialog.setLocationRelativeTo(null);
-                dialog.setMaximumSize(new Dimension(300, 200));
-                dialog.pack();
-                dialog.setVisible(true);
-            }
+            SelectJobDialog dialog = new SelectJobDialog(projectChangeList.getChangeLists(),
+                    browserPanel.getAllJobs(), projectChangeList.getProject());
+            dialog.setLocationRelativeTo(null);
+            dialog.setMaximumSize(new Dimension(300, 200));
+            dialog.pack();
+            dialog.setVisible(true);
         });
     }
 
@@ -81,7 +79,7 @@ public class CreatePatchAndBuildAction extends AnAction {
                     projectChangeList.getProject());
             if (!changeListManager.isInUpdate()) {
                 for (ChangeList list : selectedChangeLists) {
-                    if (list.getChanges().size() > 0) {
+                    if (!list.getChanges().isEmpty()) {
                         enabled = true;
                         break;
                     }

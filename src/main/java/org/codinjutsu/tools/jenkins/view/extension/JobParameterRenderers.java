@@ -7,12 +7,16 @@ import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBTextArea;
 import com.intellij.ui.components.JBTextField;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang.StringUtils;
+import org.codinjutsu.tools.jenkins.logic.RequestManager;
+import org.codinjutsu.tools.jenkins.logic.RequestManagerInterface;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
 import org.codinjutsu.tools.jenkins.model.JobParameterType;
+import org.codinjutsu.tools.jenkins.model.ProjectJob;
 import org.codinjutsu.tools.jenkins.view.parameter.JobParameterComponent;
 import org.codinjutsu.tools.jenkins.view.parameter.PasswordComponent;
 import org.jetbrains.annotations.NotNull;
@@ -90,13 +94,23 @@ public final class JobParameterRenderers {
         return new JobParameterComponent<>(jobParameter, comboBox, asString(JComboBox::getSelectedItem));
     }
 
+    @SuppressWarnings("unused")
+    @NotNull
+    public static JobParameterComponent<String> createLabel(@NotNull JobParameter jobParameter, String defaultValue) {
+        final JBLabel label = new JBLabel();
+        if (StringUtils.isNotEmpty(defaultValue)) {
+            label.setText(defaultValue);
+        }
+        return new JobParameterComponent<>(jobParameter, label, JLabel::getText);
+    }
+
     @NotNull
     public static JLabel createErrorLabel(@Nullable JobParameterType jobParameterType) {
         final String text;
         if (jobParameterType == null) {
             text = "Unknown parameter type";
         } else {
-            text = jobParameterType.getName() + " is unsupported.";
+            text = jobParameterType.getType() + " is unsupported.";
         }
         return createErrorLabel(text);
     }
@@ -127,6 +141,31 @@ public final class JobParameterRenderers {
             renderer = JobParameterRenderers::createComboBox;
         }
         return renderer.apply(jobParameter, defaultValue);
+    }
+
+    @NotNull
+    public static Function<JobParameter, JobParameterComponent<String>> createGitParameterChoices(
+            @NotNull ProjectJob projectJob) {
+        return jobParameter -> createGitParameterChoices(projectJob, jobParameter, jobParameter.getDefaultValue());
+    }
+
+    @NotNull
+    public static JobParameterComponent<String> createGitParameterChoices(@NotNull ProjectJob projectJob,
+                                                                         @NotNull JobParameter jobParameter,
+                                                                         String defaultValue) {
+        if (jobParameter.getChoices().isEmpty()) {
+            final RequestManagerInterface requestManager = RequestManager.getInstance(projectJob.getProject());
+            JobParameter gitParameter = JobParameter.builder()
+                    .name(jobParameter.getName())
+                    .description(jobParameter.getDescription())
+                    .jobParameterType(jobParameter.getJobParameterType())
+                    .defaultValue(jobParameter.getDefaultValue())
+                    .choices(requestManager.getGitParameterChoices(projectJob.getJob(), jobParameter))
+                    .build();
+            return createComboBoxIfChoicesExists(gitParameter, defaultValue);
+        } else {
+            return createComboBoxIfChoicesExists(jobParameter, defaultValue);
+        }
     }
 
     @NotNull

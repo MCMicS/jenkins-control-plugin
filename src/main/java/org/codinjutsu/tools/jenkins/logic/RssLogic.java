@@ -16,11 +16,16 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
+import com.intellij.ide.BrowserUtil;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationAction;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationListener;
+import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
+import lombok.Value;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JobTracker;
 import org.codinjutsu.tools.jenkins.model.Build;
@@ -110,6 +115,14 @@ public class RssLogic implements Disposable {
             } else {
                 notificationType = NotificationType.WARNING;
             }
+            final RssNotification rssNotification = buildMessage(build);
+            final Notification notification = NotificationGroupManager.getInstance().getNotificationGroup("Jenkins Rss")
+                    .createNotification("", rssNotification.getMessage(), notificationType);
+            Optional.ofNullable(rssNotification.getUrlToOpen())
+                    .map(url -> NotificationAction.createSimple("Open in browser", () -> BrowserUtil.browse(url)))
+                    .ifPresent(notification::addAction);
+            notification.notify(project);
+
             JENKINS_RSS_GROUP
                     .createNotification("", buildMessage(build), notificationType,
                             NotificationListener.URL_OPENING_LISTENER)
@@ -148,19 +161,24 @@ public class RssLogic implements Disposable {
         return null;
     }
 
-    private String buildMessage(Build build) {
-        BuildStatusEnum buildStatus = build.getStatus();
-        String buildMessage = build.getMessage();
-
+    private RssNotification buildMessage(Build build) {
+        final BuildStatusEnum buildStatus = build.getStatus();
+        final String messageWithPrefix = String.format("[Jenkins] %s", build.getMessage());
         if (buildStatus != BuildStatusEnum.SUCCESS && buildStatus != BuildStatusEnum.STABLE) {
-            return String.format("<html><body>[Jenkins] <a href='%s'>%s</a><body></html>", build.getUrl(), buildMessage);
+            return new RssNotification(messageWithPrefix, build.getUrl());
         }
-        return String.format("[Jenkins] %s", buildMessage);
+        return new RssNotification(messageWithPrefix, null);
     }
 
     @Override
     public void dispose() {
         currentBuildMap.clear();
+    }
+
+    @Value
+    private static class RssNotification {
+        private String message;
+        private @Nullable String urlToOpen;
     }
 
     private class LoadLatestBuildsJob implements JenkinsBackgroundTask.JenkinsTask {

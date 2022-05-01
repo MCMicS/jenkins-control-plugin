@@ -18,7 +18,7 @@ public final class BuildInJobParameter {
 
     @NotNull
     private static JobParameterType create(@NotNull String name) {
-        return new JobParameterType(name, "hudson.model." + name);
+        return JobParameterType.createTypeForClassPrefix(name, "hudson.model.");
     }
 
     @Nonnull
@@ -26,6 +26,10 @@ public final class BuildInJobParameter {
         return Stream.of(ChoiceParameterDefinition, BooleanParameterDefinition, CredentialsParameterDefinition,
                 FileParameterDefinition, PasswordParameterDefinition, RunParameterDefinition, TextParameterDefinition,
                 StringParameterDefinition);
+    }
+
+    private BuildInJobParameter() {
+        throw new IllegalStateException("Utility class with BuiltInParameter");
     }
 
 }

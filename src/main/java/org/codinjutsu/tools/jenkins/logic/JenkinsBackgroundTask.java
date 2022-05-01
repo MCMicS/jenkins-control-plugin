@@ -1,5 +1,6 @@
 package org.codinjutsu.tools.jenkins.logic;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -8,6 +9,8 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 public final class JenkinsBackgroundTask extends Task.Backgroundable {
+
+    private static final Logger LOG = Logger.getInstance(JenkinsBackgroundTask.class.getName());
 
     private final Project project;
     private final JenkinsTask jenkinsTask;
@@ -43,6 +46,7 @@ public final class JenkinsBackgroundTask extends Task.Backgroundable {
     }
 
     private void handleJenkinsPluginException(JenkinsPluginRuntimeException jenkinsPluginRuntimeException) {
+        LOG.warnWithDebug(jenkinsPluginRuntimeException);
         JenkinsNotifier.getInstance(project).error(jenkinsPluginRuntimeException.getMessage());
     }
 
