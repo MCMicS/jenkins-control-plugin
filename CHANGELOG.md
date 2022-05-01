@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+
+## [0.13.14]
 - \#349 Extend support for Git Parameter. Thanks to @chrisxiao
 - 2022.1 API Compatibility
 - Change icons for show log actions
@@ -119,6 +121,38 @@ Add Notification group to configure the behaviour in IDE settings.(Settings -> A
 - [fix] #157: NullPointerException when trying to load builds (IntelliJ Version : 2017.3)
 - \#180: Show Test Results As Junit is only available if Plugin dependency 'com.intellij.java' exists
 - update JSON.simple to 3.1.0
+- IDEA 2019.2+ Support
+- [fix] #161: Retry Failed Builds
+- [fix] #163: spelling error in config form
+- [add] #161: Retry Failed Builds
+- [add] #140: Add View Log and Test Results
+- [add] #162: Add description text in build param dialog
+- [fix] #143: NullPointer when "Sort by Build Status" is active
+- [fix] #157: NullPointerException when trying to load builds (IntelliJ Version : 2017.3)
+- \#180: Show Test Results As Junit is only available if Plugin dependency 'com.intellij.java' exists
+- update JSON.simple to 3.1.0
+- IDEA 2019.2+ Support
+- [fix] #161: Retry Failed Builds
+- [fix] #163: spelling error in config form
+- [add] #161: Retry Failed Builds
+- [add] #140: Add View Log and Test Results
+- [add] #162: Add description text in build param dialog
+- [fix] #143: NullPointer when "Sort by Build Status" is active
+- [fix] #157: NullPointerException when trying to load builds (IntelliJ Version : 2017.3)
+- \#180: Show Test Results As Junit is only available if Plugin dependency 'com.intellij.java' exists
+- update JSON.simple to 3.1.0
+- IDEA 2019.2+ Support
+- [fix] #161: Retry Failed Builds
+- [fix] #163: spelling error in config form
+- [add] #161: Retry Failed Builds
+- [add] #140: Add View Log and Test Results
+- [add] #162: Add description text in build param dialog
+- [fix] #143: NullPointer when "Sort by Build Status" is active
+- [fix] #157: NullPointerException when trying to load builds (IntelliJ Version : 2017.3)
+- \#180: Show Test Results As Junit is only available if Plugin dependency 'com.intellij.java' exists
+- update JSON.simple to 3.1.0
+
+
 
 ### Deprecated
 - Announcement: Deprecate Builds &lt; 2019.3
@@ -258,7 +292,6 @@ Add Notification group to configure the behaviour in IDE settings.(Settings -> A
 - [Add] Settings shortcut on the upper toolbar
 
 ## [0.1.0]
-Initial version
 - Server configuration
 - Jenkins jobs display with autorefreshed job list and view selection
 - Job Build runner
