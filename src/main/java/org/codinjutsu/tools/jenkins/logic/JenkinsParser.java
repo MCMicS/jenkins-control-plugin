@@ -91,4 +91,6 @@ public interface JenkinsParser {
 
     @NotNull
     String getServerUrl(String serverData);
+
+    List<String> getFillValueItems(String fillValueItemsData);
 }

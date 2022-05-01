@@ -14,5 +14,6 @@
         <buildParameterRenderer implementation="org.codinjutsu.tools.jenkins.view.parameter.ExtendedChoiceParameterRenderer" />
         <buildParameterRenderer implementation="org.codinjutsu.tools.jenkins.view.parameter.DateParameterRenderer" />
         <buildParameterRenderer implementation="org.codinjutsu.tools.jenkins.view.parameter.ExtensibleChoiceParameterRenderer" />
+        <buildParameterRenderer implementation="org.codinjutsu.tools.jenkins.view.parameter.ActiveChoicesParameterRenderer" />
     </extensions>
 </idea-plugin>

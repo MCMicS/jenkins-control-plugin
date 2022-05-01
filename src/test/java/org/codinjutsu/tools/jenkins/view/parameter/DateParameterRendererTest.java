@@ -15,7 +15,7 @@ public class DateParameterRendererTest implements JobParameterTest {
     @Test
     public void renderAsInputField() {
         JobParameter jobParameter = createJobParameter(DateParameterRenderer.DATE_PARAMETER);
-        JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter);
+        JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter, PROJECT_JOB);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JTextField.class);
         assertThat(jobParameterComponent.getJobParameter()).isEqualTo(jobParameter);
     }
@@ -24,7 +24,7 @@ public class DateParameterRendererTest implements JobParameterTest {
     public void renderWithDefaultValue() {
         final String defaultValue = "2021-05-15";
         JobParameter jobParameter = createJobParameter(DateParameterRenderer.DATE_PARAMETER, defaultValue);
-        JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter);
+        JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter, PROJECT_JOB);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JTextField.class);
         final JTextField textField = (JTextField) jobParameterComponent.getViewElement();
         assertThat(textField.getText()).isEqualTo(defaultValue);

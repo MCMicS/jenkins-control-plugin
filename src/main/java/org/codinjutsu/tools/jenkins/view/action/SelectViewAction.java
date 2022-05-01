@@ -108,7 +108,7 @@ public class SelectViewAction extends DumbAwareAction implements CustomComponent
 
 
     private static List<View> flatViewList(List<View> views) {
-        List<View> flattenViewList = new LinkedList<View>();
+        List<View> flattenViewList = new LinkedList<>();
         for (View view : views) {
             flattenViewList.add(view);
             if (view.hasNestedView()) {

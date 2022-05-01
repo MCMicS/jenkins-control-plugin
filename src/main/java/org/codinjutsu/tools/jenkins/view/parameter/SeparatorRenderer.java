@@ -2,8 +2,10 @@ package org.codinjutsu.tools.jenkins.view.parameter;
 
 import org.codinjutsu.tools.jenkins.model.JobParameter;
 import org.codinjutsu.tools.jenkins.model.JobParameterType;
+import org.codinjutsu.tools.jenkins.model.ProjectJob;
 import org.codinjutsu.tools.jenkins.view.extension.JobParameterRenderer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 import javax.swing.*;
@@ -22,14 +24,14 @@ public class SeparatorRenderer implements JobParameterRenderer {
 
     @NotNull
     @Override
-    public JobParameterComponent<String> render(@NotNull JobParameter jobParameter) {
+    public JobParameterComponent<String> render(@NotNull JobParameter jobParameter, @Nullable ProjectJob projectJob) {
         return new JobParameterComponent<>(jobParameter, new JSeparator());
     }
 
     @Override
     public boolean isForJobParameter(@NotNull JobParameter jobParameter) {
         return Optional.of(jobParameter).map(JobParameter::getJobParameterType)
-                .map(JobParameterType::getName)
+                .map(JobParameterType::getType)
                 .filter("ParameterSeparatorDefinition"::equals).isPresent();
     }
 }

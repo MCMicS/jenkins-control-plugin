@@ -3,11 +3,9 @@ package org.codinjutsu.tools.jenkins.view.parameter;
 import org.codinjutsu.tools.jenkins.model.BuildInJobParameter;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
 import org.codinjutsu.tools.jenkins.model.JobParameterType;
-import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import javax.swing.*;
-import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.codinjutsu.tools.jenkins.view.parameter.NodeParameterRenderer.NODE_PARAMETER;
@@ -22,18 +20,19 @@ public class NodeParameterRendererTest implements JobParameterTest {
     @Test
     public void renderLabel() {
         final JobParameter jobParameter = createJobParameter(labelParameter);
-        JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter);
+        JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter, PROJECT_JOB);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JTextField.class);
         assertThat(jobParameterComponent.getJobParameter()).isEqualTo(jobParameter);
 
-        jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.ChoiceParameterDefinition));
+        jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.ChoiceParameterDefinition),
+                PROJECT_JOB);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JLabel.class);
     }
 
     @Test
     public void renderNode() {
         final JobParameter jobParameter = createJobParameter(nodeParameter, "default", "Test", "default", "master");
-        JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter);
+        JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter, null);
         final JComponent viewElement = jobParameterComponent.getViewElement();
         assertThat(viewElement).isInstanceOf(JComboBox.class);
         assertThat(jobParameterComponent.getJobParameter()).isEqualTo(jobParameter);
@@ -42,7 +41,7 @@ public class NodeParameterRendererTest implements JobParameterTest {
         assertThat(nodes.getSelectedItem()).isEqualTo("default");
         assertThat(nodes.getItemCount()).isEqualTo(3);
 
-        jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.ChoiceParameterDefinition));
+        jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.ChoiceParameterDefinition), null);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JLabel.class);
     }
 

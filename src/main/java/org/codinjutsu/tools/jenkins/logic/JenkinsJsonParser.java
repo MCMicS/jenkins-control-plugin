@@ -450,7 +450,7 @@ public class JenkinsJsonParser implements JenkinsParser {
         checkJsonDataAndThrowExceptionIfNecessary(computerJsonArray);
         final JsonObject jsonObject = parseJson(computerJsonArray);
         JsonArray jobObjects = (JsonArray) jsonObject.get(COMPUTER);
-        return jobObjects.stream().map(object -> (JsonObject) object).map(this::getComputer).collect(
+        return jobObjects.stream().map(JsonObject.class::cast).map(this::getComputer).collect(
                 Collectors.toCollection(LinkedList::new));
     }
 
@@ -466,6 +466,19 @@ public class JenkinsJsonParser implements JenkinsParser {
     public String getServerUrl(String serverData) {
         checkJsonDataAndThrowExceptionIfNecessary(serverData);
         return getServerUrl(parseJson(serverData));
+    }
+
+    @Override
+    public List<String> getFillValueItems(String fillValueItemsData) {
+        checkJsonDataAndThrowExceptionIfNecessary(fillValueItemsData);
+        JsonObject fillValueJson = parseJson(fillValueItemsData);
+        JsonArray fillValueArray = (JsonArray) fillValueJson.get("values");
+        List<String> values = new ArrayList<>();
+        for (Object obj : fillValueArray) {
+           JsonObject valueJson = (JsonObject) obj;
+           values.add(valueJson.getString(createJsonKey("value")));
+        }
+        return values;
     }
 
     @NotNull
