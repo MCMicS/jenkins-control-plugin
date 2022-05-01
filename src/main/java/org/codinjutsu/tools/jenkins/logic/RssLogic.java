@@ -110,14 +110,11 @@ public class RssLogic implements Disposable {
             }
             final RssNotification rssNotification = buildMessage(build);
             final Notification notification = NotificationGroupManager.getInstance().getNotificationGroup("Jenkins Rss")
-                    .createNotification("", rssNotification.getMessage(), notificationType);
+                    .createNotification("", rssNotification.getMessage(), notificationType, NotificationListener.URL_OPENING_LISTENER);
             Optional.ofNullable(rssNotification.getUrlToOpen())
                     .map(url -> NotificationAction.createSimple("Open in browser", () -> BrowserUtil.browse(url)))
                     .ifPresent(notification::addAction);
             notification.notify(project);
-            NotificationGroupManager.getInstance().getNotificationGroup("Jenkins Rss")
-                    .createNotification("", buildMessage(build), notificationType, NotificationListener.URL_OPENING_LISTENER)
-                    .notify(project);
         }
     }
 
