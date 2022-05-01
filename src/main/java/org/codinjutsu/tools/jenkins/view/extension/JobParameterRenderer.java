@@ -3,8 +3,10 @@ package org.codinjutsu.tools.jenkins.view.extension;
 import com.intellij.openapi.extensions.ExtensionPointName;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
+import org.codinjutsu.tools.jenkins.model.ProjectJob;
 import org.codinjutsu.tools.jenkins.view.parameter.JobParameterComponent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 import javax.swing.*;
@@ -33,13 +35,12 @@ public interface JobParameterRenderer {
         } else {
             label = new JLabel(name);
         }
-        //label.setHorizontalAlignment(SwingConstants.TRAILING);
         return Optional.of(label);
     }
 
     @SuppressWarnings({"rawtypes", "java:S3740"})
     @NotNull
-    JobParameterComponent render(@NotNull JobParameter jobParameter);
+    JobParameterComponent render(@NotNull JobParameter jobParameter, @Nullable ProjectJob projectJob);
 
     boolean isForJobParameter(@NotNull JobParameter jobParameter);
 

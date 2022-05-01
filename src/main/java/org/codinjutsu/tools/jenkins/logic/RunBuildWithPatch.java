@@ -9,7 +9,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.model.Job;
-import org.codinjutsu.tools.jenkins.util.HtmlUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.jetbrains.annotations.NotNull;
 
@@ -149,13 +148,12 @@ public final class RunBuildWithPatch {
             final JenkinsAppSettings settings = JenkinsAppSettings.getSafeInstance(project);
             final Map<String, VirtualFile> files = new HashMap<>(Collections.singletonMap(PARAMETER_NAME, patchFile));
             requestManager.runBuild(job, settings, files);
-            //browserPanel.loadJob(job);
             browserPanel.refreshCurrentView();
         }
 
         private void notifyOnGoingMessage(Job job) {
-            browserPanel.notifyInfoJenkinsToolWindow(HtmlUtil.createHtmlLinkMessage(
-                    job.getNameToRenderSingleJob() + " build is on going", job.getUrl()));
+            browserPanel.notifyInfoJenkinsToolWindow(job.getNameToRenderSingleJob() + " build is on going",
+                    job.getUrl());
         }
     }
 }

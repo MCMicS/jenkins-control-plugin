@@ -13,23 +13,30 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-public class ExtensibleChoiceParameterRenderer implements JobParameterRenderer {
+import static org.codinjutsu.tools.jenkins.model.JobParameterType.createTypeForClassPrefix;
+
+public class ActiveChoicesParameterRenderer implements JobParameterRenderer {
 
     @NonNls
-    private static final String TYPE_CLASS = "jp.ikedam.jenkins.plugins.extensible_choice_parameter.ExtensibleChoiceParameterDefinition";
+    private static final String TYPE_CLASS_PREFIX = "org.biouno.unochoice.";
 
-    static final JobParameterType TYPE = new JobParameterType("ExtensibleChoiceParameterDefinition", TYPE_CLASS);
+    static final JobParameterType CHOICE_PARAMETER = createTypeForClassPrefix("ChoiceParameter", TYPE_CLASS_PREFIX);
+
+    static final JobParameterType CASCADE_CHOICE_PARAMETER = createTypeForClassPrefix("CascadeChoiceParameter", TYPE_CLASS_PREFIX);
+
+    static final JobParameterType DYNAMIC_REFERENCE_PARAMETER = createTypeForClassPrefix("DynamicReferenceParameter", TYPE_CLASS_PREFIX);
 
     private final Map<JobParameterType, BiFunction<JobParameter, String, JobParameterComponent<String>>> converter =
             new HashMap<>();
 
-    public ExtensibleChoiceParameterRenderer() {
-        converter.put(TYPE, JobParameterRenderers::createComboBoxIfChoicesExists);
+    public ActiveChoicesParameterRenderer() {
+        converter.put(CHOICE_PARAMETER, JobParameterRenderers::createComboBoxIfChoicesExists);
+        converter.put(CASCADE_CHOICE_PARAMETER, JobParameterRenderers::createComboBoxIfChoicesExists);
+        converter.put(DYNAMIC_REFERENCE_PARAMETER, JobParameterRenderers::createLabel);
     }
 
-    @NotNull
     @Override
-    public JobParameterComponent<String> render(@NotNull JobParameter jobParameter, @Nullable ProjectJob projectJob) {
+    public @NotNull JobParameterComponent render(@NotNull JobParameter jobParameter, @Nullable ProjectJob projectJob) {
         return converter.getOrDefault(jobParameter.getJobParameterType(), JobParameterRenderers::createErrorLabel)
                 .apply(jobParameter, jobParameter.getDefaultValue());
     }

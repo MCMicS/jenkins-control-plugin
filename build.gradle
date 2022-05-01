@@ -1,18 +1,17 @@
 //import org.jetbrains.changelog.ExtensionsKt
 plugins {
     id 'java'
-    id 'org.jetbrains.intellij' version '1.2.0'
-    id 'org.jetbrains.changelog' version "1.3.0"
-    id "io.freefair.lombok" version "6.2.0"
+    id 'org.jetbrains.intellij' version '1.5.3'
+    id 'org.jetbrains.changelog' version "1.3.1"
+    id "io.freefair.lombok" version "6.4.3"
     id 'idea'
     id "org.sonarqube" version "3.3"
     id 'jacoco'
 }
-def jenkinsPluginName = 'jenkins-control-plugin'
-def jenkinsPluginVersion = '0.13.13'
+def readPropertyString = (key) -> property(key).toString()
 
-group 'org.codinjutsu'
-version "${jenkinsPluginVersion}-2020.3"
+group readPropertyString('pluginGroup')
+version "${readPropertyString('pluginVersion')}-${readPropertyString('pluginSincePlatformVersion')}"
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'org.jetbrains.changelog'
 apply plugin: 'java'
@@ -20,22 +19,16 @@ apply plugin: 'idea'
 apply plugin: "io.freefair.lombok"
 
 intellij {
-    pluginName.set(jenkinsPluginName)
-    version.set('2020.3')
-    updateSinceUntilBuild.set(false)
+    pluginName.set(readPropertyString('pluginName'))
+    version.set(readPropertyString('platformVersion'))
+    type.set(readPropertyString('platformType'))
     downloadSources.set(true)
-    type.set('IC')
-    plugins.set(['com.intellij.java'])
-
-    //type.set('PC')
-    //type.set('RD') //Rider
-    //type.set('AI') // Android
-    //type.set('CWMG') // Code With Me Gueast
-    //type.set('GW') // Jetbrains Gateway
-    //version.set('213.4579-CUSTOM-SNAPSHOT')
+    plugins.set(Arrays.asList(readPropertyString("platformPlugins").split(',')))
 
     patchPluginXml {
-        version.set("${project.version}")
+        version.set(project.version)
+        sinceBuild.set(readPropertyString("pluginSinceBuild"))
+        untilBuild.set(readPropertyString("pluginUntilBuild"))
         pluginDescription.set(file('includes/pluginDescription.html').text)
         //changeNotes.set(provider { changelog.getLatest().toHTML() })
         def allChanges = { changelog.getAll().values().collect { it.withHeader(true) }.collect {it.toHTML()}.join('\n<br>\n') }
@@ -44,7 +37,7 @@ intellij {
 }
 
 changelog {
-    version = jenkinsPluginVersion
+    version = readPropertyString('pluginVersion')
     path = "${project.projectDir}/CHANGELOG.md"
     header = provider { "[${version.get()}]" }
     //headerParserRegex = ~/\d+\.\d+/
@@ -56,7 +49,7 @@ changelog {
 }
 
 lombok {
-    version = "1.18.20"
+    version = "1.18.22"
     disableConfig = false
 }
 
@@ -69,13 +62,16 @@ idea {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(11)
+        languageVersion = JavaLanguageVersion.of(readPropertyString("javaVersion"))
     }
 }
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
-    options.release.set(11)
+    options.release.set(Integer.parseInt(readPropertyString("javaVersion")))
+}
+tasks.wrapper {
+    gradleVersion = readPropertyString("gradleVersion")
 }
 
 configurations {
@@ -107,7 +103,7 @@ repositories {
 }
 
 dependencies {
-    implementation ('com.github.cliftonlabs:json-simple:4.0.0') {
+    implementation ('com.github.cliftonlabs:json-simple:4.0.1') {
         exclude group: 'junit'
     }
     implementation('com.offbytwo.jenkins:jenkins-client:0.3.8') {
@@ -125,10 +121,10 @@ dependencies {
 
     testImplementation(
             'junit:junit:4.13.2',
-            'org.mockito:mockito-core:3.12.4',
+            'org.mockito:mockito-core:4.5.1',
             'org.powermock:powermock-api-mockito2:2.0.9',
             'org.powermock:powermock-core:2.0.9',
-            'org.assertj:assertj-core:3.21.0',
+            'org.assertj:assertj-core:3.22.0',
             'org.assertj:assertj-swing-junit:3.17.1'
     )
 }
@@ -155,7 +151,7 @@ buildPlugin {
     doLast {
         copy {
             from 'build/distributions'
-            include "${jenkinsPluginName}-${project.version}.zip"
+            include "${readPropertyString('pluginName')}-${project.version}.zip"
             into "snapshot"
         }
     }
@@ -163,7 +159,7 @@ buildPlugin {
 
 prepareSandbox {
     from (['README.md', 'CHANGELOG.md', 'LICENSE.txt']) {
-        into "${jenkinsPluginName}/"
+        into "${readPropertyString('pluginName')}/"
     }
 }
 
@@ -183,11 +179,13 @@ jacocoTestReport {
 }
 
 import org.jetbrains.intellij.tasks.RunPluginVerifierTask
-def ideaVersionToVerify = "2020.3"
+def ideaVersionToVerify = readPropertyString('platformVersionToVerify')
 def verifyFailureLevel = EnumSet.copyOf(RunPluginVerifierTask.FailureLevel.ALL)
 verifyFailureLevel.remove(RunPluginVerifierTask.FailureLevel.NOT_DYNAMIC)
 runPluginVerifier {
-    ideVersions = ["IU-${ideaVersionToVerify}"]
+    // filled by task listProductsReleases
+    //ideVersions = ["IU-${ideaVersionToVerify}"]
+//    ideVersions = ["IC-2020.3", "PS-2020.3", "IU-2020.3"]
     failureLevel = verifyFailureLevel
     verifierVersion = "latest"
 }
@@ -200,11 +198,26 @@ signPlugin {
     doLast {
         copy {
             from 'build/distributions'
-            include "${jenkinsPluginName}-${project.version}-signed.zip"
+            include "${readPropertyString('pluginName')}-${project.version}-signed.zip"
             into "snapshot"
         }
     }
 }
+def getChannel(String version) {
+    def semVerPreReleaseIndex = version.indexOf('-')
+    final preReleaseVersion = semVerPreReleaseIndex != -1 ? version.substring(semVerPreReleaseIndex + 1) : 'default';
+    final firstDotInPreRelease = preReleaseVersion.indexOf('.');
+    return firstDotInPreRelease == -1 ? preReleaseVersion : preReleaseVersion.substring(0, firstDotInPreRelease);
+}
 publishPlugin {
+    def channel = getChannel(readPropertyString('pluginVersion'))
+    def isRelease = channel == 'default';
+    if (isRelease) {
+        dependsOn patchChangelog
+    }
     token.set(System.getenv("PUBLISH_TOKEN"))
+    // pluginVersion is based on the SemVer (https://semver.org) and supports pre-release labels, like 2.1.7-alpha.3
+    // Specify pre-release label to publish the plugin in a custom Release Channel automatically. Read more:
+    // https://plugins.jetbrains.com/docs/intellij/deployment.html#specifying-a-release-channel
+    channels.set([channel])
 }

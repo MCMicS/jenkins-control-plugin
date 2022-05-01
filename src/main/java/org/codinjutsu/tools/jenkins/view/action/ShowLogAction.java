@@ -19,7 +19,6 @@ package org.codinjutsu.tools.jenkins.view.action;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsActions;
@@ -34,8 +33,7 @@ import javax.swing.*;
 
 public class ShowLogAction extends AnAction implements DumbAware {
 
-    private static final Icon ICON = AllIcons.Actions.ShowHiddens;//AllIcons.Nodes.Console
-    private static final Logger LOG = Logger.getInstance(UploadPatchToJobAction.class.getName());
+    private static final Icon ICON = AllIcons.Actions.Show;//AllIcons.Nodes.Console
 
     private final BuildType buildType;
 

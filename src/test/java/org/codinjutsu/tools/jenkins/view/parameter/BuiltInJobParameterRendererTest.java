@@ -35,37 +35,44 @@ public class BuiltInJobParameterRendererTest implements JobParameterTest {
         assertThat(jobParameterRenderer.isForJobParameter(createJobParameter(BuildInJobParameter.TextParameterDefinition)))
                 .isTrue();
 
-        assertThat(jobParameterRenderer.isForJobParameter(createJobParameter(new JobParameterType(BuildInJobParameter.ChoiceParameterDefinition.getName(), "otherClass"))))
-                .isFalse();
+        assertThat(jobParameterRenderer.isForJobParameter(createJobParameter(new JobParameterType(
+                BuildInJobParameter.ChoiceParameterDefinition.getType(), "otherClass")))).isFalse();
     }
 
     @Test
     public void isForJobParameterForWrongBuiltInClass() {
-        assertThat(jobParameterRenderer.isForJobParameter(createJobParameter(new JobParameterType(BuildInJobParameter.ChoiceParameterDefinition.getName(), "otherClass"))))
-                .isFalse();
+        assertThat(jobParameterRenderer.isForJobParameter(createJobParameter(new JobParameterType(
+                BuildInJobParameter.ChoiceParameterDefinition.getType(), "otherClass")))).isFalse();
     }
 
     @Test
     public void render() {
         final JobParameter jobParameter = createJobParameter(BuildInJobParameter.ChoiceParameterDefinition);
-        JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter);
+        JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter, PROJECT_JOB);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(ComboBox.class);
         assertThat(jobParameterComponent.getJobParameter()).isEqualTo(jobParameter);
 
-        jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.BooleanParameterDefinition));
+        jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.BooleanParameterDefinition),
+                PROJECT_JOB);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JCheckBox.class);
-        jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.StringParameterDefinition));
+        jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.StringParameterDefinition),
+                PROJECT_JOB);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JTextField.class);
         final PasswordComponent passwordComponent = PasswordComponent.create();
-        jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.PasswordParameterDefinition));
+        jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.PasswordParameterDefinition),
+                PROJECT_JOB);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(passwordComponent.asComponent().getClass());
-        jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.CredentialsParameterDefinition));
+        jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.CredentialsParameterDefinition),
+                PROJECT_JOB);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JobParameterRenderers.ErrorLabel.class);
-        jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.FileParameterDefinition));
+        jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.FileParameterDefinition),
+                PROJECT_JOB);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(TextFieldWithBrowseButton.class);
-        jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.RunParameterDefinition));
+        jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.RunParameterDefinition),
+                PROJECT_JOB);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JobParameterRenderers.ErrorLabel.class);
-        jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.TextParameterDefinition));
+        jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.TextParameterDefinition),
+                PROJECT_JOB);
         assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JTextArea.class);
     }
 }

@@ -31,6 +31,7 @@ import org.codinjutsu.tools.jenkins.TraceableBuildJobFactory;
 import org.codinjutsu.tools.jenkins.logic.RequestManagerInterface;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
+import org.codinjutsu.tools.jenkins.model.ProjectJob;
 import org.codinjutsu.tools.jenkins.view.extension.JobParameterRenderer;
 import org.codinjutsu.tools.jenkins.view.extension.JobParameterRenderers;
 import org.codinjutsu.tools.jenkins.view.parameter.JobParameterComponent;
@@ -75,9 +76,7 @@ public class BuildParamDialog extends DialogWrapper {
                                   final RequestManagerInterface requestManager,
                                   final RunBuildCallback runBuildCallback) {
         ApplicationManager.getApplication().invokeLater(() -> {
-            BuildParamDialog dialog = new BuildParamDialog(project, job, configuration, requestManager, runBuildCallback);
-            //dialog.setSize(dialog.getPreferredSize());
-            //dialog.setMinimumSize(new Dimension(300, 200));
+            final BuildParamDialog dialog = new BuildParamDialog(project, job, configuration, requestManager, runBuildCallback);
             dialog.pack();
             if (dialog.showAndGet()) {
                 dialog.onOK();
@@ -96,7 +95,6 @@ public class BuildParamDialog extends DialogWrapper {
     @NotNull
     private static JLabel setJLabelStyles(@NotNull JLabel label) {
         label.setHorizontalAlignment(SwingConstants.TRAILING);
-        //label.setVerticalAlignment(SwingConstants.TOP);
         return label;
     }
 
@@ -117,7 +115,9 @@ public class BuildParamDialog extends DialogWrapper {
         for (JobParameter jobParameter : parameters) {
             final JobParameterRenderer jobParameterRenderer = JobParameterRenderer.findRenderer(jobParameter)
                     .orElseGet(ErrorRenderer::new);
-            final JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter);
+            final ProjectJob projectJob = ProjectJob.builder().project(project).job(job).build();
+            final JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter, projectJob);
+
             if (jobParameterComponent.isVisible()) {
                 rows.incrementAndGet();
                 jobParameterComponent.getViewElement().setName(jobParameter.getName());
@@ -187,7 +187,7 @@ public class BuildParamDialog extends DialogWrapper {
 
         @NotNull
         @Override
-        public JobParameterComponent<String> render(@NotNull JobParameter jobParameter) {
+        public JobParameterComponent<String> render(@NotNull JobParameter jobParameter, @Nullable ProjectJob projectJob) {
             return JobParameterRenderers.createErrorLabel(jobParameter);
         }
 

@@ -82,7 +82,8 @@ public class RequestManager implements RequestManagerInterface, Disposable {
     }
 
     public static RequestManager getInstance(Project project) {
-        return project.getService(RequestManager.class);
+        return Optional.ofNullable(project.getService(RequestManager.class))
+                .orElseGet(() -> new RequestManager(project));
     }
 
     private static boolean canContainNestedJobs(@NotNull Job job) {
@@ -484,6 +485,21 @@ public class RequestManager implements RequestManagerInterface, Disposable {
         }
         final URL url = urlBuilder.createComputerUrl(settings.getServerUrl());
         return jsonParser.createComputers(securityClient.execute(url));
+    }
+
+    @NotNull
+    @Override
+    public List<String> getGitParameterChoices(Job job, JobParameter jobParameter) {
+        return Optional.ofNullable(jobParameter.getJobParameterType())
+                .map(JobParameterType::getClassName)
+                .map(jobClassName -> getFillValueItems(job, jobClassName, jobParameter.getName()))
+                .orElse(Collections.emptyList());
+    }
+
+    @NotNull
+    private List<String> getFillValueItems(Job job, String parameterClassName, String parameterName) {
+        final URL url = urlBuilder.createFillValueItemsUrl(job.getUrl(), parameterClassName, parameterName);
+        return jsonParser.getFillValueItems(securityClient.execute(url));
     }
 
     @NotNull

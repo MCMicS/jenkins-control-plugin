@@ -2,12 +2,12 @@ package org.codinjutsu.tools.jenkins.view.parameter;
 
 import org.codinjutsu.tools.jenkins.model.JobParameter;
 import org.codinjutsu.tools.jenkins.model.JobParameterType;
+import org.codinjutsu.tools.jenkins.model.ProjectJob;
 import org.codinjutsu.tools.jenkins.view.extension.JobParameterRenderer;
 import org.codinjutsu.tools.jenkins.view.extension.JobParameterRenderers;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-
-import javax.swing.*;
+import org.jetbrains.annotations.Nullable;
 
 public class DateParameterRenderer implements JobParameterRenderer {
 
@@ -18,7 +18,7 @@ public class DateParameterRenderer implements JobParameterRenderer {
 
     @NotNull
     @Override
-    public JobParameterComponent<String> render(@NotNull JobParameter jobParameter) {
+    public JobParameterComponent<String> render(@NotNull JobParameter jobParameter, @Nullable ProjectJob projectJob) {
         return JobParameterRenderers.createTextField(jobParameter, jobParameter.getDefaultValue());
     }
 

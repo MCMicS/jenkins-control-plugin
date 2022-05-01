@@ -282,8 +282,12 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
         return jenkinsSettings.hasFavoriteJobs();
     }
 
-    public void notifyInfoJenkinsToolWindow(@NotNull String htmlLinkMessage) {
-        JenkinsNotifier.getInstance(project).notify(htmlLinkMessage, NotificationType.INFORMATION);
+    public void notifyInfoJenkinsToolWindow(@NotNull String message) {
+        JenkinsNotifier.getInstance(project).notify(message, NotificationType.INFORMATION);
+    }
+
+    public void notifyInfoJenkinsToolWindow(@NotNull String message, String urlToOpen) {
+        JenkinsNotifier.getInstance(project).notify(message, urlToOpen, NotificationType.INFORMATION);
     }
 
     public void notifyErrorJenkinsToolWindow(@NotNull String message) {
@@ -543,7 +547,7 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
                 jobList = requestManager.loadJenkinsView(viewToLoadJobs);
             }
             if (jenkinsAppSettings.isAutoLoadBuilds()) {
-                for(Job job : jobList) {
+                for (Job job : jobList) {
                     job.setLastBuilds(requestManager.loadBuilds(job));
                 }
             }

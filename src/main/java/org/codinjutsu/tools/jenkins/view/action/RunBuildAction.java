@@ -30,7 +30,6 @@ import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildType;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
-import org.codinjutsu.tools.jenkins.util.HtmlUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.codinjutsu.tools.jenkins.view.BuildParamDialog;
 import org.jetbrains.annotations.NotNull;
@@ -84,9 +83,8 @@ public class RunBuildAction extends AnAction implements DumbAware {
     }
 
     private void notifyOnGoingMessage(BrowserPanel browserPanel, Job job) {
-        browserPanel.notifyInfoJenkinsToolWindow(HtmlUtil.createHtmlLinkMessage(
-                job.getNameToRenderSingleJob() + " build is on going",
-                job.getUrl()));
+        browserPanel.notifyInfoJenkinsToolWindow(job.getNameToRenderSingleJob() + " build is on going",
+                job.getUrl());
     }
 
     private void queueRunBuild(@NotNull Project project, @NotNull BrowserPanel browserPanel, @NotNull Job job) {
