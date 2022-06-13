@@ -19,6 +19,7 @@ package org.codinjutsu.tools.jenkins.logic;
 import org.assertj.core.util.Lists;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.codinjutsu.tools.jenkins.util.IOUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
@@ -32,6 +33,8 @@ import static org.codinjutsu.tools.jenkins.model.BuildStatusEnum.SUCCESS;
 public class JenkinsJsonParserTest {
 
     private JenkinsParser jsonParser;
+
+    private AutoCloseable mocks;
 
     private static View createView(String viewName, String viewUrl) {
         return createView(viewName, viewUrl, false);
@@ -384,9 +387,14 @@ public class JenkinsJsonParserTest {
         assertThat(secondParameter.getDefaultValue()).isEqualTo("Hello");
     }
 
+    @After
+    public void tearDown() throws Exception {
+        mocks.close();
+    }
+
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
+        mocks = MockitoAnnotations.openMocks(this);
         jsonParser = new JenkinsJsonParser();
     }
 }
