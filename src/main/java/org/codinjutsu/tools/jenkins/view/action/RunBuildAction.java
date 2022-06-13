@@ -16,9 +16,9 @@
 
 package org.codinjutsu.tools.jenkins.view.action;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.UpdateInBackground;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
@@ -43,7 +43,7 @@ import java.util.function.Consumer;
 
 import static org.codinjutsu.tools.jenkins.view.BrowserPanel.POPUP_PLACE;
 
-public class RunBuildAction extends AnAction implements DumbAware, UpdateInBackground {
+public class RunBuildAction extends AnAction implements DumbAware {
 
     public static final String ACTION_ID = "Jenkins.RunBuild";
     public static final int BUILD_STATUS_UPDATE_DELAY = 1;
@@ -70,6 +70,11 @@ public class RunBuildAction extends AnAction implements DumbAware, UpdateInBackg
             LOG.error(message, ex);
             browserPanel.notifyErrorJenkinsToolWindow("Build cannot be run: " + message);
         }
+    }
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.BGT;
     }
 
     @Override
