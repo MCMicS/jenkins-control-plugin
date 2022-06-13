@@ -20,7 +20,7 @@ public class JenkinsToolWindowFactory implements ToolWindowFactory, DumbAware {
         final BrowserPanel browserPanel = BrowserPanel.getInstance(project);
         browserPanel.initGui();
 
-        final Content content = ContentFactory.SERVICE.getInstance().createContent(browserPanel, null, false);
+        final Content content = ContentFactory.getInstance().createContent(browserPanel, null, false);
         toolWindow.setType(ToolWindowType.DOCKED, null);
         ContentManager contentManager = toolWindow.getContentManager();
         contentManager.addContent(content);

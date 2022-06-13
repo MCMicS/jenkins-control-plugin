@@ -1,8 +1,8 @@
 package org.codinjutsu.tools.jenkins.view.action;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.UpdateInBackground;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import org.codinjutsu.tools.jenkins.logic.JenkinsBackgroundTask;
@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-public class LoadBuildsAction extends AnAction implements DumbAware, UpdateInBackground {
+public class LoadBuildsAction extends AnAction implements DumbAware {
 
     public static final String ACTION_ID = "Jenkins.LoadBuilds";
 
@@ -53,6 +53,11 @@ public class LoadBuildsAction extends AnAction implements DumbAware, UpdateInBac
                         job.setLastBuilds(requestManager.loadBuilds(job));
                     }
                 }).queue();
+    }
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.BGT;
     }
 
     @Override

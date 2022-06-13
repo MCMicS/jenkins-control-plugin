@@ -17,25 +17,20 @@
 package org.codinjutsu.tools.jenkins.logic;
 
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.util.JDOMUtil;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.exception.JenkinsPluginRuntimeException;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
 import org.codinjutsu.tools.jenkins.util.RssUtil;
-import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.input.sax.XMLReaders;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
 import java.text.SimpleDateFormat;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -53,18 +48,19 @@ public class RssParser {
 
     @NotNull
     public Map<String, Build> loadJenkinsRssLatestBuilds(String rssData) {
-        return createLatestBuildList(buildDocument(rssData));
+        return createLatestBuildList(getFeeds(rssData));
     }
 
     @NotNull
-    private Document buildDocument(@Nullable String xmlData) {
+    private Element getFeeds(@Nullable String xmlData) {
         if (StringUtils.isEmpty(xmlData)) {
             LOG.error("Empty XML data");
             throw new IllegalStateException("Empty XML data");
         }
 
-        try(Reader jenkinsDataReader = new StringReader(xmlData)) {
-            return new SAXBuilder(XMLReaders.NONVALIDATING).build(jenkinsDataReader);
+        try {
+            // old logic disables validation. Do we really need to disable validation?
+            return JDOMUtil.load(xmlData);
         } catch (JDOMException e) {
             LOG.error("Invalid data received from the Jenkins Server. Actual :\n" + xmlData, e);
             throw new JenkinsPluginRuntimeException("Invalid data received from the Jenkins Server. Please retry");
@@ -75,21 +71,20 @@ public class RssParser {
     }
 
     @NotNull
-    private Map<String, Build> createLatestBuildList(@NotNull Document doc) {
-        final Map<String, Build> buildMap = new LinkedHashMap<>();
-        final Element rootElement = doc.getRootElement();
+    private Map<String, Build> createLatestBuildList(@NotNull Element feeds) {
+        final var buildMap = new LinkedHashMap<String, Build>();
 
-        final List<Element> elements = rootElement.getChildren(RSS_ENTRY, rootElement.getNamespace());
+        final var elements = feeds.getChildren(RSS_ENTRY, feeds.getNamespace());
         for (Element element : elements) {
-            final String title = Optional.ofNullable(element.getChildText(RSS_TITLE, rootElement.getNamespace()))
+            final var title = Optional.ofNullable(element.getChildText(RSS_TITLE, feeds.getNamespace()))
                     .orElse(StringUtils.EMPTY);
-            final String publishedBuild = element.getChildText(RSS_PUBLISHED, rootElement.getNamespace());
-            final Element buildUrlElement = element.getChild(RSS_LINK, rootElement.getNamespace());
-            final Optional<String> buildUrl = Optional.ofNullable(buildUrlElement.getAttributeValue(RSS_LINK_HREF));
+            final var publishedBuild = element.getChildText(RSS_PUBLISHED, feeds.getNamespace());
+            final var buildUrlElement = element.getChild(RSS_LINK, feeds.getNamespace());
+            final var buildUrl = Optional.ofNullable(buildUrlElement.getAttributeValue(RSS_LINK_HREF));
             // maybe load build from jenkins with needed info
-            final String jobName = RssUtil.extractBuildJob(title);
-            final int number = buildUrl.map(RssUtil::extractBuildNumber).orElse(-1);
-            final BuildStatusEnum status = RssUtil.extractStatus(title);
+            final var jobName = RssUtil.extractBuildJob(title);
+            final var number = buildUrl.map(RssUtil::extractBuildNumber).orElse(-1);
+            final var status = RssUtil.extractStatus(title);
 
             if (!BuildStatusEnum.NULL.equals(status)) {
                 buildMap.put(jobName, Build.createBuildFromRss(buildUrl.orElse(StringUtils.EMPTY), number,
