@@ -24,7 +24,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
-import org.codinjutsu.tools.jenkins.JenkinsComponent;
+import org.codinjutsu.tools.jenkins.settings.JenkinsComponent;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;

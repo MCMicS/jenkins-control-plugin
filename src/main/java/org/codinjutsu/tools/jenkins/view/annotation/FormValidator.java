@@ -18,7 +18,6 @@ package org.codinjutsu.tools.jenkins.view.annotation;
 
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.exception.JenkinsPluginRuntimeException;
-import org.codinjutsu.tools.jenkins.view.ConfigurationPanel;
 import org.codinjutsu.tools.jenkins.view.validator.UIValidator;
 import org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum;
 import org.jetbrains.annotations.NotNull;
@@ -30,15 +29,15 @@ import java.util.Map;
 
 public class FormValidator<T extends JComponent> {
 
-    private final ConfigurationPanel formToValidate;
+    private final FormValidationPanel formToValidate;
     private final HashMap<T, UIValidator<T>> uiValidatorByUiComponent = new HashMap<>();
 
 
-    private FormValidator(ConfigurationPanel formToValidate) {
+    private FormValidator(FormValidationPanel formToValidate) {
         this.formToValidate = formToValidate;
     }
 
-    public static <T extends JComponent> FormValidator<T> init(ConfigurationPanel formToValidate) {
+    public static <T extends JComponent> FormValidator<T> init(FormValidationPanel formToValidate) {
         return new FormValidator<>(formToValidate);
     }
 

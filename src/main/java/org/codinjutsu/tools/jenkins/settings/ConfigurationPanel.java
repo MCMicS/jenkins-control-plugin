@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.codinjutsu.tools.jenkins.view;
+package org.codinjutsu.tools.jenkins.settings;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.IdeBorderFactory;
@@ -31,6 +31,8 @@ import org.codinjutsu.tools.jenkins.logic.ConfigurationValidator;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.security.JenkinsVersion;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
+import org.codinjutsu.tools.jenkins.view.DoubleClickActionRenderer;
+import org.codinjutsu.tools.jenkins.view.annotation.FormValidationPanel;
 import org.codinjutsu.tools.jenkins.view.annotation.FormValidator;
 import org.codinjutsu.tools.jenkins.view.annotation.GuiField;
 import org.codinjutsu.tools.jenkins.view.validator.NotNullValidator;
@@ -49,7 +51,7 @@ import java.util.Optional;
 import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.POSITIVE_INTEGER;
 import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.URL;
 
-public class ConfigurationPanel {
+public class ConfigurationPanel implements FormValidationPanel {
 
     private static final JBColor CONNECTION_TEST_SUCCESSFUL_COLOR = JBColor.GREEN;
     private static final JBColor CONNECTION_TEST_FAILED_COLOR = JBColor.RED;

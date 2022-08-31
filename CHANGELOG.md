@@ -1,8 +1,14 @@
 # Changelog
 
-## [[Unreleased]]
+## [Unreleased]
 - \#469 Index out of bounds
 - New health icons (Fix \#488 Exception with 2023.2 EAP 232.8453.116)
+- \#377: Is there any way to ignore hostname mismatch
+- Add second Url to use  as "Jenkins URL" which is set in "Jenkins Location"
+### Breaking
+- Remove Jenkins 1 setting. Always use Jenkins version 2
+- Remove Crumb Data usage
+- Usage of API Token is required.
 
 ## [0.13.17]
 - \#440 java.lang.IllegalArgumentException: URL is malformed
