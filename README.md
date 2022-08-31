@@ -1,4 +1,4 @@
-# Jenkins Plugin 0.13.17 for Jetbrains products
+# Jenkins Plugin 0.14.0 for Jetbrains products
 [![Build Status](https://app.travis-ci.com/MCMicS/jenkins-control-plugin.svg?branch=master)](https://app.travis-ci.com/MCMicS/jenkins-control-plugin)
 [![Plugin Compatibility](https://github.com/MCMicS/jenkins-control-plugin/actions/workflows/compatibility.yml/badge.svg)](https://github.com/MCMicS/jenkins-control-plugin/actions/workflows/compatibility.yml)
 
@@ -42,16 +42,17 @@ https://ci.jenkins.io/
 Download this plugin from your IDE or [from the plugin website](http://plugins.jetbrains.com/plugin/6110).
 
 ## Configuration steps
-* Click on the **Jenkins Settings** button located on the upper toolbar (or you can also open IntelliJ Settings Screen and select the Jenkins Control Plugin option).
-* Enter your Jenkins Server URL (e.g: https://ci.jenkins.io/).
-* If Security is enabled on the server, you have to provide credentials. Enter your username and the password. The password will be stored in Intellij Password Manager. It could ask you a Master password.
-* If CSRF (Cross Site Request Forgery Prevention) is enabled on the server, then 
+* Click on the **Jenkins Settings** button located on the upper toolbar 
+(or you can also open IntelliJ Settings Screen and select the Jenkins Control Plugin section).
+* Enter your Jenkins Server URL (e.g: https://ci.jenkins.io/) in **Servers**.
+* If Security is enabled on the server, you have to provide credentials. Enter your username and the API Token.
+The API Token will be stored in Intellij Password Manager. It could ask you a Master password.
   * Since Jenkins 2.176 it is recommended to use an API token to authenticate the plugin:
      1. Go to user setting: `_jenkins_url_/user/_username_/configure`
      2. Add New API Token (recommended new one specifically for Jenkins Plugin)
-     3. Use this newly added API Token as your Password, no need to specify Crump Data.
-   * For older Jenkins version (<2.176) you have to provide your crumb data. To get the value, you will have to open the following URL in your browser `_jenkins_url_/crumbIssuer/api/xml?tree=crumb`. Just copy and paste the crumb value in the field. Please note for the authentication case, you have to run the crumb URL after login.
-* To make sure that all parameters are correct, you can click on the **Test Connection** button. A feedback message will appear.
+     3. Use this newly added API Token
+* To make sure that all parameters are correct, you can click on the **Test Connection** button.
+A feedback message will appear.
 
 ![Connection succeeded](doc/images/Configuration-Success.png?raw=true)
 
