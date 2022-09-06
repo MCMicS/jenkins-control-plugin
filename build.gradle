@@ -1,7 +1,7 @@
 //import org.jetbrains.changelog.ExtensionsKt
 plugins {
     id 'java'
-    id 'org.jetbrains.intellij' version '1.8.1'
+    id 'org.jetbrains.intellij' version '1.9.0'
     id 'org.jetbrains.changelog' version "1.3.1"
     id "io.freefair.lombok" version "6.5.1"
     id 'idea'
@@ -121,7 +121,7 @@ dependencies {
 
     testImplementation(
             'junit:junit:4.13.2',
-            'org.mockito:mockito-core:4.7.0',
+            'org.mockito:mockito-inline:4.7.0',
             'org.powermock:powermock-api-mockito2:2.0.9',
             'org.powermock:powermock-core:2.0.9',
             'org.assertj:assertj-core:3.23.1',
