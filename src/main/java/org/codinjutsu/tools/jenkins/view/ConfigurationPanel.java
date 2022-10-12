@@ -423,6 +423,6 @@ public class ConfigurationPanel {
 
     @SuppressWarnings("java:S1144")
     private void createUIComponents() {
-        timeout = new JBIntSpinner(10, 5, 120);
+        timeout = new JBIntSpinner(10, 5, 300);
     }
 }
