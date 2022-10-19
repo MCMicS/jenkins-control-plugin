@@ -28,7 +28,7 @@ public class ServerComponent implements FormValidationPanel {
     private final JBTextField username = new JBTextField();
     private final JBPasswordField apiToken = new JBPasswordField();
     @GuiField(validators = POSITIVE_INTEGER)
-    private final JBIntSpinner connectionTimeout = new JBIntSpinner(10, 5, 120);
+    private final JBIntSpinner connectionTimeout = new JBIntSpinner(10, 5, 300);
     private final JButton testConnection = new JButton("Test Connection");
     private boolean apiTokenModified;
 
@@ -87,12 +87,12 @@ public class ServerComponent implements FormValidationPanel {
         return username.getText();
     }
 
-    public @NotNull JTextField getUsernameComponent() {
-        return username;
-    }
-
     public void setUsername(@NotNull String usernameToSet) {
         username.setText(usernameToSet);
+    }
+
+    public @NotNull JTextField getUsernameComponent() {
+        return username;
     }
 
     public @NotNull String getApiToken() {
@@ -113,5 +113,9 @@ public class ServerComponent implements FormValidationPanel {
 
     public boolean isApiTokenModified() {
         return apiTokenModified;
+    }
+
+    public void resetApiTokenModified() {
+        apiTokenModified = false;
     }
 }
