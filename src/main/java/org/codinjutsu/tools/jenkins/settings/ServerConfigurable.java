@@ -2,11 +2,10 @@ package org.codinjutsu.tools.jenkins.settings;
 
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
-import lombok.Builder;
-import lombok.Value;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
+import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.view.annotation.FormValidator;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
@@ -46,7 +45,7 @@ public class ServerConfigurable implements SearchableConfigurable {
                 .addValidator(serverComponent.getUsernameComponent(), component -> {
                     if (StringUtils.isNotBlank(component.getText())) {
                         String apiToken = serverComponent.getApiToken();
-                        if (StringUtils.isBlank(apiToken)) {
+                        if (serverComponent.isApiTokenModified() && StringUtils.isBlank(apiToken)) {
                             throw new org.codinjutsu.tools.jenkins.exception.ConfigurationException(
                                     String.format("'%s' must be set", "API Token"));
                         }
@@ -73,9 +72,11 @@ public class ServerConfigurable implements SearchableConfigurable {
         if (serverComponent == null) {
             return Optional.empty();
         }
-        return Optional.ofNullable(ServerSetting.builder()
+
+        final String username = serverComponent.getUsername();
+        return Optional.of(ServerSetting.builder()
                 .url(serverComponent.getServerUrl())
-                .username(serverComponent.getUsername())
+                .username(StringUtils.isBlank(username) ? "" : username)
                 .apiToken(serverComponent.getApiToken())
                 .apiTokenModified(serverComponent.isApiTokenModified())
                 .timeout(serverComponent.getConnectionTimeout())
@@ -93,19 +94,49 @@ public class ServerConfigurable implements SearchableConfigurable {
     }
 
     @Override
-    public void apply() {
-        final var jenkinsAppSettings = JenkinsAppSettings.getSafeInstance(project);
+    public void apply() throws com.intellij.openapi.options.ConfigurationException {
+        try {
+            Optional.ofNullable(formValidator).ifPresent(FormValidator::validate);
+        } catch (org.codinjutsu.tools.jenkins.exception.ConfigurationException ex) {
+            throw new com.intellij.openapi.options.ConfigurationException(ex.getMessage());
+        }
+        readSettingFromUi().ifPresent(this::apply);
+    }
+
+    private void apply(ServerSetting serverSetting) throws ConfigurationException {
+        final var jenkinsServerSetting = JenkinsAppSettings.getSafeInstance(project);
         final var jenkinsSettings = JenkinsSettings.getSafeInstance(project);
-        final ServerSetting serverSetting = readSettingFromUi().get();
-        serverSetting.getTimeout();
+        if (!StringUtils.equals(jenkinsServerSetting.getServerUrl(), serverSetting.getUrl())) {
+            jenkinsSettings.clearFavoriteJobs();
+            jenkinsSettings.setLastSelectedView(null);
+        }
+
+        jenkinsServerSetting.setServerUrl(serverSetting.getUrl());
+        jenkinsSettings.setUsername(serverSetting.getUsername());
+        if (serverSetting.isApiTokenModified()) {
+            jenkinsSettings.setPassword(serverSetting.getApiToken());
+            Optional.ofNullable(serverComponent).ifPresent(ServerComponent::resetApiTokenModified);
+        }
+        jenkinsSettings.setConnectionTimeout(serverSetting.getTimeout());
     }
 
     @Override
     public void reset() {
-        final var jenkinsAppSettings = JenkinsAppSettings.getSafeInstance(project);
+        Optional.ofNullable(serverComponent).ifPresent(this::reset);
+    }
+
+    public void reset(ServerComponent serverComponentToReset) {
+        final var jenkinsServerSetting = JenkinsAppSettings.getSafeInstance(project);
         final var jenkinsSettings = JenkinsSettings.getSafeInstance(project);
-        final ServerSetting serverSetting = readSettingFromUi().get();
-        serverSetting.getTimeout();
+
+        serverComponentToReset.setServerUrl(jenkinsServerSetting.getServerUrl());
+        final var username = jenkinsSettings.getUsername();
+        serverComponentToReset.setUsername(username);
+        if (StringUtils.isNotBlank(username)) {
+            serverComponentToReset.setApiToken(jenkinsSettings.getPassword());
+            serverComponentToReset.resetApiTokenModified();
+        }
+        serverComponentToReset.setConnectionTimeout(jenkinsSettings.getConnectionTimeout());
     }
 
     @Override
@@ -119,14 +150,4 @@ public class ServerConfigurable implements SearchableConfigurable {
         return "org.codinjutsu.tools.jenkins.servers";
     }
 
-    @Builder
-    @Value
-    private static class ServerSetting {
-        private final @Nullable String url;
-        private final @Nullable String username;
-        private final @Nullable String apiToken;
-        @Builder.Default
-        private final boolean apiTokenModified = false;
-        private final int timeout;
-    }
 }
