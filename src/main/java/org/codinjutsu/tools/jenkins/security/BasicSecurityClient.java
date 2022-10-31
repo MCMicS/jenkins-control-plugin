@@ -16,20 +16,18 @@
 
 package org.codinjutsu.tools.jenkins.security;
 
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.HttpHeaders;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpStatus;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.util.EntityUtils;
 import org.codinjutsu.tools.jenkins.exception.AuthenticationException;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
-import org.codinjutsu.tools.jenkins.util.IOUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Collections;
 
 
 class BasicSecurityClient extends DefaultSecurityClient {
@@ -53,28 +51,17 @@ class BasicSecurityClient extends DefaultSecurityClient {
     @Nullable
     private String doAuthentication(URL jenkinsUrl) throws AuthenticationException {
         if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
-            httpClient.getState().setCredentials(
-                    new AuthScope(jenkinsUrl.getHost(), jenkinsUrl.getPort()),
-                    new UsernamePasswordCredentials(username, password));
+            final var targetHost = new HttpHost(jenkinsUrl.getHost(), jenkinsUrl.getPort(), jenkinsUrl.getProtocol());
+            final var credentials = new UsernamePasswordCredentials(username, password);
+            addAuthenticationPreemptive(targetHost, credentials);
         }
 
-        httpClient.getParams().setAuthenticationPreemptive(true);
-
-        PostMethod post = new PostMethod(jenkinsUrl.toString());
-        post.addRequestHeader(HttpHeaders.ACCEPT_LANGUAGE, "en-US,en;q=0.5");
-
+        final var post = createPost(jenkinsUrl.toString(), Collections.emptyList());
         try {
-            if (isCrumbDataSet()) {
-                post.addRequestHeader(jenkinsVersion.getCrumbName(), crumbData);
-            }
-
-            post.setDoAuthentication(true);
-            int responseCode = httpClient.executeMethod(post);
-            final String responseBody;
-            try(InputStream inputStream = post.getResponseBodyAsStream()) {
-                responseBody = IOUtils.toString(inputStream, post.getResponseCharSet());
-            }
-            if (responseCode != HttpURLConnection.HTTP_OK) {
+            final var response = executeHttp(post);
+            final var responseCode = response.getStatusLine().getStatusCode();
+            final var responseBody = EntityUtils.toString(response.getEntity());
+            if (responseCode != HttpStatus.SC_OK) {
                 checkResponse(responseCode, responseBody);
             }
             return responseBody;
