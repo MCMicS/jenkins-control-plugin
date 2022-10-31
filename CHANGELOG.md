@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+- maximum timeout increased to 300
+- add Support for 2022.3
 
 ## [0.13.14]
 - \#349 Extend support for Git Parameter. Thanks to @chrisxiao

@@ -68,7 +68,7 @@ java {
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
-    options.release.set(Integer.parseInt(readPropertyString("javaVersion")))
+    options.release.set(Integer.parseInt(readPropertyString("javaVersionTarget")))
 }
 tasks.wrapper {
     gradleVersion = readPropertyString("gradleVersion")
