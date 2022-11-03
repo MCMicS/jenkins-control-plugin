@@ -1,4 +1,8 @@
 //import org.jetbrains.changelog.ExtensionsKt
+
+import org.jetbrains.changelog.Changelog
+import org.jetbrains.intellij.tasks.RunPluginVerifierTask
+
 plugins {
     id 'java'
     id 'org.jetbrains.intellij' version '1.9.0'
@@ -24,16 +28,6 @@ intellij {
     type.set(readPropertyString('platformType'))
     downloadSources.set(true)
     plugins.set(Arrays.asList(readPropertyString("platformPlugins").split(',')))
-
-    patchPluginXml {
-        version.set(project.version)
-        sinceBuild.set(readPropertyString("pluginSinceBuild"))
-        untilBuild.set(readPropertyString("pluginUntilBuild"))
-        pluginDescription.set(file('includes/pluginDescription.html').text)
-        //changeNotes.set(provider { changelog.getLatest().toHTML() })
-        def allChanges = { changelog.getAll().values().collect { it.withHeader(true) }.collect {it.toHTML()}.join('\n<br>\n') }
-        changeNotes.set(provider { allChanges() } )
-    }
 }
 
 changelog {
@@ -43,6 +37,8 @@ changelog {
     //headerParserRegex = ~/\d+\.\d+/
     itemPrefix = "-"
     keepUnreleasedSection = true
+    combinePreReleases = true
+    repositoryUrl = "https://github.com/MCMicS/jenkins-control-plugin"
     unreleasedTerm = "[Unreleased]"
     //groups = ["Added", "Changed", "Deprecated", "Removed"]
     groups = []
@@ -72,6 +68,30 @@ tasks.withType(JavaCompile) {
 }
 tasks.wrapper {
     gradleVersion = readPropertyString("gradleVersion")
+}
+tasks.patchPluginXml {
+    version.set(project.version)
+    sinceBuild.set(readPropertyString("pluginSinceBuild"))
+    untilBuild.set(readPropertyString("pluginUntilBuild"))
+    pluginDescription.set(file('includes/pluginDescription.html').text)
+    //changeNotes.set(provider { changelog.getLatest().toHTML() })
+    def allChanges = { changelog.getAll().values()
+            .collect { it.withHeader(true) }
+            .collect { it.withLinks(false) }
+            .collect { it.withLinkedHeader(false) }
+            .collect { it.withSummary(true) }
+            .collect { changelog.renderItem(it as Changelog.Item, Changelog.OutputType.HTML)}
+            .join('<br>\n')
+    }
+    def lastChanges = {
+        def item = changelog.getLatest()
+                .withHeader(true)
+                .withLinks(false)
+                .withLinkedHeader(false)
+        changelog.renderItem(item, Changelog.OutputType.HTML)
+    }
+    changeNotes.set(provider { allChanges() } )
+    //changeNotes.set(provider { lastChanges() } )
 }
 
 configurations {
@@ -178,7 +198,6 @@ jacocoTestReport {
     }
 }
 
-import org.jetbrains.intellij.tasks.RunPluginVerifierTask
 def ideaVersionToVerify = readPropertyString('platformVersionToVerify')
 def verifyFailureLevel = EnumSet.copyOf(RunPluginVerifierTask.FailureLevel.ALL)
 verifyFailureLevel.remove(RunPluginVerifierTask.FailureLevel.NOT_DYNAMIC)
