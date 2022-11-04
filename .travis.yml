@@ -1,9 +1,9 @@
 language: java
 os: linux
 arch:
-  - arm64
+#  - arm64
+#  - s390x
   - ppc64le
-  - s390x
 jdk:
   openjdk11
 script: ./gradlew verifyPlugin test
