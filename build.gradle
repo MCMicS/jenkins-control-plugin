@@ -183,7 +183,7 @@ prepareSandbox {
     }
 }
 
-sonarqube {
+sonar {
     properties {
         property "sonar.organization", "mcmics-github"
         property "sonar.host.url", "https://sonarcloud.io"
@@ -194,7 +194,7 @@ sonarqube {
 jacocoTestReport {
     dependsOn test
     reports {
-        xml.enabled true
+        xml.required.set(true)
     }
 }
 
