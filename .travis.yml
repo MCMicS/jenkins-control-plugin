@@ -6,6 +6,12 @@ arch:
   - ppc64le
 jdk:
   openjdk11
+addons:
+  sonarcloud:
+    organization: "mcmics-github"
+    token:
+      secure: "iuR4kcim5cPcVS1j6S6oNww40K0NI4BpMJgU2+eysdRqmOEohsdQ2CzQats7gbjs8ToYod6ZwIpS+A6wqv3bhNq0BMwJYlo43Q8bRy2AhfeNKrhUzf1ynOsH/Icoio72SnDXDuIRZTozMc1PdQq2sl4FIhwn3RNNFsG5nEJiUpJwTZUdwm1qxWhYYDOD8BcVB1aeTHzDei9hcs+SgQI7kvjmxD0A7EO2S9aZEssG8/CPCViJBbEnTms6SqborxQLaxJQhalUXXgwS/QxPg54zDbAXbgrte5EQhd3tTIA75hDdJiphDGUOV0rDnI1pSVl6E5aJUeX/SfeSvEw2w6QAmyb88yajW3/aW5IDAP5uAYqCZ6yoeNn5nvC88DHCrVXPVKZx3ZhHetqkp7n+b4OCopDaxeL2zDFsDNrx+CXkXIVhNh/rE6DV7hwTz4hZSfqoleHtXfEAKgYrFfdLHU/GrJ/UDuSypXxSgnha0rDka8KmtN+VKV1fRyKhkaHrA8QGGDmcIpN76Qm9V3vo+YslAP9yctZ1zyuHC+qs9gpVQ852nQgcvzOwOjdL2T4xELT5Ptc/StPIdZJMU5FjmBlkRayvefXhtaDGjKJrEn2L/vgRIDP0kdQMkk7ZO+K1eP2jF5SbvTuZiih8FBGHEfL7+xWnmD+8Z8TOlr3ScRz8Vo="
+
 script: ./gradlew verifyPlugin test
 
 jobs:
@@ -13,7 +19,7 @@ jobs:
     - stage: test
     - stage: SonarCloud
       if: branch = master OR branch =~ ^release\/.*$ OR branch =~ ^sonar\/.*$
-      script: ./gradlew jacocoTestReport sonarqube
+      script: ./gradlew jacocoTestReport sonar --stacktrace
 git:
   depth: false
 
@@ -27,8 +33,3 @@ cache:
   directories:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
-addons:
-  sonarcloud:
-    organization: "mcmics-github"
-    token:
-      secure: "KbnVHVBBFomQohD9bWjDd2828fZeew82/GwSQo1+GmEa6Heekjp0E/RGs9gf+FaOLIG6UDXfnunZflJBoWHr+h0auEro2DXcMRyKmF8eEjmJCRDWNF5ltRFVCIceFVAwnHK2IN/YhTHi+GdW8YIwAF+QZJWdds1RUckuXsDBNx62l/NvrtlYpnbp3jiQ4bZQojrW7Vh7NLxPkOskLFB8nBrP3yWNhnX5lfHc2K1KMFjQYryLB6RXsmCu1nha1XWxEqS9WV5VzumF3P1LCStly/6rSsfYrGzrpmLUQwwW4lXmNGi3BMWrZbN4NEmwhckXEXeNZpbUJWCnCpv2rkUkK1UCaeYkvSqgW4KSgLmbI7uPri41r/U9PMyETN/GrZBjFSQGiIorpitVPh0tG+nEzvOMQBDIX9ovF30tdM7R3uIctVRUyu63bJIaUlUpjP63k2YI4GWDT2bjUFr2HYeTIvT5LWp79ydKJ7DTbhZyeZx/84uZo7J4GjrytwFkYa4OWAER0pRFVwSJZYTls9YVD2Ky6IK6uIeAvZDmt0IoVGTICw1TiKTnfyYpUZ6bT7qDnyoQWLf45AIOTXFISZBJLzRxGnP/kUVhDc/hUhlxbVeOVZaGANPYuU7rUuTnH+w7pL4C3ydhLwX33FZYlqyF1BEiWpJu74UtRi1vxb0X1iw="
