@@ -18,12 +18,14 @@ package org.codinjutsu.tools.jenkins.view.action;
 
 
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import org.codinjutsu.tools.jenkins.JenkinsComponent;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
@@ -43,5 +45,10 @@ public class OpenPluginSettingsAction extends AnAction implements DumbAware {
 
     private static void showSettingsFor(Project project) {
         ShowSettingsUtil.getInstance().showSettingsDialog(project, JenkinsComponent.class);
+    }
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.BGT;
     }
 }
