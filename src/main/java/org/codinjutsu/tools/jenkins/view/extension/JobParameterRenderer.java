@@ -18,7 +18,7 @@ public interface JobParameterRenderer {
 
     @NotNull
     static Optional<JobParameterRenderer> findRenderer(@NotNull JobParameter jobParameter) {
-        return JobParameterRenderer.EP_NAME.extensions()
+        return JobParameterRenderer.EP_NAME.getExtensionList().stream()
                 .filter(jobParameterRenderer -> jobParameterRenderer.isForJobParameter(jobParameter))
                 .findFirst();
     }
