@@ -164,7 +164,13 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
 
 
     public static String buildLabel(Jenkins jenkins) {
-        return "Jenkins " + jenkins.getName();
+        final var description = jenkins.getName();
+        final var label = new StringBuilder("Jenkins");
+        if (StringUtils.isNotEmpty(description)) {
+            label.append(' ');
+            label.append(description);
+        }
+        return label.toString();
     }
 
     private void render(JenkinsTreeNode.RootNode jenkinsServer) {
