@@ -1,6 +1,7 @@
 ideaIC:2021.2
-ideaIC:212-EAP-SNAPSHOT
-ideaIC:221-EAP-SNAPSHOT
-pycharmPC:221-EAP-SNAPSHOT
-goland:221-EAP-SNAPSHOT
-clion:221-EAP-SNAPSHOT
+ideaIC:2021.2.4
+ideaIC:2021.3.3
+ideaIC:2022.1.4
+pycharmPC:2021.2
+goland:2021.2
+clion:2021.2
