@@ -29,6 +29,7 @@ import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.security.SecurityClient;
 import org.codinjutsu.tools.jenkins.util.IOUtils;
 import org.jetbrains.annotations.NotNull;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -77,6 +78,8 @@ public class RequestManagerTest {
     private com.offbytwo.jenkins.model.Build lastSuccessfulBuild;
     @Mock
     private com.offbytwo.jenkins.model.Build lastFailedBuild;
+
+    private AutoCloseable mocks;
 
     @Test
     public void loadJenkinsWorkspaceWithMismatchServerPortInTheResponse() throws Exception {
@@ -179,9 +182,14 @@ public class RequestManagerTest {
         return job;
     }
 
+    @After
+    public void tearDown() throws Exception {
+        mocks.close();
+    }
+
     @Before
     public void setUp() throws IOException {
-        MockitoAnnotations.initMocks(this);
+        mocks = MockitoAnnotations.openMocks(this);
         configuration = new JenkinsAppSettings();
         when(project.getService(UrlBuilder.class)).thenReturn(urlBuilderMock);
         final PicoContainer container = mock(PicoContainer.class);

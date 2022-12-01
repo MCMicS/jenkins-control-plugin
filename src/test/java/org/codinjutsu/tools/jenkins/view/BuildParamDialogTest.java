@@ -83,14 +83,17 @@ public class BuildParamDialogTest {
 
     private DialogFixture dialogFixture;
 
+    private AutoCloseable mocks;
+
     @After
-    public void tearDown() {
+    public void tearDown() throws Exception {
         dialogFixture.cleanUp();
+        mocks.close();
     }
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        mocks = MockitoAnnotations.openMocks(this);
         configuration = new JenkinsAppSettings();
     }
 

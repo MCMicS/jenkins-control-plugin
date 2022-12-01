@@ -183,6 +183,11 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
         }
     }
 
+    public Optional<Jenkins> getSelectedServer() {
+        return jobTree.getLastSelectedPath(JenkinsTreeNode.RootNode.class)
+                .map(JenkinsTreeNode.RootNode::getJenkins);
+    }
+
     public Build getSelectedBuild() {
         return jobTree.getLastSelectedPath(JenkinsTreeNode.BuildNode.class)
                 .map(JenkinsTreeNode.BuildNode::getBuild).orElse(null);
@@ -359,6 +364,7 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
 
         popupGroup.add(new UnsetJobAsFavoriteAction(this));
         popupGroup.addSeparator();
+        popupGroup.add(new GotoServerAction(this));
         popupGroup.add(new GotoJobPageAction(this));
         popupGroup.add(new GotoBuildPageAction(this));
         popupGroup.add(new GotoBuildConsolePageAction(this));

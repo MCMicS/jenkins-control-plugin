@@ -17,10 +17,12 @@
 package org.codinjutsu.tools.jenkins.view.action;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
@@ -49,5 +51,10 @@ public class RefreshNodeAction extends AnAction implements DumbAware {
     @Override
     public void update(AnActionEvent event) {
         event.getPresentation().setEnabled(browserPanel.isConfigured());
+    }
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.BGT;
     }
 }
