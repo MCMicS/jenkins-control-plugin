@@ -16,13 +16,11 @@
 
 package org.codinjutsu.tools.jenkins.view.action;
 
-import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
 import icons.JenkinsControlIcons;
 import org.codinjutsu.tools.jenkins.logic.RssLogic;
-import org.jetbrains.annotations.NotNull;
 
 public class RefreshRssAction extends AnAction implements DumbAware {
 
@@ -36,10 +34,5 @@ public class RefreshRssAction extends AnAction implements DumbAware {
     @Override
     public void actionPerformed(AnActionEvent event) {
         ActionUtil.getProject(event).map(RssLogic::getInstance).ifPresent(RssLogic::loadLatestBuilds);
-    }
-
-    @Override
-    public @NotNull ActionUpdateThread getActionUpdateThread() {
-        return ActionUpdateThread.BGT;
     }
 }

@@ -17,7 +17,6 @@
 package org.codinjutsu.tools.jenkins.view.action;
 
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
@@ -97,11 +96,6 @@ public class ShowLogAction extends AnAction implements DumbAware {
         final boolean canShowLogForLastBuild = ActionUtil.getBrowserPanel(event).map(BrowserPanel::getSelectedJob)
                 .map(this::isAvailable).orElse(Boolean.FALSE);
         event.getPresentation().setVisible(canShowLogForLastBuild);
-    }
-
-    @Override
-    public @NotNull ActionUpdateThread getActionUpdateThread() {
-        return ActionUpdateThread.BGT;
     }
 
     @Value

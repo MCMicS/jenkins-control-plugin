@@ -1,6 +1,5 @@
 package org.codinjutsu.tools.jenkins.view.action;
 
-import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
@@ -53,11 +52,6 @@ public class LoadBuildsAction extends AnAction implements DumbAware {
                         job.setLastBuilds(requestManager.loadBuilds(job));
                     }
                 }).queue();
-    }
-
-    @Override
-    public @NotNull ActionUpdateThread getActionUpdateThread() {
-        return ActionUpdateThread.BGT;
     }
 
     @Override

@@ -17,7 +17,6 @@
 package org.codinjutsu.tools.jenkins.view.action;
 
 import com.intellij.ide.BrowserUtil;
-import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
@@ -42,10 +41,5 @@ abstract class AbstractGotoWebPageAction extends AnAction implements DumbAware {
     @Override
     public void actionPerformed(AnActionEvent event) {
         BrowserUtil.browse(getUrl());
-    }
-
-    @Override
-    public @NotNull ActionUpdateThread getActionUpdateThread() {
-        return ActionUpdateThread.BGT;
     }
 }

@@ -17,7 +17,6 @@
 package org.codinjutsu.tools.jenkins.view.action;
 
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
@@ -31,7 +30,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.codinjutsu.tools.jenkins.logic.RunBuildWithPatch;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
-import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
@@ -102,10 +100,5 @@ public class UploadPatchToJobAction extends AnAction implements DumbAware {
         } else {
             event.getPresentation().setEnabled(isPatchUploadable);
         }
-    }
-
-    @Override
-    public @NotNull ActionUpdateThread getActionUpdateThread() {
-        return ActionUpdateThread.BGT;
     }
 }

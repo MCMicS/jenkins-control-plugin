@@ -16,7 +16,6 @@
 
 package org.codinjutsu.tools.jenkins.view.vcs.action;
 
-import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
@@ -69,11 +68,6 @@ public class CreatePatchAndBuildAction extends AnAction {
     public void update(AnActionEvent event) {
         boolean enabled = getProjectChangeList(event).map(this::isEnabled).orElse(Boolean.FALSE);
         event.getPresentation().setEnabled(enabled);
-    }
-
-    @Override
-    public @NotNull ActionUpdateThread getActionUpdateThread() {
-        return ActionUpdateThread.BGT;
     }
 
     private boolean isEnabled(ProjectChangeList projectChangeList) {
