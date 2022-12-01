@@ -18,48 +18,94 @@ package org.codinjutsu.tools.jenkins.security;
 
 import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethodBase;
-import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
-import org.apache.commons.httpclient.URIException;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.multipart.FilePart;
-import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
-import org.apache.commons.httpclient.methods.multipart.Part;
-import org.apache.commons.httpclient.methods.multipart.StringPart;
+import com.intellij.util.net.IdeHttpClientHelpers;
+import com.intellij.util.net.ssl.CertificateManager;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHeaders;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.AuthCache;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.config.SocketConfig;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.BasicAuthCache;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.util.EntityUtils;
 import org.codinjutsu.tools.jenkins.exception.AuthenticationException;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
+import org.codinjutsu.tools.jenkins.exception.JenkinsPluginRuntimeException;
 import org.codinjutsu.tools.jenkins.model.FileParameter;
 import org.codinjutsu.tools.jenkins.model.RequestData;
-import org.codinjutsu.tools.jenkins.model.VirtualFilePartSource;
-import org.codinjutsu.tools.jenkins.util.IOUtils;
+import org.codinjutsu.tools.jenkins.model.VirtualFilePart;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.net.ssl.SSLContext;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collection;
 
 class DefaultSecurityClient implements SecurityClient {
 
     private static final String BAD_CRUMB_DATA = "No valid crumb was included in the request";
-    static final String CHARSET = StandardCharsets.UTF_8.name();
+    static final Charset CHARSET = StandardCharsets.UTF_8;
+    static final String CHARSET_NAME = CHARSET.name();
     protected final HttpClient httpClient;
-    private final int connectionTimout;
-    protected String crumbData;
+    protected @Deprecated String crumbData;
     protected JenkinsVersion jenkinsVersion = JenkinsVersion.VERSION_1;
+    private final CredentialsProvider credentialsProvider;
+    private final AuthCache authCache;
+    private final HttpClientContext httpClientContext;
 
     DefaultSecurityClient(String crumbData, int connectionTimout) {
-        this.httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
+        this(crumbData, connectionTimout, CertificateManager.getInstance().getSslContext(), true);
+    }
+
+    @SuppressWarnings("java:S2095")
+    DefaultSecurityClient(String crumbData, int connectionTimout, SSLContext sslContext, boolean useProxySettings) {
+        final var socketConfig = SocketConfig.custom()
+                .setSoTimeout(connectionTimout).build();
+
+        final var poolingHttpClientConnectionManager = new PoolingHttpClientConnectionManager();
+        poolingHttpClientConnectionManager.setDefaultSocketConfig(socketConfig);
+        final var requestConfig = RequestConfig.custom()
+                .setConnectTimeout(connectionTimout)
+                .setConnectionRequestTimeout(connectionTimout)
+                .setSocketTimeout(connectionTimout);
+        this.credentialsProvider = new BasicCredentialsProvider();
+        if (useProxySettings) {
+            IdeHttpClientHelpers.ApacheHttpClient4.setProxyIfEnabled(requestConfig);
+            IdeHttpClientHelpers.ApacheHttpClient4.setProxyCredentialsIfEnabled(credentialsProvider);
+        }
+
+        final var httpClientBuilder = HttpClients.custom()
+                .setSSLContext(sslContext)
+                .setDefaultSocketConfig(socketConfig)
+                .setDefaultRequestConfig(requestConfig.build())
+                .setDefaultCredentialsProvider(credentialsProvider)
+                .disableRedirectHandling();
+        this.httpClient = httpClientBuilder.build();
         this.crumbData = crumbData;
-        this.connectionTimout = connectionTimout;
+
+        this.authCache = new BasicAuthCache();
+        this.httpClientContext =  HttpClientContext.create();
+        this.httpClientContext.setCredentialsProvider(this.credentialsProvider);
+        this.httpClientContext.setAuthCache(authCache);
     }
 
     @Nullable
@@ -99,55 +145,62 @@ class DefaultSecurityClient implements SecurityClient {
      * </pre>
      */
     @NotNull
-    PostMethod createPost(String url, @NotNull Collection<RequestData> data) {
-        final PostMethod post = new PostMethod(url);
+    HttpPost createPost(String url, @NotNull Collection<RequestData> data) {
+        final var post = new HttpPost(url);
         if (!data.isEmpty()) {
-            final ArrayList<Part> parts = new ArrayList<>();
+            final var multipartEntity = MultipartEntityBuilder.create();
+
             data.stream().filter(FileParameter.class::isInstance)
                     .map(FileParameter.class::cast)
-                    .map(this::createFilePart)
-                    .forEach(parts::add);
-            final JsonObject parameterJson = new JsonObject();
+                    .forEach(fileParameter -> addMultipartBinaryBody(fileParameter, multipartEntity));
+
+            final var parameterJson = new JsonObject();
             parameterJson.put("parameter", data);
-            parts.add(new StringPart("json", Jsoner.serialize(parameterJson), DefaultSecurityClient.CHARSET));
-            post.setRequestEntity(new MultipartRequestEntity(parts.toArray(new Part[0]), post.getParams()));
+            multipartEntity.addTextBody("json", Jsoner.serialize(parameterJson), ContentType.APPLICATION_JSON)
+                    .setCharset(DefaultSecurityClient.CHARSET);
+            final var multipart = multipartEntity.build();
+            post.setEntity(multipart);
         }
 
+        if (isCrumbDataSet()) {
+            post.addHeader(jenkinsVersion.getCrumbName(), crumbData);
+        }
+        post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, "en-US,en;q=0.5");
         return post;
     }
 
-    @NotNull
-    private FilePart createFilePart(FileParameter fileParameter) {
-        final String CONTENT_TYPE= null;
-        return new FilePart(fileParameter.getFileName(), new VirtualFilePartSource(fileParameter.getFile()),
-                CONTENT_TYPE, DefaultSecurityClient.CHARSET);
+    protected final void addAuthenticationPreemptive(HttpHost host, UsernamePasswordCredentials credentials) {
+        final var authScope = new AuthScope(host.getHostName(), host.getPort());
+        authCache.put(host, new BasicScheme());
+        credentialsProvider.setCredentials(authScope, credentials);
+    }
+
+    private void addMultipartBinaryBody(FileParameter fileParameter,
+                                        MultipartEntityBuilder multipartEntityBuilder) {
+        final var virtualFilePart = new VirtualFilePart(fileParameter.getFile());
+        try {
+            multipartEntityBuilder.addBinaryBody(fileParameter.getFileName(), virtualFilePart.createInputStream(),
+                    ContentType.APPLICATION_OCTET_STREAM, virtualFilePart.getFileName());
+        } catch (IOException e) {
+            throw new JenkinsPluginRuntimeException(e.getMessage(), e);
+        }
     }
 
     private void runMethod(String url, @NotNull Collection<RequestData> data, ResponseCollector responseCollector) {
-        final PostMethod post = createPost(url, data);
-
-        if (isCrumbDataSet()) {
-            post.addRequestHeader(jenkinsVersion.getCrumbName(), crumbData);
-        }
-        post.addRequestHeader(HttpHeaders.ACCEPT_LANGUAGE, "en-US,en;q=0.5");
-        post.getParams().setContentCharset(StandardCharsets.UTF_8.name());
+        final var post = createPost(url, data);
 
         try {
-            httpClient.getParams().setParameter("http.socket.timeout", connectionTimout);
-            httpClient.getParams().setParameter("http.connection.timeout", connectionTimout);
-
-            int statusCode = httpClient.executeMethod(post);
-            final String responseBody;
-            try (InputStream inputStream = post.getResponseBodyAsStream()) {
-                responseBody = IOUtils.toString(inputStream, post.getResponseCharSet());
-            }
+            final var response = executeHttp(post);
+            final var statusCode = response.getStatusLine().getStatusCode();
+            final var responseBody = EntityUtils.toString(response.getEntity());
             checkResponse(statusCode, responseBody);
 
             if (HttpURLConnection.HTTP_OK == statusCode) {
                 responseCollector.collect(statusCode, responseBody);
             }
+            // ToDo @mcmics enable redirection in httpclient again and try to remove following
             if (isRedirection(statusCode)) {
-                responseCollector.collect(statusCode, post.getResponseHeader("Location").getValue());
+                responseCollector.collect(statusCode, response.getLastHeader("Location").getValue());
             }
         } catch (UnknownHostException uhEx) {
             throw new ConfigurationException(String.format("Unknown server: %s", uhEx.getMessage()), uhEx);
@@ -157,6 +210,10 @@ class DefaultSecurityClient implements SecurityClient {
         } finally {
             post.releaseConnection();
         }
+    }
+
+    protected final HttpResponse executeHttp(HttpPost post) throws IOException {
+        return httpClient.execute(post, this.httpClientContext);
     }
 
     protected void checkResponse(int statusCode, String responseBody) throws AuthenticationException {
@@ -198,12 +255,8 @@ class DefaultSecurityClient implements SecurityClient {
         return url;
     }
 
-    protected final String createUrlForNotification(HttpMethodBase httpMethod) {
-        try {
-            return createUrlForNotification(httpMethod.getURI().toString());
-        } catch (URIException e) {
-            throw new ConfigurationException(String.format("Invalid URI: %s", e.getMessage()), e);
-        }
+    protected final String createUrlForNotification(HttpUriRequest httpMethod) {
+        return createUrlForNotification(httpMethod.getURI().toString());
     }
 
     private static class ResponseCollector {

@@ -16,12 +16,14 @@
 
 package org.codinjutsu.tools.jenkins.view.action;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.codinjutsu.tools.jenkins.view.JenkinsTreeRenderer;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -44,5 +46,10 @@ public class SetJobAsFavoriteAction extends AnAction implements DumbAware {
     public void update(AnActionEvent event) {
         Job selectedJob = browserPanel.getSelectedJob();
         event.getPresentation().setVisible(selectedJob != null && !browserPanel.isAFavoriteJob(selectedJob));
+    }
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.BGT;
     }
 }

@@ -1,6 +1,7 @@
 package org.codinjutsu.tools.jenkins.view.action;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -44,7 +45,7 @@ public class ShowJobResultsAsJUnitViewAction extends AnAction {
 
     @NotNull
     private static Stream<ViewTestResults> extensionsForJob(@NotNull Job job) {
-        return ViewTestResults.EP_NAME.extensions().filter(canHandleJob(job));
+        return ViewTestResults.EP_NAME.getExtensionList().stream().filter(canHandleJob(job));
     }
 
     @Override
@@ -67,6 +68,11 @@ public class ShowJobResultsAsJUnitViewAction extends AnAction {
         event.getPresentation().setDescription(description);
         event.getPresentation().setVisible(ViewTestResults.EP_NAME.hasAnyExtensions());
         event.getPresentation().setEnabled(!usableExtensions.isEmpty());
+    }
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.BGT;
     }
 
     @NotNull

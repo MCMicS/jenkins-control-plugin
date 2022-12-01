@@ -1,11 +1,17 @@
 language: java
 os: linux
 arch:
-  - arm64
+#  - arm64
+#  - s390x
   - ppc64le
-  - s390x
 jdk:
   openjdk11
+addons:
+  sonarcloud:
+    organization: "mcmics-github"
+    token:
+      secure: "iuR4kcim5cPcVS1j6S6oNww40K0NI4BpMJgU2+eysdRqmOEohsdQ2CzQats7gbjs8ToYod6ZwIpS+A6wqv3bhNq0BMwJYlo43Q8bRy2AhfeNKrhUzf1ynOsH/Icoio72SnDXDuIRZTozMc1PdQq2sl4FIhwn3RNNFsG5nEJiUpJwTZUdwm1qxWhYYDOD8BcVB1aeTHzDei9hcs+SgQI7kvjmxD0A7EO2S9aZEssG8/CPCViJBbEnTms6SqborxQLaxJQhalUXXgwS/QxPg54zDbAXbgrte5EQhd3tTIA75hDdJiphDGUOV0rDnI1pSVl6E5aJUeX/SfeSvEw2w6QAmyb88yajW3/aW5IDAP5uAYqCZ6yoeNn5nvC88DHCrVXPVKZx3ZhHetqkp7n+b4OCopDaxeL2zDFsDNrx+CXkXIVhNh/rE6DV7hwTz4hZSfqoleHtXfEAKgYrFfdLHU/GrJ/UDuSypXxSgnha0rDka8KmtN+VKV1fRyKhkaHrA8QGGDmcIpN76Qm9V3vo+YslAP9yctZ1zyuHC+qs9gpVQ852nQgcvzOwOjdL2T4xELT5Ptc/StPIdZJMU5FjmBlkRayvefXhtaDGjKJrEn2L/vgRIDP0kdQMkk7ZO+K1eP2jF5SbvTuZiih8FBGHEfL7+xWnmD+8Z8TOlr3ScRz8Vo="
+
 script: ./gradlew verifyPlugin test
 
 jobs:
@@ -13,7 +19,7 @@ jobs:
     - stage: test
     - stage: SonarCloud
       if: branch = master OR branch =~ ^release\/.*$ OR branch =~ ^sonar\/.*$
-      script: ./gradlew jacocoTestReport sonarqube
+      script: ./gradlew jacocoTestReport sonar --stacktrace
 git:
   depth: false
 
@@ -27,8 +33,3 @@ cache:
   directories:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
-addons:
-  sonarcloud:
-    organization: "mcmics-github"
-    token:
-      secure: "RO55Kv63Me2lDHEYS3vOkdLmOFow9ELfL1L943OO34DpUmqv1Lcq38aFeiFELKlWjPbjQWcNtlUM8J3QktWoATUM57VEwzFBHPm0X75n7LeP1PdMf5gEaibLVtAZ/J35ISXIvkRMZg1qgDXkakV9tFgEcLqVR5a172cSZuJJDsSOWaQVyb4R5o5KwumlOa2S358pKcTyMMzO3VNGaYctNSRkH4jb/T6NcDD1EL1jOD2aQ70UPxLqRZI1/LtaXhazgYcYED8WXFa0ZwSyQdouqEa+P+4/HfPyHn3Ao8zwAm2QZ3VaFPC4If9Lx4sFAjrJdTWjEyGRbXhorn71bnFrro5UlKwtfBgUBs65+RrSbxptNyam9zETuGdxaOEgsYNKIGW/lWKLbKZKI0jB9/c0jcfDfjUA9mb0zy6SLgBKTTwLA4MV5OM/p60+INqefkl7gBzsHtArDliIizEKOx2LDEK4dDzkkiip3yZUPgQGFIyiAnhX/8MXGNx7qebfnSNaCDn198nsuACbgh46CbZGW+D0y12L8HR+52PJmYZA5Tww/W0T76CsUYvFAskqJWHf7Jks99YiF/hBwO3Q/ZutIQ9OpJVNoqI3RHxsc3PHjmxtdhBM50w64aLusxA9xu4v8zSKmKhoSft4LGaVh124u9i+OT/a88jx690lP71hzw8="

@@ -1,6 +1,12 @@
 # Changelog
 
-## [Unreleased]
+## [[Unreleased]]
+
+## [[0.13.15]]
+- maximum timeout increased to 300
+- add Support for 2022.3
+- \#409 IDEA 2022.3: Access is allowed from event dispatch thread only
+- Add "Go to server" to context menu
 
 ## [0.13.14]
 - \#349 Extend support for Git Parameter. Thanks to @chrisxiao
@@ -121,38 +127,6 @@ Add Notification group to configure the behaviour in IDE settings.(Settings -> A
 - [fix] #157: NullPointerException when trying to load builds (IntelliJ Version : 2017.3)
 - \#180: Show Test Results As Junit is only available if Plugin dependency 'com.intellij.java' exists
 - update JSON.simple to 3.1.0
-- IDEA 2019.2+ Support
-- [fix] #161: Retry Failed Builds
-- [fix] #163: spelling error in config form
-- [add] #161: Retry Failed Builds
-- [add] #140: Add View Log and Test Results
-- [add] #162: Add description text in build param dialog
-- [fix] #143: NullPointer when "Sort by Build Status" is active
-- [fix] #157: NullPointerException when trying to load builds (IntelliJ Version : 2017.3)
-- \#180: Show Test Results As Junit is only available if Plugin dependency 'com.intellij.java' exists
-- update JSON.simple to 3.1.0
-- IDEA 2019.2+ Support
-- [fix] #161: Retry Failed Builds
-- [fix] #163: spelling error in config form
-- [add] #161: Retry Failed Builds
-- [add] #140: Add View Log and Test Results
-- [add] #162: Add description text in build param dialog
-- [fix] #143: NullPointer when "Sort by Build Status" is active
-- [fix] #157: NullPointerException when trying to load builds (IntelliJ Version : 2017.3)
-- \#180: Show Test Results As Junit is only available if Plugin dependency 'com.intellij.java' exists
-- update JSON.simple to 3.1.0
-- IDEA 2019.2+ Support
-- [fix] #161: Retry Failed Builds
-- [fix] #163: spelling error in config form
-- [add] #161: Retry Failed Builds
-- [add] #140: Add View Log and Test Results
-- [add] #162: Add description text in build param dialog
-- [fix] #143: NullPointer when "Sort by Build Status" is active
-- [fix] #157: NullPointerException when trying to load builds (IntelliJ Version : 2017.3)
-- \#180: Show Test Results As Junit is only available if Plugin dependency 'com.intellij.java' exists
-- update JSON.simple to 3.1.0
-
-
 
 ### Deprecated
 - Announcement: Deprecate Builds &lt; 2019.3
@@ -298,3 +272,89 @@ Add Notification group to configure the behaviour in IDE settings.(Settings -> A
 - Open Job web page and its last build web page on browser
 - Autorefreshed Rss Reader View
 - Autorefresh functions can be disabled on the Jenkins Configuration Panel
+
+[[Unreleased]]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.15-eap.2...HEAD
+
+[0.13.15-eap.2]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.14...v0.13.15-eap.2
+
+[0.13.14]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.13...v0.13.14
+
+[0.13.13]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.12...v0.13.13
+
+[0.13.12]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.11...v0.13.12
+
+[0.13.11]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.10...v0.13.11
+
+[0.13.10]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.9...v0.13.10
+
+[0.13.9]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.8...v0.13.9
+
+[0.13.8]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.7...v0.13.8
+
+[0.13.7]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.6...v0.13.7
+
+[0.13.6]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.5...v0.13.6
+
+[0.13.5]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.4...v0.13.5
+
+[0.13.4]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.3...v0.13.4
+
+[0.13.3]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.2...v0.13.3
+
+[0.13.2]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.1...v0.13.2
+
+[0.13.1]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.0...v0.13.1
+
+[0.13.0]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.12.0...v0.13.0
+
+[0.12.0]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.11.1...v0.12.0
+
+[0.11.1]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.11.0...v0.11.1
+
+[0.11.0]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.10.0...v0.11.0
+
+[0.10.0]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.9.7...v0.10.0
+
+[0.9.7]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.9.4...v0.9.7
+
+[0.9.4]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.9.3...v0.9.4
+
+[0.9.3]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.9.2...v0.9.3
+
+[0.9.2]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.9.1...v0.9.2
+
+[0.9.1]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.9.0...v0.9.1
+
+[0.9.0]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.8.0...v0.9.0
+
+[0.8.0]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.7.0...v0.8.0
+
+[0.7.0]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.6.0...v0.7.0
+
+[0.6.0]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.5.4...v0.6.0
+
+[0.5.4]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.5.3...v0.5.4
+
+[0.5.3]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.5.2...v0.5.3
+
+[0.5.2]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.5.1...v0.5.2
+
+[0.5.1]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.5.0...v0.5.1
+
+[0.5.0]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.4.4...v0.5.0
+
+[0.4.4]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.4.3...v0.4.4
+
+[0.4.3]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.4.2...v0.4.3
+
+[0.4.2]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.4.1...v0.4.2
+
+[0.4.1]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.4.0...v0.4.1
+
+[0.4.0]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.3.0...v0.4.0
+
+[0.3.0]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.2.0...v0.3.0
+
+[0.2.0]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.1.0...v0.2.0
+
+[0.1.0]: https://github.com/MCMicS/jenkins-control-plugin/commits/v0.1.0

@@ -18,13 +18,14 @@ package org.codinjutsu.tools.jenkins.model;
 
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
 import java.util.List;
 
 public class Jenkins {
 
-    private String name;
+    private @Nullable String name;
     private String serverUrl;
 
     private List<Job> jobs;
@@ -32,7 +33,7 @@ public class Jenkins {
     private List<View> views;
     private View primaryView;
 
-    public Jenkins(String description, String serverUrl) {
+    public Jenkins(@Nullable String description, String serverUrl) {
         this.name = description;
         this.serverUrl = serverUrl;
         this.jobs = new LinkedList<>();
@@ -55,7 +56,7 @@ public class Jenkins {
     }
 
 
-    public String getName() {
+    public @Nullable String getName() {
         return name;
     }
 

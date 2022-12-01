@@ -16,19 +16,23 @@
 
 package org.codinjutsu.tools.jenkins.logic;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import org.apache.commons.httpclient.URIException;
-import org.apache.commons.httpclient.util.URIUtil;
+import lombok.SneakyThrows;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
+import org.codinjutsu.tools.jenkins.view.action.UploadPatchToJobAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Optional;
 
 public class UrlBuilder {
+
+    private static final Logger LOG = Logger.getInstance(UploadPatchToJobAction.class.getName());
 
     private static final String API_JSON = "/api/json";
     private static final String BUILD = "/build";
@@ -65,7 +69,7 @@ public class UrlBuilder {
 
     public URL createRunJobUrl(String jobBuildUrl, JenkinsAppSettings configuration) {
         try {
-            String s = jobBuildUrl + URIUtil.encodePathQuery(String.format("%s?delay=%dsec", BUILD, configuration.getBuildDelay()));
+            String s = jobBuildUrl + encodePathQuery(String.format("%s?delay=%dsec", BUILD, configuration.getBuildDelay()));
             return new URL(s);
         } catch (Exception ex) {
             handleException(ex);
@@ -73,9 +77,40 @@ public class UrlBuilder {
         return null;
     }
 
+    @SneakyThrows
+    private static String encodePathQuery(String unescaped) {
+        final var queryIndex = unescaped.indexOf('?');
+        if (queryIndex == -1) {
+            return encodePath(unescaped);
+        } else {
+            var path = encodePath(unescaped.substring(0, queryIndex));
+            var query = unescaped.substring(queryIndex + 1);
+            try {
+                query = new URI(null, null, null, query, null)
+                        .toASCIIString().substring(1);  // remove leading ?
+            }
+            catch (URISyntaxException e) {
+                LOG.debug(e.getMessage(), e);
+            }
+            //return com.intellij.util.io.URLUtil.encodeQuery(query);
+            return path + '?' + query;
+        }
+    }
+
+    @SneakyThrows
+    private static String encodePath(String unescaped) {
+        try {
+            return new URI(null, null, unescaped, null, null).toASCIIString();
+        }
+        catch (URISyntaxException e) {
+            return unescaped;
+        }
+        //return com.intellij.util.io.URLUtil.encodePath(unescaped);
+    }
+
     public URL createStopBuildUrl(String buildUrl) {
         try {//http://jenkins.internal/job/it4em-it4em-DPD-GEOR-UAT-RO/27/stop
-            return new URL(buildUrl + URIUtil.encodePath("stop"));
+            return new URL(buildUrl + encodePath("stop"));
         } catch (Exception ex) {
             handleException(ex);
         }
@@ -84,7 +119,7 @@ public class UrlBuilder {
 
     public URL createJenkinsWorkspaceUrl(JenkinsAppSettings configuration) {
         try {
-            return new URL(URIUtil.encodePathQuery(configuration.getServerUrl() + API_JSON + TREE_PARAM + BASIC_JENKINS_INFO));
+            return new URL(encodePathQuery(configuration.getServerUrl() + API_JSON + TREE_PARAM + BASIC_JENKINS_INFO));
         } catch (Exception ex) {
             handleException(ex);
         }
@@ -97,7 +132,7 @@ public class UrlBuilder {
             basicViewInfo = CLOUDBEES_VIEW_INFO;
         }
         try {
-            return new URL(viewUrl + URIUtil.encodePathQuery(API_JSON + TREE_PARAM + basicViewInfo));
+            return new URL(viewUrl + encodePathQuery(API_JSON + TREE_PARAM + basicViewInfo));
         } catch (Exception ex) {
             handleException(ex);
         }
@@ -107,7 +142,7 @@ public class UrlBuilder {
 
     public URL createJobUrl(String jobUrl) {
         try {
-            return new URL(jobUrl + URIUtil.encodePathQuery(API_JSON + TREE_PARAM + BASIC_JOB_INFO));
+            return new URL(jobUrl + encodePathQuery(API_JSON + TREE_PARAM + BASIC_JOB_INFO));
         } catch (Exception ex) {
             handleException(ex);
         }
@@ -116,7 +151,7 @@ public class UrlBuilder {
 
     public URL createBuildUrl(String buildUrl) {
         try {
-            return new URL(buildUrl + URIUtil.encodePathQuery(API_JSON + TREE_PARAM + BASIC_BUILD_INFO));
+            return new URL(buildUrl + encodePathQuery(API_JSON + TREE_PARAM + BASIC_BUILD_INFO));
         } catch (Exception ex) {
             handleException(ex);
         }
@@ -125,7 +160,7 @@ public class UrlBuilder {
 
     public URL createBuildsUrl(String buildUrl) {
         try {
-            return new URL(buildUrl + URIUtil.encodePathQuery(API_JSON + TREE_PARAM + BASIC_BUILDS_INFO));
+            return new URL(buildUrl + encodePathQuery(API_JSON + TREE_PARAM + BASIC_BUILDS_INFO));
         } catch (Exception ex) {
             handleException(ex);
         }
@@ -143,7 +178,7 @@ public class UrlBuilder {
 
     public URL createAuthenticationUrl(String serverUrl) {
         try {
-            return new URL(serverUrl + URIUtil.encodePathQuery(API_JSON + TEST_CONNECTION_REQUEST));
+            return new URL(serverUrl + encodePathQuery(API_JSON + TEST_CONNECTION_REQUEST));
         } catch (Exception ex) {
             handleException(ex);
         }
@@ -162,14 +197,15 @@ public class UrlBuilder {
     private void handleException(Exception ex) {
         if (ex instanceof MalformedURLException) {
             throw new IllegalArgumentException("URL is malformed", ex);
-        } else if (ex instanceof URIException) {
-            throw new IllegalArgumentException(ERROR_DURING_URL_CREATION, ex);
         }
+//        else if (ex instanceof URIException) {
+//            throw new IllegalArgumentException(ERROR_DURING_URL_CREATION, ex);
+//        }
     }
 
     public URL createNestedJobUrl(String currentJobUrl) {
         try {
-            return new URL(currentJobUrl + URIUtil.encodePathQuery(API_JSON + TREE_PARAM + NESTED_JOBS_INFO));
+            return new URL(currentJobUrl + encodePathQuery(API_JSON + TREE_PARAM + NESTED_JOBS_INFO));
         } catch (Exception ex) {
             handleException(ex);
         }
@@ -180,7 +216,7 @@ public class UrlBuilder {
     @NotNull
     public URL createComputerUrl(String serverUrl) {
         try {
-            return new URL(serverUrl + URIUtil.encodePathQuery(COMPUTER + API_JSON + TREE_PARAM +
+            return new URL(serverUrl + encodePathQuery(COMPUTER + API_JSON + TREE_PARAM +
                     COMPUTER_INFO));
         } catch (Exception ex) {
             handleException(ex);
@@ -221,7 +257,7 @@ public class UrlBuilder {
 
     public URL createFillValueItemsUrl(String jobUrl, String className, String param) {
         try {
-            return new URL(jobUrl +  URIUtil.encodePathQuery(String.format(FILL_VALUE_ITEMS, className, param)));
+            return new URL(jobUrl +  encodePathQuery(String.format(FILL_VALUE_ITEMS, className, param)));
         } catch (Exception ex) {
             handleException(ex);
         }

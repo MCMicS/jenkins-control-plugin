@@ -1,109 +1,134 @@
 package org.codinjutsu.tools.jenkins.security;
 
-import com.github.cliftonlabs.json_simple.Jsoner;
 import com.intellij.mock.MockVirtualFile;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.multipart.FilePart;
-import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
-import org.apache.commons.httpclient.methods.multipart.Part;
-import org.apache.commons.httpclient.methods.multipart.StringPart;
+import lombok.SneakyThrows;
+import org.apache.http.HttpEntity;
+import org.apache.http.entity.mime.FormBodyPart;
+import org.apache.http.entity.mime.content.InputStreamBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.util.Lists;
 import org.codinjutsu.tools.jenkins.model.FileParameter;
 import org.codinjutsu.tools.jenkins.model.RequestData;
 import org.codinjutsu.tools.jenkins.model.StringParameter;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 
+import javax.net.ssl.SSLContext;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.lang.reflect.Field;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-
-import static org.junit.Assert.*;
 
 public class DefaultSecurityClientTest {
 
-    private final DefaultSecurityClient securityClient = new DefaultSecurityClient("Crumb", 10);
+    private final DefaultSecurityClient securityClient;
+
+    public DefaultSecurityClientTest() throws NoSuchAlgorithmException {
+        securityClient = new DefaultSecurityClient("Crumb", 10, SSLContext.getDefault(), false);
+    }
+
 
     @Test
     public void createPostForEmptyData() {
-        final PostMethod post = securityClient.createPost("http://example.org", Collections.emptySet());
-        Assertions.assertThat(post.getRequestEntity()).isNull();
+        final var post = securityClient.createPost("http://example.org", Collections.emptySet());
+        Assertions.assertThat(post.getEntity()).isNull();
     }
 
     @Test
     public void createPostWithOneFileAndOneStringParameter() throws IOException {
-        final VirtualFile virtualFile = new MockVirtualFile("sampleFile.md");
-        final PostMethod post = securityClient.createPost("http://example.org", Lists.list(new StringParameter("test", "Jenkins"),
+        final VirtualFile virtualFile = new MockVirtualFileWithInputStream("sampleFile.md");
+        final var post = securityClient.createPost("http://example.org", Lists.list(new StringParameter("test", "Jenkins"),
                 new FileParameter("fileParam", virtualFile)));
-        Assertions.assertThat(post.getRequestEntity()).isNotNull();
-        Assertions.assertThat(post.getRequestEntity()).isInstanceOf(MultipartRequestEntity.class);
-        final MultipartRequestEntity multipartRequestEntity = (MultipartRequestEntity) post.getRequestEntity();
-        final Part[] parts = Whitebox.getInternalState(multipartRequestEntity, Part[].class);
+        Assertions.assertThat(post.getEntity()).isNotNull();
+        final List<FormBodyPart> parts = assertMultipartFormEntity(post.getEntity());
         Assertions.assertThat(parts).hasSize(2);
-        Assertions.assertThat(parts[0]).isInstanceOf(FilePart.class);
-        Assertions.assertThat(parts[0].getName()).isEqualTo("sampleFile.md");
-        Assertions.assertThat(parts[1]).isInstanceOf(StringPart.class);
+        final FormBodyPart firstPart = parts.get(0);
+        final FormBodyPart secondPart = parts.get(1);
+        Assertions.assertThat(firstPart.getName()).isEqualTo("sampleFile.md");
+        Assertions.assertThat(secondPart.getName()).isEqualTo("json");
+        Assertions.assertThat(firstPart.getBody()).isInstanceOf(InputStreamBody.class);
+        Assertions.assertThat(secondPart.getBody()).isInstanceOf(StringBody.class);
         final String expectedJson = "{\"parameter\":[{\"name\":\"fileParam\",\"file\":\"sampleFile.md\"},{\"name\":\"test\",\"value\":\"Jenkins\"}]}";
-        final StringPart expected = new StringPart("json", expectedJson, DefaultSecurityClient.CHARSET);
-        Assertions.assertThat(parts[1].length()).isEqualTo(expected.length());
+        Assertions.assertThat(secondPart.getBody().getContentLength()).isEqualTo(expectedJson.length());
     }
 
     @Test
     public void createPostWithFileNameProvider() throws IOException {
-        final VirtualFile virtualFile = new MockVirtualFile("sampleFile.md");
-        final PostMethod post = securityClient.createPost("http://example.org", Lists.list(new StringParameter("test", "Jenkins"),
+        final VirtualFile virtualFile = new MockVirtualFileWithInputStream("sampleFile.md");
+        final var post = securityClient.createPost("http://example.org", Lists.list(new StringParameter("test", "Jenkins"),
                 new FileParameter("fileParam", virtualFile, () -> "file0")));
-        Assertions.assertThat(post.getRequestEntity()).isNotNull();
-        Assertions.assertThat(post.getRequestEntity()).isInstanceOf(MultipartRequestEntity.class);
-        final MultipartRequestEntity multipartRequestEntity = (MultipartRequestEntity) post.getRequestEntity();
-        final Part[] parts = Whitebox.getInternalState(multipartRequestEntity, Part[].class);
+        Assertions.assertThat(post.getEntity()).isNotNull();
+        final var parts = assertMultipartFormEntity(post.getEntity());
         Assertions.assertThat(parts).hasSize(2);
-        Assertions.assertThat(parts[0]).isInstanceOf(FilePart.class);
-        Assertions.assertThat(parts[0].getName()).isEqualTo("file0");
-        Assertions.assertThat(parts[1]).isInstanceOf(StringPart.class);
+        final FormBodyPart firstPart = parts.get(0);
+        final FormBodyPart secondPart = parts.get(1);
+        Assertions.assertThat(firstPart.getName()).isEqualTo("file0");
+        Assertions.assertThat(secondPart.getName()).isEqualTo("json");
+        Assertions.assertThat(firstPart.getBody()).isInstanceOf(InputStreamBody.class);
+        Assertions.assertThat(secondPart.getBody()).isInstanceOf(StringBody.class);
         final String expectedJson = "{\"parameter\":[{\"name\":\"fileParam\",\"file\":\"file0\"},{\"name\":\"test\",\"value\":\"Jenkins\"}]}";
-        final StringPart expected = new StringPart("json", expectedJson, DefaultSecurityClient.CHARSET);
-        Assertions.assertThat(parts[1].length()).isEqualTo(expected.length());
+        Assertions.assertThat(secondPart.getBody().getContentLength()).isEqualTo(expectedJson.length());
     }
 
     @Test
     public void createPostWithTwoStringParameter() throws IOException {
-        final List<RequestData> requestData =Lists.list(new StringParameter("test", "Jenkins"),
+        final List<RequestData> requestData = Lists.list(new StringParameter("test", "Jenkins"),
                 new StringParameter("second", "more"));
-        final PostMethod post = securityClient.createPost("http://example.org", requestData);
-        Assertions.assertThat(post.getRequestEntity()).isNotNull();
-        Assertions.assertThat(post.getRequestEntity()).isInstanceOf(MultipartRequestEntity.class);
-        final MultipartRequestEntity multipartRequestEntity = (MultipartRequestEntity) post.getRequestEntity();
-        final Part[] parts = Whitebox.getInternalState(multipartRequestEntity, Part[].class);
+        final var post = securityClient.createPost("http://example.org", requestData);
+        Assertions.assertThat(post.getEntity()).isNotNull();
+        final var parts = assertMultipartFormEntity(post.getEntity());
         Assertions.assertThat(parts).hasSize(1);
-        Assertions.assertThat(parts[0]).isInstanceOf(StringPart.class);
-        Assertions.assertThat(parts[0].getName()).isEqualTo("json");
+        final FormBodyPart firstPart = parts.get(0);
+        Assertions.assertThat(firstPart.getName()).isEqualTo("json");
+        Assertions.assertThat(firstPart.getBody()).isInstanceOf(StringBody.class);
         final String expectedJson = "{\"parameter\":[{\"name\":\"test\",\"value\":\"Jenkins\"},{\"name\":\"second\",\"value\":\"more\"}]}";
-        final StringPart expected = new StringPart("json", expectedJson, DefaultSecurityClient.CHARSET);
-
-        Assertions.assertThat(parts[0].length()).isEqualTo(expected.length());
+        Assertions.assertThat(firstPart.getBody().getContentLength()).isEqualTo(expectedJson.length());
     }
 
     @Test
     public void createPostWithParameterIsEncodedAsUTF8() throws IOException {
-        final List<RequestData> requestData =Lists.list(new StringParameter("first", "İstanbul"),
+        final List<RequestData> requestData = Lists.list(new StringParameter("first", "İstanbul"),
                 new StringParameter("second", "İÖÇŞĞ"));
-        final PostMethod post = securityClient.createPost("http://example.org", requestData);
-        Assertions.assertThat(post.getRequestEntity()).isNotNull();
-        Assertions.assertThat(post.getRequestEntity()).isInstanceOf(MultipartRequestEntity.class);
-        final MultipartRequestEntity multipartRequestEntity = (MultipartRequestEntity) post.getRequestEntity();
-        final Part[] parts = Whitebox.getInternalState(multipartRequestEntity, Part[].class);
-        Assertions.assertThat(parts).hasSize(1);
-        Assertions.assertThat(parts[0]).isInstanceOf(StringPart.class);
-        Assertions.assertThat(parts[0].getName()).isEqualTo("json");
-        final String expectedJson = "{\"parameter\":[{\"name\":\"first\",\"value\":\"İstanbul\"},{\"name\":\"second\",\"value\":\"İÖÇŞĞ\"}]}";
-        final StringPart expected = new StringPart("json", expectedJson, DefaultSecurityClient.CHARSET);
+        final var post = securityClient.createPost("http://example.org", requestData);
+        Assertions.assertThat(post.getEntity()).isNotNull();
 
-        Assertions.assertThat(parts[0].length()).isEqualTo(expected.length());
+        final var parts = assertMultipartFormEntity(post.getEntity());
+        Assertions.assertThat(parts).hasSize(1);
+        final FormBodyPart firstPart = parts.get(0);
+        Assertions.assertThat(firstPart.getName()).isEqualTo("json");
+        Assertions.assertThat(firstPart.getBody()).isInstanceOf(StringBody.class);
+        final String expectedJson = "{\"parameter\":[{\"name\":\"first\",\"value\":\"İstanbul\"},{\"name\":\"second\",\"value\":\"İÖÇŞĞ\"}]}";
+        Assertions.assertThat(firstPart.getBody().getContentLength())
+                .isEqualTo(expectedJson.getBytes(StandardCharsets.UTF_8).length);
+    }
+
+    /**
+     * @see org.apache.http.entity.mime.MultipartFormEntity
+     * @see org.apache.http.entity.mime.AbstractMultipartForm
+     * @see org.apache.http.entity.mime.AbstractMultipartForm#getBodyParts()
+     */
+    @SneakyThrows
+    private List<FormBodyPart> assertMultipartFormEntity(HttpEntity httpEntity) {
+        Assertions.assertThat(httpEntity.getClass().getName()).isEqualTo("org.apache.http.entity.mime.MultipartFormEntity");
+        final var abstractMultipartForm = Whitebox.getInternalState(httpEntity, "multipart");
+        return Whitebox.invokeMethod(abstractMultipartForm, "getBodyParts");
+    }
+
+    private class MockVirtualFileWithInputStream extends MockVirtualFile {
+
+        public MockVirtualFileWithInputStream(String name) {
+            super(name);
+        }
+
+        @Override
+        public @NotNull InputStream getInputStream() {
+            return new ByteArrayInputStream(getName().getBytes(StandardCharsets.UTF_8));
+        }
     }
 }
