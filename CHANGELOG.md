@@ -4,6 +4,7 @@
 - maximum timeout increased to 300
 - add Support for 2022.3
 - \#409 IDEA 2022.3: Access is allowed from event dispatch thread only
+- Add "Go to server" to context menu 
 
 ## [0.13.14]
 - \#349 Extend support for Git Parameter. Thanks to @chrisxiao
