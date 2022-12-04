@@ -19,7 +19,9 @@
 
 ### Current Release
 * [Idea 2021.2 - 2022.1.4](../../releases/latest/download/jenkins-control-plugin-2021.2.zip)
-* [Idea 2022.2 or newer](../../releases/latest/download/jenkins-control-plugin-2022.2.zip)
+* [Idea 2022.2 or newer](../../releases/download/v0.13.15-2/jenkins-control-plugin-2022.2.zip)
+
+[//]: # (* [Idea 2022.2 or newer]&#40;../../releases/latest/download/jenkins-control-plugin-2022.2.zip&#41;)
 
 ### Use EAP Builds
 * add https://plugins.jetbrains.com/plugins/eap/list as Plugin Repository
