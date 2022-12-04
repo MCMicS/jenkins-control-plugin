@@ -37,6 +37,7 @@ import javax.swing.*;
 public class GuiUtil {
 
     public static void runInSwingThread(Runnable runnable) {
+        // maxbe use ModalityUiUtil.invokeLaterIfNeeded
         Application application = ApplicationManager.getApplication();
         if (application.isDispatchThread()) {
             runnable.run();

@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+## [0.13.15-2]
+- \#413 0.13.15-2022.2 - still not working with Intellij 2022.3
+
 ## [0.13.15]
 - maximum timeout increased to 300
 - add Support for 2022.3
