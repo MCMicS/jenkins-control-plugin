@@ -167,7 +167,7 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
     }
 
     private void updateDoubleClickAction(@NotNull JobAction doubleClickAction) {
-        jobTree.updateDoubleClickAction(doubleClickAction);
+        GuiUtil.runInSwingThread(() -> jobTree.updateDoubleClickAction(doubleClickAction));
     }
 
     /*whole method could be moved inside of ExecutorProvider (executor would expose interface that would allow to schedule
@@ -274,10 +274,9 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
     }
 
     private void updateJobNode(Job job) {
-        jobTree.updateJobNode(job);
-
         BuildStatusAggregator buildStatusAggregator = new BuildStatusAggregator();
         GuiUtil.runInSwingThread(() -> {
+            jobTree.updateJobNode(job);
             CollectionUtil.flattenedJobs(jenkins.getJobs()).forEach(j -> visit(j, buildStatusAggregator));
             JenkinsWidget.getInstance(project).updateStatusIcon(buildStatusAggregator);
         });
@@ -501,9 +500,9 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
     }
 
     public void expandSelectedJob() {
-        Optional.ofNullable(jobTree.getLastSelectedPathComponent())
+        GuiUtil.runInSwingThread(() -> Optional.ofNullable(jobTree.getLastSelectedPathComponent())
                 .filter(node -> node.getUserObject() instanceof JenkinsTreeNode.JobNode)
-                .ifPresent(node -> jobTree.getTree().expandPath(new TreePath(node.getPath())));
+                .ifPresent(node -> jobTree.getTree().expandPath(new TreePath(node.getPath()))));
     }
 
     private class LoadSelectedViewJob implements JenkinsBackgroundTask.JenkinsTask {
