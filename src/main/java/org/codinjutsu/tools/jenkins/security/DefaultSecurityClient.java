@@ -114,7 +114,7 @@ class DefaultSecurityClient implements SecurityClient {
         return execute(jenkinsUrl);
     }
 
-    public String execute(URL url, @NotNull Collection<RequestData> data) {
+    public @NotNull Response execute(URL url, @NotNull Collection<RequestData> data) {
         String urlStr = url.toString();
 
         ResponseCollector responseCollector = new ResponseCollector();
@@ -124,7 +124,7 @@ class DefaultSecurityClient implements SecurityClient {
             runMethod(responseCollector.data, data, responseCollector);
         }
 
-        return responseCollector.data;
+        return new Response(responseCollector.statusCode, responseCollector.data, responseCollector.error);
     }
 
     /**
@@ -193,10 +193,16 @@ class DefaultSecurityClient implements SecurityClient {
             final var response = executeHttp(post);
             final var statusCode = response.getStatusLine().getStatusCode();
             final var responseBody = EntityUtils.toString(response.getEntity());
+            final var errorHeader = response.getFirstHeader("X-Error");
             checkResponse(statusCode, responseBody);
 
             if (HttpURLConnection.HTTP_OK == statusCode) {
                 responseCollector.collect(statusCode, responseBody);
+            } else {
+                responseCollector.statusCode(statusCode);
+            }
+            if (errorHeader != null) {
+                responseCollector.error(errorHeader.getValue());
             }
             // ToDo @mcmics enable redirection in httpclient again and try to remove following
             if (isRedirection(statusCode)) {
@@ -263,11 +269,23 @@ class DefaultSecurityClient implements SecurityClient {
 
         private int statusCode;
         private String data;
+        private String error;
 
-        void collect(int statusCode, String body) {
-            this.statusCode = statusCode;
+        @NotNull ResponseCollector collect(int statusCode, String body) {
             this.data = body;
+            return statusCode(statusCode);
+        }
+
+        @NotNull ResponseCollector statusCode(int statusCode) {
+            this.statusCode = statusCode;
+            return this;
+        }
+
+        @NotNull ResponseCollector error(String error) {
+            this.error = error;
+            return this;
         }
 
     }
+
 }

@@ -30,8 +30,8 @@ public interface SecurityClient {
     String connect(URL jenkinsUrl);
 
     default String execute(URL url) {
-        return execute(url, Collections.emptySet());
+        return execute(url, Collections.emptySet()).getData();
     }
 
-    String execute(URL url, @NotNull Collection<RequestData> data);
+    @NotNull Response execute(URL url, @NotNull Collection<RequestData> data);
 }
