@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 - \#415 Unable to enter parameters
+- Show error for trigger builds (Read from Header X-Error)
 
 ## [0.13.15-2]
 - \#413 0.13.15-2022.2 - still not working with Intellij 2022.3
