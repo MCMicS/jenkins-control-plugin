@@ -509,6 +509,7 @@ public class RequestManager implements RequestManagerInterface, Disposable {
 
     @NotNull
     private HttpClientBuilder createHttpClientBuilder(String serverUrl, JenkinsSettings jenkinsSettings) {
+        // FIXME @mcmics merge with DefaultSecurityClient
         final CredentialsProvider provider = new BasicCredentialsProvider();
         IdeHttpClientHelpers.ApacheHttpClient4.setProxyCredentialsForUrlIfEnabled(provider, serverUrl);
         final RequestConfig.Builder requestConfig = RequestConfig.custom();
