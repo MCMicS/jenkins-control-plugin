@@ -78,6 +78,12 @@ public class UrlBuilderTest {
     }
 
     @Test
+    public void createAuthenticationJSONUrlWithTrailingSlash() {
+        URL url = urlBuilder.createAuthenticationUrl("http://localhost:8080/jenkins/");
+        assertThat(url).hasToString("http://localhost:8080/jenkins/api/json?tree=nodeName,url,description,primaryView[name,url]");
+    }
+
+    @Test
     public void createComputerJSONUrl() {
         URL url = urlBuilder.createComputerUrl("http://localhost:8080/jenkins");
         assertThat(url).hasToString("http://localhost:8080/jenkins/computer/api/json?tree=computer[displayName,description,offline,assignedLabels[name]]");
