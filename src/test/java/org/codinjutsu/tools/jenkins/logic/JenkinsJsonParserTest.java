@@ -225,6 +225,25 @@ public class JenkinsJsonParserTest {
     }
 
     @Test
+    public void getServerUrlForNullUrl() {
+        final String serverUrl = jsonParser.getServerUrl("{\"_class\":\"hudson.model.Hudson\"," +
+                "\"nodeName\":\"\"," +
+                "\"description\":\"Sample\"," +
+                "\"url\":null}");
+        assertThat(serverUrl).isEqualTo("");
+    }
+
+    @Test
+    public void getServerUrlForNullUrlAndPrimaryView() {
+        final String serverUrl = jsonParser.getServerUrl("{\"_class\":\"hudson.model.Hudson\"," +
+                "\"nodeName\":\"\"," +
+                "\"description\":\"Sample\"," +
+                "\"primaryView\":{\"_class\":\"hudson.model.AllView\",\"name\":\"all\",\"url\":\"http://localhost:8080/jenkins/view\"}," +
+                "\"url\":null}");
+        assertThat(serverUrl).isEqualTo("http://localhost:8080/jenkins/view");
+    }
+
+    @Test
     public void testLoadJob() throws Exception {
         Job actualJob = jsonParser.createJob(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadJob.json")));
         final Job expectedJob = new JobBuilder()

@@ -63,7 +63,7 @@ public class JenkinsJsonParser implements JenkinsParser {
         final JsonObject jsonObject = parseJson(jsonData);
         final Optional<View> primaryView = Optional.ofNullable((JsonObject) jsonObject.get(PRIMARY_VIEW)).map(this::getView);
 
-        final String description = jsonObject.getStringOrDefault(createJsonKey(SERVER_DESCRIPTION, ""));
+        final String description = getStringOrDefaultForNull(jsonObject, SERVER_DESCRIPTION, StringUtils.EMPTY);
         final String jenkinsUrl = getServerUrl(jsonObject);
         final Jenkins jenkins = new Jenkins(description, jenkinsUrl);
         primaryView.ifPresent(jenkins::setPrimaryView);
@@ -266,12 +266,12 @@ public class JenkinsJsonParser implements JenkinsParser {
     @NotNull
     private Job getJob(JsonObject jsonObject) {
         final String name = jsonObject.getString(createJsonKey(JOB_NAME));
-        final String fullName = jsonObject.getStringOrDefault(createJsonKey(JOB_FULL_NAME, name));
+        final String fullName = getStringOrDefaultForNull(jsonObject, JOB_FULL_NAME, name);
         final JobType jobType = getJobType(jsonObject);
         final String displayName = getDisplayName(jsonObject);
         final String fullDisplayName = getFullDisplayName(jsonObject);
         final String url = jsonObject.getString(createJsonKey(JOB_URL));
-        final String color = jsonObject.getStringOrDefault(createJsonKey(JOB_COLOR, null));
+        final String color = getStringOrDefaultForNull(jsonObject, JOB_COLOR, null);
         final boolean buildable = getBoolean(jsonObject.getBoolean(createJsonKey(JOB_IS_BUILDABLE)));
         final boolean inQueue = getBoolean(jsonObject.getBoolean(createJsonKey(JOB_IS_IN_QUEUE)));
 
@@ -484,8 +484,8 @@ public class JenkinsJsonParser implements JenkinsParser {
     @NotNull
     private String getServerUrl(JsonObject jsonObject) {
         final Optional<View> primaryView = Optional.ofNullable((JsonObject) jsonObject.get(PRIMARY_VIEW)).map(this::getView);
-        final String primaryViewUrl = primaryView.map(View::getUrl).orElse("");
-        return Optional.ofNullable(jsonObject.getStringOrDefault(createJsonKey(SERVER_URL, primaryViewUrl))).orElse(StringUtils.EMPTY);
+        final String primaryViewUrl = primaryView.map(View::getUrl).orElse(StringUtils.EMPTY);
+        return getStringOrDefaultForNull(jsonObject, SERVER_URL, primaryViewUrl);
     }
 
     @NotNull
@@ -527,5 +527,10 @@ public class JenkinsJsonParser implements JenkinsParser {
             LOG.error(message);
             throw new JenkinsPluginRuntimeException(message);
         }
+    }
+
+    private @Nullable String getStringOrDefaultForNull(JsonObject jsonObject, @NotNull String key,
+                                                       @Nullable String defaultValue) {
+        return Optional.ofNullable(jsonObject.getStringOrDefault(createJsonKey(key, defaultValue))).orElse(defaultValue);
     }
 }

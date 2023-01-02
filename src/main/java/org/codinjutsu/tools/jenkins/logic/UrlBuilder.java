@@ -22,7 +22,6 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.UriUtil;
 import lombok.SneakyThrows;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
-import org.codinjutsu.tools.jenkins.view.action.UploadPatchToJobAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,7 +33,7 @@ import java.util.Optional;
 
 public class UrlBuilder {
 
-    private static final Logger LOG = Logger.getInstance(UploadPatchToJobAction.class.getName());
+    private static final Logger LOG = Logger.getInstance(UrlBuilder.class.getName());
 
     private static final String API_JSON = "/api/json";
     private static final String BUILD = "/build";
