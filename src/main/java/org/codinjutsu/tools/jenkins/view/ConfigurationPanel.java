@@ -169,6 +169,9 @@ public class ConfigurationPanel {
 
             final String jenkinsUrl = RequestManager.getInstance(project).testAuthenticate(serverUrl.getText(),
                     username.getText(), password, crumbDataField.getText(), version, getConnectionTimeout());
+            if (StringUtils.isEmpty(jenkinsUrl)) {
+                throw new ConfigurationException("Cannot find 'Jenkins URL'. Please check your Jenkins Location");
+            }
             final ConfigurationValidator.ValidationResult validationResult = ConfigurationValidator.getInstance(project)
                     .validate(serverUrl.getText(), jenkinsUrl);
             if (validationResult.isValid()) {
