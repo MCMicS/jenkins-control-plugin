@@ -144,7 +144,7 @@ dependencies {
             'org.mockito:mockito-inline:4.10.0',
             'org.powermock:powermock-api-mockito2:2.0.9',
             'org.powermock:powermock-core:2.0.9',
-            'org.assertj:assertj-core:3.23.1',
+            'org.assertj:assertj-core:3.24.0',
             'org.assertj:assertj-swing-junit:3.17.1'
     )
 }
