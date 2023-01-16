@@ -5,9 +5,9 @@ import org.jetbrains.intellij.tasks.RunPluginVerifierTask
 
 plugins {
     id 'java'
-    id 'org.jetbrains.intellij' version '1.10.0'
+    id 'org.jetbrains.intellij' version '1.11.0'
     id 'org.jetbrains.changelog' version "2.0.0"
-    id "io.freefair.lombok" version "6.5.1"
+    id "io.freefair.lombok" version "6.6.1"
     id 'idea'
     id "org.sonarqube" version "3.5.0.2730"
     id 'jacoco'
@@ -141,10 +141,10 @@ dependencies {
 
     testImplementation(
             'junit:junit:4.13.2',
-            'org.mockito:mockito-inline:4.9.0',
+            'org.mockito:mockito-inline:5.0.0',
             'org.powermock:powermock-api-mockito2:2.0.9',
             'org.powermock:powermock-core:2.0.9',
-            'org.assertj:assertj-core:3.23.1',
+            'org.assertj:assertj-core:3.24.1',
             'org.assertj:assertj-swing-junit:3.17.1'
     )
 }

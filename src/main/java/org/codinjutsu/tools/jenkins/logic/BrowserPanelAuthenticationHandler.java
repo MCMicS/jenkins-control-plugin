@@ -5,6 +5,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBusConnection;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
+import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 
 public class BrowserPanelAuthenticationHandler implements AuthenticationNotifier, Disposable {
@@ -27,19 +28,21 @@ public class BrowserPanelAuthenticationHandler implements AuthenticationNotifier
 
     @Override
     public void emptyConfiguration(){
-        browser.handleEmptyConfiguration();
+        GuiUtil.runInSwingThread(browser::handleEmptyConfiguration);
     }
 
     @Override
     public void afterLogin(Jenkins jenkinsWorkspace) {
-        browser.updateWorkspace(jenkinsWorkspace);
-        browser.postAuthenticationInitialization();
-        browser.initScheduledJobs();
+        GuiUtil.runInSwingThread(() -> {
+            browser.updateWorkspace(jenkinsWorkspace);
+            browser.postAuthenticationInitialization();
+            browser.initScheduledJobs();
+        });
     }
 
     @Override
     public void loginCancelled() {
-        browser.handleEmptyConfiguration();
+        emptyConfiguration();
     }
 
     @Override

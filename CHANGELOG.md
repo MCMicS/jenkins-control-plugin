@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## [0.13.16]
+- \#415 Unable to enter parameters
+- Show error for trigger builds (Read from Header X-Error)
+  - Fix Proxy Handling
+- \#426 Plugin Failing After IntelliJ Upgrade to 0.13.15 if jenkins is hosted Tomcat or QUery Parameters are not relaxed
+- Add Trace Logging for Url calls with `#org.codinjutsu.tools.jenkins:trace`
+
+## [0.13.15-2]
+- \#413 0.13.15-2022.2 - still not working with Intellij 2022.3
+
 ## [0.13.15]
 - maximum timeout increased to 300
 - add Support for 2022.3
@@ -272,4 +282,3 @@ Add Notification group to configure the behaviour in IDE settings.(Settings -> A
 - Open Job web page and its last build web page on browser
 - Autorefreshed Rss Reader View
 - Autorefresh functions can be disabled on the Jenkins Configuration Panel
-
