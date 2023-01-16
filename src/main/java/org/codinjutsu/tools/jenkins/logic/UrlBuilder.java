@@ -20,6 +20,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.UriUtil;
+import com.intellij.util.io.URLUtil;
 import lombok.SneakyThrows;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.jetbrains.annotations.NotNull;
@@ -88,7 +89,9 @@ public class UrlBuilder {
                 LOG.debug(e.getMessage(), e);
             }
             //return com.intellij.util.io.URLUtil.encodeQuery(query);
-            return path + '?' + query;
+            return path + '?' + URLUtil.encodeURIComponent(query)
+                    .replaceAll("%3D", "=")
+                    .replaceAll("%2C", ",");
         }
     }
 

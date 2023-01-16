@@ -4,7 +4,9 @@
 - \#415 Unable to enter parameters
 - Show error for trigger builds (Read from Header X-Error)
 - \#413 0.13.15-2022.2 - still not working with Intellij 2022.3
-  - Fix Proxy Handling 
+  - Fix Proxy Handling
+- \#426 Plugin Failing After IntelliJ Upgrade to 0.13.15 if jenkins is hosted Tomcat or QUery Parameters are not relaxed
+- Add Trace Logging for Url calls with `#org.codinjutsu.tools.jenkins:trace`
 
 ## [0.13.15-2]
 - \#413 0.13.15-2022.2 - still not working with Intellij 2022.3

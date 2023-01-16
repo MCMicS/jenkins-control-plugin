@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.security;
 
+import com.intellij.openapi.diagnostic.Logger;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
@@ -31,6 +32,8 @@ import java.util.Collections;
 
 
 class BasicSecurityClient extends DefaultSecurityClient {
+
+    private static final Logger LOG = Logger.getInstance(BasicSecurityClient.class);
 
     private final String username;
     private String password = null;
@@ -61,6 +64,8 @@ class BasicSecurityClient extends DefaultSecurityClient {
             final var response = executeHttp(post);
             final var responseCode = response.getStatusLine().getStatusCode();
             final var responseBody = EntityUtils.toString(response.getEntity());
+            LOG.trace(String.format("Call url '%s' --> Status: %s, Data %s", jenkinsUrl, responseCode,
+                    responseBody));
             if (responseCode != HttpStatus.SC_OK) {
                 checkResponse(responseCode, responseBody);
             }
