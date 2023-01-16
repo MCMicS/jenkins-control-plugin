@@ -238,6 +238,10 @@ class DefaultSecurityClient implements SecurityClient {
             throw new AuthenticationException("Not found", responseBody);
         }
 
+        if (HttpURLConnection.HTTP_BAD_REQUEST == statusCode) {
+            throw new AuthenticationException("Invalid Request", responseBody);
+        }
+
         if (statusCode == HttpURLConnection.HTTP_FORBIDDEN || statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
             if (StringUtils.containsIgnoreCase(responseBody, BAD_CRUMB_DATA)) {
                 throw new AuthenticationException("CSRF enabled -> Missing or bad crumb data", responseBody);
