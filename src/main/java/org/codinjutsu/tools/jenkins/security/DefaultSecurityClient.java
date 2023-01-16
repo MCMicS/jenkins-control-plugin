@@ -40,7 +40,6 @@ import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.util.EntityUtils;
 import org.codinjutsu.tools.jenkins.exception.AuthenticationException;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
@@ -59,18 +58,21 @@ import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.function.Function;
 
 class DefaultSecurityClient implements SecurityClient {
 
     private static final String BAD_CRUMB_DATA = "No valid crumb was included in the request";
     static final Charset CHARSET = StandardCharsets.UTF_8;
     static final String CHARSET_NAME = CHARSET.name();
-    protected final HttpClient httpClient;
+    private final HttpClient httpClient;
     protected @Deprecated String crumbData;
     protected JenkinsVersion jenkinsVersion = JenkinsVersion.VERSION_1;
     private final CredentialsProvider credentialsProvider;
     private final AuthCache authCache;
     private final HttpClientContext httpClientContext;
+
+    private final Function<String, RequestConfig> configCreator;
 
     DefaultSecurityClient(String crumbData, int connectionTimout) {
         this(crumbData, connectionTimout, CertificateManager.getInstance().getSslContext(), true);
@@ -80,30 +82,34 @@ class DefaultSecurityClient implements SecurityClient {
     DefaultSecurityClient(String crumbData, int connectionTimout, SSLContext sslContext, boolean useProxySettings) {
         final var socketConfig = SocketConfig.custom()
                 .setSoTimeout(connectionTimout).build();
-
-        final var poolingHttpClientConnectionManager = new PoolingHttpClientConnectionManager();
-        poolingHttpClientConnectionManager.setDefaultSocketConfig(socketConfig);
         final var requestConfig = RequestConfig.custom()
                 .setConnectTimeout(connectionTimout)
                 .setConnectionRequestTimeout(connectionTimout)
                 .setSocketTimeout(connectionTimout);
         this.credentialsProvider = new BasicCredentialsProvider();
-        if (useProxySettings) {
-            IdeHttpClientHelpers.ApacheHttpClient4.setProxyIfEnabled(requestConfig);
-            IdeHttpClientHelpers.ApacheHttpClient4.setProxyCredentialsIfEnabled(credentialsProvider);
-        }
 
+        final RequestConfig defaultRequestConfig = requestConfig.build();
         final var httpClientBuilder = HttpClients.custom()
                 .setSSLContext(sslContext)
                 .setDefaultSocketConfig(socketConfig)
-                .setDefaultRequestConfig(requestConfig.build())
+                .setDefaultRequestConfig(defaultRequestConfig)
                 .setDefaultCredentialsProvider(credentialsProvider)
                 .disableRedirectHandling();
         this.httpClient = httpClientBuilder.build();
+        if (useProxySettings) {
+            this.configCreator = url -> {
+                final var configForUrl = RequestConfig.copy(defaultRequestConfig);
+                IdeHttpClientHelpers.ApacheHttpClient4.setProxyForUrlIfEnabled(configForUrl, url);
+                IdeHttpClientHelpers.ApacheHttpClient4.setProxyCredentialsForUrlIfEnabled(credentialsProvider, url);
+                return requestConfig.build();
+            };
+        } else {
+            this.configCreator = url -> defaultRequestConfig;
+        }
         this.crumbData = crumbData;
 
         this.authCache = new BasicAuthCache();
-        this.httpClientContext =  HttpClientContext.create();
+        this.httpClientContext = HttpClientContext.create();
         this.httpClientContext.setCredentialsProvider(this.credentialsProvider);
         this.httpClientContext.setAuthCache(authCache);
     }
@@ -114,7 +120,7 @@ class DefaultSecurityClient implements SecurityClient {
         return execute(jenkinsUrl);
     }
 
-    public String execute(URL url, @NotNull Collection<RequestData> data) {
+    public @NotNull Response execute(URL url, @NotNull Collection<RequestData> data) {
         String urlStr = url.toString();
 
         ResponseCollector responseCollector = new ResponseCollector();
@@ -124,7 +130,7 @@ class DefaultSecurityClient implements SecurityClient {
             runMethod(responseCollector.data, data, responseCollector);
         }
 
-        return responseCollector.data;
+        return new Response(responseCollector.statusCode, responseCollector.data, responseCollector.error);
     }
 
     /**
@@ -193,10 +199,16 @@ class DefaultSecurityClient implements SecurityClient {
             final var response = executeHttp(post);
             final var statusCode = response.getStatusLine().getStatusCode();
             final var responseBody = EntityUtils.toString(response.getEntity());
+            final var errorHeader = response.getFirstHeader("X-Error");
             checkResponse(statusCode, responseBody);
 
             if (HttpURLConnection.HTTP_OK == statusCode) {
                 responseCollector.collect(statusCode, responseBody);
+            } else {
+                responseCollector.statusCode(statusCode);
+            }
+            if (errorHeader != null) {
+                responseCollector.error(errorHeader.getValue());
             }
             // ToDo @mcmics enable redirection in httpclient again and try to remove following
             if (isRedirection(statusCode)) {
@@ -213,12 +225,21 @@ class DefaultSecurityClient implements SecurityClient {
     }
 
     protected final HttpResponse executeHttp(HttpPost post) throws IOException {
+        final var postConfig = post.getConfig();
+        if (postConfig == null) {
+            post.setConfig(configCreator.apply(post.getURI().toASCIIString()));
+        }
+
         return httpClient.execute(post, this.httpClientContext);
     }
 
     protected void checkResponse(int statusCode, String responseBody) throws AuthenticationException {
         if (statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
             throw new AuthenticationException("Not found", responseBody);
+        }
+
+        if (HttpURLConnection.HTTP_BAD_REQUEST == statusCode) {
+            throw new AuthenticationException("Invalid Request", responseBody);
         }
 
         if (statusCode == HttpURLConnection.HTTP_FORBIDDEN || statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
@@ -263,11 +284,23 @@ class DefaultSecurityClient implements SecurityClient {
 
         private int statusCode;
         private String data;
+        private String error;
 
-        void collect(int statusCode, String body) {
-            this.statusCode = statusCode;
+        @NotNull ResponseCollector collect(int statusCode, String body) {
             this.data = body;
+            return statusCode(statusCode);
+        }
+
+        @NotNull ResponseCollector statusCode(int statusCode) {
+            this.statusCode = statusCode;
+            return this;
+        }
+
+        @NotNull ResponseCollector error(String error) {
+            this.error = error;
+            return this;
         }
 
     }
+
 }

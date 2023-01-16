@@ -43,26 +43,26 @@ public class UrlBuilderTest {
         configuration.setServerUrl("http://localhost:8080/jenkins");
 
         URL url = urlBuilder.createJenkinsWorkspaceUrl(configuration);
-        assertThat(url).hasToString("http://localhost:8080/jenkins/api/json?tree=url,description,nodeName,nodeDescription,primaryView[name,url],views[name,url,views[name,url]]");
+        assertThat(url).hasToString("http://localhost:8080/jenkins/api/json?tree=url,description,nodeName,nodeDescription,primaryView%5Bname,url%5D,views%5Bname,url,views%5Bname,url%5D%5D");
     }
 
     @Test
     public void createViewUrlForClassicPlateform() {
         URL url = urlBuilder.createViewUrl(JenkinsPlateform.CLASSIC, "http://localhost:8080/jenkins/My%20View");
-        assertThat(url).hasToString("http://localhost:8080/jenkins/My%20View/api/json?tree=name,url,jobs[name,fullName,displayName,fullDisplayName,jobs,url,color,buildable,inQueue,healthReport[description,iconUrl],lastBuild[url,id,building,result,number,displayName,fullDisplayName,timestamp,duration,actions[parameters[name,value]]],lastFailedBuild[url],lastSuccessfulBuild[url],property[parameterDefinitions[name,type,defaultParameterValue[value],description,choices]]]");
+        assertThat(url).hasToString("http://localhost:8080/jenkins/My%20View/api/json?tree=name,url,jobs%5Bname,fullName,displayName,fullDisplayName,jobs,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Burl,id,building,result,number,displayName,fullDisplayName,timestamp,duration,actions%5Bparameters%5Bname,value%5D%5D%5D,lastFailedBuild%5Burl%5D,lastSuccessfulBuild%5Burl%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,description,choices%5D%5D%5D");
     }
 
     @Test
     public void createJobJSONUrl() {
         URL url = urlBuilder.createJobUrl("http://localhost:8080/jenkins/my%20Job");
-        assertThat(url).hasToString("http://localhost:8080/jenkins/my%20Job/api/json?tree=name,fullName,displayName,fullDisplayName,jobs,url,color,buildable,inQueue,healthReport[description,iconUrl],lastBuild[url,id,building,result,number,displayName,fullDisplayName,timestamp,duration,actions[parameters[name,value]]],lastFailedBuild[url],lastSuccessfulBuild[url],property[parameterDefinitions[name,type,defaultParameterValue[value],description,choices]]");
+        assertThat(url).hasToString("http://localhost:8080/jenkins/my%20Job/api/json?tree=name,fullName,displayName,fullDisplayName,jobs,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Burl,id,building,result,number,displayName,fullDisplayName,timestamp,duration,actions%5Bparameters%5Bname,value%5D%5D%5D,lastFailedBuild%5Burl%5D,lastSuccessfulBuild%5Burl%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,description,choices%5D%5D");
     }
 
     @Test
     public void createViewUrlForCloudbeesPlateform() {
         URL url = urlBuilder.createViewUrl(JenkinsPlateform.CLOUDBEES, "http://localhost:8080/jenkins/My%20View");
-        assertThat(url).hasToString("http://localhost:8080/jenkins/My%20View/api/json?tree=name,url,views[jobs[name,fullName,displayName,fullDisplayName,jobs,url,color,buildable,inQueue,healthReport[description,iconUrl],lastBuild[url,id,building,result,number,displayName,fullDisplayName,timestamp,duration,actions[parameters[name,value]]],lastFailedBuild[url],lastSuccessfulBuild[url],property[parameterDefinitions[name,type,defaultParameterValue[value],description,choices]]]]");
-        assertThat(url.toString()).contains("/api/json?tree=name,url,views[jobs[name,fullName,displayName,fullDisplayName,jobs,url,color,buildable,inQueue,healthReport[description,iconUrl],lastBuild[url,id,building,result,number,displayName,fullDisplayName,timestamp,duration,actions[parameters[name,value]]],lastFailedBuild[url],lastSuccessfulBuild[url],property[parameterDefinitions[name,type,defaultParameterValue[value],description,choices]]]]");
+        assertThat(url).hasToString("http://localhost:8080/jenkins/My%20View/api/json?tree=name,url,views%5Bjobs%5Bname,fullName,displayName,fullDisplayName,jobs,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Burl,id,building,result,number,displayName,fullDisplayName,timestamp,duration,actions%5Bparameters%5Bname,value%5D%5D%5D,lastFailedBuild%5Burl%5D,lastSuccessfulBuild%5Burl%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,description,choices%5D%5D%5D%5D");
+        assertThat(url.toString()).contains("/api/json?tree=name,url,views%5Bjobs%5Bname,fullName,displayName,fullDisplayName,jobs,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Burl,id,building,result,number,displayName,fullDisplayName,timestamp,duration,actions%5Bparameters%5Bname,value%5D%5D%5D,lastFailedBuild%5Burl%5D,lastSuccessfulBuild%5Burl%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,description,choices%5D%5D%5D%5D");
     }
 
     @Test
@@ -74,13 +74,19 @@ public class UrlBuilderTest {
     @Test
     public void createAuthenticationJSONUrl() {
         URL url = urlBuilder.createAuthenticationUrl("http://localhost:8080/jenkins");
-        assertThat(url).hasToString("http://localhost:8080/jenkins/api/json?tree=nodeName,url,description,primaryView[name,url]");
+        assertThat(url).hasToString("http://localhost:8080/jenkins/api/json?tree=nodeName,url,description,primaryView%5Bname,url%5D");
+    }
+
+    @Test
+    public void createAuthenticationJSONUrlWithTrailingSlash() {
+        URL url = urlBuilder.createAuthenticationUrl("http://localhost:8080/jenkins/");
+        assertThat(url).hasToString("http://localhost:8080/jenkins/api/json?tree=nodeName,url,description,primaryView%5Bname,url%5D");
     }
 
     @Test
     public void createComputerJSONUrl() {
         URL url = urlBuilder.createComputerUrl("http://localhost:8080/jenkins");
-        assertThat(url).hasToString("http://localhost:8080/jenkins/computer/api/json?tree=computer[displayName,description,offline,assignedLabels[name]]");
+        assertThat(url).hasToString("http://localhost:8080/jenkins/computer/api/json?tree=computer%5BdisplayName,description,offline,assignedLabels%5Bname%5D%5D");
     }
 
     @Before

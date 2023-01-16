@@ -39,6 +39,7 @@ import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.exception.JenkinsPluginRuntimeException;
 import org.codinjutsu.tools.jenkins.exception.NoJobFoundException;
+import org.codinjutsu.tools.jenkins.exception.RunBuildError;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.Computer;
 import org.codinjutsu.tools.jenkins.model.Job;
@@ -52,6 +53,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -284,7 +286,10 @@ public class RequestManager implements RequestManagerInterface, Disposable {
     private void runBuild(Job job, JenkinsAppSettings configuration, Collection<RequestData> requestData) {
         if (handleNotYetLoggedInState()) return;
         URL url = urlBuilder.createRunJobUrl(job.getUrl(), configuration);
-        securityClient.execute(url, requestData);
+        final var response = securityClient.execute(url, requestData);
+        if (response.getStatusCode() != HttpURLConnection.HTTP_CREATED) {
+            throw new RunBuildError(Optional.ofNullable(response.getError()).orElse("Unknown"));
+        }
     }
 
     @Override
@@ -504,6 +509,7 @@ public class RequestManager implements RequestManagerInterface, Disposable {
 
     @NotNull
     private HttpClientBuilder createHttpClientBuilder(String serverUrl, JenkinsSettings jenkinsSettings) {
+        // FIXME @mcmics merge with DefaultSecurityClient
         final CredentialsProvider provider = new BasicCredentialsProvider();
         IdeHttpClientHelpers.ApacheHttpClient4.setProxyCredentialsForUrlIfEnabled(provider, serverUrl);
         final RequestConfig.Builder requestConfig = RequestConfig.custom();
