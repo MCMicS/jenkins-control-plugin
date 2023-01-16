@@ -1,4 +1,4 @@
-# Jenkins Plugin 0.13.15 for Jetbrains products
+# Jenkins Plugin 0.13.16 for Jetbrains products
 [![Build Status](https://app.travis-ci.com/MCMicS/jenkins-control-plugin.svg?branch=master)](https://app.travis-ci.com/MCMicS/jenkins-control-plugin)
 [![Plugin Compatibility](https://github.com/MCMicS/jenkins-control-plugin/actions/workflows/compatibility.yml/badge.svg)](https://github.com/MCMicS/jenkins-control-plugin/actions/workflows/compatibility.yml)
 
@@ -19,7 +19,7 @@
 
 ### Current Release
 * [Idea 2021.2 - 2022.1.4](../../releases/latest/download/jenkins-control-plugin-2021.2.zip)
-* [Idea 2022.2 or newer](../../releases/download/v0.13.15-2/jenkins-control-plugin-2022.2.zip)
+* [Idea 2022.2 or newer](../../releases/latest/download/jenkins-control-plugin-2022.2.zip)
 
 [//]: # (* [Idea 2022.2 or newer]&#40;../../releases/latest/download/jenkins-control-plugin-2022.2.zip&#41;)
 

@@ -63,7 +63,7 @@ public class JenkinsJsonParser implements JenkinsParser {
         final JsonObject jsonObject = parseJson(jsonData);
         final Optional<View> primaryView = Optional.ofNullable((JsonObject) jsonObject.get(PRIMARY_VIEW)).map(this::getView);
 
-        final String description = getStringOrDefaultForNull(jsonObject, SERVER_DESCRIPTION, StringUtils.EMPTY);
+        final String description = getNonNullStringOrDefaultForNull(jsonObject, SERVER_DESCRIPTION, StringUtils.EMPTY);
         final String jenkinsUrl = getServerUrl(jsonObject);
         final Jenkins jenkins = new Jenkins(description, jenkinsUrl);
         primaryView.ifPresent(jenkins::setPrimaryView);
@@ -265,8 +265,8 @@ public class JenkinsJsonParser implements JenkinsParser {
 
     @NotNull
     private Job getJob(JsonObject jsonObject) {
-        final String name = jsonObject.getString(createJsonKey(JOB_NAME));
-        final String fullName = getStringOrDefaultForNull(jsonObject, JOB_FULL_NAME, name);
+        final String name = getStringNonNull(jsonObject, JOB_NAME);
+        final String fullName = getNonNullStringOrDefaultForNull(jsonObject, JOB_FULL_NAME, name);
         final JobType jobType = getJobType(jsonObject);
         final String displayName = getDisplayName(jsonObject);
         final String fullDisplayName = getFullDisplayName(jsonObject);
@@ -481,11 +481,10 @@ public class JenkinsJsonParser implements JenkinsParser {
         return values;
     }
 
-    @NotNull
-    private String getServerUrl(JsonObject jsonObject) {
+    private @NotNull String getServerUrl(JsonObject jsonObject) {
         final Optional<View> primaryView = Optional.ofNullable((JsonObject) jsonObject.get(PRIMARY_VIEW)).map(this::getView);
         final String primaryViewUrl = primaryView.map(View::getUrl).orElse(StringUtils.EMPTY);
-        return getStringOrDefaultForNull(jsonObject, SERVER_URL, primaryViewUrl);
+        return getNonNullStringOrDefaultForNull(jsonObject, SERVER_URL, primaryViewUrl);
     }
 
     @NotNull
@@ -532,5 +531,14 @@ public class JenkinsJsonParser implements JenkinsParser {
     private @Nullable String getStringOrDefaultForNull(JsonObject jsonObject, @NotNull String key,
                                                        @Nullable String defaultValue) {
         return Optional.ofNullable(jsonObject.getStringOrDefault(createJsonKey(key, defaultValue))).orElse(defaultValue);
+    }
+
+    private @NotNull String getNonNullStringOrDefaultForNull(JsonObject jsonObject, @NotNull String key,
+                                                       @NotNull String defaultValue) {
+        return getStringOrDefaultForNull(jsonObject, key, defaultValue);
+    }
+
+    private @NotNull String getStringNonNull(JsonObject jsonObject, @NotNull String key) {
+        return Optional.ofNullable(jsonObject.getString(createJsonKey(key))).orElse(StringUtils.EMPTY);
     }
 }
