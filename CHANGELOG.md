@@ -1,6 +1,7 @@
 # Changelog
 
 ## [Unreleased]
+- \#440 java.lang.IllegalArgumentException: URL is malformed
 
 ## [0.13.16]
 - \#415 Unable to enter parameters
