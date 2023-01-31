@@ -223,7 +223,7 @@ public class UrlBuilder {
 
     private @NotNull URL buildUrlNotNull(String context, @NotNull String pathWithQuery) throws MalformedURLException {
         final boolean pathWithLeadingSlash = StringUtil.startsWithChar(pathWithQuery, '/');
-        final String serverContext = pathWithLeadingSlash ? UriUtil.trimTrailingSlashes(context) : pathWithQuery;
+        final String serverContext = pathWithLeadingSlash ? UriUtil.trimTrailingSlashes(context) : context;
         return new URL(serverContext + pathWithQuery);
     }
 }
