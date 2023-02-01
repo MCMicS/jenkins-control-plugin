@@ -23,6 +23,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.util.DimensionService;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JobTracker;
@@ -40,11 +41,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.awt.*;
+import java.util.List;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 public class BuildParamDialog extends DialogWrapper {
+    private static final String LAST_SIZE = "jenkins.build.parameter";
     private static final Logger logger = Logger.getInstance(BuildParamDialog.class);
     private final Job job;
     private final @NotNull Project project;
@@ -70,6 +74,7 @@ public class BuildParamDialog extends DialogWrapper {
 
         addParameterInputs();
         setModal(true);
+        setAutoAdjustable(false);
     }
 
     public static void showDialog(@NotNull Project project, final Job job, final JenkinsAppSettings configuration,
@@ -78,10 +83,23 @@ public class BuildParamDialog extends DialogWrapper {
         ApplicationManager.getApplication().invokeLater(() -> {
             final BuildParamDialog dialog = new BuildParamDialog(project, job, configuration, requestManager, runBuildCallback);
             dialog.pack();
+            dialog.restoreLastWidth();
             if (dialog.showAndGet()) {
                 dialog.onOK();
             }
+            dialog.saveLastSize();
         }, ModalityState.NON_MODAL);
+    }
+
+    private void restoreLastWidth() {
+        final var height = getWindow().getHeight();
+        final var storedSize = DimensionService.getInstance().getSize(LAST_SIZE, project);
+        if (storedSize != null) {
+            final var preferredSize = new Dimension();
+            preferredSize.setSize(storedSize.getWidth(), height);
+            getWindow().setPreferredSize(preferredSize);
+            pack();
+        }
     }
 
     @NotNull
@@ -158,6 +176,10 @@ public class BuildParamDialog extends DialogWrapper {
 
     private void onOK() {
         new RunBuild(project, job, configuration, getParamValueMap(), requestManager, runBuildCallback).queue();
+    }
+
+    private void saveLastSize() {
+        DimensionService.getInstance().setSize(LAST_SIZE, getSize(), project);
     }
 
     @NotNull
