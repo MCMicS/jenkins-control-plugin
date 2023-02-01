@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 - \#440 java.lang.IllegalArgumentException: URL is malformed
+- \#391 Parameters window too big for screen (Try to Restore last width) 
 
 ## [0.13.16]
 - \#415 Unable to enter parameters
