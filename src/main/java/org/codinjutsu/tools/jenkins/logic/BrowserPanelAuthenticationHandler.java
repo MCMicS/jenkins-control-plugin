@@ -8,32 +8,34 @@ import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 
+import java.util.function.Consumer;
+
 public class BrowserPanelAuthenticationHandler implements AuthenticationNotifier, Disposable {
 
-    private final BrowserPanel browser;
+    private final Project project;
     private final MessageBusConnection connection;
 
-    public BrowserPanelAuthenticationHandler(final Project project ) {
-        browser = BrowserPanel.getInstance(project);
-        connection = ApplicationManager.getApplication().getMessageBus().connect();
-    }
-
-    public void subscribe() {
-        connection.subscribe(AuthenticationNotifier.USER_LOGGED_IN, this);
+    public BrowserPanelAuthenticationHandler(final Project project) {
+        this.project = project;
+        this.connection = ApplicationManager.getApplication().getMessageBus().connect();
     }
 
     public static BrowserPanelAuthenticationHandler getInstance(Project project) {
         return project.getService(BrowserPanelAuthenticationHandler.class);
     }
 
+    public void subscribe() {
+        connection.subscribe(AuthenticationNotifier.USER_LOGGED_IN, this);
+    }
+
     @Override
-    public void emptyConfiguration(){
-        GuiUtil.runInSwingThread(browser::handleEmptyConfiguration);
+    public void emptyConfiguration() {
+        executeForCurrentProject(BrowserPanel::handleEmptyConfiguration);
     }
 
     @Override
     public void afterLogin(Jenkins jenkinsWorkspace) {
-        GuiUtil.runInSwingThread(() -> {
+        executeForCurrentProject((BrowserPanel browser) -> {
             browser.updateWorkspace(jenkinsWorkspace);
             browser.postAuthenticationInitialization();
             browser.initScheduledJobs();
@@ -48,7 +50,11 @@ public class BrowserPanelAuthenticationHandler implements AuthenticationNotifier
     @Override
     public void loginFailed(Throwable ex) {
         final String message = ex.getLocalizedMessage() == null ? "Unknown error" : ex.getLocalizedMessage();
-        browser.notifyErrorJenkinsToolWindow(message);
+        executeForCurrentProject(browser -> browser.notifyErrorJenkinsToolWindow(message));
+    }
+
+    private void executeForCurrentProject(Consumer<BrowserPanel> browserPanelConsumer) {
+        GuiUtil.runInSwingThread(() -> browserPanelConsumer.accept(BrowserPanel.getInstance(project)));
     }
 
     @Override
