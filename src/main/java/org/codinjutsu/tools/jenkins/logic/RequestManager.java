@@ -36,10 +36,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
-import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
-import org.codinjutsu.tools.jenkins.exception.JenkinsPluginRuntimeException;
-import org.codinjutsu.tools.jenkins.exception.NoJobFoundException;
-import org.codinjutsu.tools.jenkins.exception.RunBuildError;
+import org.codinjutsu.tools.jenkins.exception.*;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.Computer;
 import org.codinjutsu.tools.jenkins.model.Job;
@@ -363,6 +360,7 @@ public class RequestManager implements RequestManagerInterface, Disposable {
         return loadBuild(build.getUrl());
     }
 
+    @Deprecated(since = "0.13.17", forRemoval = true)
     @Override
     public String loadConsoleTextFor(Job job, BuildType buildType) {
         try {
@@ -372,6 +370,26 @@ public class RequestManager implements RequestManagerInterface, Disposable {
         } catch (IOException e) {
             logger.warn("cannot load log for " + job.getNameToRenderSingleJob());
             return null;
+        }
+    }
+
+    @Override
+    public void loadConsoleTextFor(Build buildModel, BuildConsoleStreamListener buildConsoleStreamListener) {
+        try {
+            final int pollingInSeconds = 1;
+            final int poolingTimeout = Math.toIntExact(TimeUnit.HOURS.toSeconds(1));
+            final com.offbytwo.jenkins.model.Build build = getBuild(buildModel);
+            if (build.equals(com.offbytwo.jenkins.model.Build.BUILD_HAS_NEVER_RUN)) {
+                buildConsoleStreamListener.onData("No Build available\n");
+                buildConsoleStreamListener.finished();
+            } else {
+                buildConsoleStreamListener.onData("Log for Build " + build.getUrl() + "console\n");
+                streamConsoleOutput(build.details(), buildConsoleStreamListener, pollingInSeconds, poolingTimeout);
+            }
+        } catch (IOException | InterruptedException e) {
+            logger.warn("cannot load log for " + buildModel.getNameToRender());
+            Thread.currentThread().interrupt();
+            buildConsoleStreamListener.finished();
         }
     }
 
@@ -537,6 +555,23 @@ public class RequestManager implements RequestManagerInterface, Disposable {
             throw new NoJobFoundException(job, e);
         }
         return jobWithDetails.orElseThrow(() -> new NoJobFoundException(job));
+    }
+
+    @NotNull
+    private com.offbytwo.jenkins.model.Build getBuild(@NotNull Build build) {
+        final Optional<com.offbytwo.jenkins.model.Build> serverBuild;
+        try {
+            final var buildQueueItem = new QueueItem();
+            final Executable executable = new Executable();
+            buildQueueItem.setExecutable(executable);
+            executable.setNumber(Long.valueOf(build.getNumber()));
+            executable.setUrl(build.getUrl());
+            serverBuild = Optional.ofNullable(jenkinsServer.getBuild(buildQueueItem));
+        } catch (IOException e) {
+            logger.warn(e.getMessage(), e);
+            throw new NoBuildFoundException(build, e);
+        }
+        return serverBuild.orElseThrow(() -> new NoBuildFoundException(build));
     }
 
     private int getConnectionTimout(int connectionTimoutInSeconds) {
