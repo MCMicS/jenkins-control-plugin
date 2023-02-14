@@ -358,6 +358,7 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
         popupGroup.add(new ShowLogAction(BuildType.LAST));
         popupGroup.add(new ShowLogAction(BuildType.LAST_SUCCESSFUL));
         popupGroup.add(new ShowLogAction(BuildType.LAST_FAILED));
+        popupGroup.add(new ShowBuildLogAction());
         popupGroup.addSeparator();
         popupGroup.add(new SetJobAsFavoriteAction(this));
 

@@ -41,6 +41,19 @@ public class LogToolWindow {
         this.project = project;
     }
 
+    public void showLog(Build build, BrowserPanel browserPanel) {
+        final String tabTitle = build.getNameToRender();
+        final ShowLogConsoleView showLogConsoleView = createConsoleView(project, browserPanel);
+
+        final ConsoleView consoleView = showLogConsoleView.getConsoleView();
+        final LogProcessHandler processHandler = new LogProcessHandler();
+        consoleView.attachToProcess(processHandler);
+        processHandler.startNotify();
+        showInToolWindow(showLogConsoleView, tabTitle);
+        JenkinsBackgroundTaskFactory.getInstance(project).createBackgroundTask("Loading log for " + tabTitle, true,
+                requestManager -> requestManager.loadConsoleTextFor(build, processHandler)).queue();
+    }
+
     public void showLog(BuildType buildType, Job job, BrowserPanel browserPanel) {
         final String jobName = job.getNameToRenderSingleJob();
         final String logTabTitle = getTabTitle(buildType, job);
