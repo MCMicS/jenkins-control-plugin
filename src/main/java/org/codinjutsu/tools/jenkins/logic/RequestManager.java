@@ -360,19 +360,6 @@ public class RequestManager implements RequestManagerInterface, Disposable {
         return loadBuild(build.getUrl());
     }
 
-    @Deprecated(since = "0.13.17", forRemoval = true)
-    @Override
-    public String loadConsoleTextFor(Job job, BuildType buildType) {
-        try {
-            final com.offbytwo.jenkins.model.Build build = getBuildForType(buildType).apply(getJob(job));
-            return build.equals(com.offbytwo.jenkins.model.Build.BUILD_HAS_NEVER_RUN) ? null :
-                    build.details().getConsoleOutputText();
-        } catch (IOException e) {
-            logger.warn("cannot load log for " + job.getNameToRenderSingleJob());
-            return null;
-        }
-    }
-
     @Override
     public void loadConsoleTextFor(Build buildModel, BuildConsoleStreamListener buildConsoleStreamListener) {
         try {

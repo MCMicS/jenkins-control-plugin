@@ -37,9 +37,6 @@ public interface RequestManagerInterface {
 
     List<Build> loadBuilds(Job job);
 
-    @Deprecated(since = "0.13.17", forRemoval = true)
-    String loadConsoleTextFor(Job job, BuildType buildType);
-
     void loadConsoleTextFor(Job job, BuildType buildType, BuildConsoleStreamListener buildConsoleStreamListener);
 
     void loadConsoleTextFor(Build build, BuildConsoleStreamListener buildConsoleStreamListener);

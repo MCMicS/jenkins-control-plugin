@@ -18,8 +18,11 @@ package org.codinjutsu.tools.jenkins.logic;
 
 import com.intellij.openapi.project.Project;
 import com.offbytwo.jenkins.JenkinsServer;
+import com.offbytwo.jenkins.helper.BuildConsoleStreamListener;
 import com.offbytwo.jenkins.model.BuildWithDetails;
+import com.offbytwo.jenkins.model.ConsoleLog;
 import com.offbytwo.jenkins.model.JobWithDetails;
+import lombok.SneakyThrows;
 import org.assertj.core.api.Assertions;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
@@ -42,10 +45,10 @@ import org.powermock.reflect.Whitebox;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -134,29 +137,50 @@ public class RequestManagerTest {
     @Test
     public void loadConsoleTextForRunningBuild() {
         final Job job = createJobWithBuilds(runningBuild);
-        final String buildOutput = requestManager.loadConsoleTextFor(job, BuildType.LAST);
+        final String buildOutput = loadConsoleTextFor(job, BuildType.LAST);
         assertThat(buildOutput).isEqualTo(RUNNING_CONSOLE_OUTPUT);
     }
 
     @Test
     public void loadConsoleTextForLastBuild() {
         final Job job = createJobWithBuilds();
-        final String buildOutput = requestManager.loadConsoleTextFor(job, BuildType.LAST);
+        final String buildOutput = loadConsoleTextFor(job, BuildType.LAST);
         assertThat(buildOutput).isEqualTo(COMPLETED_CONSOLE_OUTPUT);
     }
 
     @Test
     public void loadConsoleTextForLastSuccessfulBuild() {
         final Job job = createJobWithBuilds();
-        final String buildOutput = requestManager.loadConsoleTextFor(job, BuildType.LAST_SUCCESSFUL);
+        final String buildOutput = loadConsoleTextFor(job, BuildType.LAST_SUCCESSFUL);
         assertThat(buildOutput).isEqualTo(SUCCESSFUL_CONSOLE_OUTPUT);
     }
 
     @Test
     public void loadConsoleTextForLastFailedBuild() {
         final Job job = createJobWithBuilds();
-        final String buildOutput = requestManager.loadConsoleTextFor(job, BuildType.LAST_FAILED);
+        final var buildOutput = loadConsoleTextFor(job, BuildType.LAST_FAILED);
         assertThat(buildOutput).isEqualTo(FAILED_CONSOLE_OUTPUT);
+    }
+
+    @SneakyThrows
+    private String loadConsoleTextFor(Job job, BuildType buildType) {
+        final var completableFuture = new CompletableFuture<String>();
+        final var result = new StringBuilder();
+        requestManager.loadConsoleTextFor(job, buildType, new BuildConsoleStreamListener() {
+            @Override
+            public void onData(String newLogChunk) {
+                // Ignore auto generated message
+                if (!newLogChunk.startsWith("Log for Build ")) {
+                    result.append(newLogChunk);
+                }
+            }
+
+            @Override
+            public void finished() {
+                completableFuture.complete(result.toString());
+            }
+        });
+        return completableFuture.get();
     }
 
     @NotNull
@@ -213,8 +237,15 @@ public class RequestManagerTest {
     }
 
     private void mockBuildConsoleOutput(com.offbytwo.jenkins.model.Build build, String consoleText) throws IOException {
+        final var url = "https://dummyserver.dev/jenkins";
         final BuildWithDetails buildWithDetails = mock(BuildWithDetails.class, Answers.RETURNS_SMART_NULLS);
+        when(build.getUrl()).thenReturn(url);
         when(build.details()).thenReturn(buildWithDetails);
-        when(buildWithDetails.getConsoleOutputText()).thenReturn(consoleText);
+        when(buildWithDetails.getUrl()).thenReturn(url);
+
+        final var hasMoreData = false;
+        final var currentBufferSize = 0;
+        final var consoleLog = new ConsoleLog(consoleText, hasMoreData, currentBufferSize);
+        when(buildWithDetails.getConsoleOutputText(anyInt())).thenReturn(consoleLog);
     }
 }
