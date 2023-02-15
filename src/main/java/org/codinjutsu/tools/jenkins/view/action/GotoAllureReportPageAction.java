@@ -14,12 +14,12 @@ public class GotoAllureReportPageAction extends AbstractGotoWebPageAction {
     @NotNull
     @Override
     protected String getUrl() {
-        return browserPanel.getSelectedBuild().getUrl() + "/allure";
+        return browserPanel.getSelectedBuildUrl() + "/allure";
     }
 
 
     @Override
     public void update(AnActionEvent event) {
-        event.getPresentation().setVisible(browserPanel.getSelectedBuild() != null);
+        event.getPresentation().setVisible(browserPanel.getSelectedBuild().isPresent());
     }
 }
