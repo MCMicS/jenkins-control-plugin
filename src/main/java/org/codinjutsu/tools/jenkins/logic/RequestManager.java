@@ -21,19 +21,10 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.net.IdeHttpClientHelpers;
-import com.intellij.util.net.ssl.CertificateManager;
 import com.offbytwo.jenkins.JenkinsServer;
-import com.offbytwo.jenkins.client.JenkinsHttpClient;
 import com.offbytwo.jenkins.helper.BuildConsoleStreamListener;
 import com.offbytwo.jenkins.model.*;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicHeader;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.exception.*;
@@ -301,11 +292,7 @@ public class RequestManager implements RequestManagerInterface, Disposable {
         }
         final String serverUrl = jenkinsAppSettings.getServerUrl();
         securityClient.connect(urlBuilder.createAuthenticationUrl(serverUrl));
-
-        final JenkinsHttpClient jenkinsHttpClient = new JenkinsHttpClient(urlBuilder.createServerUrl(serverUrl),
-                createHttpClientBuilder(serverUrl, jenkinsSettings), jenkinsSettings.getUsername(),
-                jenkinsSettings.getPassword());
-        jenkinsServer = new JenkinsServer(jenkinsHttpClient);
+        setJenkinsServer(new JenkinsServer(new JenkinsClient(urlBuilder.createServerUrl(serverUrl), securityClient)));
     }
 
     @Override
@@ -510,25 +497,6 @@ public class RequestManager implements RequestManagerInterface, Disposable {
     private List<String> getFillValueItems(Job job, String parameterClassName, String parameterName) {
         final URL url = urlBuilder.createFillValueItemsUrl(job.getUrl(), parameterClassName, parameterName);
         return jsonParser.getFillValueItems(securityClient.execute(url));
-    }
-
-    @NotNull
-    private HttpClientBuilder createHttpClientBuilder(String serverUrl, JenkinsSettings jenkinsSettings) {
-        // FIXME @mcmics merge with DefaultSecurityClient
-        final CredentialsProvider provider = new BasicCredentialsProvider();
-        IdeHttpClientHelpers.ApacheHttpClient4.setProxyCredentialsForUrlIfEnabled(provider, serverUrl);
-        final RequestConfig.Builder requestConfig = RequestConfig.custom();
-        IdeHttpClientHelpers.ApacheHttpClient4.setProxyForUrlIfEnabled(requestConfig, serverUrl);
-        final HttpClientBuilder builder = HttpClients.custom()
-                .setSSLContext(CertificateManager.getInstance().getSslContext())
-                .setDefaultRequestConfig(requestConfig.build())
-                .setDefaultCredentialsProvider(provider);
-
-        if (StringUtils.isNotBlank(jenkinsSettings.getCrumbData())) {
-            builder.setDefaultHeaders(Collections.singletonList(
-                    new BasicHeader(jenkinsSettings.getVersion().getCrumbName(), jenkinsSettings.getCrumbData())));
-        }
-        return builder;
     }
 
     @NotNull

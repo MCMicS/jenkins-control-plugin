@@ -28,7 +28,6 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
 import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -39,7 +38,9 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.codinjutsu.tools.jenkins.exception.AuthenticationException;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
@@ -65,7 +66,7 @@ class DefaultSecurityClient implements SecurityClient {
     private static final String BAD_CRUMB_DATA = "No valid crumb was included in the request";
     static final Charset CHARSET = StandardCharsets.UTF_8;
     static final String CHARSET_NAME = CHARSET.name();
-    private final HttpClient httpClient;
+    private final CloseableHttpClient httpClient;
     protected @Deprecated String crumbData;
     protected JenkinsVersion jenkinsVersion = JenkinsVersion.VERSION_1;
     private final CredentialsProvider credentialsProvider;
@@ -101,7 +102,7 @@ class DefaultSecurityClient implements SecurityClient {
                 final var configForUrl = RequestConfig.copy(defaultRequestConfig);
                 IdeHttpClientHelpers.ApacheHttpClient4.setProxyForUrlIfEnabled(configForUrl, url);
                 IdeHttpClientHelpers.ApacheHttpClient4.setProxyCredentialsForUrlIfEnabled(credentialsProvider, url);
-                return requestConfig.build();
+                return configForUrl.build();
             };
         } else {
             this.configCreator = url -> defaultRequestConfig;
@@ -131,6 +132,16 @@ class DefaultSecurityClient implements SecurityClient {
         }
 
         return new Response(responseCollector.statusCode, responseCollector.data, responseCollector.error);
+    }
+
+    @Override
+    public @NotNull HttpContext getHttpClientContext() {
+        return this.httpClientContext;
+    }
+
+    @Override
+    public @NotNull CloseableHttpClient getHttpClient() {
+        return this.httpClient;
     }
 
     /**
