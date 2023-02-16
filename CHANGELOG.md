@@ -5,6 +5,7 @@
 - \#391 Parameters window too big for screen (Try to Restore last width) 
 - \#443 [Intellij] Error while loading a workspace 
 - \#450 Show log of a selected build
+- \#406 Need Proxy (use jetbrains setting)
 
 ## [0.13.16]
 - \#415 Unable to enter parameters
