@@ -54,6 +54,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
@@ -242,6 +243,18 @@ class DefaultSecurityClient implements SecurityClient {
         }
 
         return httpClient.execute(post, this.httpClientContext);
+    }
+
+    protected final HttpResponse executeHttpFollowRedirect(HttpPost post) throws IOException {
+        var response = executeHttp(post);
+        final var statusCode = response.getStatusLine().getStatusCode();
+
+        if (isRedirection(statusCode)) {
+            final var location = response.getLastHeader("Location").getValue();
+            post.setURI(URI.create(location));
+            response = executeHttp(post);
+        }
+        return response;
     }
 
     protected void checkResponse(int statusCode, String responseBody) throws AuthenticationException {

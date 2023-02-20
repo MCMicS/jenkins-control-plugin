@@ -61,7 +61,7 @@ class BasicSecurityClient extends DefaultSecurityClient {
 
         final var post = createPost(jenkinsUrl.toString(), Collections.emptyList());
         try {
-            final var response = executeHttp(post);
+            final var response = executeHttpFollowRedirect(post);
             final var responseCode = response.getStatusLine().getStatusCode();
             final var responseBody = EntityUtils.toString(response.getEntity());
             LOG.trace(String.format("Call url '%s' --> Status: %s, Data %s", jenkinsUrl, responseCode,
