@@ -1,16 +1,16 @@
 # Changelog
 
-## [Unreleased]
+## [0.13.17]
 - \#440 java.lang.IllegalArgumentException: URL is malformed
-- \#391 Parameters window too big for screen (Try to Restore last width) 
-- \#443 [Intellij] Error while loading a workspace 
+- \#391 Parameters window too big for screen (Try to Restore last width)
+- \#443 [Intellij] Error while loading a workspace
 - \#450 Show log of a selected build
 - \#406 Need Proxy (use jetbrains setting)
 
 ## [0.13.16]
 - \#415 Unable to enter parameters
 - Show error for trigger builds (Read from Header X-Error)
-  - Fix Proxy Handling
+- Fix Proxy Handling
 - \#426 Plugin Failing After IntelliJ Upgrade to 0.13.15 if jenkins is hosted Tomcat or QUery Parameters are not relaxed
 - Add Trace Logging for Url calls with `#org.codinjutsu.tools.jenkins:trace`
 
