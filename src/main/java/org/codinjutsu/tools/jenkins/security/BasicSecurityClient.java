@@ -57,11 +57,14 @@ class BasicSecurityClient extends DefaultSecurityClient {
             final var targetHost = new HttpHost(jenkinsUrl.getHost(), jenkinsUrl.getPort(), jenkinsUrl.getProtocol());
             final var credentials = new UsernamePasswordCredentials(username, password);
             addAuthenticationPreemptive(targetHost, credentials);
+
+            final var redirectTarget = getLastRedirectionHost(targetHost);
+            addAuthenticationPreemptive(redirectTarget, credentials);
         }
 
         final var post = createPost(jenkinsUrl.toString(), Collections.emptyList());
         try {
-            final var response = executeHttpFollowRedirect(post);
+            final var response = executeHttp(post);
             final var responseCode = response.getStatusLine().getStatusCode();
             final var responseBody = EntityUtils.toString(response.getEntity());
             LOG.trace(String.format("Call url '%s' --> Status: %s, Data %s", jenkinsUrl, responseCode,
