@@ -16,37 +16,34 @@
 
 package org.codinjutsu.tools.jenkins.security;
 
-import com.github.cliftonlabs.json_simple.JsonObject;
-import com.github.cliftonlabs.json_simple.Jsoner;
+import com.intellij.notification.NotificationType;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.util.net.IdeHttpClientHelpers;
 import com.intellij.util.net.ssl.CertificateManager;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
 import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.config.SocketConfig;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.codinjutsu.tools.jenkins.exception.AuthenticationException;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
-import org.codinjutsu.tools.jenkins.exception.JenkinsPluginRuntimeException;
-import org.codinjutsu.tools.jenkins.model.FileParameter;
+import org.codinjutsu.tools.jenkins.logic.JenkinsNotifier;
 import org.codinjutsu.tools.jenkins.model.RequestData;
-import org.codinjutsu.tools.jenkins.model.VirtualFilePart;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,21 +55,21 @@ import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.function.Function;
 
 class DefaultSecurityClient implements SecurityClient {
 
-    private static final String BAD_CRUMB_DATA = "No valid crumb was included in the request";
     static final Charset CHARSET = StandardCharsets.UTF_8;
-    static final String CHARSET_NAME = CHARSET.name();
-    private final HttpClient httpClient;
-    protected @Deprecated String crumbData;
-    protected JenkinsVersion jenkinsVersion = JenkinsVersion.VERSION_1;
+    private static final Logger LOG = Logger.getInstance(DefaultSecurityClient.class);
+    private static final String BAD_CRUMB_DATA = "No valid crumb was included in the request";
+    private final CloseableHttpClient httpClient;
     private final CredentialsProvider credentialsProvider;
     private final AuthCache authCache;
     private final HttpClientContext httpClientContext;
-
     private final Function<String, RequestConfig> configCreator;
+    protected @Deprecated String crumbData;
+    protected JenkinsVersion jenkinsVersion = JenkinsVersion.VERSION_1;
 
     DefaultSecurityClient(String crumbData, int connectionTimout) {
         this(crumbData, connectionTimout, CertificateManager.getInstance().getSslContext(), true);
@@ -88,20 +85,22 @@ class DefaultSecurityClient implements SecurityClient {
                 .setSocketTimeout(connectionTimout);
         this.credentialsProvider = new BasicCredentialsProvider();
 
-        final RequestConfig defaultRequestConfig = requestConfig.build();
+        final RequestConfig defaultRequestConfig = requestConfig
+                .setMaxRedirects(10)
+                .build();
         final var httpClientBuilder = HttpClients.custom()
                 .setSSLContext(sslContext)
                 .setDefaultSocketConfig(socketConfig)
                 .setDefaultRequestConfig(defaultRequestConfig)
                 .setDefaultCredentialsProvider(credentialsProvider)
-                .disableRedirectHandling();
+                .setRedirectStrategy(new JenkinsRedirectStrategy());
         this.httpClient = httpClientBuilder.build();
         if (useProxySettings) {
             this.configCreator = url -> {
                 final var configForUrl = RequestConfig.copy(defaultRequestConfig);
                 IdeHttpClientHelpers.ApacheHttpClient4.setProxyForUrlIfEnabled(configForUrl, url);
                 IdeHttpClientHelpers.ApacheHttpClient4.setProxyCredentialsForUrlIfEnabled(credentialsProvider, url);
-                return requestConfig.build();
+                return configForUrl.build();
             };
         } else {
             this.configCreator = url -> defaultRequestConfig;
@@ -123,7 +122,7 @@ class DefaultSecurityClient implements SecurityClient {
     public @NotNull Response execute(URL url, @NotNull Collection<RequestData> data) {
         String urlStr = url.toString();
 
-        ResponseCollector responseCollector = new ResponseCollector();
+        final var responseCollector = new ResponseCollector();
         runMethod(urlStr, data, responseCollector);
 
         if (isRedirection(responseCollector.statusCode)) {
@@ -131,6 +130,16 @@ class DefaultSecurityClient implements SecurityClient {
         }
 
         return new Response(responseCollector.statusCode, responseCollector.data, responseCollector.error);
+    }
+
+    @Override
+    public @NotNull HttpClientContext getHttpClientContext() {
+        return this.httpClientContext;
+    }
+
+    @Override
+    public @NotNull CloseableHttpClient getHttpClient() {
+        return this.httpClient;
     }
 
     /**
@@ -151,27 +160,12 @@ class DefaultSecurityClient implements SecurityClient {
      * </pre>
      */
     @NotNull
-    HttpPost createPost(String url, @NotNull Collection<RequestData> data) {
-        final var post = new HttpPost(url);
-        if (!data.isEmpty()) {
-            final var multipartEntity = MultipartEntityBuilder.create();
-
-            data.stream().filter(FileParameter.class::isInstance)
-                    .map(FileParameter.class::cast)
-                    .forEach(fileParameter -> addMultipartBinaryBody(fileParameter, multipartEntity));
-
-            final var parameterJson = new JsonObject();
-            parameterJson.put("parameter", data);
-            multipartEntity.addTextBody("json", Jsoner.serialize(parameterJson), ContentType.APPLICATION_JSON)
-                    .setCharset(DefaultSecurityClient.CHARSET);
-            final var multipart = multipartEntity.build();
-            post.setEntity(multipart);
-        }
-
+    JenkinsPost createPost(String url, @NotNull Collection<RequestData> data) {
+        final var post = new JenkinsPost(url);
+        post.setData(data);
         if (isCrumbDataSet()) {
             post.addHeader(jenkinsVersion.getCrumbName(), crumbData);
         }
-        post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, "en-US,en;q=0.5");
         return post;
     }
 
@@ -181,14 +175,34 @@ class DefaultSecurityClient implements SecurityClient {
         credentialsProvider.setCredentials(authScope, credentials);
     }
 
-    private void addMultipartBinaryBody(FileParameter fileParameter,
-                                        MultipartEntityBuilder multipartEntityBuilder) {
-        final var virtualFilePart = new VirtualFilePart(fileParameter.getFile());
+    protected final HttpHost getLastRedirectionHost(HttpHost host) {
+        final var httpHead = new HttpHead(host.toURI());
         try {
-            multipartEntityBuilder.addBinaryBody(fileParameter.getFileName(), virtualFilePart.createInputStream(),
-                    ContentType.APPLICATION_OCTET_STREAM, virtualFilePart.getFileName());
-        } catch (IOException e) {
-            throw new JenkinsPluginRuntimeException(e.getMessage(), e);
+            final var context = getHttpClientContext();
+            final var response = executeHttp(httpHead);
+            final var statusCode = response.getStatusLine().getStatusCode();
+
+            var targetHost = host;
+            if (HttpURLConnection.HTTP_OK == statusCode) {
+                final var locations = context.getRedirectLocations();
+                if (locations != null) {
+                    final var lastHost = locations.get(locations.size() - 1).toURL();
+                    targetHost = new HttpHost(lastHost.getHost(), lastHost.getPort(), lastHost.getProtocol());
+                }
+            }
+            return targetHost;
+        } catch (IOException cause) {
+            final var errorMessage = Optional.ofNullable(cause.getMessage())
+                    .orElseGet(() -> Optional.ofNullable(cause.getCause())
+                            .map(Throwable::getMessage)
+                            .orElse(String.valueOf(cause.getClass())));
+            final String message = String.format("IO Error during retrieve last Host for Redirection for URL '%s': %s",
+                    httpHead.getURI(), errorMessage);
+            LOG.info(message, cause);
+            JenkinsNotifier.notifyForCurrentContext(message, NotificationType.WARNING);
+            return host;
+        } finally {
+            httpHead.releaseConnection();
         }
     }
 
@@ -205,12 +219,12 @@ class DefaultSecurityClient implements SecurityClient {
             if (HttpURLConnection.HTTP_OK == statusCode) {
                 responseCollector.collect(statusCode, responseBody);
             } else {
-                responseCollector.statusCode(statusCode);
+                responseCollector.collect(statusCode, response.getStatusLine().getReasonPhrase());
             }
             if (errorHeader != null) {
                 responseCollector.error(errorHeader.getValue());
             }
-            // ToDo @mcmics enable redirection in httpclient again and try to remove following
+            // if redirect handling not works or we still get a redirect header we handle it manually
             if (isRedirection(statusCode)) {
                 responseCollector.collect(statusCode, response.getLastHeader("Location").getValue());
             }
@@ -229,8 +243,11 @@ class DefaultSecurityClient implements SecurityClient {
         if (postConfig == null) {
             post.setConfig(configCreator.apply(post.getURI().toASCIIString()));
         }
+        return executeHttp((HttpRequestBase) post);
+    }
 
-        return httpClient.execute(post, this.httpClientContext);
+    protected final HttpResponse executeHttp(HttpRequestBase httpRequest) throws IOException {
+        return getHttpClient().execute(httpRequest, this.httpClientContext);
     }
 
     protected void checkResponse(int statusCode, String responseBody) throws AuthenticationException {

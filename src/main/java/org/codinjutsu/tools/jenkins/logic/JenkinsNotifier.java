@@ -1,14 +1,22 @@
 package org.codinjutsu.tools.jenkins.logic;
 
 import com.intellij.ide.BrowserUtil;
+import com.intellij.ide.DataManager;
 import com.intellij.notification.*;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.components.Service;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Consumer;
+
 @Service
 public final class JenkinsNotifier {
+
+    private static final Logger LOG = Logger.getInstance(JenkinsNotifier.class);
 
     private final NotificationGroup jenkinsGroup;
     @Nullable
@@ -23,6 +31,18 @@ public final class JenkinsNotifier {
     public static JenkinsNotifier getInstance(@NotNull Project project) {
         JenkinsNotifier jenkinsNotifier = project.getService(JenkinsNotifier.class);
         return jenkinsNotifier == null ? new JenkinsNotifier(project) : jenkinsNotifier;
+    }
+
+    public static void notifyForCurrentContext(String content, NotificationType notificationType) {
+        notifyForCurrentContext(jenkinsNotifier -> jenkinsNotifier.notify(content, notificationType));
+    }
+
+    public static void notifyForCurrentContext(Consumer<JenkinsNotifier> jenkinsNotifier) {
+        GuiUtil.runInSwingThread(() -> DataManager.getInstance().getDataContextFromFocusAsync()
+                .then(CommonDataKeys.PROJECT::getData)
+                .then(JenkinsNotifier::getInstance)
+                .onSuccess(jenkinsNotifier)
+                .onError(LOG::error));
     }
 
     @NotNull

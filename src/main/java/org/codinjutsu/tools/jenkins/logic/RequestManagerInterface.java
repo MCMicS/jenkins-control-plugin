@@ -37,9 +37,9 @@ public interface RequestManagerInterface {
 
     List<Build> loadBuilds(Job job);
 
-    String loadConsoleTextFor(Job job, BuildType buildType);
-
     void loadConsoleTextFor(Job job, BuildType buildType, BuildConsoleStreamListener buildConsoleStreamListener);
+
+    void loadConsoleTextFor(Build build, BuildConsoleStreamListener buildConsoleStreamListener);
 
     List<TestResult> loadTestResultsFor(Job job);
 

@@ -14,12 +14,12 @@ public class GotoBuildConsolePageAction extends AbstractGotoWebPageAction {
     @NotNull
     @Override
     protected String getUrl() {
-        return browserPanel.getSelectedBuild().getUrl() + "/console";
+        return browserPanel.getSelectedBuildUrl() + "/console";
     }
 
 
     @Override
     public void update(AnActionEvent event) {
-        event.getPresentation().setVisible(browserPanel.getSelectedBuild() != null);
+        event.getPresentation().setVisible(browserPanel.getSelectedBuild().isPresent());
     }
 }

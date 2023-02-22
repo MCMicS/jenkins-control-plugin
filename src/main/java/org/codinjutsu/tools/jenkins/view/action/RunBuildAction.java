@@ -23,6 +23,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
+import org.codinjutsu.tools.jenkins.exception.AuthenticationException;
 import org.codinjutsu.tools.jenkins.logic.ExecutorService;
 import org.codinjutsu.tools.jenkins.logic.JenkinsBackgroundTask;
 import org.codinjutsu.tools.jenkins.logic.JenkinsBackgroundTaskFactory;
@@ -148,6 +149,9 @@ public class RunBuildAction extends AnAction implements DumbAware {
                     }
 
                     public void notifyOnError(Job job, Throwable ex) {
+                        if (ex instanceof AuthenticationException) {
+                            LOG.debug(((AuthenticationException) ex).getResponseBody(), ex);
+                        }
                         browserPanel.notifyErrorJenkinsToolWindow("Build '" + job.getNameToRenderSingleJob() + "' cannot be run: " + ex.getMessage());
                         browserPanel.loadJob(job);
                     }
