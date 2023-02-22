@@ -16,6 +16,8 @@
 
 package org.codinjutsu.tools.jenkins.security;
 
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.protocol.HttpContext;
 import org.codinjutsu.tools.jenkins.model.RequestData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -34,4 +36,8 @@ public interface SecurityClient {
     }
 
     @NotNull Response execute(URL url, @NotNull Collection<RequestData> data);
+
+    @NotNull HttpContext getHttpClientContext();
+
+    @NotNull CloseableHttpClient getHttpClient();
 }

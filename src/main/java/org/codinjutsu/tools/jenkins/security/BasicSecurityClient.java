@@ -57,6 +57,9 @@ class BasicSecurityClient extends DefaultSecurityClient {
             final var targetHost = new HttpHost(jenkinsUrl.getHost(), jenkinsUrl.getPort(), jenkinsUrl.getProtocol());
             final var credentials = new UsernamePasswordCredentials(username, password);
             addAuthenticationPreemptive(targetHost, credentials);
+
+            final var redirectTarget = getLastRedirectionHost(targetHost);
+            addAuthenticationPreemptive(redirectTarget, credentials);
         }
 
         final var post = createPost(jenkinsUrl.toString(), Collections.emptyList());

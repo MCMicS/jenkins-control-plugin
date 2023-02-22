@@ -19,6 +19,7 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.offbytwo.jenkins.helper.BuildConsoleStreamListener;
 import lombok.Value;
 import org.codinjutsu.tools.jenkins.logic.JenkinsBackgroundTaskFactory;
+import org.codinjutsu.tools.jenkins.logic.RequestManagerInterface;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildType;
 import org.codinjutsu.tools.jenkins.model.Job;
@@ -30,6 +31,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class LogToolWindow {
 
@@ -39,21 +41,6 @@ public class LogToolWindow {
 
     public LogToolWindow(Project project) {
         this.project = project;
-    }
-
-    public void showLog(BuildType buildType, Job job, BrowserPanel browserPanel) {
-        final String jobName = job.getNameToRenderSingleJob();
-        final String logTabTitle = getTabTitle(buildType, job);
-
-        final ShowLogConsoleView showLogConsoleView = createConsoleView(project, browserPanel);
-
-        final ConsoleView consoleView = showLogConsoleView.getConsoleView();
-        final LogProcessHandler processHandler = new LogProcessHandler();
-        consoleView.attachToProcess(processHandler);
-        processHandler.startNotify();
-        showInToolWindow(showLogConsoleView, logTabTitle);
-        JenkinsBackgroundTaskFactory.getInstance(project).createBackgroundTask("Loading log for " + jobName, true,
-                requestManager -> requestManager.loadConsoleTextFor(job, buildType, processHandler)).queue();
     }
 
     @NotNull
@@ -84,17 +71,6 @@ public class LogToolWindow {
         return ActionManager.getInstance().createActionToolbar("JenkinsLogWindow", actions, false);
     }
 
-    private void showInToolWindow(ShowLogConsoleView showLogConsoleView, String tabName) {
-        getToolWindow().ifPresent(toolWindow -> GuiUtil.showInToolWindow(toolWindow, showLogConsoleView.getPanel(),
-                showLogConsoleView.getConsoleView(), tabName));
-    }
-
-    @NotNull
-    private Optional<ToolWindow> getToolWindow() {
-        ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
-        return Optional.ofNullable(toolWindowManager.getToolWindow(TOOL_WINDOW_ID));
-    }
-
     @NotNull
     static String getTabTitle(BuildType buildType, Job job) {
         final String jobName = job.getNameToRenderSingleJob();
@@ -111,6 +87,50 @@ public class LogToolWindow {
                 buildInfo = Optional.ofNullable(job.getLastBuild()).map(Build::getDisplayNumber).orElse("(Last)");
         }
         return String.format("%s %s", jobName, buildInfo);
+    }
+
+    public void showLog(Build build, BrowserPanel browserPanel) {
+        showLog(browserPanel, build::getNameToRender,
+                (requestManager, processHandler) -> requestManager.loadConsoleTextFor(build, processHandler));
+    }
+
+    public void showLog(BuildType buildType, Job job, BrowserPanel browserPanel) {
+        showLog(browserPanel, job::getNameToRenderSingleJob, () -> getTabTitle(buildType, job),
+                (requestManager, processHandler) -> requestManager.loadConsoleTextFor(job, buildType, processHandler));
+    }
+
+    private void showLog(BrowserPanel browserPanel, Supplier<String> tabTitle,
+                         @NotNull ShowLogHandler showLogHandler) {
+        showLog(browserPanel, tabTitle, tabTitle, showLogHandler);
+    }
+
+    private void showLog(@NotNull BrowserPanel browserPanel, @NotNull Supplier<String> jobTitle,
+                         @NotNull Supplier<String> tabTitle, @NotNull ShowLogHandler showLogHandler) {
+        final var showLogConsoleView = createConsoleView(project, browserPanel);
+        final var consoleView = showLogConsoleView.getConsoleView();
+        final var processHandler = new LogProcessHandler();
+        consoleView.attachToProcess(processHandler);
+        processHandler.startNotify();
+        showInToolWindow(showLogConsoleView, tabTitle.get());
+        final var canBeCancelled = true;
+        JenkinsBackgroundTaskFactory.getInstance(project).createBackgroundTask("Loading log for " + jobTitle.get(),
+                canBeCancelled, requestManager -> showLogHandler.loadLog(requestManager, processHandler)).queue();
+    }
+
+    private void showInToolWindow(ShowLogConsoleView showLogConsoleView, String tabName) {
+        getToolWindow().ifPresent(toolWindow -> GuiUtil.showInToolWindow(toolWindow, showLogConsoleView.getPanel(),
+                showLogConsoleView.getConsoleView(), tabName));
+    }
+
+    @NotNull
+    private Optional<ToolWindow> getToolWindow() {
+        ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
+        return Optional.ofNullable(toolWindowManager.getToolWindow(TOOL_WINDOW_ID));
+    }
+
+    @FunctionalInterface
+    public interface ShowLogHandler {
+        void loadLog(@NotNull RequestManagerInterface requestManager, @NotNull LogProcessHandler processHandler);
     }
 
     static class LogProcessHandler extends NopProcessHandler implements BuildConsoleStreamListener {

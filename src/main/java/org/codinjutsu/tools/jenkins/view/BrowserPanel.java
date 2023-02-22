@@ -188,9 +188,13 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
                 .map(JenkinsTreeNode.RootNode::getJenkins);
     }
 
-    public Build getSelectedBuild() {
+    public @NotNull Optional<Build> getSelectedBuild() {
         return jobTree.getLastSelectedPath(JenkinsTreeNode.BuildNode.class)
-                .map(JenkinsTreeNode.BuildNode::getBuild).orElse(null);
+                .map(JenkinsTreeNode.BuildNode::getBuild);
+    }
+
+    public @NotNull String getSelectedBuildUrl() {
+        return getSelectedBuild().map(Build::getUrl).orElse("");
     }
 
     @Nullable
@@ -358,6 +362,7 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
         popupGroup.add(new ShowLogAction(BuildType.LAST));
         popupGroup.add(new ShowLogAction(BuildType.LAST_SUCCESSFUL));
         popupGroup.add(new ShowLogAction(BuildType.LAST_FAILED));
+        popupGroup.add(new ShowBuildLogAction());
         popupGroup.addSeparator();
         popupGroup.add(new SetJobAsFavoriteAction(this));
 

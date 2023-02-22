@@ -1,0 +1,32 @@
+name: Qodana
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+      - release/**
+      - qodana/**
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  qodana:
+    runs-on: ubuntu-latest
+    permissions:
+      # required for all workflows
+      security-events: write
+
+      # only required for workflows in private repositories
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: 'Qodana Scan'
+        uses: JetBrains/qodana-action@v2022.3.4
+        env:
+          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
+      - uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: ${{ runner.temp }}/qodana/results/qodana.sarif.json
