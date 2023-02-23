@@ -42,7 +42,7 @@ changelog {
     combinePreReleases = true
     lineSeparator = "\n"
     repositoryUrl = readPropertyString('pluginRepositoryUrl')
-    unreleasedTerm = "[Unreleased]"
+    unreleasedTerm = "Unreleased"
     //groups = ["Added", "Changed", "Deprecated", "Removed"]
     groups = []
 }
