@@ -1,15 +1,17 @@
 //import org.jetbrains.changelog.ExtensionsKt
 
 import org.jetbrains.changelog.Changelog
+import org.jetbrains.changelog.exceptions.MissingVersionException
 import org.jetbrains.intellij.tasks.RunPluginVerifierTask
 
 plugins {
     id 'java'
     id 'org.jetbrains.intellij' version '1.13.0'
-    id 'org.jetbrains.changelog' version "2.0.0"
+    id 'org.jetbrains.changelog' version '2.0.0'
+    id 'org.jetbrains.qodana' version '0.1.13'
     id "io.freefair.lombok" version "6.6.2"
     id 'idea'
-    id "org.sonarqube" version "4.0.0.2929"
+    id "org.sonarqube" version '4.0.0.2929'
     id 'jacoco'
 }
 def readPropertyString = (key) -> property(key).toString()
@@ -38,10 +40,18 @@ changelog {
     itemPrefix = "-"
     keepUnreleasedSection = true
     combinePreReleases = true
-    repositoryUrl = "https://github.com/MCMicS/jenkins-control-plugin"
+    lineSeparator = "\n"
+    repositoryUrl = readPropertyString('pluginRepositoryUrl')
     unreleasedTerm = "[Unreleased]"
     //groups = ["Added", "Changed", "Deprecated", "Removed"]
     groups = []
+}
+
+qodana {
+    cachePath = file(".qodana").canonicalPath
+    reportPath = file("build/reports/inspections").canonicalPath
+    saveReport = true
+    showReport = System.getenv("QODANA_SHOW_REPORT")?.toBoolean() ?: false
 }
 
 lombok {
@@ -83,15 +93,27 @@ tasks.patchPluginXml {
             .collect { changelog.renderItem(it as Changelog.Item, Changelog.OutputType.HTML)}
             .join('<br>\n')
     }
+    def getChangelogForCurrentBuild = {
+        def currentChangelog = changelog.getOrNull(readPropertyString("pluginVersion"))
+        if (!currentChangelog) {
+            try {
+                currentChangelog = changelog.getUnreleased()
+            } catch (MissingVersionException missingVersionException) {
+                currentChangelog = changelog.getLatest()
+            }
+        }
+        return currentChangelog
+    }
     def lastChanges = {
-        def item = changelog.getLatest()
+        def item = getChangelogForCurrentBuild()
                 .withHeader(true)
                 .withLinks(false)
                 .withLinkedHeader(false)
+                .withSummary(true)
         changelog.renderItem(item, Changelog.OutputType.HTML)
     }
-    changeNotes.set(provider { allChanges() } )
-    //changeNotes.set(provider { lastChanges() } )
+    //changeNotes.set(provider { allChanges() } )
+    changeNotes.set(provider { lastChanges() } )
 }
 
 configurations {
