@@ -360,6 +360,7 @@ public class ConfigurationPanel implements FormValidationPanel {
         debugTextPane.setBackground(JBColor.WHITE);
         debugTextPane.setEditorKit(htmlEditorKit);
         htmlEditorKit.install(debugTextPane);
+        htmlDocument.putProperty("IgnoreCharsetDirective", Boolean.valueOf(true));
         debugTextPane.setDocument(htmlDocument);
     }
 

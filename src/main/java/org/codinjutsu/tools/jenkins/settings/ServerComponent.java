@@ -7,10 +7,13 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPasswordField;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.FormBuilder;
+import com.intellij.util.ui.HTMLEditorKitBuilder;
 import com.intellij.util.ui.JBDimension;
 import com.intellij.util.ui.JBUI;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsControlBundle;
+import org.codinjutsu.tools.jenkins.exception.AuthenticationException;
+import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.view.annotation.FormValidationPanel;
 import org.codinjutsu.tools.jenkins.view.annotation.GuiField;
 import org.codinjutsu.tools.jenkins.view.validator.NotNullValidator;
@@ -22,8 +25,8 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
+import java.awt.*;
 
 import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.POSITIVE_INTEGER;
 import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.URL;
@@ -42,7 +45,7 @@ public class ServerComponent implements FormValidationPanel {
     private final JPanel debugPanel = JBUI.Panels.simplePanel(debugTextPane);
     private boolean apiTokenModified;
 
-    public ServerComponent() {
+    public ServerComponent(ServerConnectionValidator serverConnectionValidator) {
         apiToken.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
@@ -62,8 +65,9 @@ public class ServerComponent implements FormValidationPanel {
         final JBDimension size = JBUI.size(150, username.getPreferredSize().height);
         username.setPreferredSize(size);
         username.setHorizontalAlignment(JBTextField.LEFT);
+        connectionStatusLabel.setFont(connectionStatusLabel.getFont().deriveFont(Font.BOLD));
 
-        testConnection.addActionListener(event -> testConnection());
+        testConnection.addActionListener(event -> testConnection(serverConnectionValidator));
         debugPanel.setVisible(false);
         debugPanel.setBorder(IdeBorderFactory.createTitledBorder(//
                 JenkinsControlBundle.message("settings.server.debugInfo"), false,//
@@ -82,30 +86,54 @@ public class ServerComponent implements FormValidationPanel {
 
     private static @NotNull JTextPane createDebugTextPane() {
         final var textPane = new JTextPane();
-        final var htmlEditorKit = new HTMLEditorKit();
-        final var htmlDocument = new HTMLDocument();
-
         textPane.setEditable(false);
         textPane.setBackground(JBColor.WHITE);
-        textPane.setEditorKit(htmlEditorKit);
-        htmlEditorKit.install(textPane);
-        textPane.setDocument(htmlDocument);
+        final HTMLEditorKit simple = HTMLEditorKitBuilder.simple();
+        textPane.setEditorKit(simple);
+        textPane.getDocument().putProperty("IgnoreCharsetDirective", Boolean.valueOf(true));
         return textPane;
     }
 
-    private void testConnection() {
+    private void testConnection(ServerConnectionValidator serverConnectionValidator) {
         try {
             new NotNullValidator().validate(serverUrl);
             new UrlValidator().validate(serverUrl);
             new PositiveIntegerValidator().validate(connectionTimeout);
-            connectionStatusLabel.setText("Success");
             debugPanel.setVisible(false);
+            final var serverSetting = getServerSetting();
+            final var validationResult = serverConnectionValidator.validateConnection(serverSetting);
+            if (validationResult.isValid()) {
+                setConnectionFeedbackLabel(JBColor.GREEN,//
+                        JenkinsControlBundle.message("settings.server.test_connection.successful"));
+                setApiToken(serverSetting.getApiToken());
+            } else {
+                setConnectionFeedbackLabel(JBColor.RED,//
+                        JenkinsControlBundle.message("settings.server.test_connection.invalidConfiguration"));
+                debugPanel.setVisible(true);
+                debugTextPane.setText(String.join("<br>", validationResult.getErrors()));
+            }
+        } catch (AuthenticationException authenticationException) {
+            setConnectionFeedbackLabel(authenticationException);
+            final var responseBody = authenticationException.getResponseBody();
+            if (StringUtils.isNotBlank(responseBody)) {
+                debugPanel.setVisible(true);
+                debugTextPane.setText(responseBody);
+            }
         } catch (Exception ex) {
-            //throw new ConfigurationException(ex.getMessage());
-            connectionStatusLabel.setText(ex.getMessage());
-            debugPanel.setVisible(true);
-            debugTextPane.setText(ex.getMessage());
+            setConnectionFeedbackLabel(ex);
         }
+    }
+
+    private void setConnectionFeedbackLabel(@NotNull Exception cause) {
+        setConnectionFeedbackLabel(JBColor.RED,//
+                JenkinsControlBundle.message("settings.server.test_connection.fail", cause.getMessage()));
+    }
+
+    private void setConnectionFeedbackLabel(final Color labelColor, final String labelText) {
+        GuiUtil.runInSwingThread(() -> {
+            connectionStatusLabel.setForeground(labelColor);
+            connectionStatusLabel.setText(labelText);
+        });
     }
 
     private @NotNull JPanel createConnectionTimeout() {
@@ -126,6 +154,17 @@ public class ServerComponent implements FormValidationPanel {
 
     public @NotNull JComponent getPreferredFocusedComponent() {
         return serverUrl;
+    }
+
+    public @NotNull ServerSetting getServerSetting() {
+        final String usernameForSetting = getUsername();
+        return ServerSetting.builder()
+                .url(getServerUrl())
+                .username(StringUtils.isBlank(usernameForSetting) ? "" : usernameForSetting)
+                .apiToken(getApiToken())
+                .apiTokenModified(isApiTokenModified())
+                .timeout(getConnectionTimeout())
+                .build();
     }
 
     public @NotNull String getServerUrl() {
