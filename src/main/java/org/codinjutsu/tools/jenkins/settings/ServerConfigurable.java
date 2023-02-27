@@ -6,6 +6,9 @@ import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
+import org.codinjutsu.tools.jenkins.logic.ConfigurationValidator;
+import org.codinjutsu.tools.jenkins.logic.RequestManager;
+import org.codinjutsu.tools.jenkins.security.JenkinsVersion;
 import org.codinjutsu.tools.jenkins.view.annotation.FormValidator;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
@@ -39,7 +42,7 @@ public class ServerConfigurable implements SearchableConfigurable {
     @Nullable
     @Override
     public JComponent createComponent() {
-        serverComponent = new ServerComponent();
+        serverComponent = new ServerComponent(this::testConnection);
 
         formValidator = FormValidator.<JTextField>init(serverComponent)
                 .addValidator(serverComponent.getUsernameComponent(), component -> {
@@ -52,6 +55,19 @@ public class ServerConfigurable implements SearchableConfigurable {
                     }
                 });
         return serverComponent.getPanel();
+    }
+
+    private ConfigurationValidator.@NotNull ValidationResult testConnection(@NotNull ServerSetting serverSetting) {
+        final var apiToken = serverSetting.isApiTokenModified() ? serverSetting.getApiToken() ://
+                JenkinsSettings.getSafeInstance(project).getPassword();
+        final String serverUrl = Optional.ofNullable(serverSetting.getUrl()).orElse("");
+        final var jenkinsUrl = RequestManager.getInstance(project).testAuthenticate(serverUrl,
+                serverSetting.getUsername(), apiToken, "", JenkinsVersion.VERSION_2,
+                serverSetting.getTimeout());
+        if (StringUtils.isEmpty(jenkinsUrl)) {
+            throw new ConfigurationException("Cannot find 'Jenkins URL'. Please check your Jenkins Location");
+        }
+        return ConfigurationValidator.getInstance(project).validate(serverUrl, jenkinsUrl);
     }
 
     @Override
@@ -69,18 +85,7 @@ public class ServerConfigurable implements SearchableConfigurable {
     }
 
     private @NotNull Optional<ServerSetting> readSettingFromUi() {
-        if (serverComponent == null) {
-            return Optional.empty();
-        }
-
-        final String username = serverComponent.getUsername();
-        return Optional.of(ServerSetting.builder()
-                .url(serverComponent.getServerUrl())
-                .username(StringUtils.isBlank(username) ? "" : username)
-                .apiToken(serverComponent.getApiToken())
-                .apiTokenModified(serverComponent.isApiTokenModified())
-                .timeout(serverComponent.getConnectionTimeout())
-                .build());
+        return Optional.ofNullable(serverComponent).map(ServerComponent::getServerSetting);
     }
 
     public boolean isModified(ServerSetting serverSetting, JenkinsAppSettings jenkinsAppSettings,
