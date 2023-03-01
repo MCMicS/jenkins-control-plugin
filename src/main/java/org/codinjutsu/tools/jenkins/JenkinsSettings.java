@@ -55,7 +55,6 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
 
     @Override
     public State getState() {
-//        ensurePasswordIsStored();
         return myState;
     }
 
@@ -70,6 +69,14 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
 
     public void setUsername(String username) {
         myState.setUsername(username);
+    }
+
+    public String getJenkinsUrl() {
+        return myState.getJenkinsUrl();
+    }
+
+    public void setJenkinsUrl(String jenkinsUrl) {
+        myState.setJenkinsUrl(jenkinsUrl);
     }
 
     public String getCrumbData() {
@@ -171,6 +178,7 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
         private JenkinsVersion jenkinsVersion = JenkinsVersion.VERSION_1;
 
         private int connectionTimeout = DEFAULT_CONNECTION_TIMEOUT;
+        private String jenkinsUrl = RESET_STR_VALUE;
 
         public void clearFavoriteJobs() {
             favoriteJobs.clear();

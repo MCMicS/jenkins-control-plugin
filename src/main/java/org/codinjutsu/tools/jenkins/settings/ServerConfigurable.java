@@ -10,10 +10,7 @@ import org.codinjutsu.tools.jenkins.logic.ConfigurationValidator;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.security.JenkinsVersion;
 import org.codinjutsu.tools.jenkins.view.annotation.FormValidator;
-import org.jetbrains.annotations.Nls;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.*;
 
 import javax.swing.*;
 import java.util.Optional;
@@ -21,7 +18,7 @@ import java.util.Optional;
 public class ServerConfigurable implements SearchableConfigurable {
 
     private final Project project;
-    private ServerComponent serverComponent;
+    private @Nullable ServerComponent serverComponent;
     private FormValidator<JTextField> formValidator;
 
     public ServerConfigurable(Project project) {
@@ -35,26 +32,32 @@ public class ServerConfigurable implements SearchableConfigurable {
     }
 
     @Override
-    public JComponent getPreferredFocusedComponent() {
-        return serverComponent.getPreferredFocusedComponent();
+    public @Nullable JComponent getPreferredFocusedComponent() {
+        return serverComponent == null ? null : serverComponent.getServerUrlComponent();
     }
 
     @Nullable
     @Override
     public JComponent createComponent() {
-        serverComponent = new ServerComponent(this::testConnection);
+        final var serverComponentToSet = new ServerComponent(this::testConnection);
 
-        formValidator = FormValidator.<JTextField>init(serverComponent)
-                .addValidator(serverComponent.getUsernameComponent(), component -> {
+        formValidator = FormValidator.<JTextField>init(serverComponentToSet)
+                .addValidator(serverComponentToSet.getUsernameComponent(), component -> {
                     if (StringUtils.isNotBlank(component.getText())) {
-                        String apiToken = serverComponent.getApiToken();
-                        if (serverComponent.isApiTokenModified() && StringUtils.isBlank(apiToken)) {
+                        String apiToken = serverComponentToSet.getApiToken();
+                        if (serverComponentToSet.isApiTokenModified() && StringUtils.isBlank(apiToken)) {
                             throw new org.codinjutsu.tools.jenkins.exception.ConfigurationException(
                                     String.format("'%s' must be set", "API Token"));
                         }
                     }
                 });
-        return serverComponent.getPanel();
+        setServerComponent(serverComponentToSet);
+        return serverComponentToSet.getPanel();
+    }
+
+    @VisibleForTesting
+    void setServerComponent(@Nullable ServerComponent serverComponent) {
+        this.serverComponent = serverComponent;
     }
 
     private ConfigurationValidator.@NotNull ValidationResult testConnection(@NotNull ServerSetting serverSetting) {
@@ -88,12 +91,14 @@ public class ServerConfigurable implements SearchableConfigurable {
         return Optional.ofNullable(serverComponent).map(ServerComponent::getServerSetting);
     }
 
-    public boolean isModified(ServerSetting serverSetting, JenkinsAppSettings jenkinsAppSettings,
+    public static boolean isModified(ServerSetting serverSetting, JenkinsAppSettings jenkinsAppSettings,
                               JenkinsSettings jenkinsSettings) {
         boolean credentialsModified = !(jenkinsSettings.getUsername().equals(serverSetting.getUsername()))
                 || serverSetting.isApiTokenModified();
 
-        return !jenkinsAppSettings.getServerUrl().equals(serverSetting.getUrl())
+        final var differentJenkinsInstance = !jenkinsAppSettings.getServerUrl().equals(serverSetting.getUrl())
+                || !jenkinsSettings.getJenkinsUrl().equals(serverSetting.getJenkinsUrl());
+        return differentJenkinsInstance
                 || credentialsModified
                 || jenkinsSettings.getConnectionTimeout() != serverSetting.getTimeout();
     }
@@ -117,6 +122,7 @@ public class ServerConfigurable implements SearchableConfigurable {
         }
 
         jenkinsServerSetting.setServerUrl(serverSetting.getUrl());
+        jenkinsSettings.setJenkinsUrl(serverSetting.getJenkinsUrl());
         jenkinsSettings.setUsername(serverSetting.getUsername());
         if (serverSetting.isApiTokenModified()) {
             jenkinsSettings.setPassword(serverSetting.getApiToken());
@@ -130,11 +136,12 @@ public class ServerConfigurable implements SearchableConfigurable {
         Optional.ofNullable(serverComponent).ifPresent(this::reset);
     }
 
-    public void reset(ServerComponent serverComponentToReset) {
+    private void reset(ServerComponent serverComponentToReset) {
         final var jenkinsServerSetting = JenkinsAppSettings.getSafeInstance(project);
         final var jenkinsSettings = JenkinsSettings.getSafeInstance(project);
 
         serverComponentToReset.setServerUrl(jenkinsServerSetting.getServerUrl());
+        serverComponentToReset.setJenkinsUrl(jenkinsSettings.getJenkinsUrl());
         final var username = jenkinsSettings.getUsername();
         serverComponentToReset.setUsername(username);
         if (StringUtils.isNotBlank(username)) {

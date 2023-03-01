@@ -57,14 +57,26 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
         XmlSerializerUtil.copyBean(state, myState);
     }
 
+    /**
+     * @deprecated move to server setting class (maybe {@link JenkinsSettings} or {@link org.codinjutsu.tools.jenkins.settings.ServerSetting})
+     */
+    @Deprecated(since = "0.13.18")
     public String getServerUrl() {
         return myState.getServerUrl();
     }
 
+    /**
+     * @deprecated move to server setting class (maybe {@link JenkinsSettings} or {@link org.codinjutsu.tools.jenkins.settings.ServerSetting})
+     */
+    @Deprecated(since = "0.13.18")
     public void setServerUrl(String serverUrl) {
         myState.setServerUrl(serverUrl);
     }
 
+    /**
+     * @deprecated move to server setting class (maybe {@link JenkinsSettings} or {@link org.codinjutsu.tools.jenkins.settings.ServerSetting})
+     */
+    @Deprecated(since = "0.13.18")
     public boolean isServerUrlSet() {
         final String serverUrl = myState.getServerUrl();
         return StringUtils.isNotEmpty(serverUrl) && !DUMMY_JENKINS_SERVER_URL.equals(serverUrl);
