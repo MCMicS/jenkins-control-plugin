@@ -21,6 +21,7 @@ import org.codinjutsu.tools.jenkins.view.validator.PositiveIntegerValidator;
 import org.codinjutsu.tools.jenkins.view.validator.UrlValidator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.VisibleForTesting;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -35,6 +36,8 @@ public class ServerComponent implements FormValidationPanel {
     private final JPanel mainPanel;
     @GuiField(validators = URL)
     private final JBTextField serverUrl = new JBTextField();
+    @GuiField(validators = URL)
+    private final JBTextField jenkinsUrl = new JBTextField();
     private final JBTextField username = new JBTextField();
     private final JBPasswordField apiToken = new JBPasswordField();
     @GuiField(validators = POSITIVE_INTEGER)
@@ -49,17 +52,17 @@ public class ServerComponent implements FormValidationPanel {
         apiToken.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                apiTokenModified = true;
+                setApiTokenModified(true);
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                apiTokenModified = true;
+                setApiTokenModified(true);
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-                apiTokenModified = true;
+                setApiTokenModified(true);
             }
         });
         final JBDimension size = JBUI.size(150, username.getPreferredSize().height);
@@ -72,12 +75,17 @@ public class ServerComponent implements FormValidationPanel {
         debugPanel.setBorder(IdeBorderFactory.createTitledBorder(//
                 JenkinsControlBundle.message("settings.server.debugInfo"), false,//
                 JBUI.insetsTop(8)).setShowLine(false));
+        jenkinsUrl.getEmptyText().setText(JenkinsControlBundle.message("settings.server.jenkinsUrl.useServerAddress"));
+        jenkinsUrl.setToolTipText(JenkinsControlBundle.message("settings.server.jenkinsUrl.tooltip"));
+
         mainPanel = FormBuilder.createFormBuilder()
                 .addLabeledComponent(JenkinsControlBundle.message("settings.server.address"), serverUrl)
+                .addLabeledComponent(JenkinsControlBundle.message("settings.server.jenkinsUrl"), jenkinsUrl)
                 .addLabeledComponent(new JBLabel(JenkinsControlBundle.message("settings.server.username")),
                         username)
                 .addLabeledComponent(JenkinsControlBundle.message("settings.server.api_token"), apiToken)
-                .addLabeledComponent(JenkinsControlBundle.message("settings.server.connection_timeout"), createConnectionTimeout())
+                .addLabeledComponent(JenkinsControlBundle.message("settings.server.connection_timeout"),
+                        createConnectionTimeout())
                 .addComponentToRightColumn(createTestConnectionPanel())
                 .addComponent(debugPanel)
                 .addComponentFillVertically(new JPanel(), 0)
@@ -98,6 +106,7 @@ public class ServerComponent implements FormValidationPanel {
         try {
             new NotNullValidator().validate(serverUrl);
             new UrlValidator().validate(serverUrl);
+            new UrlValidator().validate(jenkinsUrl);
             new PositiveIntegerValidator().validate(connectionTimeout);
             debugPanel.setVisible(false);
             final var serverSetting = getServerSetting();
@@ -152,7 +161,7 @@ public class ServerComponent implements FormValidationPanel {
         return mainPanel;
     }
 
-    public @NotNull JComponent getPreferredFocusedComponent() {
+    public @Nullable JComponent getServerUrlComponent() {
         return serverUrl;
     }
 
@@ -160,6 +169,7 @@ public class ServerComponent implements FormValidationPanel {
         final String usernameForSetting = getUsername();
         return ServerSetting.builder()
                 .url(getServerUrl())
+                .jenkinsUrl(getJenkinsUrl())
                 .username(StringUtils.isBlank(usernameForSetting) ? "" : usernameForSetting)
                 .apiToken(getApiToken())
                 .apiTokenModified(isApiTokenModified())
@@ -173,6 +183,14 @@ public class ServerComponent implements FormValidationPanel {
 
     public void setServerUrl(@NotNull String serverUrlToSet) {
         serverUrl.setText(serverUrlToSet);
+    }
+
+    private @NotNull String getJenkinsUrl() {
+        return jenkinsUrl.getText();
+    }
+
+    public void setJenkinsUrl(@Nullable String jenkinsUrlToSet) {
+        jenkinsUrl.setText(jenkinsUrlToSet);
     }
 
     public @NotNull String getUsername() {
@@ -195,6 +213,13 @@ public class ServerComponent implements FormValidationPanel {
         apiToken.setPasswordIsStored(StringUtils.isNotBlank(apiTokenToSet));
     }
 
+    @VisibleForTesting
+    void setApiTokenValue(@Nullable String apiTokenToSet) {
+        setApiToken(apiTokenToSet);
+        apiToken.setText(apiTokenToSet);
+        setApiTokenModified(true);
+    }
+
     public int getConnectionTimeout() {
         return connectionTimeout.getNumber();
     }
@@ -208,6 +233,10 @@ public class ServerComponent implements FormValidationPanel {
     }
 
     public void resetApiTokenModified() {
-        apiTokenModified = false;
+        setApiTokenModified(false);
+    }
+
+    private void setApiTokenModified(boolean apiTokenModified) {
+        this.apiTokenModified = apiTokenModified;
     }
 }
