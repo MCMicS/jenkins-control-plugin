@@ -71,7 +71,7 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
         myState.setUsername(username);
     }
 
-    public String getJenkinsUrl() {
+    public @NotNull String getJenkinsUrl() {
         return myState.getJenkinsUrl();
     }
 
@@ -178,7 +178,7 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
         private JenkinsVersion jenkinsVersion = JenkinsVersion.VERSION_1;
 
         private int connectionTimeout = DEFAULT_CONNECTION_TIMEOUT;
-        private String jenkinsUrl = RESET_STR_VALUE;
+        private @NotNull String jenkinsUrl = RESET_STR_VALUE;
 
         public void clearFavoriteJobs() {
             favoriteJobs.clear();

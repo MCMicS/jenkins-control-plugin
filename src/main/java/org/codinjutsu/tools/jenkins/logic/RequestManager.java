@@ -81,12 +81,16 @@ public class RequestManager implements RequestManagerInterface, Disposable {
     }
 
     @Override
-    public Jenkins loadJenkinsWorkspace(JenkinsAppSettings configuration) {
+    public Jenkins loadJenkinsWorkspace(JenkinsAppSettings configuration, JenkinsSettings jenkinsSettings) {
         if (handleNotYetLoggedInState()) return null;
         URL url = urlBuilder.createJenkinsWorkspaceUrl(configuration);
         String jenkinsWorkspaceData = securityClient.execute(url);
+        final String serverUrl = configuration.getServerUrl();
+        final String configuredJenkinsUrl = Optional.of(jenkinsSettings.getJenkinsUrl())
+                .filter(StringUtils::isNotEmpty)
+                .orElse(serverUrl);
 
-        if (configuration.getServerUrl().contains(BUILDHIVE_CLOUDBEES)) {//TODO hack need to refactor
+        if (configuredJenkinsUrl.contains(BUILDHIVE_CLOUDBEES)) {//TODO hack need to refactor
             jenkinsPlateform = JenkinsPlateform.CLOUDBEES;
         } else {
             jenkinsPlateform = JenkinsPlateform.CLASSIC;
@@ -94,7 +98,7 @@ public class RequestManager implements RequestManagerInterface, Disposable {
 
         final Jenkins jenkins = jsonParser.createWorkspace(jenkinsWorkspaceData);
         final ConfigurationValidator.ValidationResult validationResult = ConfigurationValidator.getInstance(project)
-                .validate(configuration.getServerUrl(), jenkins.getServerUrl());
+                .validate(configuredJenkinsUrl, jenkins.getServerUrl());
         if (!validationResult.isValid()) {
             throw new ConfigurationException(validationResult.getFirstError());
         }

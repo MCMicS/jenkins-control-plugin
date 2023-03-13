@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
+import org.codinjutsu.tools.jenkins.JenkinsWindowManager;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.logic.ConfigurationValidator;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
@@ -64,13 +65,16 @@ public class ServerConfigurable implements SearchableConfigurable {
         final var apiToken = serverSetting.isApiTokenModified() ? serverSetting.getApiToken() ://
                 JenkinsSettings.getSafeInstance(project).getPassword();
         final String serverUrl = Optional.ofNullable(serverSetting.getUrl()).orElse("");
-        final var jenkinsUrl = RequestManager.getInstance(project).testAuthenticate(serverUrl,
+        final String configuredJenkinsUrl = Optional.ofNullable(serverSetting.getJenkinsUrl())
+                .filter(StringUtils::isNotEmpty)
+                .orElse(serverUrl);
+        final var jenkinsUrlFromServer = RequestManager.getInstance(project).testAuthenticate(serverUrl,
                 serverSetting.getUsername(), apiToken, "", JenkinsVersion.VERSION_2,
                 serverSetting.getTimeout());
-        if (StringUtils.isEmpty(jenkinsUrl)) {
+        if (StringUtils.isEmpty(jenkinsUrlFromServer)) {
             throw new ConfigurationException("Cannot find 'Jenkins URL'. Please check your Jenkins Location");
         }
-        return ConfigurationValidator.getInstance(project).validate(serverUrl, jenkinsUrl);
+        return ConfigurationValidator.getInstance(project).validate(configuredJenkinsUrl, jenkinsUrlFromServer);
     }
 
     @Override
@@ -111,6 +115,7 @@ public class ServerConfigurable implements SearchableConfigurable {
             throw new com.intellij.openapi.options.ConfigurationException(ex.getMessage());
         }
         readSettingFromUi().ifPresent(this::apply);
+        JenkinsWindowManager.getInstance(project).ifPresent(JenkinsWindowManager::reloadConfiguration);
     }
 
     private void apply(ServerSetting serverSetting) throws ConfigurationException {

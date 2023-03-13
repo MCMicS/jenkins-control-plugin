@@ -25,9 +25,11 @@ import com.offbytwo.jenkins.model.JobWithDetails;
 import lombok.SneakyThrows;
 import org.assertj.core.api.Assertions;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
+import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.model.BuildType;
 import org.codinjutsu.tools.jenkins.model.Computer;
+import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.security.SecurityClient;
 import org.codinjutsu.tools.jenkins.util.IOUtils;
@@ -63,6 +65,8 @@ public class RequestManagerTest {
 
     private JenkinsAppSettings configuration;
 
+    private JenkinsSettings jenkinsSettings;
+
     @Mock
     private SecurityClient securityClientMock;
 
@@ -86,7 +90,7 @@ public class RequestManagerTest {
 
     @Test
     public void loadJenkinsWorkspaceWithMismatchServerPortInTheResponse() throws Exception {
-        configuration.setServerUrl("http://myjenkins:8080");
+        setServerUrl("http://myjenkins:8080");
         URL urlFromConf = new URL("http://myjenkins:8080");
         URL urlFromJenkins = new URL("http://myjenkins:7070");
         when(urlBuilderMock.createJenkinsWorkspaceUrl(configuration))
@@ -96,7 +100,7 @@ public class RequestManagerTest {
         when(securityClientMock.execute(urlFromConf))
                 .thenReturn(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadJenkinsWorkspaceWithIncorrectPortInTheResponse.json")));
         try {
-            requestManager.loadJenkinsWorkspace(configuration);
+            requestManager.loadJenkinsWorkspace(configuration, jenkinsSettings);
             Assert.fail();
         } catch (ConfigurationException ex) {
             Assert.assertEquals("Jenkins Server Port Mismatch: expected='8080' - actual='7070'. Look at the value of 'Jenkins URL' at http://myjenkins:8080/configure", ex.getMessage());
@@ -105,7 +109,7 @@ public class RequestManagerTest {
 
     @Test
     public void loadJenkinsWorkspaceWithMismatchServerHostInTheResponse() throws Exception {
-        configuration.setServerUrl("http://myjenkins:8080");
+        setServerUrl("http://myjenkins:8080");
         URL urlFromConf = new URL("http://myjenkins:8080");
         URL urlFromJenkins = new URL("http://anotherjenkins:8080");
         when(urlBuilderMock.createJenkinsWorkspaceUrl(configuration))
@@ -115,7 +119,7 @@ public class RequestManagerTest {
         when(securityClientMock.execute(urlFromConf))
                 .thenReturn(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadJenkinsWorkspaceWithIncorrectHostInTheResponse.json")));
         try {
-            requestManager.loadJenkinsWorkspace(configuration);
+            requestManager.loadJenkinsWorkspace(configuration, jenkinsSettings);
             Assert.fail();
         } catch (ConfigurationException ex) {
             Assert.assertEquals("Jenkins Server Host Mismatch: expected='myjenkins' - actual='anotherjenkins'. Look at the value of 'Jenkins URL' at http://myjenkins:8080/configure", ex.getMessage());
@@ -123,10 +127,28 @@ public class RequestManagerTest {
     }
 
     @Test
+    public void loadJenkinsWorkspaceWithValidJenkinsUrlConfiguration() throws Exception {
+        final String jenkinsUrlForServer = "http://myjenkins:7070";
+        final String serverUrl = "http://myjenkins:8080";
+        setServerUrl(serverUrl);
+        jenkinsSettings.setJenkinsUrl(jenkinsUrlForServer);
+        URL urlFromConf = new URL(serverUrl);
+        URL urlFromJenkins = new URL(jenkinsUrlForServer);
+        when(urlBuilderMock.createJenkinsWorkspaceUrl(configuration))
+                .thenReturn(urlFromConf);
+        when(urlBuilderMock.createViewUrl(any(JenkinsPlateform.class), anyString()))
+                .thenReturn(urlFromJenkins);
+        when(securityClientMock.execute(urlFromConf))
+                .thenReturn(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadJenkinsWorkspaceWithIncorrectPortInTheResponse.json")));
+        final Jenkins jenkins = requestManager.loadJenkinsWorkspace(configuration, jenkinsSettings);
+        Assertions.assertThat(jenkins.getServerUrl()).isEqualTo(serverUrl);
+    }
+
+    @Test
     public void loadComputers() throws Exception {
         final String serverUrl = "http://myjenkins:8080";
         final URL computerUrl = new URL("http://myjenkins:8080/computer");
-        configuration.setServerUrl(serverUrl);
+        setServerUrl(serverUrl);
         when(urlBuilderMock.createComputerUrl(serverUrl)).thenReturn(computerUrl);
         when(securityClientMock.execute(computerUrl))
                 .thenReturn(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_computer.json")));
@@ -215,6 +237,7 @@ public class RequestManagerTest {
     public void setUp() throws IOException {
         mocks = MockitoAnnotations.openMocks(this);
         configuration = new JenkinsAppSettings();
+        jenkinsSettings = new JenkinsSettings();
         when(project.getService(UrlBuilder.class)).thenReturn(urlBuilderMock);
         final PicoContainer container = mock(PicoContainer.class);
         when(project.getPicoContainer()).thenReturn(container);
@@ -234,6 +257,11 @@ public class RequestManagerTest {
         mockBuildConsoleOutput(lastFailedBuild, FAILED_CONSOLE_OUTPUT);
 
         when(runningBuild.details().isBuilding()).thenReturn(true);
+    }
+
+    private void setServerUrl(String serverUrl) {
+        configuration.setServerUrl(serverUrl);
+        jenkinsSettings.setJenkinsUrl("");
     }
 
     private void mockBuildConsoleOutput(com.offbytwo.jenkins.model.Build build, String consoleText) throws IOException {
