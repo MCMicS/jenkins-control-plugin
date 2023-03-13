@@ -6,10 +6,8 @@ import com.intellij.ui.JBIntSpinner;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPasswordField;
 import com.intellij.ui.components.JBTextField;
-import com.intellij.util.ui.FormBuilder;
-import com.intellij.util.ui.HTMLEditorKitBuilder;
-import com.intellij.util.ui.JBDimension;
-import com.intellij.util.ui.JBUI;
+import com.intellij.util.ui.*;
+import com.intellij.util.ui.components.BorderLayoutPanel;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsControlBundle;
 import org.codinjutsu.tools.jenkins.exception.AuthenticationException;
@@ -114,7 +112,9 @@ public class ServerComponent implements FormValidationPanel {
             if (validationResult.isValid()) {
                 setConnectionFeedbackLabel(JBColor.GREEN,//
                         JenkinsControlBundle.message("settings.server.test_connection.successful"));
-                setApiToken(serverSetting.getApiToken());
+                if (serverSetting.isApiTokenModified()) {
+                    setApiToken(serverSetting.getApiToken());
+                }
             } else {
                 setConnectionFeedbackLabel(JBColor.RED,//
                         JenkinsControlBundle.message("settings.server.test_connection.invalidConfiguration"));
@@ -146,14 +146,21 @@ public class ServerComponent implements FormValidationPanel {
     }
 
     private @NotNull JPanel createConnectionTimeout() {
-        final var panel = JBUI.Panels.simplePanel(new JBLabel(JenkinsControlBundle.message("settings.seconds")));
-        panel.addToLeft(connectionTimeout);
-        return panel;
+        return simplePanel(connectionTimeout, new JBLabel(JenkinsControlBundle.message("settings.seconds")));
     }
 
     private @NotNull JPanel createTestConnectionPanel() {
-        final var panel = JBUI.Panels.simplePanel(connectionStatusLabel);
-        panel.addToLeft(this.testConnection);
+        return simplePanel(testConnection, connectionStatusLabel);
+    }
+
+    private BorderLayoutPanel simplePanel() {
+        return JBUI.Panels.simplePanel(UIUtil.DEFAULT_HGAP, UIUtil.DEFAULT_VGAP);
+    }
+
+    private BorderLayoutPanel simplePanel(Component left, Component center) {
+        final var panel = simplePanel();
+        panel.addToLeft(left);
+        panel.addToCenter(center);
         return panel;
     }
 

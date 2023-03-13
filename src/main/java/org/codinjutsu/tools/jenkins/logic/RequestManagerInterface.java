@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface RequestManagerInterface {
-    Jenkins loadJenkinsWorkspace(JenkinsAppSettings configuration);
+    Jenkins loadJenkinsWorkspace(JenkinsAppSettings configuration, JenkinsSettings jenkinsSettings);
 
     Map<String, Build> loadJenkinsRssLatestBuilds(JenkinsAppSettings configuration);
 
