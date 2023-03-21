@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.mockito.MockitoAnnotations;
 
 import java.util.*;
+import java.util.function.UnaryOperator;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.codinjutsu.tools.jenkins.model.BuildStatusEnum.FAILURE;
@@ -414,6 +415,6 @@ public class JenkinsJsonParserTest {
     @Before
     public void setUp() {
         mocks = MockitoAnnotations.openMocks(this);
-        jsonParser = new JenkinsJsonParser();
+        jsonParser = new JenkinsJsonParser(UnaryOperator.identity());
     }
 }

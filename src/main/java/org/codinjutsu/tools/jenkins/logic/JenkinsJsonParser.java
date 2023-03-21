@@ -31,13 +31,16 @@ import org.jetbrains.annotations.Nullable;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 public class JenkinsJsonParser implements JenkinsParser {
 
     private static final Logger LOG = Logger.getInstance(JenkinsJsonParser.class);
 
-    private final SimpleDateFormat workspaceDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+    private static final SimpleDateFormat WORKSPACE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+
+    private final @NotNull UnaryOperator<String> urlMapper;
 
     private static boolean getBoolean(Object obj) {
         return Boolean.TRUE.equals(obj);
@@ -57,6 +60,10 @@ public class JenkinsJsonParser implements JenkinsParser {
         return Jsoner.mintJsonKey(key, value);
     }
 
+    public JenkinsJsonParser(@NotNull UnaryOperator<String> urlMapper) {
+        this.urlMapper = urlMapper;
+    }
+
     @Override
     public Jenkins createWorkspace(String jsonData) {
         checkJsonDataAndThrowExceptionIfNecessary(jsonData);
@@ -64,7 +71,7 @@ public class JenkinsJsonParser implements JenkinsParser {
         final Optional<View> primaryView = Optional.ofNullable((JsonObject) jsonObject.get(PRIMARY_VIEW)).map(this::getView);
 
         final String description = getNonNullStringOrDefaultForNull(jsonObject, SERVER_DESCRIPTION, StringUtils.EMPTY);
-        final String jenkinsUrl = getServerUrl(jsonObject);
+        final String jenkinsUrl = urlMapper.apply(getServerUrl(jsonObject));
         final Jenkins jenkins = new Jenkins(description, jenkinsUrl);
         primaryView.ifPresent(jenkins::setPrimaryView);
 
@@ -168,8 +175,8 @@ public class JenkinsJsonParser implements JenkinsParser {
         final String buildDate = lastBuildObject.getString(createJsonKey(BUILD_ID));
         // BUILD_ID
         //    Die aktuelle Build-ID. In Builds ab Jenkins 1.597 ist dies die Build-Nummer, vorher ein Zeitstempel im Format YYYY-MM-DD_hh-mm-ss.
-        if (buildDate != null && DateUtil.isValidJenkinsDate(buildDate, workspaceDateFormat)) {
-            builder.buildDate(DateUtil.parseDate(buildDate, workspaceDateFormat));
+        if (buildDate != null && DateUtil.isValidJenkinsDate(buildDate, WORKSPACE_DATE_FORMAT)) {
+            builder.buildDate(DateUtil.parseDate(buildDate, WORKSPACE_DATE_FORMAT));
         } else {
             builder.buildDate(timestamp);
         }

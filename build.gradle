@@ -162,6 +162,9 @@ dependencies {
     }
 
     testImplementation(
+            platform('org.junit:junit-bom:5.9.2'),
+            'org.junit.jupiter:junit-jupiter-api',
+            'org.junit.jupiter:junit-jupiter-params',
             'junit:junit:4.13.2',
             'org.mockito:mockito-inline:5.2.0',
             'org.powermock:powermock-api-mockito2:2.0.9',
@@ -169,9 +172,15 @@ dependencies {
             'org.assertj:assertj-core:3.24.2',
             'org.assertj:assertj-swing-junit:3.17.1'
     )
+    testRuntimeOnly(
+            'org.junit.jupiter:junit-jupiter-engine',
+            'org.junit.vintage:junit-vintage-engine',
+            'org.junit.platform:junit-platform-launcher'
+    )
 }
 
 test {
+    useJUnitPlatform()
     jvmArgs '-enableassertions', '-Djava.awt.headless=true'
     doFirst {
         systemProperty("idea.plugins.path", project.rootDir.canonicalPath + "/.test-plugins")
