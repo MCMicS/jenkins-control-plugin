@@ -132,8 +132,9 @@ public class RequestManagerTest {
         final String serverUrl = "http://myjenkins:8080";
         setServerUrl(serverUrl);
         jenkinsSettings.setJenkinsUrl(jenkinsUrlForServer);
-        URL urlFromConf = new URL(serverUrl);
-        URL urlFromJenkins = new URL(jenkinsUrlForServer);
+        requestManager.setJenkinsParser(new JenkinsJsonParser(new JenkinsUrlMapper(serverUrl, jenkinsUrlForServer)));
+        var urlFromConf = new URL(serverUrl);
+        var urlFromJenkins = new URL(jenkinsUrlForServer);
         when(urlBuilderMock.createJenkinsWorkspaceUrl(configuration))
                 .thenReturn(urlFromConf);
         when(urlBuilderMock.createViewUrl(any(JenkinsPlateform.class), anyString()))
