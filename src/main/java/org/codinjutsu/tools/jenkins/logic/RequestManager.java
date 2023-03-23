@@ -300,10 +300,7 @@ public class RequestManager implements RequestManagerInterface, Disposable {
         securityClient.connect(urlBuilder.createAuthenticationUrl(serverUrl));
         setJenkinsServer(new JenkinsServer(new JenkinsClient(urlBuilder.createServerUrl(serverUrl), securityClient)));
 
-        final var urlMapper = Optional.of(jenkinsSettings.getJenkinsUrl())
-                .filter(StringUtils::isNotEmpty)
-                .map(jenkinsUrl -> (UnaryOperator<String>) new JenkinsUrlMapper(serverUrl, jenkinsUrl))
-                .orElseGet(UnaryOperator::identity);
+        final var urlMapper = project.getService(UrlMapperService.class).getMapper(jenkinsSettings, serverUrl);;
         setJenkinsParser(new JenkinsJsonParser(urlMapper));
     }
 
