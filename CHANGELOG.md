@@ -1,6 +1,7 @@
 # Changelog
 
 ## [[Unreleased]]
+- \#469 Index out of bounds
 
 ## [0.13.17]
 - \#440 java.lang.IllegalArgumentException: URL is malformed
