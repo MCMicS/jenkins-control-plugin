@@ -6,7 +6,7 @@ import org.jetbrains.intellij.tasks.RunPluginVerifierTask
 
 plugins {
     id 'java'
-    id 'org.jetbrains.intellij' version '1.14.0'
+    id 'org.jetbrains.intellij' version '1.14.1'
     id 'org.jetbrains.changelog' version '2.1.0'
     id 'org.jetbrains.qodana' version '0.1.13'
     id "io.freefair.lombok" version "8.0.1"
