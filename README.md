@@ -122,7 +122,7 @@ The RSS reader has moved to the Event Log. If you need to refresh manually, clic
 
 This project is built with Gradle. Just run `./gradlew buildPlugin`.
 
-## Update Gradle versin
+## Update Gradle version
 
 `gradle wrapper --gradle-version 6.8.1 --distribution-type bin`
 
@@ -137,6 +137,16 @@ Create a Gradle Run configuration with task `runIdea` and just run it.
 ## Limitations
 * This software is written under Apache License 2.0.
 * if Jenkins is behind an HTTPS web server, set a **trusted** certificate.
+
+## Use Jenkins Icons
+We use some of the icons from [Jenkins project ](https://github.com/jenkinsci/jenkins/tree/master/war/src/main/resources/images/symbols).
+Download the files to `src/main/resources/images`, remove `weather-icon-` prefix and change the defined color variables to the [Jetbrains Guideline](https://jetbrains.design/intellij/principles/icons/#action-icons) values.
+```
+var(--yellow) --> #EDA200 
+var(--cyan) --> #389FD6
+var(--text-color-secondary) --> #6E6E6E
+```
+Also change the size to `16px x 16px`. Create icon for dark UI with different colors.
 
 ## Thanks
 I would like to thank:
