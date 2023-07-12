@@ -145,6 +145,7 @@ Download the files to `src/main/resources/images`, remove `weather-icon-` prefix
 var(--yellow) --> #EDA200 
 var(--cyan) --> #389FD6
 var(--text-color-secondary) --> #6E6E6E
+fill="transparent" --> fill="none"
 ```
 Also change the size to `16px x 16px`. Create icon for dark UI with different colors.
 
