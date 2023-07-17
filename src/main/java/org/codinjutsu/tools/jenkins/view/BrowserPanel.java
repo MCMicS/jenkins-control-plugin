@@ -340,18 +340,19 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
     }
 
     private void installActionsInToolbar() {
+        final ActionManager actionManager = ActionManager.getInstance();
         DefaultActionGroup actionGroup = new DefaultActionGroup("JenkinsToolbarGroup", false);
         actionGroup.add(new SelectViewAction(this));
         actionGroup.add(new RefreshNodeAction(this));
-        actionGroup.add(ActionManager.getInstance().getAction(LoadBuildsAction.ACTION_ID));
-        actionGroup.add(ActionManager.getInstance().getAction(RunBuildAction.ACTION_ID));
+        actionGroup.add(actionManager.getAction(LoadBuildsAction.ACTION_ID));
+        actionGroup.add(actionManager.getAction(RunBuildAction.ACTION_ID));
         actionGroup.add(new StopBuildAction(this));
         actionGroup.add(new SortByStatusAction(this));
         actionGroup.add(new RefreshRssAction());
         actionGroup.addSeparator();
-        actionGroup.add(new OpenPluginSettingsAction());
+        actionGroup.add(actionManager.getAction("Jenkins.ShowSettingsGroup"));
 
-        GuiUtil.installActionGroupInToolBar(actionGroup, this, ActionManager.getInstance(), JENKINS_PANEL_PLACE);
+        GuiUtil.installActionGroupInToolBar(actionGroup, this, actionManager, JENKINS_PANEL_PLACE);
     }
 
     private void installActionsInPopupMenu() {

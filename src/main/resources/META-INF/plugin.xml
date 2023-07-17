@@ -76,6 +76,17 @@
                 icon="AllIcons.Actions.Execute">
             <override-text place="GoToAction"/>
         </action>
+        <action id="Jenkins.ShowCommonSettings"
+                class="org.codinjutsu.tools.jenkins.view.action.OpenPluginSettingsAction">
+        </action>
+        <action id="Jenkins.ShowServerSettings"
+                class="org.codinjutsu.tools.jenkins.view.action.OpenServerSettingsAction">
+        </action>
+
+        <group id="Jenkins.ShowSettingsGroup" popup="true" icon="AllIcons.General.Settings">
+            <reference id="Jenkins.ShowCommonSettings"/>
+            <reference id="Jenkins.ShowServerSettings"/>
+        </group>
     </actions>
 
     <extensionPoints>

@@ -17,29 +17,18 @@
 package org.codinjutsu.tools.jenkins.view.action;
 
 
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.options.ShowSettingsUtil;
-import com.intellij.openapi.project.DumbAware;
+import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import org.codinjutsu.tools.jenkins.settings.JenkinsComponent;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-
-public class OpenPluginSettingsAction extends AnAction implements DumbAware {
-
-
-    private static final Icon SETTINGS_ICON = AllIcons.General.Settings;
-
-    public OpenPluginSettingsAction() {
-        super("Jenkins Settings", "Edit the Jenkins settings for the current project", SETTINGS_ICON);
-    }
+public class OpenPluginSettingsAction extends DumbAwareAction {
 
     @Override
-    public void actionPerformed(AnActionEvent event) {
+    public void actionPerformed(@NotNull AnActionEvent event) {
         ActionUtil.getProject(event).ifPresent(OpenPluginSettingsAction::showSettingsFor);
     }
 
