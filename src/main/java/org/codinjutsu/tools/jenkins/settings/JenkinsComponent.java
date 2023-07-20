@@ -48,13 +48,13 @@ public class JenkinsComponent implements SearchableConfigurable {
 
     public JComponent createComponent() {
         if (configurationPanel == null) {
-            configurationPanel = new ConfigurationPanel(project);
+            configurationPanel = new ConfigurationPanel();
         }
         return configurationPanel.getRootPanel();
     }
 
     public boolean isModified() {
-        return configurationPanel != null && configurationPanel.isModified(jenkinsAppSettings, jenkinsSettings);
+        return configurationPanel != null && configurationPanel.isModified(jenkinsAppSettings);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class JenkinsComponent implements SearchableConfigurable {
     public void apply() throws ConfigurationException {
         if (configurationPanel != null) {
             try {
-                configurationPanel.applyConfigurationData(jenkinsAppSettings, jenkinsSettings);
+                configurationPanel.applyConfigurationData(jenkinsAppSettings);
                 JenkinsWindowManager.getInstance(project).ifPresent(JenkinsWindowManager::reloadConfiguration);
             } catch (org.codinjutsu.tools.jenkins.exception.ConfigurationException ex) {
                 throw new ConfigurationException(ex.getMessage());
@@ -86,7 +86,7 @@ public class JenkinsComponent implements SearchableConfigurable {
     @Override
     public void reset() {
         if (configurationPanel != null) {
-            configurationPanel.loadConfigurationData(jenkinsAppSettings, jenkinsSettings);
+            configurationPanel.loadConfigurationData(jenkinsAppSettings);
         }
     }
 

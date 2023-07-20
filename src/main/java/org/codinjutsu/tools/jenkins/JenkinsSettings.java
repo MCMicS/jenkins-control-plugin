@@ -92,6 +92,7 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
         return StringUtils.defaultIfEmpty(password, "");
     }
 
+    @Deprecated
     public void setPassword(String password) {
         PasswordSafe.getInstance().setPassword(getPasswordCredentialAttributes(), StringUtils.isNotBlank(password) ? password : "");
     }
