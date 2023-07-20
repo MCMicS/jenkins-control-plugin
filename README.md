@@ -1,8 +1,8 @@
-# Jenkins Plugin 0.14.0 for Jetbrains products
+# Jenkins Plugin 0.13.18 for Jetbrains products
 [![Build Status](https://app.travis-ci.com/MCMicS/jenkins-control-plugin.svg?branch=master)](https://app.travis-ci.com/MCMicS/jenkins-control-plugin)
 [![Plugin Compatibility](https://github.com/MCMicS/jenkins-control-plugin/actions/workflows/compatibility.yml/badge.svg)](https://github.com/MCMicS/jenkins-control-plugin/actions/workflows/compatibility.yml)
 
-[![SonarCloud Analysis](https://github.com/MCMicS/jenkins-control-plugin/actions/workflows/sonar.yml/badge.svg)](https://github.com/MCMicS/jenkins-control-plugin/actions/workflows/sonar.yml)
+[![SonarCloud Analysis](https://github.com/MCMicS/jenkins-control-plugin/actions/workflows/build.yml/badge.svg)](https://github.com/MCMicS/jenkins-control-plugin/actions/workflows/sonar.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=MCMicS_jenkins-control-plugin&metric=alert_status)](https://sonarcloud.io/dashboard?id=MCMicS_jenkins-control-plugin)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=MCMicS_jenkins-control-plugin&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=MCMicS_jenkins-control-plugin)
 [![Qodana](https://github.com/MCMicS/jenkins-control-plugin/actions/workflows/Qodana.yml/badge.svg?branch=master)](https://github.com/MCMicS/jenkins-control-plugin/actions/workflows/Qodana.yml)
@@ -32,8 +32,23 @@ This plugin allows to view the content of your Jenkins Continuous Integration Se
 
 ![Browser](doc/images/Browser.png?raw=true)
 
-with Multibranch support.
+### Features
+- Multibranch support
+
 ![Multibranch Support](doc/images/MultiBranch.png?raw=true)
+
+- Views from Jenkins server
+
+![Browser-Views.png](doc%2Fimages%2FBrowser-Views.png)
+
+- Favorites
+
+![Browser-favoriteView.png](doc%2Fimages%2FBrowser-favoriteView.png)
+
+- Different Jenkins hostname as server url. May 
+![Configuration-Hostname_Server.png](doc%2Fimages%2FConfiguration-Hostname_Server.png)
+0
+![Configuration-Hostname.png](doc%2Fimages%2FConfiguration-Hostname.png)
 
 ## Plugin Compatibility
 This plugin was built with JDK 11 but Java 8 Source level for older IDEA versions. Jenkins CIs of jenkins-ci and apache.org are used for manual and stress testing.
@@ -43,7 +58,8 @@ Download this plugin from your IDE or [from the plugin website](http://plugins.j
 
 ## Configuration steps
 * Click on the **Jenkins Settings** button located on the upper toolbar 
-(or you can also open IntelliJ Settings Screen and select the Jenkins Control Plugin section).
+(or you can also open IntelliJ Settings Screen and select the Jenkins Plugin section)
+* The configuration is plitted into two areas. The first change the setting for the behaviour and a submenu for server settins
 * Enter your Jenkins Server URL (e.g: https://ci.jenkins.io/) in **Servers**.
 * If Security is enabled on the server, you have to provide credentials. Enter your username and the API Token.
 The API Token will be stored in Intellij Password Manager. It could ask you a Master password.
@@ -53,6 +69,7 @@ The API Token will be stored in Intellij Password Manager. It could ask you a Ma
      3. Use this newly added API Token
 * To make sure that all parameters are correct, you can click on the **Test Connection** button.
 A feedback message will appear.
+![Configuration-Settings.png](doc%2Fimages%2FConfiguration-Settings.png)
 
 ![Connection succeeded](doc/images/Configuration-Success.png?raw=true)
 
@@ -137,7 +154,7 @@ Create a Gradle Run configuration with task `runIdea` and just run it.
 
 ## Limitations
 * This software is written under Apache License 2.0.
-* if Jenkins is behind an HTTPS web server, set a **trusted** certificate.
+* if Jenkins is behind an HTTPS web server, set a **trusted** certificate or add an exception in IDEA to trust the certificate.
 
 ## Use Jenkins Icons
 We use some of the icons from [Jenkins project ](https://github.com/jenkinsci/jenkins/tree/master/war/src/main/resources/images/symbols).
