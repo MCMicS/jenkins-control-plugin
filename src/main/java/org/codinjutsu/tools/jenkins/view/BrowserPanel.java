@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
 
 @State(name = "JenkinsBrowserPanel", storages = {
         @Storage(value = StoragePathMacros.PRODUCT_WORKSPACE_FILE, roamingType = RoamingType.DISABLED)
-})
+}, getStateRequiresEdt = true)
 public final class BrowserPanel extends SimpleToolWindowPanel implements PersistentStateComponent<JenkinsTreeState> {
 
     @NonNls

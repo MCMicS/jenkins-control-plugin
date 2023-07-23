@@ -41,7 +41,6 @@ import org.junit.Test;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.picocontainer.PicoContainer;
 import org.powermock.reflect.Whitebox;
 
 import java.io.IOException;
@@ -240,9 +239,9 @@ public class RequestManagerTest {
         configuration = new JenkinsAppSettings();
         jenkinsSettings = new JenkinsSettings();
         when(project.getService(UrlBuilder.class)).thenReturn(urlBuilderMock);
-        final PicoContainer container = mock(PicoContainer.class);
-        when(project.getPicoContainer()).thenReturn(container);
-        when(container.getComponentInstance(UrlBuilder.class.getName())).thenReturn(urlBuilderMock);
+//        final PicoContainer container = mock(PicoContainer.class);
+//        when(project.getPicoContainer()).thenReturn(container);
+//        when(container.getComponentInstance(UrlBuilder.class.getName())).thenReturn(urlBuilderMock);
         requestManager = new RequestManager(project);
         requestManager.setSecurityClient(securityClientMock);
         requestManager.setJenkinsServer(jenkinsServer);
