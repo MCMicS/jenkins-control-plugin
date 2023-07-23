@@ -142,7 +142,7 @@ public class SelectViewAction extends DumbAwareAction implements CustomComponent
             JBPopup popup = new PopupChooserBuilder<>(viewList)
                     .setMovable(false)
                     .setCancelKeyEnabled(true)
-                    .setItemChoosenCallback(() -> {
+                    .setItemChosenCallback(() -> {
                         final View view = viewList.getSelectedValue();
                         if (view == null || view.hasNestedView()) return;
                         browserPanel.loadView(view);
