@@ -5,6 +5,8 @@
 - New health icons (Fix \#488 Exception with 2023.2 EAP 232.8453.116)
 - \#377: Is there any way to ignore hostname mismatch
 - Add second Url to use  as "Jenkins URL" which is set in "Jenkins Location"
+- \#490 Unable to save plugin settings in 2023.2 Beta #490
+- Build for IDE >= 2023.2
 ### Breaking
 - Remove Jenkins 1 setting. Always use Jenkins version 2
 - Remove Crumb Data usage
