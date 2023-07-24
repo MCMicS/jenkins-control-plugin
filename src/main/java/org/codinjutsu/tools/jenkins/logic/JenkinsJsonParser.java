@@ -60,6 +60,10 @@ public class JenkinsJsonParser implements JenkinsParser {
         return Jsoner.mintJsonKey(key, value);
     }
 
+    private static @NotNull JsonArray getArray(JsonObject jsonObject, String key) {
+        return (JsonArray) jsonObject.getOrDefault(key, new JsonArray());
+    }
+
     public JenkinsJsonParser(@NotNull UnaryOperator<String> urlMapper) {
         this.urlMapper = urlMapper;
     }
@@ -75,10 +79,8 @@ public class JenkinsJsonParser implements JenkinsParser {
         final Jenkins jenkins = new Jenkins(description, jenkinsUrl);
         primaryView.ifPresent(jenkins::setPrimaryView);
 
-        final JsonArray viewsObject = (JsonArray) jsonObject.get(VIEWS);
-        if (viewsObject != null) {
-            jenkins.setViews(getViews(viewsObject));
-        }
+        final JsonArray viewsObject = getArray(jsonObject, VIEWS);
+        jenkins.setViews(getViews(viewsObject));
         return jenkins;
     }
 
@@ -100,22 +102,20 @@ public class JenkinsJsonParser implements JenkinsParser {
         String url = viewObject.getString(createJsonKey(VIEW_URL));
         viewBuilder.url(url);
 
-        JsonArray subViewObjs = (JsonArray) viewObject.get(VIEWS);
-        if (subViewObjs != null) {
-            for (Object obj : subViewObjs) {
-                JsonObject subviewObj = (JsonObject) obj;
+        JsonArray subViewObjs = getArray(viewObject, VIEWS);
+        for (Object obj : subViewObjs) {
+            JsonObject subviewObj = (JsonObject) obj;
 
-                final View.ViewBuilder<?, ?> nestedViewBuilder = View.builder();
-                nestedViewBuilder.isNested(true);
+            final View.ViewBuilder<?, ?> nestedViewBuilder = View.builder();
+            nestedViewBuilder.isNested(true);
 
-                String currentName = subviewObj.getStringOrDefault(createJsonKey(VIEW_NAME, unknownViewName));
-                nestedViewBuilder.name(currentName);
+            String currentName = subviewObj.getStringOrDefault(createJsonKey(VIEW_NAME, unknownViewName));
+            nestedViewBuilder.name(currentName);
 
-                String subViewUrl = subviewObj.getString(createJsonKey(VIEW_URL));
-                nestedViewBuilder.url(subViewUrl);
+            String subViewUrl = subviewObj.getString(createJsonKey(VIEW_URL));
+            nestedViewBuilder.url(subViewUrl);
 
-                viewBuilder.subView(nestedViewBuilder.build());
-            }
+            viewBuilder.subView(nestedViewBuilder.build());
         }
         return viewBuilder.build();
     }
@@ -282,7 +282,7 @@ public class JenkinsJsonParser implements JenkinsParser {
         final boolean buildable = getBoolean(jsonObject.getBoolean(createJsonKey(JOB_IS_BUILDABLE)));
         final boolean inQueue = getBoolean(jsonObject.getBoolean(createJsonKey(JOB_IS_IN_QUEUE)));
 
-        JsonArray healths = (JsonArray) jsonObject.get(JOB_HEALTH);
+        JsonArray healths = getArray(jsonObject, JOB_HEALTH);
         final Job.JobBuilder jobBuilder = Job.builder().name(name).jobType(jobType)
                 .fullName(fullName)
                 .displayName(displayName).fullDisplayName(fullDisplayName)
@@ -303,7 +303,7 @@ public class JenkinsJsonParser implements JenkinsParser {
         addBuildType(availableBuildTypes, BuildType.LAST_FAILED, lastFailedBuildObject);
         jobBuilder.availableBuildTypes(availableBuildTypes);
 
-        JsonArray parameterProperty = (JsonArray) jsonObject.get(PARAMETER_PROPERTY);
+        JsonArray parameterProperty = getArray(jsonObject, PARAMETER_PROPERTY);
         jobBuilder.parameters(getParameters(parameterProperty));
         return jobBuilder.build();
     }
@@ -367,7 +367,7 @@ public class JenkinsJsonParser implements JenkinsParser {
         String parameterClass = parameterObj.getString(createJsonKey(CLASS));
         final JobParameterType jobParameterType = JobParameterType.getType(type, parameterClass);
         jobParameterBuilder.jobParameterType(jobParameterType);
-        jobParameterBuilder.choices(getChoices((JsonArray) parameterObj.get(PARAMETER_CHOICE)));
+        jobParameterBuilder.choices(getChoices(getArray(parameterObj, PARAMETER_PROPERTY)));
         return jobParameterBuilder.build();
     }
 
@@ -417,7 +417,8 @@ public class JenkinsJsonParser implements JenkinsParser {
         checkJsonDataAndThrowExceptionIfNecessary(jsonData);
         List<Job> jobs = new LinkedList<>();
         final JsonObject jsonObject = parseJson(jsonData);
-        JsonArray jobObjects = (JsonArray) jsonObject.get(JOBS);
+        JsonArray jobObjects = getArray(jsonObject, JOBS);
+
         for (Object object : jobObjects) {
             JsonObject jobObject = (JsonObject) object;
             jobs.add(getJob(jobObject));
@@ -432,8 +433,8 @@ public class JenkinsJsonParser implements JenkinsParser {
 
         List<Job> jobs = new LinkedList<>();
         final JsonObject jsonObject = parseJson(jsonData);
-        JsonArray viewObjs = (JsonArray) jsonObject.get(VIEWS);
-        if (viewObjs == null || viewObjs.isEmpty()) {
+        JsonArray viewObjs = getArray(jsonObject, VIEWS);
+        if (viewObjs.isEmpty()) {
             return jobs;
         }
 
@@ -442,7 +443,7 @@ public class JenkinsJsonParser implements JenkinsParser {
             return jobs;
         }
 
-        JsonArray jobObjs = (JsonArray) viewJobObj.get(JOBS);
+        JsonArray jobObjs = getArray(jsonObject, JOBS);
         for (Object obj : jobObjs) {
             JsonObject jobObj = (JsonObject) obj;
             jobs.add(getJob(jobObj));
@@ -456,7 +457,7 @@ public class JenkinsJsonParser implements JenkinsParser {
     public List<Computer> createComputers(String computerJsonArray) {
         checkJsonDataAndThrowExceptionIfNecessary(computerJsonArray);
         final JsonObject jsonObject = parseJson(computerJsonArray);
-        JsonArray jobObjects = (JsonArray) jsonObject.get(COMPUTER);
+        JsonArray jobObjects = getArray(jsonObject, COMPUTER);
         return jobObjects.stream().map(JsonObject.class::cast).map(this::getComputer).collect(
                 Collectors.toCollection(LinkedList::new));
     }
@@ -479,7 +480,7 @@ public class JenkinsJsonParser implements JenkinsParser {
     public List<String> getFillValueItems(String fillValueItemsData) {
         checkJsonDataAndThrowExceptionIfNecessary(fillValueItemsData);
         JsonObject fillValueJson = parseJson(fillValueItemsData);
-        JsonArray fillValueArray = (JsonArray) fillValueJson.get("values");
+        JsonArray fillValueArray = getArray(fillValueJson, "values");
         List<String> values = new ArrayList<>();
         for (Object obj : fillValueArray) {
            JsonObject valueJson = (JsonObject) obj;
@@ -499,7 +500,7 @@ public class JenkinsJsonParser implements JenkinsParser {
         final String displayName = computerJson.getString(createJsonKey("displayName"));
         final String description = computerJson.getStringOrDefault(createJsonKey("description", StringUtils.EMPTY));
         final boolean offline = computerJson.getBooleanOrDefault(createJsonKey("offline", false));
-        final JsonArray labelsJson = (JsonArray) computerJson.get("assignedLabels");
+        final JsonArray labelsJson = getArray(computerJson, "assignedLabels");
         final Computer.ComputerBuilder computerBuilder = Computer.builder()
                 .displayName(displayName)
                 .description(description)
