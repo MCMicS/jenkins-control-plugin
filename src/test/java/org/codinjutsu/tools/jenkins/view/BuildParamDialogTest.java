@@ -62,7 +62,7 @@ public class BuildParamDialogTest {
                     .parameter("integrationTest", BuildInJobParameter.BooleanParameterDefinition.getType(), "true")
                     .parameter("environment", BuildInJobParameter.ChoiceParameterDefinition.getType(), "development",
                             "development", "integration", "acceptance", "production")
-                    .parameter("message", BuildInJobParameter.StringParameterDefinition.getType(), "")
+                    .parameter("messages", BuildInJobParameter.StringParameterDefinition.getType(), "")
                     .get();
 
     private static final Job JOB_WITH_UNSUPPORTED_PARAMS =
@@ -147,7 +147,7 @@ public class BuildParamDialogTest {
         assertEquals(3, expectedParamMapValue.size());
         assertEquals("false", expectedParamMapValue.get("integrationTest"));
         assertEquals("acceptance", expectedParamMapValue.get("environment"));
-        assertEquals("", expectedParamMapValue.get("message"));
+        assertEquals("", expectedParamMapValue.get("messages"));
     }
 
     @Test

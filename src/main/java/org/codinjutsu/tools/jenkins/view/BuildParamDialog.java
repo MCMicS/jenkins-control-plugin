@@ -88,7 +88,7 @@ public class BuildParamDialog extends DialogWrapper {
                 dialog.onOK();
             }
             dialog.saveLastSize();
-        }, ModalityState.NON_MODAL);
+        }, ModalityState.nonModal());
     }
 
     private void restoreLastWidth() {

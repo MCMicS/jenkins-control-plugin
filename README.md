@@ -1,8 +1,8 @@
-# Jenkins Plugin 0.13.17 for Jetbrains products
+# Jenkins Plugin 0.13.18 for Jetbrains products
 [![Build Status](https://app.travis-ci.com/MCMicS/jenkins-control-plugin.svg?branch=master)](https://app.travis-ci.com/MCMicS/jenkins-control-plugin)
 [![Plugin Compatibility](https://github.com/MCMicS/jenkins-control-plugin/actions/workflows/compatibility.yml/badge.svg)](https://github.com/MCMicS/jenkins-control-plugin/actions/workflows/compatibility.yml)
 
-[![SonarCloud Analysis](https://github.com/MCMicS/jenkins-control-plugin/actions/workflows/sonar.yml/badge.svg)](https://github.com/MCMicS/jenkins-control-plugin/actions/workflows/sonar.yml)
+[![SonarCloud Analysis](https://github.com/MCMicS/jenkins-control-plugin/actions/workflows/build.yml/badge.svg)](https://github.com/MCMicS/jenkins-control-plugin/actions/workflows/sonar.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=MCMicS_jenkins-control-plugin&metric=alert_status)](https://sonarcloud.io/dashboard?id=MCMicS_jenkins-control-plugin)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=MCMicS_jenkins-control-plugin&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=MCMicS_jenkins-control-plugin)
 [![Qodana](https://github.com/MCMicS/jenkins-control-plugin/actions/workflows/Qodana.yml/badge.svg?branch=master)](https://github.com/MCMicS/jenkins-control-plugin/actions/workflows/Qodana.yml)
@@ -20,7 +20,8 @@
 
 ### Current Release
 * [Idea 2021.2 - 2022.1.4](../../releases/latest/download/jenkins-control-plugin-2021.2.zip)
-* [Idea 2022.2 or newer](../../releases/latest/download/jenkins-control-plugin-2022.2.zip)
+* [Idea 2022.2 - 2023.1.4](../../releases/latest/download/jenkins-control-plugin-2022.2.zip)
+* [Idea 2023.2 or newer](../../releases/latest/download/jenkins-control-plugin-2023.2.zip)
 
 [//]: # (* [Idea 2022.2 or newer]&#40;../../releases/latest/download/jenkins-control-plugin-2022.2.zip&#41;)
 
@@ -32,8 +33,23 @@ This plugin allows to view the content of your Jenkins Continuous Integration Se
 
 ![Browser](doc/images/Browser.png?raw=true)
 
-with Multibranch support.
+### Features
+- Multibranch support
+
 ![Multibranch Support](doc/images/MultiBranch.png?raw=true)
+
+- Views from Jenkins server
+
+![Browser-Views.png](doc%2Fimages%2FBrowser-Views.png)
+
+- Favorites
+
+![Browser-favoriteView.png](doc%2Fimages%2FBrowser-favoriteView.png)
+
+- Different Jenkins hostname as server url. May 
+![Configuration-Hostname_Server.png](doc%2Fimages%2FConfiguration-Hostname_Server.png)
+0
+![Configuration-Hostname.png](doc%2Fimages%2FConfiguration-Hostname.png)
 
 ## Plugin Compatibility
 This plugin was built with JDK 11 but Java 8 Source level for older IDEA versions. Jenkins CIs of jenkins-ci and apache.org are used for manual and stress testing.
@@ -42,16 +58,19 @@ https://ci.jenkins.io/
 Download this plugin from your IDE or [from the plugin website](http://plugins.jetbrains.com/plugin/6110).
 
 ## Configuration steps
-* Click on the **Jenkins Settings** button located on the upper toolbar (or you can also open IntelliJ Settings Screen and select the Jenkins Control Plugin option).
-* Enter your Jenkins Server URL (e.g: https://ci.jenkins.io/).
-* If Security is enabled on the server, you have to provide credentials. Enter your username and the password. The password will be stored in Intellij Password Manager. It could ask you a Master password.
-* If CSRF (Cross Site Request Forgery Prevention) is enabled on the server, then 
+* Click on the **Jenkins Settings** button located on the upper toolbar 
+(or you can also open IntelliJ Settings Screen and select the Jenkins Plugin section)
+* The configuration is plitted into two areas. The first change the setting for the behaviour and a submenu for server settins
+* Enter your Jenkins Server URL (e.g: https://ci.jenkins.io/) in **Servers**.
+* If Security is enabled on the server, you have to provide credentials. Enter your username and the API Token.
+The API Token will be stored in Intellij Password Manager. It could ask you a Master password.
   * Since Jenkins 2.176 it is recommended to use an API token to authenticate the plugin:
      1. Go to user setting: `_jenkins_url_/user/_username_/configure`
      2. Add New API Token (recommended new one specifically for Jenkins Plugin)
-     3. Use this newly added API Token as your Password, no need to specify Crump Data.
-   * For older Jenkins version (<2.176) you have to provide your crumb data. To get the value, you will have to open the following URL in your browser `_jenkins_url_/crumbIssuer/api/xml?tree=crumb`. Just copy and paste the crumb value in the field. Please note for the authentication case, you have to run the crumb URL after login.
-* To make sure that all parameters are correct, you can click on the **Test Connection** button. A feedback message will appear.
+     3. Use this newly added API Token
+* To make sure that all parameters are correct, you can click on the **Test Connection** button.
+A feedback message will appear.
+![Configuration-Settings.png](doc%2Fimages%2FConfiguration-Settings.png)
 
 ![Connection succeeded](doc/images/Configuration-Success.png?raw=true)
 
@@ -122,7 +141,7 @@ The RSS reader has moved to the Event Log. If you need to refresh manually, clic
 
 This project is built with Gradle. Just run `./gradlew buildPlugin`.
 
-## Update Gradle versin
+## Update Gradle version
 
 `gradle wrapper --gradle-version 6.8.1 --distribution-type bin`
 
@@ -136,7 +155,18 @@ Create a Gradle Run configuration with task `runIdea` and just run it.
 
 ## Limitations
 * This software is written under Apache License 2.0.
-* if Jenkins is behind an HTTPS web server, set a **trusted** certificate.
+* if Jenkins is behind an HTTPS web server, set a **trusted** certificate or add an exception in IDEA to trust the certificate.
+
+## Use Jenkins Icons
+We use some of the icons from [Jenkins project ](https://github.com/jenkinsci/jenkins/tree/master/war/src/main/resources/images/symbols).
+Download the files to `src/main/resources/images`, remove `weather-icon-` prefix and change the defined color variables to the [Jetbrains Guideline](https://jetbrains.design/intellij/principles/icons/#action-icons) values.
+```
+var(--yellow) --> #EDA200 
+var(--cyan) --> #389FD6
+var(--text-color-secondary) --> #6E6E6E
+fill="transparent" --> fill="none"
+```
+Also change the size to `16px x 16px`. Create icon for dark UI with different colors.
 
 ## Thanks
 I would like to thank:
