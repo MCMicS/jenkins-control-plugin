@@ -1,7 +1,6 @@
 package org.codinjutsu.tools.jenkins.view.action;
 
 
-import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.DumbAwareAction;
@@ -18,10 +17,5 @@ public class OpenServerSettingsAction extends DumbAwareAction {
 
     private static void showSettingsFor(Project project) {
         ShowSettingsUtil.getInstance().showSettingsDialog(project, ServerConfigurable.class);
-    }
-
-    @Override
-    public @NotNull ActionUpdateThread getActionUpdateThread() {
-        return ActionUpdateThread.BGT;
     }
 }

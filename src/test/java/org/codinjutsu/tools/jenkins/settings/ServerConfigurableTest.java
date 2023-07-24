@@ -1,10 +1,7 @@
 package org.codinjutsu.tools.jenkins.settings;
 
-import com.intellij.credentialStore.CredentialStoreManager;
-import com.intellij.credentialStore.ProviderType;
 import com.intellij.ide.passwordSafe.PasswordSafe;
 import com.intellij.ide.passwordSafe.impl.BasePasswordSafe;
-import com.intellij.ide.passwordSafe.impl.TestPasswordSafeImpl;
 import com.intellij.mock.MockApplication;
 import com.intellij.mock.MockProject;
 import com.intellij.openapi.Disposable;
@@ -15,8 +12,6 @@ import org.codinjutsu.tools.jenkins.logic.ConfigurationValidator;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -39,8 +34,7 @@ public class ServerConfigurableTest {
         project.registerService(JenkinsSettings.class, jenkinsSettings);
 
         final var application = MockApplication.setUp(DO_NOTHING);
-        application.registerService(CredentialStoreManager.class, new MemoryOnlyCredentials());
-        final BasePasswordSafe passwordSafe = new TestPasswordSafeImpl();
+        final BasePasswordSafe passwordSafe = new BasePasswordSafe();
         application.registerService(PasswordSafe.class, passwordSafe);
 
         jenkinsAppSettings.setServerUrl("https://example.org/jenkins");
@@ -157,24 +151,5 @@ public class ServerConfigurableTest {
         final var newServerSetting = serverComponent.getServerSetting();
         assertThat(newServerSetting).isNotEqualTo(oldServerSetting)
                 .isEqualTo(expectedServerSetting);
-    }
-
-    private static class MemoryOnlyCredentials implements CredentialStoreManager {
-        @Override
-        public boolean isSupported(@NotNull ProviderType providerType) {
-            return providerType == ProviderType.MEMORY_ONLY;
-        }
-
-        @NotNull
-        @Override
-        public ProviderType defaultProvider() {
-            return ProviderType.MEMORY_ONLY;
-        }
-
-        @NotNull
-        @Override
-        public List<ProviderType> availableProviders() {
-            return List.of(ProviderType.MEMORY_ONLY);
-        }
     }
 }
