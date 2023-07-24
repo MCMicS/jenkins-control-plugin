@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package org.codinjutsu.tools.jenkins;
+package org.codinjutsu.tools.jenkins.settings;
 
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
-import org.codinjutsu.tools.jenkins.view.ConfigurationPanel;
+import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
+import org.codinjutsu.tools.jenkins.JenkinsSettings;
+import org.codinjutsu.tools.jenkins.JenkinsWindowManager;
+import org.codinjutsu.tools.jenkins.Version;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -45,13 +48,13 @@ public class JenkinsComponent implements SearchableConfigurable {
 
     public JComponent createComponent() {
         if (configurationPanel == null) {
-            configurationPanel = new ConfigurationPanel(project);
+            configurationPanel = new ConfigurationPanel();
         }
         return configurationPanel.getRootPanel();
     }
 
     public boolean isModified() {
-        return configurationPanel != null && configurationPanel.isModified(jenkinsAppSettings, jenkinsSettings);
+        return configurationPanel != null && configurationPanel.isModified(jenkinsAppSettings);
     }
 
     @Override
@@ -67,7 +70,7 @@ public class JenkinsComponent implements SearchableConfigurable {
     public void apply() throws ConfigurationException {
         if (configurationPanel != null) {
             try {
-                configurationPanel.applyConfigurationData(jenkinsAppSettings, jenkinsSettings);
+                configurationPanel.applyConfigurationData(jenkinsAppSettings);
                 JenkinsWindowManager.getInstance(project).ifPresent(JenkinsWindowManager::reloadConfiguration);
             } catch (org.codinjutsu.tools.jenkins.exception.ConfigurationException ex) {
                 throw new ConfigurationException(ex.getMessage());
@@ -83,7 +86,7 @@ public class JenkinsComponent implements SearchableConfigurable {
     @Override
     public void reset() {
         if (configurationPanel != null) {
-            configurationPanel.loadConfigurationData(jenkinsAppSettings, jenkinsSettings);
+            configurationPanel.loadConfigurationData(jenkinsAppSettings);
         }
     }
 

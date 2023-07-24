@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
 
 @State(name = "JenkinsBrowserPanel", storages = {
         @Storage(value = StoragePathMacros.PRODUCT_WORKSPACE_FILE, roamingType = RoamingType.DISABLED)
-})
+}, getStateRequiresEdt = true)
 public final class BrowserPanel extends SimpleToolWindowPanel implements PersistentStateComponent<JenkinsTreeState> {
 
     @NonNls
@@ -340,25 +340,27 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
     }
 
     private void installActionsInToolbar() {
+        final ActionManager actionManager = ActionManager.getInstance();
         DefaultActionGroup actionGroup = new DefaultActionGroup("JenkinsToolbarGroup", false);
         actionGroup.add(new SelectViewAction(this));
         actionGroup.add(new RefreshNodeAction(this));
-        actionGroup.add(ActionManager.getInstance().getAction(LoadBuildsAction.ACTION_ID));
-        actionGroup.add(ActionManager.getInstance().getAction(RunBuildAction.ACTION_ID));
-        actionGroup.add(new StopBuildAction(this));
+        actionGroup.add(actionManager.getAction(LoadBuildsAction.ACTION_ID));
+        actionGroup.add(actionManager.getAction(RunBuildAction.ACTION_ID));
+        actionGroup.add(actionManager.getAction(StopBuildAction.ACTION_ID));
         actionGroup.add(new SortByStatusAction(this));
         actionGroup.add(new RefreshRssAction());
         actionGroup.addSeparator();
-        actionGroup.add(new OpenPluginSettingsAction());
+        actionGroup.add(actionManager.getAction("Jenkins.ShowSettingsGroup"));
 
-        GuiUtil.installActionGroupInToolBar(actionGroup, this, ActionManager.getInstance(), JENKINS_PANEL_PLACE);
+        GuiUtil.installActionGroupInToolBar(actionGroup, this, actionManager, JENKINS_PANEL_PLACE);
     }
 
     private void installActionsInPopupMenu() {
         DefaultActionGroup popupGroup = new DefaultActionGroup("JenkinsPopupAction", true);
 
         popupGroup.add(ActionManager.getInstance().getAction(RunBuildAction.ACTION_ID));
-        popupGroup.add(new StopBuildAction(this));
+        popupGroup.add(ActionManager.getInstance().getAction(StopBuildAction.ACTION_ID));
+        popupGroup.addSeparator();
         popupGroup.add(new ShowLogAction(BuildType.LAST));
         popupGroup.add(new ShowLogAction(BuildType.LAST_SUCCESSFUL));
         popupGroup.add(new ShowLogAction(BuildType.LAST_FAILED));

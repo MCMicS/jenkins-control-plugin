@@ -44,6 +44,7 @@ import org.codinjutsu.tools.jenkins.exception.AuthenticationException;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.codinjutsu.tools.jenkins.logic.JenkinsNotifier;
 import org.codinjutsu.tools.jenkins.model.RequestData;
+import org.codinjutsu.tools.jenkins.util.CollectionUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -185,7 +186,7 @@ class DefaultSecurityClient implements SecurityClient {
             var targetHost = host;
             if (HttpURLConnection.HTTP_OK == statusCode) {
                 final var locations = context.getRedirectLocations();
-                if (locations != null) {
+                if (CollectionUtil.isNotEmpty(locations)) {
                     final var lastHost = locations.get(locations.size() - 1).toURL();
                     targetHost = new HttpHost(lastHost.getHost(), lastHost.getPort(), lastHost.getProtocol());
                 }

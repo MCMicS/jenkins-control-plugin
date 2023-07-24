@@ -9,6 +9,7 @@
         Yuri Novitsky (support of PPP),
         Michael Suhr
     </vendor>
+    <resource-bundle>messages.JenkinsControl</resource-bundle>
     <idea-version since-build="212.4638"/>
 
     <depends>com.intellij.modules.platform</depends>
@@ -18,8 +19,14 @@
     <xi:include href="/META-INF/org.codinjutsu.tools.jenkins-JobParameterRenderer.xml" xpointer="xpointer(/idea-plugin/*)"/>
 
     <extensions defaultExtensionNs="com.intellij">
-        <projectConfigurable parentId="tools" groupWeight="110" dynamic="true" displayName="Jenkins Plugin"
-                             id="preferences.Jenkins" instance="org.codinjutsu.tools.jenkins.JenkinsComponent"/>
+        <projectConfigurable parentId="tools" groupWeight="110" dynamic="true"
+                             bundle="messages.JenkinsControl" key="plugin.name"
+                             id="preferences.Jenkins" instance="org.codinjutsu.tools.jenkins.settings.JenkinsComponent">
+            <configurable
+                    id="org.codinjutsu.tools.jenkins.servers"
+                    nonDefaultProject="false"
+                    instance="org.codinjutsu.tools.jenkins.settings.ServerConfigurable"/>
+        </projectConfigurable>
 
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.ExecutorService" />
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.LoginService" />
@@ -62,19 +69,28 @@
 
     <actions>
         <action id="Jenkins.LoadBuilds" class="org.codinjutsu.tools.jenkins.view.action.LoadBuildsAction"
-                text="Load Builds"
-                description="Load builds for selected Job"
-                icon="JenkinsControlIcons.LOAD_BUILDS"
-        >
-            <override-text place="GoToAction" text="Jenkins: Load Builds" />
+                icon="JenkinsControlIcons.LOAD_BUILDS">
+            <override-text place="GoToAction"/>
         </action>
         <action id="Jenkins.RunBuild" class="org.codinjutsu.tools.jenkins.view.action.RunBuildAction"
-                text="Build on Jenkins"
-                description="Run a build on Jenkins Server"
-                icon="AllIcons.Actions.Execute"
-        >
-            <override-text place="GoToAction" text="Jenkins: Build on Jenkins" />
+                icon="AllIcons.Actions.Execute">
+            <override-text place="GoToAction"/>
         </action>
+        <action id="Jenkins.StopBuild" class="org.codinjutsu.tools.jenkins.view.action.StopBuildAction"
+                icon="AllIcons.Actions.Suspend">
+            <override-text place="GoToAction"/>
+        </action>
+        <action id="Jenkins.ShowCommonSettings"
+                class="org.codinjutsu.tools.jenkins.view.action.OpenPluginSettingsAction">
+        </action>
+        <action id="Jenkins.ShowServerSettings"
+                class="org.codinjutsu.tools.jenkins.view.action.OpenServerSettingsAction">
+        </action>
+
+        <group id="Jenkins.ShowSettingsGroup" popup="true" icon="AllIcons.General.Settings">
+            <reference id="Jenkins.ShowCommonSettings"/>
+            <reference id="Jenkins.ShowServerSettings"/>
+        </group>
     </actions>
 
     <extensionPoints>

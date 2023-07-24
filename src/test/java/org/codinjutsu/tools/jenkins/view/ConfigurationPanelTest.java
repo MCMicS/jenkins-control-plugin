@@ -18,6 +18,7 @@ package org.codinjutsu.tools.jenkins.view;
 
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
+import org.codinjutsu.tools.jenkins.settings.ConfigurationPanel;
 
 public class ConfigurationPanelTest {
 

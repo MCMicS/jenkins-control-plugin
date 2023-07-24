@@ -40,7 +40,7 @@ public class LoginService {
                     public void run(@NotNull RequestManagerInterface requestManager) {
                         try {
                             requestManager.authenticate(settings, jenkinsSettings);
-                            jenkinsWorkspace = requestManager.loadJenkinsWorkspace(settings);
+                            jenkinsWorkspace = requestManager.loadJenkinsWorkspace(settings, jenkinsSettings);
                         } catch (Exception ex) {
                             publisher.loginCancelled();
                             throw ex;

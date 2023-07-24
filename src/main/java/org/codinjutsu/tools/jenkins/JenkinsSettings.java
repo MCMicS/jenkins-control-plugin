@@ -55,7 +55,6 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
 
     @Override
     public State getState() {
-//        ensurePasswordIsStored();
         return myState;
     }
 
@@ -72,6 +71,14 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
         myState.setUsername(username);
     }
 
+    public @NotNull String getJenkinsUrl() {
+        return myState.getJenkinsUrl();
+    }
+
+    public void setJenkinsUrl(String jenkinsUrl) {
+        myState.setJenkinsUrl(jenkinsUrl);
+    }
+
     public String getCrumbData() {
         return myState.getCrumbData();
     }
@@ -85,6 +92,7 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
         return StringUtils.defaultIfEmpty(password, "");
     }
 
+    @Deprecated
     public void setPassword(String password) {
         PasswordSafe.getInstance().setPassword(getPasswordCredentialAttributes(), StringUtils.isNotBlank(password) ? password : "");
     }
@@ -171,6 +179,7 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
         private JenkinsVersion jenkinsVersion = JenkinsVersion.VERSION_1;
 
         private int connectionTimeout = DEFAULT_CONNECTION_TIMEOUT;
+        private @NotNull String jenkinsUrl = RESET_STR_VALUE;
 
         public void clearFavoriteJobs() {
             favoriteJobs.clear();
