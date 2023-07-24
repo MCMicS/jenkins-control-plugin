@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.13.18]
 - \#469 Index out of bounds
 - New health icons (Fix \#488 Exception with 2023.2 EAP 232.8453.116)
 - \#377: Is there any way to ignore hostname mismatch
@@ -302,8 +302,7 @@
 - Autorefreshed Rss Reader View
 - Autorefresh functions can be disabled on the Jenkins Configuration Panel
 
-[Unreleased]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.18-eap...HEAD
-[0.13.18-eap]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.17...v0.13.18-eap
+[0.13.18]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.17...v0.13.18
 [0.13.17]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.16...v0.13.17
 [0.13.16]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.15-2...v0.13.16
 [0.13.15]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.14...v0.13.15

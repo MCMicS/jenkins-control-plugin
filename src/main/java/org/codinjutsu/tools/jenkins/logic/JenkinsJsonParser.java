@@ -367,7 +367,7 @@ public class JenkinsJsonParser implements JenkinsParser {
         String parameterClass = parameterObj.getString(createJsonKey(CLASS));
         final JobParameterType jobParameterType = JobParameterType.getType(type, parameterClass);
         jobParameterBuilder.jobParameterType(jobParameterType);
-        jobParameterBuilder.choices(getChoices(getArray(parameterObj, PARAMETER_PROPERTY)));
+        jobParameterBuilder.choices(getChoices(getArray(parameterObj, PARAMETER_CHOICE)));
         return jobParameterBuilder.build();
     }
 
@@ -443,7 +443,7 @@ public class JenkinsJsonParser implements JenkinsParser {
             return jobs;
         }
 
-        JsonArray jobObjs = getArray(jsonObject, JOBS);
+        JsonArray jobObjs = getArray(viewJobObj, JOBS);
         for (Object obj : jobObjs) {
             JsonObject jobObj = (JsonObject) obj;
             jobs.add(getJob(jobObj));

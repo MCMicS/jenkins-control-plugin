@@ -65,7 +65,6 @@
         <aboutPopupDescriptionProvider implementation="org.codinjutsu.tools.jenkins.view.JenkinsAbout" />
         <notificationGroup displayType="NONE" id="Jenkins Rss" />
         <notificationGroup displayType="TOOL_WINDOW" id="Jenkins Notification" toolWindowId="Jenkins"/>
-        <backgroundPostStartupActivity implementation="org.codinjutsu.tools.jenkins.StartupJenkinsService" />
     </extensions>
 
     <actions>
