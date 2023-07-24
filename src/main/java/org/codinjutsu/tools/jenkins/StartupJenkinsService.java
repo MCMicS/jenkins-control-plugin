@@ -7,19 +7,26 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.startup.ProjectActivity;
+import com.intellij.openapi.startup.StartupActivity;
 import com.intellij.ui.AppUIUtil;
 import com.intellij.util.messages.MessageBusConnection;
-import kotlin.Unit;
-import kotlin.coroutines.Continuation;
 import org.codinjutsu.tools.jenkins.logic.BrowserPanelAuthenticationHandler;
 import org.codinjutsu.tools.jenkins.logic.LoginService;
 import org.codinjutsu.tools.jenkins.logic.RssAuthenticationActionHandler;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-public class StartupJenkinsService implements ProjectActivity, DynamicPluginListener {
+public class StartupJenkinsService implements StartupActivity.Background, DynamicPluginListener {
     private static final Logger LOG = Logger.getInstance(JenkinsTree.class);
+
+    @Override
+    public void runActivity(@NotNull Project project) {
+        RssAuthenticationActionHandler.getInstance(project).subscribe();
+        BrowserPanelAuthenticationHandler.getInstance(project).subscribe();
+        final LoginService loginService = LoginService.getInstance(project);
+        AppUIUtil.invokeLaterIfProjectAlive(project, loginService::performAuthentication);
+        final MessageBusConnection busConnection = ApplicationManager.getApplication().getMessageBus().connect();
+        busConnection.subscribe(DynamicPluginListener.TOPIC, this);
+    }
 
     @Override
     public void beforePluginUnload(@NotNull IdeaPluginDescriptor pluginDescriptor, boolean isUpdate) {
@@ -37,17 +44,5 @@ public class StartupJenkinsService implements ProjectActivity, DynamicPluginList
 
     private static boolean isJenkinsPlugin(@NotNull IdeaPluginDescriptor pluginDescriptor) {
         return pluginDescriptor.getPluginId() == PluginId.getId(Version.PLUGIN_ID);
-    }
-
-    @Nullable
-    @Override
-    public Object execute(@NotNull Project project, @NotNull Continuation<? super Unit> continuation) {
-        RssAuthenticationActionHandler.getInstance(project).subscribe();
-        BrowserPanelAuthenticationHandler.getInstance(project).subscribe();
-        final LoginService loginService = LoginService.getInstance(project);
-        AppUIUtil.invokeLaterIfProjectAlive(project, loginService::performAuthentication);
-        final MessageBusConnection busConnection = ApplicationManager.getApplication().getMessageBus().connect();
-        busConnection.subscribe(DynamicPluginListener.TOPIC, this);
-        return project;
     }
 }

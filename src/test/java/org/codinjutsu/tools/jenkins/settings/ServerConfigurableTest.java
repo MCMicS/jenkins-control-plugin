@@ -4,7 +4,6 @@ import com.intellij.credentialStore.CredentialStoreManager;
 import com.intellij.credentialStore.ProviderType;
 import com.intellij.ide.passwordSafe.PasswordSafe;
 import com.intellij.ide.passwordSafe.impl.BasePasswordSafe;
-import com.intellij.ide.passwordSafe.impl.TestPasswordSafeImpl;
 import com.intellij.mock.MockApplication;
 import com.intellij.mock.MockProject;
 import com.intellij.openapi.Disposable;
@@ -40,7 +39,7 @@ public class ServerConfigurableTest {
 
         final var application = MockApplication.setUp(DO_NOTHING);
         application.registerService(CredentialStoreManager.class, new MemoryOnlyCredentials());
-        final BasePasswordSafe passwordSafe = new TestPasswordSafeImpl();
+        final BasePasswordSafe passwordSafe = new BasePasswordSafe();
         application.registerService(PasswordSafe.class, passwordSafe);
 
         jenkinsAppSettings.setServerUrl("https://example.org/jenkins");
