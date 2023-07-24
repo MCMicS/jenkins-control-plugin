@@ -1,6 +1,5 @@
 package org.codinjutsu.tools.jenkins.view.action;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -17,35 +16,29 @@ import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
-import javax.swing.*;
 import java.util.Optional;
 
 import static org.codinjutsu.tools.jenkins.view.BrowserPanel.POPUP_PLACE;
 
 public class StopBuildAction extends AnAction implements DumbAware {
-
-    private static final Icon STOP_ICON = AllIcons.Actions.Suspend;
-
-    private final BrowserPanel browserPanel;
-
-    public StopBuildAction(BrowserPanel browserPanel) {
-        super("Stop on Jenkins", "Stop a build on Jenkins Server", STOP_ICON);
-        this.browserPanel = browserPanel;
-    }
+    public static final String ACTION_ID = "Jenkins.StopBuild";
 
     @Override
-    public void actionPerformed(AnActionEvent event) {
+    public void actionPerformed(@NotNull AnActionEvent event) {
         ActionUtil.getProject(event).ifPresent(this::actionPerformed);
     }
 
-    private void actionPerformed(Project project) {
-        final LastSelection lastSelection = calculateLastSelection();
-        Optional.ofNullable(lastSelection.getBuild()).ifPresent(build -> stopBuild(project, build,
+    private void actionPerformed(@NotNull Project project) {
+        final BrowserPanel browserPanel = BrowserPanel.getInstance(project);
+        final LastSelection lastSelection = calculateLastSelection(browserPanel);
+        Optional.ofNullable(lastSelection.getBuild()).ifPresent(build -> stopBuild(project, browserPanel, build,
                 lastSelection.getJob()));
     }
 
-    private void stopBuild(Project project, Build build, @Nullable Job job) {
+    private void stopBuild(@NotNull Project project, @NotNull BrowserPanel browserPanel, Build build,
+                           @Nullable Job job) {
         JenkinsBackgroundTaskFactory.getInstance(project).createBackgroundTask("Stopping build",
                 new JenkinsBackgroundTask.JenkinsTask() {
                     @Override
@@ -66,8 +59,10 @@ public class StopBuildAction extends AnAction implements DumbAware {
     }
 
     @Override
-    public void update(AnActionEvent event) {
-        update(event, calculateLastSelection());
+    public void update(@NotNull AnActionEvent event) {
+        final var lastSelection = ActionUtil.getBrowserPanel(event).map(StopBuildAction::calculateLastSelection)
+                .orElse(LastSelection.NO_SELECTION);
+        update(event, lastSelection);
     }
 
     @Override
@@ -92,7 +87,7 @@ public class StopBuildAction extends AnAction implements DumbAware {
     }
 
     @Nonnull
-    private LastSelection calculateLastSelection() {
+    private static LastSelection calculateLastSelection(@CheckForNull BrowserPanel browserPanel) {
         final Optional<Job> job = Optional.ofNullable(browserPanel).map(BrowserPanel::getSelectedJob);
         final Optional<Build> build = Optional.ofNullable(browserPanel).flatMap(BrowserPanel::getSelectedBuild)
                 .or(() -> job.map(Job::getLastBuild));
@@ -102,6 +97,9 @@ public class StopBuildAction extends AnAction implements DumbAware {
 
     @Value
     private static class LastSelection {
+
+        public static final LastSelection NO_SELECTION = new LastSelection(null, null);
+
         @Nullable
         private Job job;
         @Nullable

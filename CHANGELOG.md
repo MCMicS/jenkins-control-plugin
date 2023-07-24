@@ -7,6 +7,7 @@
 - Add second Url to use  as "Jenkins URL" which is set in "Jenkins Location"
 - \#490 Unable to save plugin settings in 2023.2 Beta #490
 - Build for IDE >= 2023.2
+- \#461 \[Cosmetics\] separate "Run/Stop on Jenkins" by splitter
 ### Breaking
 - Remove Jenkins 1 setting. Always use Jenkins version 2
 - Remove Crumb Data usage

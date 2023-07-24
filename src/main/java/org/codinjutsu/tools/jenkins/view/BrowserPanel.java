@@ -346,7 +346,7 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
         actionGroup.add(new RefreshNodeAction(this));
         actionGroup.add(actionManager.getAction(LoadBuildsAction.ACTION_ID));
         actionGroup.add(actionManager.getAction(RunBuildAction.ACTION_ID));
-        actionGroup.add(new StopBuildAction(this));
+        actionGroup.add(actionManager.getAction(StopBuildAction.ACTION_ID));
         actionGroup.add(new SortByStatusAction(this));
         actionGroup.add(new RefreshRssAction());
         actionGroup.addSeparator();
@@ -359,7 +359,8 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
         DefaultActionGroup popupGroup = new DefaultActionGroup("JenkinsPopupAction", true);
 
         popupGroup.add(ActionManager.getInstance().getAction(RunBuildAction.ACTION_ID));
-        popupGroup.add(new StopBuildAction(this));
+        popupGroup.add(ActionManager.getInstance().getAction(StopBuildAction.ACTION_ID));
+        popupGroup.addSeparator();
         popupGroup.add(new ShowLogAction(BuildType.LAST));
         popupGroup.add(new ShowLogAction(BuildType.LAST_SUCCESSFUL));
         popupGroup.add(new ShowLogAction(BuildType.LAST_FAILED));
