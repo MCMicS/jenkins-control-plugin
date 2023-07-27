@@ -145,7 +145,7 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
     }
 
     @NotNull
-    public static String buildLabel(Job job, Function<Job, String> jobName, Function<Build, String> buildName) {
+    public static String  buildLabel(Job job, Function<Job, String> jobName, Function<Build, String> buildName) {
         Build build = job.getLastBuild();
         if (build == null) {
             return jobName.apply(job);

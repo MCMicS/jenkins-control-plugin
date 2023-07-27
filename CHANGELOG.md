@@ -1,6 +1,7 @@
 # Changelog
 
 ## [Unreleased]
+- Fix displaying nested views
 
 ## [0.13.18]
 - \#469 Index out of bounds
