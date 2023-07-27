@@ -1,5 +1,7 @@
 # Changelog
 
+## [Unreleased]
+
 ## [0.13.18]
 - \#469 Index out of bounds
 - New health icons (Fix \#488 Exception with 2023.2 EAP 232.8453.116)
@@ -9,6 +11,7 @@
 - Build for IDE >= 2023.2
 - \#461 \[Cosmetics\] separate "Run/Stop on Jenkins" by splitter
 - \#479 Error on View without jobs
+
 ### Breaking
 - Remove Jenkins 1 setting. Always use Jenkins version 2
 - Remove Crumb Data usage
@@ -302,6 +305,7 @@
 - Autorefreshed Rss Reader View
 - Autorefresh functions can be disabled on the Jenkins Configuration Panel
 
+[Unreleased]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.18...HEAD
 [0.13.18]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.17...v0.13.18
 [0.13.17]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.16...v0.13.17
 [0.13.16]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.15-2...v0.13.16
