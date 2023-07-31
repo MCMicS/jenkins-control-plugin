@@ -236,7 +236,7 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
         return jenkins;
     }
 
-    public View getCurrentSelectedView() {
+    public @Nullable View getCurrentSelectedView() {
         return currentSelectedView;
     }
 

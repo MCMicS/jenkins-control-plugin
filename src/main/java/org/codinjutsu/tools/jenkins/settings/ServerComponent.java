@@ -1,5 +1,8 @@
 package org.codinjutsu.tools.jenkins.settings;
 
+import com.intellij.ide.DataManager;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.JBIntSpinner;
@@ -12,6 +15,8 @@ import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsControlBundle;
 import org.codinjutsu.tools.jenkins.exception.AuthenticationException;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
+import org.codinjutsu.tools.jenkins.view.action.ActionUtil;
+import org.codinjutsu.tools.jenkins.view.action.ReloadConfigurationAction;
 import org.codinjutsu.tools.jenkins.view.annotation.FormValidationPanel;
 import org.codinjutsu.tools.jenkins.view.annotation.GuiField;
 import org.codinjutsu.tools.jenkins.view.validator.NotNullValidator;
@@ -26,6 +31,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.html.HTMLEditorKit;
 import java.awt.*;
+import java.util.Optional;
 
 import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.POSITIVE_INTEGER;
 import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.URL;
@@ -67,6 +73,8 @@ public class ServerComponent implements FormValidationPanel {
         username.setPreferredSize(size);
         username.setHorizontalAlignment(JBTextField.LEFT);
         connectionStatusLabel.setFont(connectionStatusLabel.getFont().deriveFont(Font.BOLD));
+        final var reloadConfiguration = new JButton(JenkinsControlBundle.message("action.Jenkins.ReloadConfiguration.text"));
+        reloadConfiguration.addActionListener(event -> reloadConfiguration(DataManager.getInstance().getDataContext(reloadConfiguration)));
 
         testConnection.addActionListener(event -> testConnection(serverConnectionValidator));
         debugPanel.setVisible(false);
@@ -84,10 +92,16 @@ public class ServerComponent implements FormValidationPanel {
                 .addLabeledComponent(JenkinsControlBundle.message("settings.server.api_token"), apiToken)
                 .addLabeledComponent(JenkinsControlBundle.message("settings.server.connection_timeout"),
                         createConnectionTimeout())
+                .addComponentToRightColumn(reloadConfiguration)
                 .addComponentToRightColumn(createTestConnectionPanel())
                 .addComponent(debugPanel)
                 .addComponentFillVertically(new JPanel(), 0)
                 .getPanel();
+    }
+
+    private void reloadConfiguration(@NotNull DataContext dataContext) {
+        Optional.ofNullable(ActionManager.getInstance().getAction(ReloadConfigurationAction.ACTION_ID))
+                .ifPresent(action -> ActionUtil.performAction(action, "ServerSetting", dataContext));
     }
 
     private static @NotNull JTextPane createDebugTextPane() {

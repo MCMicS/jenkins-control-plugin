@@ -86,6 +86,9 @@
         <action id="Jenkins.ShowServerSettings"
                 class="org.codinjutsu.tools.jenkins.view.action.OpenServerSettingsAction">
         </action>
+        <action id="Jenkins.ReloadConfiguration"
+                class="org.codinjutsu.tools.jenkins.view.action.ReloadConfigurationAction">
+        </action>
 
         <group id="Jenkins.ShowSettingsGroup" popup="true" icon="AllIcons.General.Settings">
             <reference id="Jenkins.ShowCommonSettings"/>
