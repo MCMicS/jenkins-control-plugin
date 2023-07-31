@@ -246,7 +246,6 @@ public class RequestManagerTest {
 
         when(urlBuilderMock.toUrl(anyString())).thenCallRealMethod();
         when(urlBuilderMock.createConfigureUrl(anyString())).thenCallRealMethod();
-        when(urlBuilderMock.removeTrailingSlash(anyString())).thenCallRealMethod();
 
         mockBuildConsoleOutput(runningBuild, RUNNING_CONSOLE_OUTPUT);
         mockBuildConsoleOutput(lastCompletedBuild, COMPLETED_CONSOLE_OUTPUT);

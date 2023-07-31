@@ -152,7 +152,7 @@ public class UrlBuilder {
         return null;
     }
 
-    private void handleException(Exception ex) {
+    private static void handleException(Exception ex) {
         LOG.debug(ex);
         if (ex instanceof MalformedURLException) {
             throw new IllegalArgumentException("URL is malformed", ex);
@@ -187,6 +187,17 @@ public class UrlBuilder {
         }
     }
 
+    @NotNull
+    public static URL createViewUrl(@NotNull String serverUrl, @NotNull String viewName) {
+        try {
+            return buildUrlNotNull(removeTrailingSlash(serverUrl), "/view/" +
+                    URLUtil.encodeURIComponent(viewName));
+        } catch (Exception ex) {
+            handleException(ex);
+            throw new IllegalArgumentException(ERROR_DURING_URL_CREATION, ex);
+        }
+    }
+
     @Nullable
     public URL toUrl(@NotNull String url) {
         try {
@@ -198,7 +209,7 @@ public class UrlBuilder {
     }
 
     @NotNull
-    public String removeTrailingSlash(@NotNull String url) {
+    public static String removeTrailingSlash(@NotNull String url) {
         final String withoutTrailingSlash;
         if (url.endsWith("/")) {
             withoutTrailingSlash = url.substring(0, url.length() - 1);
@@ -221,7 +232,7 @@ public class UrlBuilder {
         return null;
     }
 
-    private @NotNull URL buildUrlNotNull(String context, @NotNull String pathWithQuery) throws MalformedURLException {
+    private static @NotNull URL buildUrlNotNull(String context, @NotNull String pathWithQuery) throws MalformedURLException {
         final boolean pathWithLeadingSlash = StringUtil.startsWithChar(pathWithQuery, '/');
         final String serverContext = pathWithLeadingSlash ? UriUtil.trimTrailingSlashes(context) : context;
         return new URL(serverContext + pathWithQuery);

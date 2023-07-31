@@ -80,15 +80,23 @@ public class JenkinsJsonParser implements JenkinsParser {
         primaryView.ifPresent(jenkins::setPrimaryView);
 
         final JsonArray viewsObject = getArray(jsonObject, VIEWS);
-        jenkins.setViews(getViews(viewsObject));
+        jenkins.setViews(getViews(viewsObject, primaryView.orElse(null)));
         return jenkins;
     }
 
-    private List<View> getViews(JsonArray viewsObjects) {
+    private List<View> getViews(JsonArray viewsObjects, @Nullable View primaryView) {
         List<View> views = new LinkedList<>();
         for (Object obj : viewsObjects) {
             JsonObject viewObject = (JsonObject) obj;
-            views.add(getView(viewObject));
+            final View view = getView(viewObject);
+            final var viewUrl = view.getUrl();
+            if (view.equals(primaryView) && viewUrl != null) {
+                views.add(view.toBuilder()
+                        .url(UrlBuilder.createViewUrl(viewUrl, primaryView.getName()).toString())
+                        .build());
+            } else {
+                views.add(view);
+            }
         }
 
         return views;

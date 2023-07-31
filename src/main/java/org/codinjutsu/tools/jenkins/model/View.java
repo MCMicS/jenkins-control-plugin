@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-@SuperBuilder
+@SuperBuilder(toBuilder = true)
 @Value
 @NonFinal
 public class View {
