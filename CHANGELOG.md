@@ -3,6 +3,7 @@
 ## [Unreleased]
 - Fix displaying nested views
 - \#502 Wrong view loaded if Primary View is selected
+- \#503 Inverted icon colors on 2023.2
 
 ## [0.13.18]
 - \#469 Index out of bounds
