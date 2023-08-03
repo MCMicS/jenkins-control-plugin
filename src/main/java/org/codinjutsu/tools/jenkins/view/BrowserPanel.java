@@ -282,7 +282,7 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
         GuiUtil.runInSwingThread(() -> {
             jobTree.updateJobNode(job);
             CollectionUtil.flattenedJobs(jenkins.getJobs()).forEach(j -> visit(j, buildStatusAggregator));
-            JenkinsWidget.getInstance(project).updateStatusIcon(buildStatusAggregator);
+            JenkinsStatusBarWidget.getInstance(project).updateStatusIcon(buildStatusAggregator);
         });
     }
 
@@ -314,7 +314,7 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
 
     private void clearView() {
         jobTree.clear();
-        JenkinsWidget.getInstance(project).updateStatusIcon(BuildStatusAggregator.EMPTY);
+        JenkinsStatusBarWidget.getInstance(project).updateStatusIcon(BuildStatusAggregator.EMPTY);
     }
 
     public void postAuthenticationInitialization() {
@@ -543,7 +543,7 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
 
             GuiUtil.runInSwingThread(() -> {
                 fillJobTree(buildStatusAggregator);
-                JenkinsWidget.getInstance(project).updateStatusIcon(buildStatusAggregator);
+                JenkinsStatusBarWidget.getInstance(project).updateStatusIcon(buildStatusAggregator);
             });
         }
 

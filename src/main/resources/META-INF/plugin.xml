@@ -33,7 +33,7 @@
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.JenkinsAppSettings"/>
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.JenkinsSettings"/>
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.JenkinsWindowManager"/>
-        <projectService serviceImplementation="org.codinjutsu.tools.jenkins.view.JenkinsWidget"/>
+        <projectService serviceImplementation="org.codinjutsu.tools.jenkins.view.JenkinsStatusBarWidget"/>
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.RequestManager"/>
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.UrlBuilder"/>
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.view.BrowserPanel"/>
@@ -61,7 +61,8 @@
                     doNotActivateOnStart="true"
                     icon="JenkinsControlIcons.JENKINS_TOOLWINDOW_ICON"
                     factoryClass="org.codinjutsu.tools.jenkins.view.action.LogToolWindowFactory"/>
-        <statusBarWidgetFactory implementation="org.codinjutsu.tools.jenkins.BuildStatusSummaryFactory" />
+        <statusBarWidgetFactory implementation="org.codinjutsu.tools.jenkins.BuildStatusSummaryFactory"
+                                id="Jenkins.BuildStatusSummary" />
         <aboutPopupDescriptionProvider implementation="org.codinjutsu.tools.jenkins.view.JenkinsAbout" />
         <notificationGroup displayType="NONE" id="Jenkins Rss" />
         <notificationGroup displayType="TOOL_WINDOW" id="Jenkins Notification" toolWindowId="Jenkins"/>
