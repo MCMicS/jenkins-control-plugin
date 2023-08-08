@@ -9,8 +9,10 @@ import com.intellij.ui.JBIntSpinner;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPasswordField;
 import com.intellij.ui.components.JBTextField;
-import com.intellij.util.ui.*;
-import com.intellij.util.ui.components.BorderLayoutPanel;
+import com.intellij.util.ui.FormBuilder;
+import com.intellij.util.ui.HTMLEditorKitBuilder;
+import com.intellij.util.ui.JBDimension;
+import com.intellij.util.ui.JBUI;
 import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsControlBundle;
 import org.codinjutsu.tools.jenkins.exception.AuthenticationException;
@@ -33,6 +35,8 @@ import javax.swing.text.html.HTMLEditorKit;
 import java.awt.*;
 import java.util.Optional;
 
+import static javax.swing.SwingConstants.LEFT;
+import static org.codinjutsu.tools.jenkins.util.GuiUtil.simplePanel;
 import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.POSITIVE_INTEGER;
 import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.URL;
 
@@ -71,7 +75,7 @@ public class ServerComponent implements FormValidationPanel {
         });
         final JBDimension size = JBUI.size(150, username.getPreferredSize().height);
         username.setPreferredSize(size);
-        username.setHorizontalAlignment(JBTextField.LEFT);
+        username.setHorizontalAlignment(LEFT);
         connectionStatusLabel.setFont(connectionStatusLabel.getFont().deriveFont(Font.BOLD));
         final var reloadConfiguration = new JButton(JenkinsControlBundle.message("action.Jenkins.ReloadConfiguration.text"));
         reloadConfiguration.addActionListener(event -> reloadConfiguration(DataManager.getInstance().getDataContext(reloadConfiguration)));
@@ -160,22 +164,11 @@ public class ServerComponent implements FormValidationPanel {
     }
 
     private @NotNull JPanel createConnectionTimeout() {
-        return simplePanel(connectionTimeout, new JBLabel(JenkinsControlBundle.message("settings.seconds")));
+        return GuiUtil.createLabeledComponent(connectionTimeout, JenkinsControlBundle.message("settings.seconds"));
     }
 
     private @NotNull JPanel createTestConnectionPanel() {
         return simplePanel(testConnection, connectionStatusLabel);
-    }
-
-    private BorderLayoutPanel simplePanel() {
-        return JBUI.Panels.simplePanel(UIUtil.DEFAULT_HGAP, UIUtil.DEFAULT_VGAP);
-    }
-
-    private BorderLayoutPanel simplePanel(Component left, Component center) {
-        final var panel = simplePanel();
-        panel.addToLeft(left);
-        panel.addToCenter(center);
-        return panel;
     }
 
     public @NotNull JPanel getPanel() {

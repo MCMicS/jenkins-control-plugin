@@ -130,8 +130,8 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
         return getRssSettings().isDisplayAborted();
     }
 
-    public void setIgnoreSuccessOrStable(boolean ignoreSucessOrStable) {
-        getRssSettings().setDisplaySuccessOrStable(ignoreSucessOrStable);
+    public void setDisplaySuccessOrStable(boolean displaySuccessOrStable) {
+        getRssSettings().setDisplaySuccessOrStable(displaySuccessOrStable);
     }
 
     public void setDisplayUnstableOrFail(boolean displayUnstableOrFail) {
