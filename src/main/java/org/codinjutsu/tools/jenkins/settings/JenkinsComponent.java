@@ -16,50 +16,80 @@
 
 package org.codinjutsu.tools.jenkins.settings;
 
-import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
+import com.intellij.ui.JBIntSpinner;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
-import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.JenkinsWindowManager;
 import org.codinjutsu.tools.jenkins.Version;
+import org.codinjutsu.tools.jenkins.view.annotation.FormValidator;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.VisibleForTesting;
 
 import javax.swing.*;
+import java.util.Optional;
 
 
 public class JenkinsComponent implements SearchableConfigurable {
 
-    private final JenkinsAppSettings jenkinsAppSettings;
-    private final JenkinsSettings jenkinsSettings;
-
     private final Project project;
 
-    @Nullable
-    private ConfigurationPanel configurationPanel;
+    private @Nullable AppSettingComponent appSettingComponent;
+    private @Nullable FormValidator<JBIntSpinner> formValidator;
 
     public JenkinsComponent(Project project) {
         this.project = project;
-        this.jenkinsAppSettings = JenkinsAppSettings.getSafeInstance(project);
-        this.jenkinsSettings = JenkinsSettings.getSafeInstance(project);
     }
 
     public JComponent createComponent() {
-        if (configurationPanel == null) {
-            configurationPanel = new ConfigurationPanel();
+        if (appSettingComponent == null) {
+            final var component = new AppSettingComponent();
+            formValidator = FormValidator.init(component);
+            setAppSettingComponent(component);
+            return component.getPanel();
         }
-        return configurationPanel.getRootPanel();
+        return appSettingComponent.getPanel();
     }
 
+    @Override
     public boolean isModified() {
-        return configurationPanel != null && configurationPanel.isModified(jenkinsAppSettings);
+        final var jenkinsAppSettings = JenkinsAppSettings.getSafeInstance(project);
+        return readSettingFromUi()
+                .map(appSettings -> isModified(appSettings, jenkinsAppSettings))
+                .orElse(false);
+    }
+
+    private boolean isModified(JenkinsAppSettings appSettingsFromUi, JenkinsAppSettings jenkinsAppSettings) {
+        boolean statusToIgnoreModified =//
+                appSettingsFromUi.shouldDisplaySuccessOrStable() != jenkinsAppSettings.shouldDisplaySuccessOrStable()
+                        || appSettingsFromUi.shouldDisplayFailOrUnstable() != jenkinsAppSettings.shouldDisplayFailOrUnstable()
+                        || appSettingsFromUi.shouldDisplayAborted() != jenkinsAppSettings.shouldDisplayAborted();
+
+        boolean isUseGreenColor = appSettingsFromUi.isUseGreenColor() != jenkinsAppSettings.isUseGreenColor();
+        boolean isShowAllInStatusbar = appSettingsFromUi.isShowAllInStatusbar() != jenkinsAppSettings.isShowAllInStatusbar();
+        boolean isAutoLoadBuilds = appSettingsFromUi.isAutoLoadBuilds() != jenkinsAppSettings.isAutoLoadBuilds();
+        boolean isDoubleClickActionChanged = appSettingsFromUi.getDoubleClickAction() != jenkinsAppSettings.getDoubleClickAction();
+        boolean isShowLogIfTriggerBuildChanged = appSettingsFromUi.isShowLogIfTriggerBuild() != jenkinsAppSettings.isShowLogIfTriggerBuild();
+
+        return jenkinsAppSettings.getBuildDelay() != appSettingsFromUi.getBuildDelay()
+                || jenkinsAppSettings.getJobRefreshPeriod() != appSettingsFromUi.getJobRefreshPeriod()
+                || jenkinsAppSettings.getRssRefreshPeriod() != appSettingsFromUi.getRssRefreshPeriod()
+                || jenkinsAppSettings.getNumBuildRetries() != appSettingsFromUi.getNumBuildRetries()
+                || isUseGreenColor
+                || isShowAllInStatusbar
+                || isAutoLoadBuilds
+                || isDoubleClickActionChanged
+                || isShowLogIfTriggerBuildChanged
+                || statusToIgnoreModified
+                || (!jenkinsAppSettings.getSuffix().equals(appSettingsFromUi.getSuffix()));
     }
 
     @Override
     public void disposeUIResources() {
-        configurationPanel = null;
+        appSettingComponent = null;
+        formValidator = null;
     }
 
     @Override
@@ -67,15 +97,35 @@ public class JenkinsComponent implements SearchableConfigurable {
         return "preferences.jenkins";
     }
 
-    public void apply() throws ConfigurationException {
-        if (configurationPanel != null) {
-            try {
-                configurationPanel.applyConfigurationData(jenkinsAppSettings);
-                JenkinsWindowManager.getInstance(project).ifPresent(JenkinsWindowManager::reloadConfiguration);
-            } catch (org.codinjutsu.tools.jenkins.exception.ConfigurationException ex) {
-                throw new ConfigurationException(ex.getMessage());
-            }
+    @Override
+    public void apply() throws com.intellij.openapi.options.ConfigurationException {
+        try {
+            Optional.ofNullable(formValidator).ifPresent(FormValidator::validate);
+        } catch (org.codinjutsu.tools.jenkins.exception.ConfigurationException ex) {
+            throw new com.intellij.openapi.options.ConfigurationException(ex.getMessage());
         }
+        readSettingFromUi().ifPresent(this::apply);
+        JenkinsWindowManager.getInstance(project).ifPresent(JenkinsWindowManager::reloadConfiguration);
+    }
+
+    private void apply(JenkinsAppSettings jenkinsAppSettingsFromUi)
+            throws org.codinjutsu.tools.jenkins.exception.ConfigurationException {
+        final var jenkinsAppSettings = JenkinsAppSettings.getSafeInstance(project);
+
+        jenkinsAppSettings.setDelay(jenkinsAppSettingsFromUi.getBuildDelay());
+        jenkinsAppSettings.setJobRefreshPeriod(jenkinsAppSettingsFromUi.getJobRefreshPeriod());
+        jenkinsAppSettings.setRssRefreshPeriod(jenkinsAppSettingsFromUi.getRssRefreshPeriod());
+        jenkinsAppSettings.setNumBuildRetries(jenkinsAppSettingsFromUi.getNumBuildRetries());
+
+        jenkinsAppSettings.setDisplaySuccessOrStable(jenkinsAppSettingsFromUi.shouldDisplaySuccessOrStable());
+        jenkinsAppSettings.setDisplayUnstableOrFail(jenkinsAppSettingsFromUi.shouldDisplayFailOrUnstable());
+        jenkinsAppSettings.setDisplayAborted(jenkinsAppSettingsFromUi.shouldDisplayAborted());
+        jenkinsAppSettings.setSuffix(jenkinsAppSettingsFromUi.getSuffix());
+        jenkinsAppSettings.setUseGreenColor(jenkinsAppSettingsFromUi.isUseGreenColor());
+        jenkinsAppSettings.setShowAllInStatusbar(jenkinsAppSettingsFromUi.isShowAllInStatusbar());
+        jenkinsAppSettings.setAutoLoadBuilds(jenkinsAppSettingsFromUi.isAutoLoadBuilds());
+        jenkinsAppSettings.setDoubleClickAction(jenkinsAppSettingsFromUi.getDoubleClickAction());
+        jenkinsAppSettings.setShowLogIfTriggerBuild(jenkinsAppSettingsFromUi.isShowLogIfTriggerBuild());
     }
 
     @Nls
@@ -85,14 +135,39 @@ public class JenkinsComponent implements SearchableConfigurable {
 
     @Override
     public void reset() {
-        if (configurationPanel != null) {
-            configurationPanel.loadConfigurationData(jenkinsAppSettings);
-        }
+        Optional.ofNullable(appSettingComponent).ifPresent(this::reset);
+    }
+
+    private void reset(AppSettingComponent appSettingComponentToReset) {
+        final var jenkinsAppSettings = JenkinsAppSettings.getSafeInstance(project);
+
+        appSettingComponentToReset.setBuildDelay(jenkinsAppSettings.getBuildDelay());
+        appSettingComponentToReset.setJobRefreshPeriod(jenkinsAppSettings.getJobRefreshPeriod());
+        appSettingComponentToReset.setRssRefreshPeriod(jenkinsAppSettings.getRssRefreshPeriod());
+        appSettingComponentToReset.setNumBuildRetries(jenkinsAppSettings.getNumBuildRetries());
+        appSettingComponentToReset.setDoubleClickAction(jenkinsAppSettings.getDoubleClickAction());
+        appSettingComponentToReset.setUseGreenColor(jenkinsAppSettings.isUseGreenColor());
+        appSettingComponentToReset.setShowAllInStatusbar(jenkinsAppSettings.isShowAllInStatusbar());
+        appSettingComponentToReset.setAutoLoadBuilds(jenkinsAppSettings.isAutoLoadBuilds());
+        appSettingComponentToReset.setShowLogIfTriggerBuild(jenkinsAppSettings.isShowLogIfTriggerBuild());
+        appSettingComponentToReset.setShouldDisplaySuccessOrStable(jenkinsAppSettings.shouldDisplaySuccessOrStable());
+        appSettingComponentToReset.setShouldDisplayUnstableOrFail(jenkinsAppSettings.shouldDisplayFailOrUnstable());
+        appSettingComponentToReset.setShouldDisplayAborted(jenkinsAppSettings.shouldDisplayAborted());
+        appSettingComponentToReset.setReplaceWithSuffix(jenkinsAppSettings.getSuffix());
     }
 
     @NotNull
     @Override
     public String getId() {
         return "preferences.Jenkins";
+    }
+
+    @VisibleForTesting
+    void setAppSettingComponent(@Nullable AppSettingComponent appSettingComponent) {
+        this.appSettingComponent = appSettingComponent;
+    }
+
+    private @NotNull Optional<JenkinsAppSettings> readSettingFromUi() {
+        return Optional.ofNullable(appSettingComponent).map(AppSettingComponent::getSetting);
     }
 }
