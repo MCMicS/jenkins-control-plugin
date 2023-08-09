@@ -89,9 +89,12 @@ public class UrlBuilder {
                 LOG.debug(e.getMessage(), e);
             }
             //return com.intellij.util.io.URLUtil.encodeQuery(query);
+            // prevent double encode of ',={}'
             return path + '?' + URLUtil.encodeURIComponent(query)
                     .replaceAll("%3D", "=")
-                    .replaceAll("%2C", ",");
+                    .replaceAll("%2C", ",")
+                    .replaceAll("%257B", "%7B")
+                    .replaceAll("%257D", "%7D");
         }
     }
 
@@ -131,8 +134,8 @@ public class UrlBuilder {
         return buildUrl(buildUrl, encodePathQuery(API_JSON + TREE_PARAM + BASIC_BUILD_INFO));
     }
 
-    public URL createBuildsUrl(String buildUrl) {
-        return buildUrl(buildUrl, encodePathQuery(API_JSON + TREE_PARAM + BASIC_BUILDS_INFO));
+    public URL createBuildsUrl(String buildUrl, RangeToLoad rangeToLoad) {
+        return buildUrl(buildUrl, encodePathQuery(API_JSON + TREE_PARAM + BASIC_BUILDS_INFO + rangeToLoad.toQueryParameter()));
     }
 
     public URL createRssLatestUrl(String serverUrl) {
