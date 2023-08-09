@@ -250,9 +250,9 @@ public class RequestManager implements RequestManagerInterface, Disposable {
         return jenkinsParser.createBuild(jenkinsJobData);
     }
 
-    private List<Build> loadBuilds(String jenkinsBuildUrl) {
+    private List<Build> loadBuilds(String jenkinsBuildUrl, RangeToLoad rangeToLoad) {
         if (handleNotYetLoggedInState()) return Collections.emptyList();
-        URL url = urlBuilder.createBuildsUrl(jenkinsBuildUrl);
+        URL url = urlBuilder.createBuildsUrl(jenkinsBuildUrl, rangeToLoad);
         String jenkinsJobData = securityClient.execute(url);
         return jenkinsParser.createBuilds(jenkinsJobData);
     }
@@ -348,7 +348,8 @@ public class RequestManager implements RequestManagerInterface, Disposable {
 
     @Override
     public List<Build> loadBuilds(Job job) {
-        return loadBuilds(job.getUrl());
+        final var rangeToLoad = RangeToLoad.to(JenkinsAppSettings.getSafeInstance(project).getBuildsToLoadPerJob());
+        return loadBuilds(job.getUrl(), rangeToLoad);
     }
 
     @NotNull
