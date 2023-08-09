@@ -77,6 +77,7 @@ public class JenkinsComponent implements SearchableConfigurable {
                 || jenkinsAppSettings.getJobRefreshPeriod() != appSettingsFromUi.getJobRefreshPeriod()
                 || jenkinsAppSettings.getRssRefreshPeriod() != appSettingsFromUi.getRssRefreshPeriod()
                 || jenkinsAppSettings.getNumBuildRetries() != appSettingsFromUi.getNumBuildRetries()
+                || jenkinsAppSettings.getBuildsToLoadPerJob() != appSettingsFromUi.getBuildsToLoadPerJob()
                 || isUseGreenColor
                 || isShowAllInStatusbar
                 || isAutoLoadBuilds
@@ -116,6 +117,7 @@ public class JenkinsComponent implements SearchableConfigurable {
         jenkinsAppSettings.setJobRefreshPeriod(jenkinsAppSettingsFromUi.getJobRefreshPeriod());
         jenkinsAppSettings.setRssRefreshPeriod(jenkinsAppSettingsFromUi.getRssRefreshPeriod());
         jenkinsAppSettings.setNumBuildRetries(jenkinsAppSettingsFromUi.getNumBuildRetries());
+        jenkinsAppSettings.setBuildsToLoadPerJob(jenkinsAppSettingsFromUi.getBuildsToLoadPerJob());
 
         jenkinsAppSettings.setDisplaySuccessOrStable(jenkinsAppSettingsFromUi.shouldDisplaySuccessOrStable());
         jenkinsAppSettings.setDisplayUnstableOrFail(jenkinsAppSettingsFromUi.shouldDisplayFailOrUnstable());
@@ -145,6 +147,7 @@ public class JenkinsComponent implements SearchableConfigurable {
         appSettingComponentToReset.setJobRefreshPeriod(jenkinsAppSettings.getJobRefreshPeriod());
         appSettingComponentToReset.setRssRefreshPeriod(jenkinsAppSettings.getRssRefreshPeriod());
         appSettingComponentToReset.setNumBuildRetries(jenkinsAppSettings.getNumBuildRetries());
+        appSettingComponentToReset.setBuildsToLoadPerJob(jenkinsAppSettings.getBuildsToLoadPerJob());
         appSettingComponentToReset.setDoubleClickAction(jenkinsAppSettings.getDoubleClickAction());
         appSettingComponentToReset.setUseGreenColor(jenkinsAppSettings.isUseGreenColor());
         appSettingComponentToReset.setShowAllInStatusbar(jenkinsAppSettings.isShowAllInStatusbar());

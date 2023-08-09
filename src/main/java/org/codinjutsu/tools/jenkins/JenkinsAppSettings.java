@@ -38,6 +38,7 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
     public static final String DUMMY_JENKINS_SERVER_URL = "http://dummyjenkinsserver";
     public static final int DEFAULT_BUILD_DELAY = 0;
     public static final int DEFAULT_BUILD_RETRY = 0;
+    public static final int DEFAULT_JOBS_PER_BUILD = 0;
     public static final int RESET_PERIOD_VALUE = 0;
 
     private State myState = new State();
@@ -206,6 +207,14 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
         myState.setShowLogIfTriggerBuild(showLogIfTriggerBuild);
     }
 
+    public void setBuildsToLoadPerJob(int buildsToLoadPerJobNumber) {
+        myState.setBuildsToLoadPerJob(buildsToLoadPerJobNumber);
+    }
+
+    public int getBuildsToLoadPerJob() {
+        return myState.getBuildsToLoadPerJob();
+    }
+
     @Data
     public static class State {
 
@@ -216,6 +225,7 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
         private String suffix = "";
 
         private int numBuildRetries = DEFAULT_BUILD_RETRY;
+        private int buildsToLoadPerJob = DEFAULT_JOBS_PER_BUILD;
         private RssSettings rssSettings = new RssSettings();
         private boolean useGreenColor = false;
         private boolean showAllInStatusbar = false;
