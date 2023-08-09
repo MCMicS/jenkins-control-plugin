@@ -33,6 +33,8 @@ public class AppSettingComponent implements FormValidationPanel {
     private final JBIntSpinner rssRefreshPeriod = new JBIntSpinner(0, 0, 300);
     @GuiField(validators = POSITIVE_INTEGER)
     private final JBIntSpinner numBuildRetries = new JBIntSpinner(0, 0, 50);
+    @GuiField(validators = POSITIVE_INTEGER)
+    private final JBIntSpinner buildsToLoadPerJob = new JBIntSpinner(0, 0, 100);
     private final ComboBox<DoubleClickAction> doubleClickAction = createDoubleClickActionComboBox();
 
     private final JBCheckBox useGreenColor = new JBCheckBox(JenkinsControlBundle.message("settings.app.useGreenColor"));
@@ -57,6 +59,8 @@ public class AppSettingComponent implements FormValidationPanel {
                         createLabeledComponent(rssRefreshPeriod, JenkinsControlBundle.message("settings.minutes")))
                 .addLabeledComponent(JenkinsControlBundle.message("settings.app.numBuildRetries.label"),
                         numBuildRetries)
+                .addLabeledComponent(JenkinsControlBundle.message("settings.app.buildsToLoad.label"),
+                        buildsToLoadPerJob)
                 .addLabeledComponent(JenkinsControlBundle.message("settings.app.doubleClickAction.label"),
                         doubleClickAction)
                 .addComponent(useGreenColor)
@@ -114,6 +118,7 @@ public class AppSettingComponent implements FormValidationPanel {
         jenkinsAppSettings.setJobRefreshPeriod(jobRefreshPeriod.getNumber());
         jenkinsAppSettings.setRssRefreshPeriod(rssRefreshPeriod.getNumber());
         jenkinsAppSettings.setNumBuildRetries(numBuildRetries.getNumber());
+        jenkinsAppSettings.setBuildsToLoadPerJob(buildsToLoadPerJob.getNumber());
 
         jenkinsAppSettings.setDisplaySuccessOrStable(successOrStableCheckBox.isSelected());
         jenkinsAppSettings.setDisplayUnstableOrFail(unstableOrFailCheckBox.isSelected());
@@ -141,7 +146,10 @@ public class AppSettingComponent implements FormValidationPanel {
 
     public void setNumBuildRetries(int numBuildRetries) {
         this.numBuildRetries.setNumber(numBuildRetries);
+    }
 
+    public void setBuildsToLoadPerJob(int buildsToLoadPerJob) {
+        this.buildsToLoadPerJob.setNumber(buildsToLoadPerJob);
     }
 
     public void setShouldDisplaySuccessOrStable(boolean displaySuccessOrStable) {
