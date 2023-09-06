@@ -21,6 +21,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.util.net.IdeHttpClientHelpers;
 import com.intellij.util.net.ssl.CertificateManager;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
@@ -127,6 +128,7 @@ class DefaultSecurityClient implements SecurityClient {
         runMethod(urlStr, data, responseCollector);
 
         if (isRedirection(responseCollector.statusCode)) {
+            LOG.trace(String.format("Handle redirect to: %s", responseCollector.data));
             runMethod(responseCollector.data, data, responseCollector);
         }
 
@@ -178,10 +180,12 @@ class DefaultSecurityClient implements SecurityClient {
 
     protected final HttpHost getLastRedirectionHost(HttpHost host) {
         final var httpHead = new HttpHead(host.toURI());
+        LOG.trace(String.format("Sending HEAD request to: %s", host.toURI()));
         try {
             final var context = getHttpClientContext();
             final var response = executeHttp(httpHead);
             final var statusCode = response.getStatusLine().getStatusCode();
+            LOG.trace(String.format("HEAD response for [%s] with status [%s]", host.toURI(), statusCode));
 
             var targetHost = host;
             if (HttpURLConnection.HTTP_OK == statusCode) {
@@ -211,11 +215,14 @@ class DefaultSecurityClient implements SecurityClient {
         final var post = createPost(url, data);
 
         try {
+            LOG.trace(String.format("Executing POST to: %s", post.getURI()));
             final var response = executeHttp(post);
             final var statusCode = response.getStatusLine().getStatusCode();
             final var responseBody = EntityUtils.toString(response.getEntity());
             final var errorHeader = response.getFirstHeader("X-Error");
             checkResponse(statusCode, responseBody);
+            LOG.trace(String.format("POST response for [%s] with status [%s]: %s", post.getURI(), statusCode,
+                    responseBody));
 
             if (HttpURLConnection.HTTP_OK == statusCode) {
                 responseCollector.collect(statusCode, responseBody);
@@ -227,7 +234,9 @@ class DefaultSecurityClient implements SecurityClient {
             }
             // if redirect handling not works or we still get a redirect header we handle it manually
             if (isRedirection(statusCode)) {
-                responseCollector.collect(statusCode, response.getLastHeader("Location").getValue());
+                final Header location = response.getLastHeader("Location");
+                LOG.trace(String.format("Handle redirect manually to: %s", location));
+                responseCollector.collect(statusCode, location.getValue());
             }
         } catch (UnknownHostException uhEx) {
             throw new ConfigurationException(String.format("Unknown server: %s", uhEx.getMessage()), uhEx);
