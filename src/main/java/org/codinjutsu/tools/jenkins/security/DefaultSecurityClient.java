@@ -86,6 +86,7 @@ class DefaultSecurityClient implements SecurityClient {
                 .setConnectionRequestTimeout(connectionTimout)
                 .setSocketTimeout(connectionTimout);
         this.credentialsProvider = new BasicCredentialsProvider();
+        final var dnsResolver = new JenkinsDnsResolver();
 
         final RequestConfig defaultRequestConfig = requestConfig
                 .setMaxRedirects(10)
@@ -94,14 +95,19 @@ class DefaultSecurityClient implements SecurityClient {
                 .setSSLContext(sslContext)
                 .setDefaultSocketConfig(socketConfig)
                 .setDefaultRequestConfig(defaultRequestConfig)
+                .setDnsResolver(dnsResolver)
                 .setDefaultCredentialsProvider(credentialsProvider)
                 .setRedirectStrategy(new JenkinsRedirectStrategy());
         this.httpClient = httpClientBuilder.build();
         if (useProxySettings) {
             this.configCreator = url -> {
                 final var configForUrl = RequestConfig.copy(defaultRequestConfig);
-                IdeHttpClientHelpers.ApacheHttpClient4.setProxyForUrlIfEnabled(configForUrl, url);
-                IdeHttpClientHelpers.ApacheHttpClient4.setProxyCredentialsForUrlIfEnabled(credentialsProvider, url);
+                final var useSocks = JenkinsConnectionSocketFactory.INSTANCE.prepareContext(url, sslContext,
+                        getHttpClientContext(), dnsResolver);
+                if (!useSocks) {
+                    IdeHttpClientHelpers.ApacheHttpClient4.setProxyForUrlIfEnabled(configForUrl, url);
+                    IdeHttpClientHelpers.ApacheHttpClient4.setProxyCredentialsForUrlIfEnabled(credentialsProvider, url);
+                }
                 return configForUrl.build();
             };
         } else {
@@ -180,7 +186,7 @@ class DefaultSecurityClient implements SecurityClient {
 
     protected final HttpHost getLastRedirectionHost(HttpHost host) {
         final var httpHead = new HttpHead(host.toURI());
-        LOG.trace(String.format("Sending HEAD request to: %s", host.toURI()));
+        LOG.trace(String.format("  %s", host.toURI()));
         try {
             final var context = getHttpClientContext();
             final var response = executeHttp(httpHead);
@@ -249,14 +255,14 @@ class DefaultSecurityClient implements SecurityClient {
     }
 
     protected final HttpResponse executeHttp(HttpPost post) throws IOException {
-        final var postConfig = post.getConfig();
-        if (postConfig == null) {
-            post.setConfig(configCreator.apply(post.getURI().toASCIIString()));
-        }
         return executeHttp((HttpRequestBase) post);
     }
 
     protected final HttpResponse executeHttp(HttpRequestBase httpRequest) throws IOException {
+        final var httpRequestConfig = httpRequest.getConfig();
+        if (httpRequestConfig == null) {
+            httpRequest.setConfig(configCreator.apply(httpRequest.getURI().toASCIIString()));
+        }
         return getHttpClient().execute(httpRequest, this.httpClientContext);
     }
 
