@@ -1,6 +1,8 @@
 package org.codinjutsu.tools.jenkins;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
+import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.openapi.wm.StatusBarWidgetFactory;
 import org.codinjutsu.tools.jenkins.view.JenkinsStatusBarWidget;
@@ -24,10 +26,25 @@ public class BuildStatusSummaryFactory implements StatusBarWidgetFactory {
         return "Jenkins Build Status Summary";
     }
 
+    @Override
+    public boolean isAvailable(@NotNull Project project) {
+        return true;
+    }
+
     @NotNull
     @Override
     public StatusBarWidget createWidget(@NotNull Project project) {
         return JenkinsStatusBarWidget.getInstance(project);
+    }
+
+    @Override
+    public void disposeWidget(@NotNull StatusBarWidget statusBarWidget) {
+        Disposer.dispose(statusBarWidget);
+    }
+
+    @Override
+    public boolean canBeEnabledOn(@NotNull StatusBar statusBar) {
+        return true;
     }
 
 }
