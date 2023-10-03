@@ -1,8 +1,8 @@
 package org.codinjutsu.tools.jenkins.view;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.Service;
-import com.intellij.openapi.project.Project;
 import icons.JenkinsControlIcons;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
 import org.jetbrains.annotations.NotNull;
@@ -28,8 +28,9 @@ public final class DefaultBuildStatusEnumRenderer implements BuildStatusRenderer
     }
 
     @NotNull
-    public static DefaultBuildStatusEnumRenderer getInstance(@NotNull Project project) {
-        DefaultBuildStatusEnumRenderer renderer = project.getService(DefaultBuildStatusEnumRenderer.class);
+    public static DefaultBuildStatusEnumRenderer getInstance() {
+        DefaultBuildStatusEnumRenderer renderer = ApplicationManager.getApplication()
+                .getService(DefaultBuildStatusEnumRenderer.class);
         return renderer == null ? new DefaultBuildStatusEnumRenderer() : renderer;
     }
 

@@ -19,7 +19,6 @@ package org.codinjutsu.tools.jenkins.view;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.CustomStatusBarWidget;
-import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.components.panels.NonOpaquePanel;
@@ -39,18 +38,16 @@ import java.util.stream.Stream;
 /**
  * Jenkins status bar widget
  */
-public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidget {
+public class JenkinsStatusBarWidget extends NonOpaquePanel implements CustomStatusBarWidget {
 
-    private final Project project;
-    private final JenkinsAppSettings jenkinsAppSettings;
+    private final transient Project project;
 
-    public static JenkinsWidget getInstance(Project project) {
-        return project.getService(JenkinsWidget.class);
+    public static JenkinsStatusBarWidget getInstance(Project project) {
+        return project.getService(JenkinsStatusBarWidget.class);
     }
 
-    public JenkinsWidget(Project project) {
+    public JenkinsStatusBarWidget(Project project) {
         this.project = project;
-        jenkinsAppSettings = JenkinsAppSettings.getSafeInstance(project);
 
         JComponent buildStatusIcon = createStatusIcon(new BuildStatusAggregator());
         setLayout(new BorderLayout());
@@ -70,6 +67,7 @@ public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidg
     }
 
     private JComponent createStatusIcon(BuildStatusAggregator aggregator) {
+        final JenkinsAppSettings jenkinsAppSettings = JenkinsAppSettings.getSafeInstance(project);
         JComponent statusIcon = BuildStatusIcon.createIcon(jenkinsAppSettings.isShowAllInStatusbar(), aggregator, BuildStatusEnumRenderer.getInstance(project));
         MouseAdapter adapter = new MouseAdapter() {
             @Override
@@ -94,7 +92,7 @@ public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidg
             return;
         }
 
-        toolWindow.activate(null);
+        toolWindow.activate  (null);
     }
 
     @Override
@@ -102,12 +100,6 @@ public class JenkinsWidget extends NonOpaquePanel implements CustomStatusBarWidg
     public String ID() {
         return BuildStatusSummaryFactory.BUILD_STATUS_SUMMARY_ID;
     }
-
-    @Override
-    public void install(@NotNull StatusBar statusBar) {}
-
-    @Override
-    public void dispose() {}
 
     @Override
     public JComponent getComponent() {

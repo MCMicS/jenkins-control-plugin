@@ -21,7 +21,7 @@ import com.github.cliftonlabs.json_simple.JsonKey;
 import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
 import com.intellij.openapi.diagnostic.Logger;
-import org.apache.commons.lang.StringUtils;
+import com.intellij.openapi.util.text.StringUtil;
 import org.apache.commons.lang3.ObjectUtils;
 import org.codinjutsu.tools.jenkins.exception.JenkinsPluginRuntimeException;
 import org.codinjutsu.tools.jenkins.model.*;
@@ -74,21 +74,30 @@ public class JenkinsJsonParser implements JenkinsParser {
         final JsonObject jsonObject = parseJson(jsonData);
         final Optional<View> primaryView = Optional.ofNullable((JsonObject) jsonObject.get(PRIMARY_VIEW)).map(this::getView);
 
-        final String description = getNonNullStringOrDefaultForNull(jsonObject, SERVER_DESCRIPTION, StringUtils.EMPTY);
+        final String description = getNonNullStringOrDefaultForNull(jsonObject, SERVER_DESCRIPTION,
+                org.codinjutsu.tools.jenkins.util.StringUtil.EMPTY);
         final String jenkinsUrl = urlMapper.apply(getServerUrl(jsonObject));
         final Jenkins jenkins = new Jenkins(description, jenkinsUrl);
         primaryView.ifPresent(jenkins::setPrimaryView);
 
         final JsonArray viewsObject = getArray(jsonObject, VIEWS);
-        jenkins.setViews(getViews(viewsObject));
+        jenkins.setViews(getViews(viewsObject, primaryView.orElse(null)));
         return jenkins;
     }
 
-    private List<View> getViews(JsonArray viewsObjects) {
+    private List<View> getViews(JsonArray viewsObjects, @Nullable View primaryView) {
         List<View> views = new LinkedList<>();
         for (Object obj : viewsObjects) {
             JsonObject viewObject = (JsonObject) obj;
-            views.add(getView(viewObject));
+            final View view = getView(viewObject);
+            final var viewUrl = view.getUrl();
+            if (view.equals(primaryView) && viewUrl != null) {
+                views.add(view.toBuilder()
+                        .url(UrlBuilder.createViewUrl(viewUrl, primaryView.getName()).toString())
+                        .build());
+            } else {
+                views.add(view);
+            }
         }
 
         return views;
@@ -363,7 +372,8 @@ public class JenkinsJsonParser implements JenkinsParser {
             jobParameterBuilder.description(description);
         }
 
-        String type = parameterObj.getStringOrDefault(createJsonKey(PARAMETER_TYPE, StringUtils.EMPTY));
+        String type = parameterObj.getStringOrDefault(createJsonKey(PARAMETER_TYPE,
+                org.codinjutsu.tools.jenkins.util.StringUtil.EMPTY));
         String parameterClass = parameterObj.getString(createJsonKey(CLASS));
         final JobParameterType jobParameterType = JobParameterType.getType(type, parameterClass);
         jobParameterBuilder.jobParameterType(jobParameterType);
@@ -396,7 +406,7 @@ public class JenkinsJsonParser implements JenkinsParser {
         JsonObject healthObject = (JsonObject) healths.get(0);
         String description = healthObject.getString(createJsonKey(JOB_HEALTH_DESCRIPTION));
         String healthLevel = healthObject.getString(createJsonKey(JOB_HEALTH_ICON));
-        if (StringUtils.isNotEmpty(healthLevel)) {
+        if (StringUtil.isNotEmpty(healthLevel)) {
             if (healthLevel.endsWith(".png"))
                 healthLevel = healthLevel.substring(0, healthLevel.lastIndexOf(".png"));
             else {
@@ -405,7 +415,7 @@ public class JenkinsJsonParser implements JenkinsParser {
         } else {
             healthLevel = null;
         }
-        if (StringUtils.isEmpty(healthLevel)) {
+        if (StringUtil.isEmpty(healthLevel)) {
             return null;
         } else {
             return new Job.Health(healthLevel, description);
@@ -491,14 +501,16 @@ public class JenkinsJsonParser implements JenkinsParser {
 
     private @NotNull String getServerUrl(JsonObject jsonObject) {
         final Optional<View> primaryView = Optional.ofNullable((JsonObject) jsonObject.get(PRIMARY_VIEW)).map(this::getView);
-        final String primaryViewUrl = primaryView.map(View::getUrl).orElse(StringUtils.EMPTY);
+        final String primaryViewUrl = primaryView.map(View::getUrl)
+                .orElse(org.codinjutsu.tools.jenkins.util.StringUtil.EMPTY);
         return getNonNullStringOrDefaultForNull(jsonObject, SERVER_URL, primaryViewUrl);
     }
 
     @NotNull
     private Computer getComputer(JsonObject computerJson) {
         final String displayName = computerJson.getString(createJsonKey("displayName"));
-        final String description = computerJson.getStringOrDefault(createJsonKey("description", StringUtils.EMPTY));
+        final String description = computerJson.getStringOrDefault(createJsonKey("description",
+                org.codinjutsu.tools.jenkins.util.StringUtil.EMPTY));
         final boolean offline = computerJson.getBooleanOrDefault(createJsonKey("offline", false));
         final JsonArray labelsJson = getArray(computerJson, "assignedLabels");
         final Computer.ComputerBuilder computerBuilder = Computer.builder()
@@ -529,7 +541,7 @@ public class JenkinsJsonParser implements JenkinsParser {
 
 
     private void checkJsonDataAndThrowExceptionIfNecessary(String jsonData) {
-        if (StringUtils.isEmpty(jsonData) || "{}".equals(jsonData)) {
+        if (StringUtil.isEmpty(jsonData) || "{}".equals(jsonData)) {
             final String message = "Empty JSON data!";
             LOG.error(message);
             throw new JenkinsPluginRuntimeException(message);
@@ -547,6 +559,7 @@ public class JenkinsJsonParser implements JenkinsParser {
     }
 
     private @NotNull String getStringNonNull(JsonObject jsonObject, @NotNull String key) {
-        return Optional.ofNullable(jsonObject.getString(createJsonKey(key))).orElse(StringUtils.EMPTY);
+        return Optional.ofNullable(jsonObject.getString(createJsonKey(key)))
+                .orElse(org.codinjutsu.tools.jenkins.util.StringUtil.EMPTY);
     }
 }

@@ -25,13 +25,19 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.ui.ComponentContainer;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.util.Disposer;
+import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
+import com.intellij.util.ui.JBUI;
+import com.intellij.util.ui.UIUtil;
+import com.intellij.util.ui.components.BorderLayoutPanel;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.awt.*;
 
 @UtilityClass
 public class GuiUtil {
@@ -74,5 +80,21 @@ public class GuiUtil {
             contentManager.addContent(content);
             contentManager.setSelectedContent(content);
         });
+    }
+
+    public static @NotNull BorderLayoutPanel simplePanel(Component left, Component center) {
+        final var panel = simplePanel();
+        panel.addToLeft(left);
+        panel.addToCenter(center);
+        return panel;
+    }
+
+    public static @NotNull BorderLayoutPanel simplePanel() {
+        return JBUI.Panels.simplePanel(UIUtil.DEFAULT_HGAP, UIUtil.DEFAULT_VGAP);
+    }
+
+    public static @NotNull JPanel createLabeledComponent(@NotNull JComponent component,
+                                                   @NotNull @NlsContexts.Label String label) {
+        return simplePanel(component, new JBLabel(label));
     }
 }

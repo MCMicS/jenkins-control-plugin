@@ -1,17 +1,15 @@
 package org.codinjutsu.tools.jenkins;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Disposer;
-import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.openapi.wm.StatusBarWidgetFactory;
-import org.codinjutsu.tools.jenkins.view.JenkinsWidget;
+import org.codinjutsu.tools.jenkins.view.JenkinsStatusBarWidget;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 public class BuildStatusSummaryFactory implements StatusBarWidgetFactory {
 
-    public static final String BUILD_STATUS_SUMMARY_ID = "BuildStatusSummary";
+    public static final String BUILD_STATUS_SUMMARY_ID = "Jenkins.BuildStatusSummary";
 
     @NotNull
     @Override
@@ -26,24 +24,10 @@ public class BuildStatusSummaryFactory implements StatusBarWidgetFactory {
         return "Jenkins Build Status Summary";
     }
 
-    @Override
-    public boolean isAvailable(@NotNull Project project) {
-        return true;
-    }
-
     @NotNull
     @Override
     public StatusBarWidget createWidget(@NotNull Project project) {
-        return JenkinsWidget.getInstance(project);
+        return JenkinsStatusBarWidget.getInstance(project);
     }
 
-    @Override
-    public void disposeWidget(@NotNull StatusBarWidget widget) {
-        Disposer.dispose(widget);
-    }
-
-    @Override
-    public boolean canBeEnabledOn(@NotNull StatusBar statusBar) {
-        return true;
-    }
 }

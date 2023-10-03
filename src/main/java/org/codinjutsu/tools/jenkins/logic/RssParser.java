@@ -18,7 +18,7 @@ package org.codinjutsu.tools.jenkins.logic;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.JDOMUtil;
-import org.apache.commons.lang.StringUtils;
+import com.intellij.openapi.util.text.StringUtil;
 import org.codinjutsu.tools.jenkins.exception.JenkinsPluginRuntimeException;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
@@ -53,7 +53,7 @@ public class RssParser {
 
     @NotNull
     private Element getFeeds(@Nullable String xmlData) {
-        if (StringUtils.isEmpty(xmlData)) {
+        if (StringUtil.isEmpty(xmlData)) {
             LOG.error("Empty XML data");
             throw new IllegalStateException("Empty XML data");
         }
@@ -77,7 +77,7 @@ public class RssParser {
         final var elements = feeds.getChildren(RSS_ENTRY, feeds.getNamespace());
         for (Element element : elements) {
             final var title = Optional.ofNullable(element.getChildText(RSS_TITLE, feeds.getNamespace()))
-                    .orElse(StringUtils.EMPTY);
+                    .orElse(org.codinjutsu.tools.jenkins.util.StringUtil.EMPTY);
             final var publishedBuild = element.getChildText(RSS_PUBLISHED, feeds.getNamespace());
             final var buildUrlElement = element.getChild(RSS_LINK, feeds.getNamespace());
             final var buildUrl = Optional.ofNullable(buildUrlElement.getAttributeValue(RSS_LINK_HREF));
@@ -87,8 +87,9 @@ public class RssParser {
             final var status = RssUtil.extractStatus(title);
 
             if (!BuildStatusEnum.NULL.equals(status)) {
-                buildMap.put(jobName, Build.createBuildFromRss(buildUrl.orElse(StringUtils.EMPTY), number,
-                        status.getStatus(), false, publishedBuild, title, rssDateFormat));
+                buildMap.put(jobName, Build.createBuildFromRss(buildUrl
+                                .orElse(org.codinjutsu.tools.jenkins.util.StringUtil.EMPTY),
+                        number, status.getStatus(), false, publishedBuild, title, rssDateFormat));
             }
         }
 

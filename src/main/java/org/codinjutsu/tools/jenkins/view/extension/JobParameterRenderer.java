@@ -1,7 +1,7 @@
 package org.codinjutsu.tools.jenkins.view.extension;
 
 import com.intellij.openapi.extensions.ExtensionPointName;
-import org.apache.commons.lang.StringUtils;
+import com.intellij.openapi.util.text.StringUtil;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
 import org.codinjutsu.tools.jenkins.model.ProjectJob;
 import org.codinjutsu.tools.jenkins.view.parameter.JobParameterComponent;
@@ -30,7 +30,7 @@ public interface JobParameterRenderer {
     default Optional<JLabel> createLabel(@NotNull JobParameter jobParameter) {
         final String name = jobParameter.getName();
         final JLabel label;
-        if (StringUtils.isEmpty(name)) {
+        if (StringUtil.isEmpty(name)) {
             label = JobParameterRenderers.createErrorLabel(JobParameterRenderers.MISSING_NAME_LABEL);
         } else {
             label = new JLabel(name);

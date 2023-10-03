@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.ui.EmptyIcon;
 import icons.JenkinsControlIcons;
@@ -23,7 +24,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
 import lombok.Value;
-import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -116,13 +116,13 @@ public class Job {
 
     @NotNull
     public String getNameToRenderSingleJob() {
-        return Optional.ofNullable(getFullDisplayName()).filter(StringUtils::isNotEmpty)
+        return Optional.ofNullable(getFullDisplayName()).filter(StringUtil::isNotEmpty)
                 .orElseGet(this::preferDisplayName);
     }
 
     @NotNull
     public String preferDisplayName() {
-        return Optional.ofNullable(getDisplayName()).filter(StringUtils::isNotEmpty)
+        return Optional.ofNullable(getDisplayName()).filter(StringUtil::isNotEmpty)
                 .orElseGet(this::getName);
     }
 

@@ -1,5 +1,6 @@
 package org.codinjutsu.tools.jenkins.logic;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.diagnostic.Logger;
@@ -25,16 +26,11 @@ public final class RunBuildWithPatch {
     public static final String PARAMETER_NAME = "patch.diff";
     private static final Logger LOG = Logger.getInstance(RunBuildWithPatch.class.getName());
     private static final String SUFFIX_JOB_NAME_MACROS = "$JobName$";
-    private final Project project;
-
-    public RunBuildWithPatch(Project project) {
-        this.project = project;
-    }
 
     @NotNull
     public static RunBuildWithPatch getInstance(@NotNull Project project) {
-        RunBuildWithPatch service = project.getService(RunBuildWithPatch.class);
-        return service == null ? new RunBuildWithPatch(project) : service;
+        RunBuildWithPatch service = ApplicationManager.getApplication().getService(RunBuildWithPatch.class);
+        return service == null ? new RunBuildWithPatch() : service;
     }
 
     public void runBuild(@NotNull Project project, @NotNull Job job, @NotNull VirtualFile patchFile) {

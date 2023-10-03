@@ -18,11 +18,11 @@ package org.codinjutsu.tools.jenkins.view;
 
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
-import org.codinjutsu.tools.jenkins.settings.ConfigurationPanel;
+import org.codinjutsu.tools.jenkins.settings.AppSettingComponent;
 
-public class ConfigurationPanelTest {
+public class AppSettingComponentTest {
 
-    private ConfigurationPanel jenkinsConfigurationPanel;
+    private AppSettingComponent jenkinsConfigurationPanel;
     private JenkinsAppSettings jenkinsAppSettings;
     private JenkinsSettings jenkinsSettings;
 //    private Panel uiSpecPanel;

@@ -1,5 +1,8 @@
 package org.codinjutsu.tools.jenkins.settings;
 
+import com.intellij.ide.DataManager;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.JBIntSpinner;
@@ -7,14 +10,15 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPasswordField;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.FormBuilder;
+import com.intellij.util.ui.HTMLEditorKitBuilder;
 import com.intellij.util.ui.JBDimension;
 import com.intellij.util.ui.JBUI;
-import com.intellij.util.ui.UIUtil;
-import com.intellij.util.ui.components.BorderLayoutPanel;
-import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsControlBundle;
 import org.codinjutsu.tools.jenkins.exception.AuthenticationException;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
+import org.codinjutsu.tools.jenkins.util.StringUtil;
+import org.codinjutsu.tools.jenkins.view.action.ActionUtil;
+import org.codinjutsu.tools.jenkins.view.action.ReloadConfigurationAction;
 import org.codinjutsu.tools.jenkins.view.annotation.FormValidationPanel;
 import org.codinjutsu.tools.jenkins.view.annotation.GuiField;
 import org.codinjutsu.tools.jenkins.view.validator.NotNullValidator;
@@ -29,7 +33,10 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.html.HTMLEditorKit;
 import java.awt.*;
+import java.util.Optional;
 
+import static javax.swing.SwingConstants.LEFT;
+import static org.codinjutsu.tools.jenkins.util.GuiUtil.simplePanel;
 import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.POSITIVE_INTEGER;
 import static org.codinjutsu.tools.jenkins.view.validator.ValidatorTypeEnum.URL;
 
@@ -68,8 +75,10 @@ public class ServerComponent implements FormValidationPanel {
         });
         final JBDimension size = JBUI.size(150, username.getPreferredSize().height);
         username.setPreferredSize(size);
-        username.setHorizontalAlignment(JBTextField.LEFT);
+        username.setHorizontalAlignment(LEFT);
         connectionStatusLabel.setFont(connectionStatusLabel.getFont().deriveFont(Font.BOLD));
+        final var reloadConfiguration = new JButton(JenkinsControlBundle.message("action.Jenkins.ReloadConfiguration.text"));
+        reloadConfiguration.addActionListener(event -> reloadConfiguration(DataManager.getInstance().getDataContext(reloadConfiguration)));
 
         testConnection.addActionListener(event -> testConnection(serverConnectionValidator));
         debugPanel.setVisible(false);
@@ -87,10 +96,16 @@ public class ServerComponent implements FormValidationPanel {
                 .addLabeledComponent(JenkinsControlBundle.message("settings.server.api_token"), apiToken)
                 .addLabeledComponent(JenkinsControlBundle.message("settings.server.connection_timeout"),
                         createConnectionTimeout())
+                .addComponentToRightColumn(reloadConfiguration)
                 .addComponentToRightColumn(createTestConnectionPanel())
                 .addComponent(debugPanel)
                 .addComponentFillVertically(new JPanel(), 0)
                 .getPanel();
+    }
+
+    private void reloadConfiguration(@NotNull DataContext dataContext) {
+        Optional.ofNullable(ActionManager.getInstance().getAction(ReloadConfigurationAction.ACTION_ID))
+                .ifPresent(action -> ActionUtil.performAction(action, "ServerSetting", dataContext));
     }
 
     private static @NotNull JTextPane createDebugTextPane() {
@@ -127,7 +142,7 @@ public class ServerComponent implements FormValidationPanel {
         } catch (AuthenticationException authenticationException) {
             setConnectionFeedbackLabel(authenticationException);
             final var responseBody = authenticationException.getResponseBody();
-            if (StringUtils.isNotBlank(responseBody)) {
+            if (StringUtil.isNotBlank(responseBody)) {
                 debugPanel.setVisible(true);
                 debugTextPane.setText(responseBody);
             }
@@ -149,22 +164,11 @@ public class ServerComponent implements FormValidationPanel {
     }
 
     private @NotNull JPanel createConnectionTimeout() {
-        return simplePanel(connectionTimeout, new JBLabel(JenkinsControlBundle.message("settings.seconds")));
+        return GuiUtil.createLabeledComponent(connectionTimeout, JenkinsControlBundle.message("settings.seconds"));
     }
 
     private @NotNull JPanel createTestConnectionPanel() {
         return simplePanel(testConnection, connectionStatusLabel);
-    }
-
-    private BorderLayoutPanel simplePanel() {
-        return JBUI.Panels.simplePanel(UIUtil.DEFAULT_HGAP, UIUtil.DEFAULT_VGAP);
-    }
-
-    private BorderLayoutPanel simplePanel(Component left, Component center) {
-        final var panel = simplePanel();
-        panel.addToLeft(left);
-        panel.addToCenter(center);
-        return panel;
     }
 
     public @NotNull JPanel getPanel() {
@@ -180,7 +184,7 @@ public class ServerComponent implements FormValidationPanel {
         return ServerSetting.builder()
                 .url(getServerUrl())
                 .jenkinsUrl(getJenkinsUrl())
-                .username(StringUtils.isBlank(usernameForSetting) ? "" : usernameForSetting)
+                .username(StringUtil.isBlank(usernameForSetting) ? "" : usernameForSetting)
                 .apiToken(getApiToken())
                 .apiTokenModified(isApiTokenModified())
                 .timeout(getConnectionTimeout())
@@ -220,7 +224,7 @@ public class ServerComponent implements FormValidationPanel {
     }
 
     public void setApiToken(@Nullable String apiTokenToSet) {
-        apiToken.setPasswordIsStored(StringUtils.isNotBlank(apiTokenToSet));
+        apiToken.setPasswordIsStored(StringUtil.isNotBlank(apiTokenToSet));
     }
 
     @VisibleForTesting

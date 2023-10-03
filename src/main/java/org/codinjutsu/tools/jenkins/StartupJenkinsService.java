@@ -43,6 +43,6 @@ public class StartupJenkinsService implements StartupActivity.Background, Dynami
     }
 
     private static boolean isJenkinsPlugin(@NotNull IdeaPluginDescriptor pluginDescriptor) {
-        return pluginDescriptor.getPluginId() == PluginId.getId(Version.PLUGIN_ID);
+        return pluginDescriptor.getPluginId().equals(PluginId.getId(Version.PLUGIN_ID));
     }
 }

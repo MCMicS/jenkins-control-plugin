@@ -20,7 +20,7 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import org.codinjutsu.tools.jenkins.logic.*;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
-import org.codinjutsu.tools.jenkins.view.JenkinsWidget;
+import org.codinjutsu.tools.jenkins.view.JenkinsStatusBarWidget;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -47,7 +47,7 @@ public class JenkinsWindowManager implements Disposable {
     public void dispose() {
         RssAuthenticationActionHandler.getInstance(project).dispose();
         BrowserPanelAuthenticationHandler.getInstance(project).dispose();
-        JenkinsWidget.getInstance(project).dispose();
+        JenkinsStatusBarWidget.getInstance(project).dispose();
         ExecutorService.getInstance(project).dispose();
         RequestManager.getInstance(project).dispose();
     }
