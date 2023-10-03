@@ -24,7 +24,7 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.util.DimensionService;
-import org.apache.commons.lang.StringUtils;
+import com.intellij.openapi.util.text.StringUtil;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JobTracker;
 import org.codinjutsu.tools.jenkins.TraceableBuildJob;
@@ -148,7 +148,7 @@ public class BuildParamDialog extends DialogWrapper {
                 contentPanel.add(jobParameterComponent.getViewElement());
 
                 final String description = jobParameter.getDescription();
-                if (StringUtils.isNotEmpty(description)) {
+                if (StringUtil.isNotEmpty(description)) {
                     JLabel placeHolder = new JLabel("", SwingConstants.CENTER);
                     contentPanel.add(placeHolder);
                     contentPanel.add(new JLabel(description));

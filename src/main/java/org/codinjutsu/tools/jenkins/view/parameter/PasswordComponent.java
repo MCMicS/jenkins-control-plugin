@@ -5,7 +5,6 @@ import com.intellij.ui.components.JBPasswordField;
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.view.util.SpringUtilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -54,7 +53,7 @@ public class PasswordComponent {
     public void enablePasswordOverride() {
         view.getPasswordField().setEnabled(true);
         view.getPasswordField().setVisible(true);
-        model.setPassword(StringUtils.EMPTY);
+        model.setPassword(org.codinjutsu.tools.jenkins.util.StringUtil.EMPTY);
         view.getPasswordField().requestFocus();
         view.getChangePasswordButton().setVisible(false);
     }

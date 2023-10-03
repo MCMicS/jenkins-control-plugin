@@ -23,10 +23,10 @@ import com.intellij.openapi.components.*;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.PopupHandler;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.util.ui.tree.TreeUtil;
-import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.*;
 import org.codinjutsu.tools.jenkins.logic.*;
 import org.codinjutsu.tools.jenkins.model.*;
@@ -325,7 +325,7 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
 
         String lastSelectedViewName = jenkinsSettings.getLastSelectedView();
         View viewToLoad;
-        if (StringUtils.isEmpty(lastSelectedViewName)) {
+        if (StringUtil.isEmpty(lastSelectedViewName)) {
             viewToLoad = jenkins.getPrimaryView();
         } else if (favoriteView != null && lastSelectedViewName.equals(favoriteView.getName())) {
             viewToLoad = favoriteView;

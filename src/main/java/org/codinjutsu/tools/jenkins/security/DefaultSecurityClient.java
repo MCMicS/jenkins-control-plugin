@@ -19,9 +19,9 @@ package org.codinjutsu.tools.jenkins.security;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.net.IdeHttpClientHelpers;
 import com.intellij.util.net.ssl.CertificateManager;
-import org.apache.commons.lang.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -278,7 +278,7 @@ class DefaultSecurityClient implements SecurityClient {
         }
 
         if (statusCode == HttpURLConnection.HTTP_FORBIDDEN || statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
-            if (StringUtils.containsIgnoreCase(responseBody, BAD_CRUMB_DATA)) {
+            if (StringUtil.containsIgnoreCase(responseBody, BAD_CRUMB_DATA)) {
                 throw new AuthenticationException("CSRF enabled -> Missing or bad crumb data", responseBody);
             }
 
@@ -296,7 +296,7 @@ class DefaultSecurityClient implements SecurityClient {
 
 
     protected boolean isCrumbDataSet() {
-        return StringUtils.isNotBlank(crumbData);
+        return org.codinjutsu.tools.jenkins.util.StringUtil.isNotBlank(crumbData);
     }
 
     public void setJenkinsVersion(JenkinsVersion jenkinsVersion) {

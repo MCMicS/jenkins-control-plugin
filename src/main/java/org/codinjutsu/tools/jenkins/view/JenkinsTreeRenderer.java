@@ -18,6 +18,7 @@ package org.codinjutsu.tools.jenkins.view;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.nls.NlsMessages;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.ColoredTreeCellRenderer;
 import com.intellij.ui.RowIcon;
 import com.intellij.ui.SimpleTextAttributes;
@@ -25,7 +26,6 @@ import com.intellij.util.text.DateFormatUtil;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Delegate;
-import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -136,7 +136,7 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
         final Function<Build, String> buildNameRenderer;
         if (parentJenkinsTreeNode.filter(JenkinsTreeNode.JobNode.class::isInstance).isPresent()) {
             jobNameRenderer = Job::preferDisplayName;
-            buildNameRenderer = build -> StringUtils.EMPTY;
+            buildNameRenderer = build -> org.codinjutsu.tools.jenkins.util.StringUtil.EMPTY;
         } else {
             jobNameRenderer = Job::getNameToRenderSingleJob;
             buildNameRenderer = Build::getFullDisplayName;
@@ -157,7 +157,7 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
             status = "(running)";
         }
         final String renderedValue = Optional.ofNullable(buildName.apply(build))
-                .filter(StringUtils::isNotEmpty)
+                .filter(StringUtil::isNotEmpty)
                 .orElseGet(() -> String.format("%s %s", jobName.apply(job), build.getDisplayNumber()));
         return String.format("%s %s", renderedValue, status);
     }
@@ -166,7 +166,7 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
     public static String buildLabel(Jenkins jenkins) {
         final var description = jenkins.getName();
         final var label = new StringBuilder("Jenkins");
-        if (StringUtils.isNotEmpty(description)) {
+        if (StringUtil.isNotEmpty(description)) {
             label.append(' ');
             label.append(description);
         }

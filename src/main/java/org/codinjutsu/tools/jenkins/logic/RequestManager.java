@@ -21,11 +21,11 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.offbytwo.jenkins.JenkinsServer;
 import com.offbytwo.jenkins.helper.BuildConsoleStreamListener;
 import com.offbytwo.jenkins.model.*;
-import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.exception.*;
@@ -90,7 +90,7 @@ public class RequestManager implements RequestManagerInterface, Disposable {
         var jenkinsWorkspaceData = securityClient.execute(url);
         final var serverUrl = configuration.getServerUrl();
         final var configuredJenkinsUrl = Optional.of(jenkinsSettings.getJenkinsUrl())
-                .filter(StringUtils::isNotEmpty)
+                .filter(StringUtil::isNotEmpty)
                 .orElse(serverUrl);
 
         if (configuredJenkinsUrl.contains(BUILDHIVE_CLOUDBEES)) {//TODO hack need to refactor
@@ -313,7 +313,7 @@ public class RequestManager implements RequestManagerInterface, Disposable {
         SecurityClientFactory.setVersion(version);
         final int connectionTimout = getConnectionTimout(connectionTimoutInSeconds);
         final SecurityClient securityClientForTest;
-        if (StringUtils.isNotBlank(username)) {
+        if (org.codinjutsu.tools.jenkins.util.StringUtil.isNotBlank(username)) {
             securityClientForTest = SecurityClientFactory.basic(username, password, crumbData, connectionTimout);
         } else {
             securityClientForTest = SecurityClientFactory.none(crumbData, connectionTimout);

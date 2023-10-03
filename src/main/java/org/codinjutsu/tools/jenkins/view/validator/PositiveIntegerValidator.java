@@ -16,7 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.view.validator;
 
-import org.apache.commons.lang.StringUtils;
+import com.intellij.openapi.util.text.StringUtil;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,7 +28,7 @@ public class PositiveIntegerValidator implements UIValidator<JComponent> {
 
     public void validate(JComponent component) throws ConfigurationException {
         final Optional<String> value = getValue(component);
-        if (component.isEnabled() && value.isPresent() && StringUtils.isNotEmpty(value.get())) {
+        if (component.isEnabled() && value.isPresent() && StringUtil.isNotEmpty(value.get())) {
             try {
                 int intValue = Integer.parseInt(value.get());
                 if (intValue < 0)

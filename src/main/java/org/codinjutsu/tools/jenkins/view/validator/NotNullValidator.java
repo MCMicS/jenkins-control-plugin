@@ -16,7 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.view.validator;
 
-import org.apache.commons.lang.StringUtils;
+import com.intellij.openapi.util.text.StringUtil;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 
 import javax.swing.*;
@@ -25,7 +25,7 @@ public class NotNullValidator implements UIValidator<JTextField> {
     public void validate(JTextField component) throws ConfigurationException {
         if (component.isEnabled()) {    //TODO a revoir
             String value = component.getText();
-            if (StringUtils.isEmpty(value)) {
+            if (StringUtil.isEmpty(value)) {
                 throw new ConfigurationException(String.format("'%s' must be set", component.getName()));
             }
         }

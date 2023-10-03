@@ -20,9 +20,9 @@ import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import lombok.Data;
-import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildStatusEnum;
 import org.jetbrains.annotations.NotNull;
@@ -80,7 +80,7 @@ public class JenkinsAppSettings implements PersistentStateComponent<JenkinsAppSe
     @Deprecated(since = "0.13.18")
     public boolean isServerUrlSet() {
         final String serverUrl = myState.getServerUrl();
-        return StringUtils.isNotEmpty(serverUrl) && !DUMMY_JENKINS_SERVER_URL.equals(serverUrl);
+        return StringUtil.isNotEmpty(serverUrl) && !DUMMY_JENKINS_SERVER_URL.equals(serverUrl);
     }
 
     public int getBuildDelay() {

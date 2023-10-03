@@ -2,10 +2,10 @@ package org.codinjutsu.tools.jenkins.logic;
 
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.text.StringUtil;
 import lombok.Builder;
 import lombok.Singular;
 import lombok.Value;
-import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.URL;
@@ -56,7 +56,7 @@ public final class ConfigurationValidator {
 
     private void validateHost(@NotNull ValidationResult.ValidationResultBuilder validationResult,
                               @NotNull URL configuration, @NotNull URL jenkins, @NotNull URL configureUrl) {
-        if (!StringUtils.equals(configuration.getHost(), jenkins.getHost())) {
+        if (!StringUtil.equals(configuration.getHost(), jenkins.getHost())) {
             validationResult.error(String.format("Jenkins Server Host Mismatch: expected='%s' - actual='%s'. Look at the value of 'Jenkins URL' at %s",
                     configuration.getHost(), jenkins.getHost(), configureUrl));
         }
@@ -64,7 +64,7 @@ public final class ConfigurationValidator {
 
     private void validateProtocol(@NotNull ValidationResult.ValidationResultBuilder validationResult,
                               @NotNull URL configuration, @NotNull URL jenkins, @NotNull URL configureUrl) {
-        if (!StringUtils.equals(configuration.getProtocol(), jenkins.getProtocol())) {
+        if (!StringUtil.equals(configuration.getProtocol(), jenkins.getProtocol())) {
             validationResult.error(String.format("Jenkins Server Protocol Mismatch: expected='%s' - actual='%s'. Look at the value of 'Jenkins URL' at %s",
                     configuration.getProtocol(), jenkins.getProtocol(), configureUrl));
         }
@@ -79,7 +79,7 @@ public final class ConfigurationValidator {
     }
 
     private boolean isSameUrlPath(@NotNull String leftUrl, @NotNull String rightUrl) {
-        return StringUtils.equals(urlBuilder.removeTrailingSlash(leftUrl), urlBuilder.removeTrailingSlash(rightUrl));
+        return StringUtil.equals(urlBuilder.removeTrailingSlash(leftUrl), urlBuilder.removeTrailingSlash(rightUrl));
     }
 
     @NotNull

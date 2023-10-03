@@ -5,13 +5,13 @@ import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBTextArea;
 import com.intellij.ui.components.JBTextField;
 import lombok.experimental.UtilityClass;
-import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.logic.RequestManagerInterface;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
@@ -40,7 +40,7 @@ public final class JobParameterRenderers {
         textFieldWithBrowseButton.addBrowseFolderListener(jobParameter.getName(), jobParameter.getDescription(), project,
                 FileChooserDescriptorFactory.createSingleFileNoJarsDescriptor());
         textFieldWithBrowseButton.setTextFieldPreferredWidth(30);
-        if (StringUtils.isNotEmpty(defaultValue)) {
+        if (StringUtil.isNotEmpty(defaultValue)) {
             textFieldWithBrowseButton.setText(defaultValue);
         }
         return new JobParameterComponent<>(jobParameter, textFieldWithBrowseButton, JobParameterRenderers.getFile());
@@ -50,7 +50,7 @@ public final class JobParameterRenderers {
     public static JobParameterComponent<String> createPasswordField(JobParameter jobParameter, String defaultValue) {
         final PasswordComponent passwordComponent = PasswordComponent.create();
         passwordComponent.init();
-        if (StringUtils.isNotEmpty(defaultValue)) {
+        if (StringUtil.isNotEmpty(defaultValue)) {
             passwordComponent.setValue(defaultValue);
         }
         return new JobParameterComponent<>(jobParameter, passwordComponent.asComponent(), c -> passwordComponent.getValue());
@@ -60,7 +60,7 @@ public final class JobParameterRenderers {
     public static JobParameterComponent<String> createTextArea(JobParameter jobParameter, String defaultValue) {
         final JTextArea textArea = new JBTextArea();
         textArea.setRows(5);
-        if (StringUtils.isNotEmpty(defaultValue)) {
+        if (StringUtil.isNotEmpty(defaultValue)) {
             textArea.setText(defaultValue);
         }
         return new JobParameterComponent<>(jobParameter, textArea, JTextComponent::getText);
@@ -69,7 +69,7 @@ public final class JobParameterRenderers {
     @NotNull
     public static JobParameterComponent<String> createTextField(JobParameter jobParameter, String defaultValue) {
         final JTextField textField = new JBTextField();
-        if (StringUtils.isNotEmpty(defaultValue)) {
+        if (StringUtil.isNotEmpty(defaultValue)) {
             textField.setText(defaultValue);
         }
         return new JobParameterComponent<>(jobParameter, textField, JTextComponent::getText);
@@ -88,7 +88,7 @@ public final class JobParameterRenderers {
     public static JobParameterComponent<String> createComboBox(@NotNull JobParameter jobParameter, String defaultValue) {
         final String[] choices = jobParameter.getChoices().toArray(new String[0]);
         ComboBox<String> comboBox = new ComboBox<>(choices);
-        if (StringUtils.isNotEmpty(defaultValue)) {
+        if (StringUtil.isNotEmpty(defaultValue)) {
             comboBox.setSelectedItem(defaultValue);
         }
         return new JobParameterComponent<>(jobParameter, comboBox, asString(JComboBox::getSelectedItem));
@@ -98,7 +98,7 @@ public final class JobParameterRenderers {
     @NotNull
     public static JobParameterComponent<String> createLabel(@NotNull JobParameter jobParameter, String defaultValue) {
         final JBLabel label = new JBLabel();
-        if (StringUtils.isNotEmpty(defaultValue)) {
+        if (StringUtil.isNotEmpty(defaultValue)) {
             label.setText(defaultValue);
         }
         return new JobParameterComponent<>(jobParameter, label, JLabel::getText);
@@ -180,7 +180,7 @@ public final class JobParameterRenderers {
 
     @Nullable
     private static VirtualFile getFile(@NotNull TextFieldWithBrowseButton filePathField) {
-        if (!StringUtils.isEmpty(filePathField.getText())) {
+        if (!StringUtil.isEmpty(filePathField.getText())) {
             // use com.intellij.openapi.vfs.VirtualFileLookup (2020.2 and later)
             final VirtualFile file = LocalFileSystem.getInstance().findFileByPath(filePathField.getText());
             if (file != null && !file.isDirectory()) {

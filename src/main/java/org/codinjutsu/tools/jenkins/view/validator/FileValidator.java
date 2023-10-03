@@ -18,7 +18,7 @@ package org.codinjutsu.tools.jenkins.view.validator;
 
 import com.intellij.openapi.ui.LabeledComponent;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
-import org.apache.commons.lang.StringUtils;
+import com.intellij.openapi.util.text.StringUtil;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 
 import java.io.File;
@@ -26,7 +26,7 @@ import java.io.File;
 public class FileValidator implements UIValidator<LabeledComponent<TextFieldWithBrowseButton>> {
     public void validate(LabeledComponent<TextFieldWithBrowseButton> component) throws ConfigurationException {
         String filepath = component.getComponent().getText();
-        if (StringUtils.isEmpty(filepath)) {
+        if (StringUtil.isEmpty(filepath)) {
             return;
         }
         File file = new File(filepath);

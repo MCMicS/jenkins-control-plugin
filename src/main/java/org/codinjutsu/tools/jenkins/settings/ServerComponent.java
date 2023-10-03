@@ -13,10 +13,10 @@ import com.intellij.util.ui.FormBuilder;
 import com.intellij.util.ui.HTMLEditorKitBuilder;
 import com.intellij.util.ui.JBDimension;
 import com.intellij.util.ui.JBUI;
-import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsControlBundle;
 import org.codinjutsu.tools.jenkins.exception.AuthenticationException;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
+import org.codinjutsu.tools.jenkins.util.StringUtil;
 import org.codinjutsu.tools.jenkins.view.action.ActionUtil;
 import org.codinjutsu.tools.jenkins.view.action.ReloadConfigurationAction;
 import org.codinjutsu.tools.jenkins.view.annotation.FormValidationPanel;
@@ -142,7 +142,7 @@ public class ServerComponent implements FormValidationPanel {
         } catch (AuthenticationException authenticationException) {
             setConnectionFeedbackLabel(authenticationException);
             final var responseBody = authenticationException.getResponseBody();
-            if (StringUtils.isNotBlank(responseBody)) {
+            if (StringUtil.isNotBlank(responseBody)) {
                 debugPanel.setVisible(true);
                 debugTextPane.setText(responseBody);
             }
@@ -184,7 +184,7 @@ public class ServerComponent implements FormValidationPanel {
         return ServerSetting.builder()
                 .url(getServerUrl())
                 .jenkinsUrl(getJenkinsUrl())
-                .username(StringUtils.isBlank(usernameForSetting) ? "" : usernameForSetting)
+                .username(StringUtil.isBlank(usernameForSetting) ? "" : usernameForSetting)
                 .apiToken(getApiToken())
                 .apiTokenModified(isApiTokenModified())
                 .timeout(getConnectionTimeout())
@@ -224,7 +224,7 @@ public class ServerComponent implements FormValidationPanel {
     }
 
     public void setApiToken(@Nullable String apiTokenToSet) {
-        apiToken.setPasswordIsStored(StringUtils.isNotBlank(apiTokenToSet));
+        apiToken.setPasswordIsStored(StringUtil.isNotBlank(apiTokenToSet));
     }
 
     @VisibleForTesting

@@ -16,7 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
-import org.apache.commons.lang.StringUtils;
+import com.intellij.openapi.util.text.StringUtil;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.jetbrains.annotations.Nullable;
 
@@ -81,7 +81,7 @@ public class Jenkins {
 
     public View getViewByName(String lastSelectedViewName) {
         for (View view : views) {
-            if (StringUtils.equals(lastSelectedViewName, view.getName())) {
+            if (StringUtil.equals(lastSelectedViewName, view.getName())) {
                 return view;
             }
         }

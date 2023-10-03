@@ -2,7 +2,6 @@ package org.codinjutsu.tools.jenkins.view.parameter;
 
 import com.intellij.ui.components.JBPasswordField;
 import com.intellij.util.ui.StatusText;
-import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Answers;
@@ -85,7 +84,7 @@ public class PasswordComponentTest {
         verify(passwordField).setEnabled(true);
         verify(passwordField).setVisible(true);
         verify(changePasswordButton).setVisible(false);
-        assertThat(model.getPassword()).isEqualTo(StringUtils.EMPTY);
+        assertThat(model.getPassword()).isEqualTo(org.codinjutsu.tools.jenkins.util.StringUtil.EMPTY);
     }
 
     @Before
