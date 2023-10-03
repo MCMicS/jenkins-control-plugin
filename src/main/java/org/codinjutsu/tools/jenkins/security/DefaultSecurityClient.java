@@ -17,6 +17,7 @@
 package org.codinjutsu.tools.jenkins.security;
 
 import com.intellij.notification.NotificationType;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.util.net.IdeHttpClientHelpers;
 import com.intellij.util.net.ssl.CertificateManager;
@@ -102,8 +103,9 @@ class DefaultSecurityClient implements SecurityClient {
         if (useProxySettings) {
             this.configCreator = url -> {
                 final var configForUrl = RequestConfig.copy(defaultRequestConfig);
-                final var useSocks = JenkinsConnectionSocketFactory.INSTANCE.prepareContext(url, sslContext,
-                        getHttpClientContext(), dnsResolver);
+                final var useSocks = ApplicationManager.getApplication()
+                        .getService(JenkinsConnectionSocketFactory.class)
+                        .prepareContext(url, sslContext, getHttpClientContext(), dnsResolver);
                 if (!useSocks) {
                     IdeHttpClientHelpers.ApacheHttpClient4.setProxyForUrlIfEnabled(configForUrl, url);
                     IdeHttpClientHelpers.ApacheHttpClient4.setProxyCredentialsForUrlIfEnabled(credentialsProvider, url);
