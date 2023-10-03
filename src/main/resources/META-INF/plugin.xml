@@ -36,7 +36,6 @@
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.view.JenkinsStatusBarWidget"/>
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.RequestManager"/>
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.UrlBuilder"/>
-        <projectService serviceImplementation="org.codinjutsu.tools.jenkins.view.BrowserPanel"/>
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.RssLogic"/>
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.BrowserPanelAuthenticationHandler"/>
         <projectService serviceImplementation="org.codinjutsu.tools.jenkins.logic.RssAuthenticationActionHandler"/>

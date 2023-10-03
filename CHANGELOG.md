@@ -6,6 +6,7 @@
 - \#503 Inverted icon colors on 2023.2
 - \#507 Specify id in plugin.xml matching getId() value
 - \#463 Configurable/limit number of displayed builds
+- \#69 Add SOCKS proxy support
 
 ## [0.13.18]
 - \#469 Index out of bounds

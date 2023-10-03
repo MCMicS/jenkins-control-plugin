@@ -12,7 +12,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 
-@Service
+@Service(Service.Level.PROJECT)
 public final class ConfigurationValidator {
     @NotNull
     private final UrlBuilder urlBuilder;

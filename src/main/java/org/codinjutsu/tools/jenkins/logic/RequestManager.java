@@ -17,6 +17,7 @@
 package org.codinjutsu.tools.jenkins.logic;
 
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
@@ -300,7 +301,8 @@ public class RequestManager implements RequestManagerInterface, Disposable {
         securityClient.connect(urlBuilder.createAuthenticationUrl(serverUrl));
         setJenkinsServer(new JenkinsServer(new JenkinsClient(urlBuilder.createServerUrl(serverUrl), securityClient)));
 
-        final var urlMapper = project.getService(UrlMapperService.class).getMapper(jenkinsSettings, serverUrl);;
+        final var urlMapper = ApplicationManager.getApplication().getService(UrlMapperService.class)
+                .getMapper(jenkinsSettings, serverUrl);;
         setJenkinsParser(new JenkinsJsonParser(urlMapper));
     }
 

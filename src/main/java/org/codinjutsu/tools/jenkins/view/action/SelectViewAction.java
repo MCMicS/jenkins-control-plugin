@@ -17,6 +17,7 @@
 package org.codinjutsu.tools.jenkins.view.action;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.actionSystem.ex.CustomComponentAction;
@@ -98,8 +99,13 @@ public class SelectViewAction extends DumbAwareAction implements CustomComponent
 
     @Override
     public void actionPerformed(AnActionEvent e) {
+        // not needed
     }
 
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.BGT;
+    }
 
     private static List<View> flatViewList(List<View> views) {
         List<View> flattenViewList = new LinkedList<>();

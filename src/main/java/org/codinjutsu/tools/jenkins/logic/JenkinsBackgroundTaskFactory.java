@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import org.jetbrains.annotations.NotNull;
 
-@Service
+@Service(Service.Level.PROJECT)
 public final class JenkinsBackgroundTaskFactory {
     @NotNull
     private final Project project;
