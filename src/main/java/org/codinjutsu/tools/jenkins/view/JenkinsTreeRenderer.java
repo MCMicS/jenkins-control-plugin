@@ -17,6 +17,7 @@
 package org.codinjutsu.tools.jenkins.view;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.ide.nls.NlsMessages;
 import com.intellij.ui.ColoredTreeCellRenderer;
 import com.intellij.ui.RowIcon;
 import com.intellij.ui.SimpleTextAttributes;
@@ -25,7 +26,6 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Delegate;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DurationFormatUtils;
 import org.codinjutsu.tools.jenkins.model.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -127,7 +127,7 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
         final Optional<Long> duration = Optional.ofNullable(build.getDuration());
         return String.format("%s (%s) duration: %s %s", buildNumberDisplay,
                 DateFormatUtil.formatDateTime(build.getTimestamp()),
-                DurationFormatUtils.formatDurationHMS(duration.orElse(0L)), status);
+                NlsMessages.formatDuration(duration.orElse(0L)), status);
     }
 
     @NotNull
