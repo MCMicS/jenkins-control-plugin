@@ -103,4 +103,19 @@ public class UrlBuilderTest {
         assertThat(UrlBuilder.getBaseUrl("http://localhost:8080/view/view-name/job/project")).isEqualTo("http://localhost:8080");
     }
 
+    @Test
+    public void createBuildsUrl() {
+        var rangeToLoad = RangeToLoad.to(0);
+        assertThat(urlBuilder.createBuildsUrl("http://localhost:8080/job/SampleJob", rangeToLoad))
+                .hasToString("http://localhost:8080/job/SampleJob/api/json?tree=builds%5Burl,id,building,result,number,displayName," +
+                        "fullDisplayName,timestamp,duration,actions%5Bparameters%5Bname,value%5D%5D%5D");
+        rangeToLoad = RangeToLoad.range(2, 5);
+
+        assertThat(urlBuilder.createBuildsUrl("http://localhost:8080/job/SampleJob", rangeToLoad))
+                .describedAs("should be: https://jenkins.mcmics.dev/job/Active%20Choices%20Pipeline/api/json?" +
+                        "tree=builds[url,id,building,result,number,displayName,fullDisplayName,timestamp,duration,actions" +
+                        "[parameters[name,value]]]{2,5}")
+                .hasToString("http://localhost:8080/job/SampleJob/api/json?tree=builds%5Burl,id,building,result,number,displayName," +
+                        "fullDisplayName,timestamp,duration,actions%5Bparameters%5Bname,value%5D%5D%5D%7B2,5%7D");
+    }
 }

@@ -17,7 +17,7 @@
 package org.codinjutsu.tools.jenkins.security;
 
 import com.intellij.openapi.diagnostic.Logger;
-import org.apache.commons.lang.StringUtils;
+import com.intellij.openapi.util.text.StringUtil;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -53,7 +53,7 @@ class BasicSecurityClient extends DefaultSecurityClient {
 
     @Nullable
     private String doAuthentication(URL jenkinsUrl) throws AuthenticationException {
-        if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
+        if (StringUtil.isNotEmpty(username) && StringUtil.isNotEmpty(password)) {
             final var targetHost = new HttpHost(jenkinsUrl.getHost(), jenkinsUrl.getPort(), jenkinsUrl.getProtocol());
             final var credentials = new UsernamePasswordCredentials(username, password);
             addAuthenticationPreemptive(targetHost, credentials);

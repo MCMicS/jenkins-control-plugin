@@ -17,10 +17,12 @@
 package org.codinjutsu.tools.jenkins.security;
 
 import com.intellij.notification.NotificationType;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.net.IdeHttpClientHelpers;
 import com.intellij.util.net.ssl.CertificateManager;
-import org.apache.commons.lang.StringUtils;
+import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
@@ -85,6 +87,7 @@ class DefaultSecurityClient implements SecurityClient {
                 .setConnectionRequestTimeout(connectionTimout)
                 .setSocketTimeout(connectionTimout);
         this.credentialsProvider = new BasicCredentialsProvider();
+        final var dnsResolver = new JenkinsDnsResolver();
 
         final RequestConfig defaultRequestConfig = requestConfig
                 .setMaxRedirects(10)
@@ -93,14 +96,20 @@ class DefaultSecurityClient implements SecurityClient {
                 .setSSLContext(sslContext)
                 .setDefaultSocketConfig(socketConfig)
                 .setDefaultRequestConfig(defaultRequestConfig)
+                .setDnsResolver(dnsResolver)
                 .setDefaultCredentialsProvider(credentialsProvider)
                 .setRedirectStrategy(new JenkinsRedirectStrategy());
         this.httpClient = httpClientBuilder.build();
         if (useProxySettings) {
             this.configCreator = url -> {
                 final var configForUrl = RequestConfig.copy(defaultRequestConfig);
-                IdeHttpClientHelpers.ApacheHttpClient4.setProxyForUrlIfEnabled(configForUrl, url);
-                IdeHttpClientHelpers.ApacheHttpClient4.setProxyCredentialsForUrlIfEnabled(credentialsProvider, url);
+                final var useSocks = ApplicationManager.getApplication()
+                        .getService(JenkinsConnectionSocketFactory.class)
+                        .prepareContext(url, sslContext, getHttpClientContext(), dnsResolver);
+                if (!useSocks) {
+                    IdeHttpClientHelpers.ApacheHttpClient4.setProxyForUrlIfEnabled(configForUrl, url);
+                    IdeHttpClientHelpers.ApacheHttpClient4.setProxyCredentialsForUrlIfEnabled(credentialsProvider, url);
+                }
                 return configForUrl.build();
             };
         } else {
@@ -127,6 +136,7 @@ class DefaultSecurityClient implements SecurityClient {
         runMethod(urlStr, data, responseCollector);
 
         if (isRedirection(responseCollector.statusCode)) {
+            LOG.trace(String.format("Handle redirect to: %s", responseCollector.data));
             runMethod(responseCollector.data, data, responseCollector);
         }
 
@@ -178,10 +188,12 @@ class DefaultSecurityClient implements SecurityClient {
 
     protected final HttpHost getLastRedirectionHost(HttpHost host) {
         final var httpHead = new HttpHead(host.toURI());
+        LOG.trace(String.format("  %s", host.toURI()));
         try {
             final var context = getHttpClientContext();
             final var response = executeHttp(httpHead);
             final var statusCode = response.getStatusLine().getStatusCode();
+            LOG.trace(String.format("HEAD response for [%s] with status [%s]", host.toURI(), statusCode));
 
             var targetHost = host;
             if (HttpURLConnection.HTTP_OK == statusCode) {
@@ -211,11 +223,14 @@ class DefaultSecurityClient implements SecurityClient {
         final var post = createPost(url, data);
 
         try {
+            LOG.trace(String.format("Executing POST to: %s", post.getURI()));
             final var response = executeHttp(post);
             final var statusCode = response.getStatusLine().getStatusCode();
             final var responseBody = EntityUtils.toString(response.getEntity());
             final var errorHeader = response.getFirstHeader("X-Error");
             checkResponse(statusCode, responseBody);
+            LOG.trace(String.format("POST response for [%s] with status [%s]: %s", post.getURI(), statusCode,
+                    responseBody));
 
             if (HttpURLConnection.HTTP_OK == statusCode) {
                 responseCollector.collect(statusCode, responseBody);
@@ -227,7 +242,9 @@ class DefaultSecurityClient implements SecurityClient {
             }
             // if redirect handling not works or we still get a redirect header we handle it manually
             if (isRedirection(statusCode)) {
-                responseCollector.collect(statusCode, response.getLastHeader("Location").getValue());
+                final Header location = response.getLastHeader("Location");
+                LOG.trace(String.format("Handle redirect manually to: %s", location));
+                responseCollector.collect(statusCode, location.getValue());
             }
         } catch (UnknownHostException uhEx) {
             throw new ConfigurationException(String.format("Unknown server: %s", uhEx.getMessage()), uhEx);
@@ -240,14 +257,14 @@ class DefaultSecurityClient implements SecurityClient {
     }
 
     protected final HttpResponse executeHttp(HttpPost post) throws IOException {
-        final var postConfig = post.getConfig();
-        if (postConfig == null) {
-            post.setConfig(configCreator.apply(post.getURI().toASCIIString()));
-        }
         return executeHttp((HttpRequestBase) post);
     }
 
     protected final HttpResponse executeHttp(HttpRequestBase httpRequest) throws IOException {
+        final var httpRequestConfig = httpRequest.getConfig();
+        if (httpRequestConfig == null) {
+            httpRequest.setConfig(configCreator.apply(httpRequest.getURI().toASCIIString()));
+        }
         return getHttpClient().execute(httpRequest, this.httpClientContext);
     }
 
@@ -261,7 +278,7 @@ class DefaultSecurityClient implements SecurityClient {
         }
 
         if (statusCode == HttpURLConnection.HTTP_FORBIDDEN || statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
-            if (StringUtils.containsIgnoreCase(responseBody, BAD_CRUMB_DATA)) {
+            if (StringUtil.containsIgnoreCase(responseBody, BAD_CRUMB_DATA)) {
                 throw new AuthenticationException("CSRF enabled -> Missing or bad crumb data", responseBody);
             }
 
@@ -279,7 +296,7 @@ class DefaultSecurityClient implements SecurityClient {
 
 
     protected boolean isCrumbDataSet() {
-        return StringUtils.isNotBlank(crumbData);
+        return org.codinjutsu.tools.jenkins.util.StringUtil.isNotBlank(crumbData);
     }
 
     public void setJenkinsVersion(JenkinsVersion jenkinsVersion) {

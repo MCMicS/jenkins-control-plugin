@@ -17,6 +17,7 @@
 package org.codinjutsu.tools.jenkins.view.action;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.actionSystem.ex.CustomComponentAction;
@@ -28,7 +29,6 @@ import com.intellij.ui.components.JBList;
 import org.codinjutsu.tools.jenkins.model.FavoriteView;
 import org.codinjutsu.tools.jenkins.model.View;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
-import org.codinjutsu.tools.jenkins.view.JenkinsNestedViewComboRenderer;
 import org.codinjutsu.tools.jenkins.view.JenkinsViewComboRenderer;
 import org.jetbrains.annotations.NotNull;
 
@@ -76,12 +76,7 @@ public class SelectViewAction extends DumbAwareAction implements CustomComponent
         }
 
         final JBList<View> viewList = new JBList<>(unflattenViews);
-
-        if (hasNestedViews(unflattenViews)) {
-            viewList.setCellRenderer(new JenkinsNestedViewComboRenderer());
-        } else {
-            viewList.setCellRenderer(new JenkinsViewComboRenderer());
-        }
+        viewList.setCellRenderer(new JenkinsViewComboRenderer());
         return viewList;
     }
 
@@ -104,8 +99,13 @@ public class SelectViewAction extends DumbAwareAction implements CustomComponent
 
     @Override
     public void actionPerformed(AnActionEvent e) {
+        // not needed
     }
 
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.BGT;
+    }
 
     private static List<View> flatViewList(List<View> views) {
         List<View> flattenViewList = new LinkedList<>();
@@ -119,14 +119,6 @@ public class SelectViewAction extends DumbAwareAction implements CustomComponent
         }
 
         return flattenViewList;
-    }
-
-
-    private static boolean hasNestedViews(List<View> views) {
-        for (View view : views) {
-            if (view.hasNestedView()) return true;
-        }
-        return false;
     }
 
     private class MyMouseAdapter extends MouseAdapter {

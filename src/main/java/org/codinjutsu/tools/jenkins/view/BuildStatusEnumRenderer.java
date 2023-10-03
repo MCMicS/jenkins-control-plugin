@@ -13,7 +13,7 @@ import javax.swing.*;
 import java.util.EnumMap;
 import java.util.Map;
 
-@Service
+@Service(Service.Level.PROJECT)
 public final class BuildStatusEnumRenderer implements BuildStatusRenderer {
 
     private final Map<BuildStatusEnum, Icon> iconByBuildStatus = new EnumMap<>(BuildStatusEnum.class);

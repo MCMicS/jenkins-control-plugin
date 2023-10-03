@@ -2,7 +2,7 @@ package org.codinjutsu.tools.jenkins.settings;
 
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
-import org.apache.commons.lang.StringUtils;
+import com.intellij.openapi.util.text.StringUtil;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.JenkinsWindowManager;
@@ -44,9 +44,10 @@ public class ServerConfigurable implements SearchableConfigurable {
 
         formValidator = FormValidator.<JTextField>init(serverComponentToSet)
                 .addValidator(serverComponentToSet.getUsernameComponent(), component -> {
-                    if (StringUtils.isNotBlank(component.getText())) {
+                    if (org.codinjutsu.tools.jenkins.util.StringUtil.isNotBlank(component.getText())) {
                         String apiToken = serverComponentToSet.getApiToken();
-                        if (serverComponentToSet.isApiTokenModified() && StringUtils.isBlank(apiToken)) {
+                        if (serverComponentToSet.isApiTokenModified() &&
+                                org.codinjutsu.tools.jenkins.util.StringUtil.isBlank(apiToken)) {
                             throw new org.codinjutsu.tools.jenkins.exception.ConfigurationException(
                                     String.format("'%s' must be set", "API Token"));
                         }
@@ -66,12 +67,12 @@ public class ServerConfigurable implements SearchableConfigurable {
                 JenkinsSettings.getSafeInstance(project).getPassword();
         final String serverUrl = Optional.ofNullable(serverSetting.getUrl()).orElse("");
         final String configuredJenkinsUrl = Optional.ofNullable(serverSetting.getJenkinsUrl())
-                .filter(StringUtils::isNotEmpty)
+                .filter(StringUtil::isNotEmpty)
                 .orElse(serverUrl);
         final var jenkinsUrlFromServer = RequestManager.getInstance(project).testAuthenticate(serverUrl,
                 serverSetting.getUsername(), apiToken, "", JenkinsVersion.VERSION_2,
                 serverSetting.getTimeout());
-        if (StringUtils.isEmpty(jenkinsUrlFromServer)) {
+        if (StringUtil.isEmpty(jenkinsUrlFromServer)) {
             throw new ConfigurationException("Cannot find 'Jenkins URL'. Please check your Jenkins Location");
         }
         return ConfigurationValidator.getInstance(project).validate(configuredJenkinsUrl, jenkinsUrlFromServer);
@@ -121,7 +122,7 @@ public class ServerConfigurable implements SearchableConfigurable {
     private void apply(ServerSetting serverSetting) throws ConfigurationException {
         final var jenkinsServerSetting = JenkinsAppSettings.getSafeInstance(project);
         final var jenkinsSettings = JenkinsSettings.getSafeInstance(project);
-        if (!StringUtils.equals(jenkinsServerSetting.getServerUrl(), serverSetting.getUrl())) {
+        if (!StringUtil.equals(jenkinsServerSetting.getServerUrl(), serverSetting.getUrl())) {
             jenkinsSettings.clearFavoriteJobs();
             jenkinsSettings.setLastSelectedView(null);
         }
@@ -149,7 +150,7 @@ public class ServerConfigurable implements SearchableConfigurable {
         serverComponentToReset.setJenkinsUrl(jenkinsSettings.getJenkinsUrl());
         final var username = jenkinsSettings.getUsername();
         serverComponentToReset.setUsername(username);
-        if (StringUtils.isNotBlank(username)) {
+        if (org.codinjutsu.tools.jenkins.util.StringUtil.isNotBlank(username)) {
             serverComponentToReset.setApiToken(jenkinsSettings.getPassword());
             serverComponentToReset.resetApiTokenModified();
         }

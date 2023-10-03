@@ -16,10 +16,10 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.text.DateFormatUtil;
 import lombok.Builder;
 import lombok.Value;
-import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.util.DateUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -114,7 +114,7 @@ public class Build {
     @NotNull
     public String getNameToRender() {
         return Optional.ofNullable(getFullDisplayName())
-                .filter(StringUtils::isNotEmpty)
+                .filter(StringUtil::isNotEmpty)
                 .orElseGet(() -> String.format("%s (%s)", getDisplayNumber(),
                         DateFormatUtil.formatDateTime(getTimestamp())));
     }

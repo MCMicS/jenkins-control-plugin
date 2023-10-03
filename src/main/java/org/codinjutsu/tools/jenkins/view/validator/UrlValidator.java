@@ -16,7 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.view.validator;
 
-import org.apache.commons.lang.StringUtils;
+import com.intellij.openapi.util.text.StringUtil;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 
 import javax.swing.*;
@@ -26,13 +26,13 @@ import java.net.URL;
 public class UrlValidator implements UIValidator<JTextField> {
     public void validate(JTextField component) throws ConfigurationException {
         String value = component.getText();
-        if (StringUtils.isEmpty(value)) {
+        if (StringUtil.isEmpty(value)) {
             return;
         }
         try {
             URL url = new URL(value);
             String userInfo = url.getUserInfo();
-            if (StringUtils.isEmpty(userInfo)) {
+            if (StringUtil.isEmpty(userInfo)) {
                 return;
             }
 

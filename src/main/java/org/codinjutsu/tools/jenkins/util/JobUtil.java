@@ -1,7 +1,7 @@
 package org.codinjutsu.tools.jenkins.util;
 
+import com.intellij.openapi.util.text.StringUtil;
 import lombok.experimental.UtilityClass;
-import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.jetbrains.annotations.NotNull;
@@ -24,10 +24,10 @@ public class JobUtil {
     }
 
     private boolean isFavoriteJobName(@NotNull String jobName, @NotNull JenkinsSettings.FavoriteJob favoriteJob) {
-        return StringUtils.equals(jobName, favoriteJob.getName());
+        return StringUtil.equals(jobName, favoriteJob.getName());
     }
 
     private boolean isFavoriteJobUrl(@NotNull String url, @NotNull JenkinsSettings.FavoriteJob favoriteJob) {
-        return StringUtils.equals(url, favoriteJob.getUrl());
+        return StringUtil.equals(url, favoriteJob.getUrl());
     }
 }

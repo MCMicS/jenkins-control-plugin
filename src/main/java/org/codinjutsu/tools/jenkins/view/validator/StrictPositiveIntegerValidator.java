@@ -16,7 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.view.validator;
 
-import org.apache.commons.lang.StringUtils;
+import com.intellij.openapi.util.text.StringUtil;
 import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 
 import javax.swing.*;
@@ -24,7 +24,7 @@ import javax.swing.*;
 public class StrictPositiveIntegerValidator implements UIValidator<JTextField> {
     public void validate(JTextField component) throws ConfigurationException {
         String value = component.getText();
-        if (component.isEnabled() && StringUtils.isNotEmpty(value)) {    //TODO A revoir
+        if (component.isEnabled() && StringUtil.isNotEmpty(value)) {    //TODO A revoir
             try {
                 int intValue = Integer.parseInt(value);
                 if (intValue <= 0) {

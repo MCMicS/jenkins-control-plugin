@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
-@Service
+@Service(Service.Level.PROJECT)
 public final class JenkinsNotifier {
 
     private static final Logger LOG = Logger.getInstance(JenkinsNotifier.class);

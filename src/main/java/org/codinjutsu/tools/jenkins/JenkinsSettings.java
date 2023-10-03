@@ -23,11 +23,11 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.components.StoragePathMacros;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.Attribute;
 import com.intellij.util.xmlb.annotations.Tag;
 import lombok.*;
-import org.apache.commons.lang.StringUtils;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.security.JenkinsVersion;
 import org.codinjutsu.tools.jenkins.util.JobUtil;
@@ -89,12 +89,13 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
 
     public String getPassword() {
         String password = PasswordSafe.getInstance().getPassword(getPasswordCredentialAttributes());
-        return StringUtils.defaultIfEmpty(password, "");
+        return StringUtil.defaultIfEmpty(password, "");
     }
 
     @Deprecated
     public void setPassword(String password) {
-        PasswordSafe.getInstance().setPassword(getPasswordCredentialAttributes(), StringUtils.isNotBlank(password) ? password : "");
+        PasswordSafe.getInstance().setPassword(getPasswordCredentialAttributes(),
+                org.codinjutsu.tools.jenkins.util.StringUtil.isNotBlank(password) ? password : "");
     }
 
     @NotNull
@@ -135,7 +136,7 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
     }
 
     public boolean isSecurityMode() {
-        return StringUtils.isNotBlank(getUsername());
+        return org.codinjutsu.tools.jenkins.util.StringUtil.isNotBlank(getUsername());
     }
 
     public JenkinsVersion getVersion() {

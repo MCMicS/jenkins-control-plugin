@@ -1,7 +1,7 @@
 package org.codinjutsu.tools.jenkins.model;
 
+import com.intellij.openapi.util.text.StringUtil;
 import lombok.Value;
-import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,7 +19,7 @@ public class JobParameterType {
     @NotNull
     public static JobParameterType getType(@NotNull String parameterType, @Nullable String parameterClass) {
         Optional<JobParameterType> jobParameter = Optional.empty();
-        if (StringUtils.isEmpty(parameterClass)) {
+        if (StringUtil.isEmpty(parameterClass)) {
             jobParameter = BuildInJobParameter.getBuiltInJobParameter()
                     .filter(parameter -> parameter.getType().equals(parameterType)).findFirst();
         }

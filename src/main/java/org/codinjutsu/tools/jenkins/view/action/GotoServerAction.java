@@ -1,7 +1,7 @@
 package org.codinjutsu.tools.jenkins.view.action;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import org.apache.commons.lang.StringUtils;
+import com.intellij.openapi.util.text.StringUtil;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
@@ -25,7 +25,7 @@ public class GotoServerAction extends AbstractGotoWebPageAction {
     public void update(AnActionEvent event) {
         final var selectedServer = browserPanel.getSelectedServer();
         final var isServerSelected = selectedServer.isPresent();
-        event.getPresentation().setVisible(isServerSelected && !StringUtils.equals(browserPanel.getJenkins().getServerUrl(),
+        event.getPresentation().setVisible(isServerSelected && !StringUtil.equals(browserPanel.getJenkins().getServerUrl(),
                 JenkinsAppSettings.DUMMY_JENKINS_SERVER_URL));
     }
 }
