@@ -1,5 +1,6 @@
 package org.codinjutsu.tools.jenkins.security;
 
+import com.intellij.openapi.components.Service;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.util.net.HttpConfigurable;
 import com.intellij.util.net.IdeaWideProxySelector;
@@ -26,14 +27,13 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 
-public class JenkinsConnectionSocketFactory {
-    @NotNull
-    public static final JenkinsConnectionSocketFactory INSTANCE = new JenkinsConnectionSocketFactory();
+@Service
+public final class JenkinsConnectionSocketFactory {
 
-    public @Nullable Registry<ConnectionSocketFactory> getRegistry(@NotNull String url, @NotNull SSLContext sslContext) {
+    public @NotNull Registry<ConnectionSocketFactory> getRegistry(@NotNull String url, @NotNull SSLContext sslContext) {
         final Proxy proxy = getProxy(url);
         if(proxy.type() == Proxy.Type.SOCKS) {
-            return createSocksRegistry(toUri(url), proxy, sslContext);
+            return createSocksRegistry(proxy, sslContext);
         }
         return createDefaultRegistry(sslContext);
     }
@@ -71,12 +71,11 @@ public class JenkinsConnectionSocketFactory {
         return false;
     }
 
-    private Registry<ConnectionSocketFactory> createSocksRegistry(@Nullable URI uri,
-                                                                            @NotNull Proxy proxy,
-                                                                            @NotNull SSLContext sslContext) {
+    private Registry<ConnectionSocketFactory> createSocksRegistry(@NotNull Proxy proxy,
+                                                                  @NotNull SSLContext sslContext) {
         return RegistryBuilder.<ConnectionSocketFactory>create()
                 .register("http", new SocksPlainConnectionSocketFactory(proxy))
-                .register("https", new SocksSSLConnectionSocketFactory(uri != null ? uri.getHost() : null, sslContext, proxy))
+                .register("https", new SocksSSLConnectionSocketFactory(sslContext, proxy))
                 .build();
     }
 
@@ -110,16 +109,13 @@ public class JenkinsConnectionSocketFactory {
             this.proxy = proxy;
         }
 
-        @NotNull
-        public Proxy getProxy() {
-            return this.proxy;
-        }
-
+        @Override
         @NotNull
         public Socket createSocket(@Nullable HttpContext context) {
             return new Socket(this.proxy);
         }
 
+        @Override
         @NotNull
         public Socket connectSocket(int connectTimeout,
                                     @Nullable Socket socket,
@@ -133,27 +129,21 @@ public class JenkinsConnectionSocketFactory {
     }
 
     private static final class SocksSSLConnectionSocketFactory extends SSLConnectionSocketFactory {
-        @Nullable
-        private final String host;
         @NotNull
         private final Proxy proxy;
 
-        public SocksSSLConnectionSocketFactory(@Nullable String host, @NotNull SSLContext sslContext, @NotNull Proxy proxy) {
+        public SocksSSLConnectionSocketFactory(@NotNull SSLContext sslContext, @NotNull Proxy proxy) {
             super(sslContext);
-            this.host = host;
             this.proxy = proxy;
         }
 
-        @NotNull
-        public Proxy getProxy() {
-            return this.proxy;
-        }
-
+        @Override
         @NotNull
         public Socket createSocket(@NotNull HttpContext context) {
             return new Socket(this.proxy);
         }
 
+        @Override
         @NotNull
         public Socket connectSocket(int connectTimeout,
                                     @Nullable Socket socket,
