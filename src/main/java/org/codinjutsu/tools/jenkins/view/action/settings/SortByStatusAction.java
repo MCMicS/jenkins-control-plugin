@@ -17,12 +17,10 @@
 package org.codinjutsu.tools.jenkins.view.action.settings;
 
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.DumbAware;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
-import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
@@ -48,11 +46,6 @@ public class SortByStatusAction extends ToggleAction implements DumbAware {
     public void setSelected(AnActionEvent anActionEvent, boolean sorted) {
         sortedByStatus = sorted;
         browserPanel.setSortedByStatus(sorted);
-    }
-
-    @Override
-    public @NotNull ActionUpdateThread getActionUpdateThread() {
-        return ActionUpdateThread.BGT;
     }
 
 }

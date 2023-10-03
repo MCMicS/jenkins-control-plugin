@@ -19,6 +19,7 @@ package org.codinjutsu.tools.jenkins.view;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.CustomStatusBarWidget;
+import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.components.panels.NonOpaquePanel;
@@ -92,7 +93,7 @@ public class JenkinsStatusBarWidget extends NonOpaquePanel implements CustomStat
             return;
         }
 
-        toolWindow.activate  (null);
+        toolWindow.activate(null);
     }
 
     @Override
@@ -102,7 +103,13 @@ public class JenkinsStatusBarWidget extends NonOpaquePanel implements CustomStat
     }
 
     @Override
+    public void install(@NotNull StatusBar statusBar) {}
+
+    @Override
     public JComponent getComponent() {
         return this;
     }
+
+    @Override
+    public void dispose() {}
 }

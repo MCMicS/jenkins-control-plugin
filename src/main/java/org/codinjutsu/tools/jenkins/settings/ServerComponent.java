@@ -10,7 +10,6 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPasswordField;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.FormBuilder;
-import com.intellij.util.ui.HTMLEditorKitBuilder;
 import com.intellij.util.ui.JBDimension;
 import com.intellij.util.ui.JBUI;
 import org.codinjutsu.tools.jenkins.JenkinsControlBundle;
