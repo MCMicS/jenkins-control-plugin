@@ -1,6 +1,10 @@
 # Changelog
 
-## [[0.13.19]]
+## [Unreleased]
+
+- \#523 When a Jenkins Control tool is focused, color should be inverted
+
+## [0.13.19]
 
 - Fix displaying nested views
 - \#502 Wrong view loaded if Primary View is selected
@@ -361,6 +365,7 @@
 - Autorefreshed Rss Reader View
 - Autorefresh functions can be disabled on the Jenkins Configuration Panel
 
+[Unreleased]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.20-eap...HEAD
 [0.13.19]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.18...v0.13.19
 [0.13.18]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.17...v0.13.18
 [0.13.17]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.16...v0.13.17
