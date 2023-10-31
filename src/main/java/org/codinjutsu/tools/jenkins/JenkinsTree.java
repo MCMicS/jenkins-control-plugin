@@ -1,6 +1,8 @@
 package org.codinjutsu.tools.jenkins;
 
+import com.intellij.ide.DataManager;
 import com.intellij.ide.util.treeView.TreeState;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -16,10 +18,7 @@ import org.codinjutsu.tools.jenkins.model.BuildParameter;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
-import org.codinjutsu.tools.jenkins.view.BuildStatusEnumRenderer;
-import org.codinjutsu.tools.jenkins.view.JenkinsTreeNode;
-import org.codinjutsu.tools.jenkins.view.JenkinsTreeRenderer;
-import org.codinjutsu.tools.jenkins.view.JobClickHandler;
+import org.codinjutsu.tools.jenkins.view.*;
 import org.codinjutsu.tools.jenkins.view.action.JobAction;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -31,6 +30,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.util.*;
+import java.util.stream.Stream;
 
 public class JenkinsTree implements PersistentStateComponent<JenkinsTreeState> {
     private static final String LOADING = "Loading...";
@@ -56,18 +56,20 @@ public class JenkinsTree implements PersistentStateComponent<JenkinsTreeState> {
         GuiUtil.runInSwingThread(() -> {
             this.tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode(new JenkinsTreeNode.RootNode(jenkins)), false));
         });
+        DataManager.registerDataProvider(this.tree, dataId ->
+                PlatformDataKeys.COPY_PROVIDER.is(dataId) ? new JenkinsTreeCopyProvider(this) : null);
     }
 
     @NotNull
     public static Optional<Job> getJob(TreePath treePath) {
         final Class<JenkinsTreeNode.JobNode> jobNodeClass = JenkinsTreeNode.JobNode.class;
-        return getLastSelectedPath(treePath, jobNodeClass).map(JenkinsTreeNode.JobNode::getJob);
+        return getLastSelectedPath(treePath, jobNodeClass).map(JenkinsTreeNode.JobNode::job);
     }
 
     @NotNull
     public static Optional<Job> getJob(@NotNull DefaultMutableTreeNode node) {
         final Class<JenkinsTreeNode.JobNode> jobNodeClass = JenkinsTreeNode.JobNode.class;
-        return getNode(node, jobNodeClass).map(JenkinsTreeNode.JobNode::getJob);
+        return getNode(node, jobNodeClass).map(JenkinsTreeNode.JobNode::job);
     }
 
     @NotNull
@@ -159,6 +161,14 @@ public class JenkinsTree implements PersistentStateComponent<JenkinsTreeState> {
         return Optional.ofNullable(tree.getLastSelectedPathComponent())
                 .filter(DefaultMutableTreeNode.class::isInstance)
                 .map(DefaultMutableTreeNode.class::cast).orElse(null);
+    }
+
+    public @NotNull Stream<DefaultMutableTreeNode> getSelectedPathComponents() {
+        return Optional.ofNullable(tree.getSelectionPaths())
+                .stream().flatMap(Arrays::stream)
+                .map(TreePath::getLastPathComponent)
+                .filter(DefaultMutableTreeNode.class::isInstance)
+                .map(DefaultMutableTreeNode.class::cast);
     }
 
     @NotNull
