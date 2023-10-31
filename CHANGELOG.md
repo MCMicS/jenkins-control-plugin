@@ -3,6 +3,8 @@
 ## [Unreleased]
 
 - \#523 When a Jenkins Control tool is focused, color should be inverted
+- \#521 Add Copy Action
+- \#522 Support "Copy" shortcut (CTRL+C)
 
 ## [0.13.19]
 

@@ -16,6 +16,7 @@
 
 package org.codinjutsu.tools.jenkins.model;
 
+import com.intellij.ide.nls.NlsMessages;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.text.DateFormatUtil;
 import lombok.Builder;
@@ -117,6 +118,18 @@ public class Build {
                 .filter(StringUtil::isNotEmpty)
                 .orElseGet(() -> String.format("%s (%s)", getDisplayNumber(),
                         DateFormatUtil.formatDateTime(getTimestamp())));
+    }
+
+    @NotNull
+    public String getNameToRenderWithDuration() {
+        var runningStatus = isBuilding() ? " (running)" : "";
+
+        final Optional<Long> buildDuration = Optional.ofNullable(getDuration());
+        if(buildDuration.isPresent()) {
+            return String.format("%s duration: %s%s", getNameToRender(),
+                    NlsMessages.formatDuration(buildDuration.get()), runningStatus);
+        }
+        return getNameToRender();
     }
 
     public boolean isAfter(Build aBuild) {
