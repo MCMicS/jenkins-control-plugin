@@ -5,6 +5,7 @@
 - \#523 When a Jenkins Control tool is focused, color should be inverted
 - \#521 Add Copy Action
 - \#522 Support "Copy" shortcut (CTRL+C)
+- Deprecate Builds &lt; 2022.3: Prepare for \#531
 
 ## [0.13.19]
 
