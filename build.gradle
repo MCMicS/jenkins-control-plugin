@@ -163,7 +163,7 @@ dependencies {
     }
 
     testImplementation(
-            platform('org.junit:junit-bom:5.10.0'),
+            platform('org.junit:junit-bom:5.10.1'),
             'org.junit.jupiter:junit-jupiter-api',
             'org.junit.jupiter:junit-jupiter-params',
             'junit:junit:4.13.2',
