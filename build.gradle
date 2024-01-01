@@ -170,7 +170,7 @@ dependencies {
             'org.mockito:mockito-inline:5.2.0',
             'org.powermock:powermock-api-mockito2:2.0.9',
             'org.powermock:powermock-core:2.0.9',
-            'org.assertj:assertj-core:3.24.2',
+            'org.assertj:assertj-core:3.25.0',
             'org.assertj:assertj-swing-junit:3.17.1'
     )
     testRuntimeOnly(
