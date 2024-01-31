@@ -7,6 +7,7 @@
 - \#522 Support "Copy" shortcut (CTRL+C)
 - Deprecate Builds &lt; 2022.3: Prepare for \#531
 - \#558 Add scrolling for jobs with a lot of parameters
+- \#278 Usage of DisplayURLProvider (like Blue Ocean, Pipeline Graph View Plugin)
 
 ## [0.13.19]
 

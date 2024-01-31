@@ -48,8 +48,12 @@ This plugin allows to view the content of your Jenkins Continuous Integration Se
 
 - Different Jenkins hostname as server url. Can be used if your server is behind a proxy or usage of VPN.
 ![Configuration-Hostname_Server.png](doc%2Fimages%2FConfiguration-Hostname_Server.png)
-0
+
 ![Configuration-Hostname.png](doc%2Fimages%2FConfiguration-Hostname.png)
+
+- Open Jobs and Build with configured url. Setting in http://jenkins-server.dev/manage/configure#default-notification-url
+
+![Configuration-NotificationUrl.png](doc%2Fimages%2FConfiguration-NotificationUrl.png)
 
 ## Plugin Compatibility
 This plugin was built with JDK 11 but Java 8 Source level for older IDEA versions. Jenkins CIs of jenkins-ci and apache.org are used for manual and stress testing.
