@@ -161,7 +161,15 @@ dependencies {
         exclude group: 'com.fasterxml.jackson.core'
         exclude group: 'jaxen'
     }
-
+    implementation(group: 'xml-apis', name: 'xml-apis', version: '') {
+        version {
+            strictly "[1.4.01]"
+        }
+    }
+    testImplementation('org.assertj:assertj-swing-junit:3.17.1') {
+        exclude group: 'org.assertj', module: 'assertj-core'
+        exclude group: 'junit'
+    }
     testImplementation(
             platform('org.junit:junit-bom:5.10.2'),
             'org.junit.jupiter:junit-jupiter-api',
@@ -170,8 +178,7 @@ dependencies {
             'org.mockito:mockito-inline:5.2.0',
             'org.powermock:powermock-api-mockito2:2.0.9',
             'org.powermock:powermock-core:2.0.9',
-            'org.assertj:assertj-core:3.25.3',
-            'org.assertj:assertj-swing-junit:3.17.1'
+            'org.assertj:assertj-core:3.25.3'
     )
     testRuntimeOnly(
             'org.junit.jupiter:junit-jupiter-engine',
