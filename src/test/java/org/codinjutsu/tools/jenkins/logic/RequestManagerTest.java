@@ -33,6 +33,7 @@ import org.codinjutsu.tools.jenkins.model.Jenkins;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.security.SecurityClient;
 import org.codinjutsu.tools.jenkins.util.IOUtils;
+import org.codinjutsu.tools.jenkins.util.MockUtil;
 import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Assert;
@@ -41,7 +42,6 @@ import org.junit.Test;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.powermock.reflect.Whitebox;
 
 import java.io.IOException;
 import java.net.URL;
@@ -238,11 +238,11 @@ public class RequestManagerTest {
         mocks = MockitoAnnotations.openMocks(this);
         configuration = new JenkinsAppSettings();
         jenkinsSettings = new JenkinsSettings();
-        when(project.getService(UrlBuilder.class)).thenReturn(urlBuilderMock);
+
+        project = MockUtil.mockProject(configuration, jenkinsSettings, urlBuilderMock);
         requestManager = new RequestManager(project);
         requestManager.setSecurityClient(securityClientMock);
         requestManager.setJenkinsServer(jenkinsServer);
-        Whitebox.setInternalState(requestManager, urlBuilderMock);
 
         when(urlBuilderMock.toUrl(anyString())).thenCallRealMethod();
         when(urlBuilderMock.createConfigureUrl(anyString())).thenCallRealMethod();
