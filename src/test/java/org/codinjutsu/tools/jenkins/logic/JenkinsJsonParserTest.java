@@ -18,6 +18,7 @@ package org.codinjutsu.tools.jenkins.logic;
 
 import org.assertj.core.util.Lists;
 import org.codinjutsu.tools.jenkins.model.*;
+import org.codinjutsu.tools.jenkins.model.action.BuildParameter;
 import org.codinjutsu.tools.jenkins.util.IOUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -284,7 +285,7 @@ public class JenkinsJsonParserTest {
     }
 
     @Test
-    public void oadJobWithLastFailedBuildIsNull() throws Exception {
+    public void loadJobWithLastFailedBuildIsNull() throws Exception {
         Job actualJob = jsonParser.createJob(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadJobWithLastFailedBuildIsNull.json")));
         final Job expectedJob = new JobBuilder()
                 .job("config-provider-model", "blue", "http://ci.jenkins-ci.org/job/config-provider-model/", false, true)
@@ -405,6 +406,18 @@ public class JenkinsJsonParserTest {
         assertThat(firstParameter.getDefaultValue()).isEqualTo("Test");
         assertThat(secondParameter.getName()).isEqualTo("SimpleChoice");
         assertThat(secondParameter.getDefaultValue()).isEqualTo("Hello");
+    }
+
+    @Test
+    public void loadJobWithFullDisplayName() throws Exception {
+        Job actualJob = jsonParser.createJob(IOUtils.toString(getClass().getResourceAsStream("JsonRequestManager_loadJobWithDisplayUrl.json")));
+        final Job expectedJob = new JobBuilder()
+                .job("job-with-display-url", "blue", "http://jenkins.dev/job/job-with-display-url/", false, true)
+                .fullDisplayName("job-with-display-url-full")
+                .lastBuild("http://jenkins.dev/job/job-with-display-url/21/", 21, "SUCCESS", false, "2024-02-25_16-26-29", 1708878389000l, 4386421l)
+                .availableBuildTypes(EnumSet.of(BuildType.LAST))
+                .get();
+        assertThat(actualJob).isEqualTo(expectedJob);
     }
 
     @After

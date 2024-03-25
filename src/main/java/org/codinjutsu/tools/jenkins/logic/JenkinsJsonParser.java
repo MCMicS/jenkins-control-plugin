@@ -25,6 +25,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import org.apache.commons.lang3.ObjectUtils;
 import org.codinjutsu.tools.jenkins.exception.JenkinsPluginRuntimeException;
 import org.codinjutsu.tools.jenkins.model.*;
+import org.codinjutsu.tools.jenkins.model.action.BuildParameter;
 import org.codinjutsu.tools.jenkins.util.DateUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

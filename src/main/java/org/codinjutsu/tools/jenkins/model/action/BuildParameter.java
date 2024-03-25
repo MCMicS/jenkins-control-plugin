@@ -1,4 +1,4 @@
-package org.codinjutsu.tools.jenkins.model;
+package org.codinjutsu.tools.jenkins.model.action;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 @Data
 @Accessors(chain = true)
 @AllArgsConstructor
-public class BuildParameter {
+public class BuildParameter implements Action {
     @NotNull
     private String name;
     @Nullable

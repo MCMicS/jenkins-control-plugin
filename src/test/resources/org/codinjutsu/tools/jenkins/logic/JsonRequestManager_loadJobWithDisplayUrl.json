@@ -1,0 +1,39 @@
+{
+    "name": "job-with-display-url",
+    "displayName": "job-with-display-url",
+    "fullDisplayName": "job-with-display-url-full",
+    "url": "http://jenkins.dev/job/job-with-display-url/",
+    "color": "blue",
+    "buildable": true,
+    "inQueue": false,
+    "actions": [
+        {
+            "_class" : "org.jenkinsci.plugins.displayurlapi.actions.JobDisplayAction",
+            "displayUrl" : "http://jenkins.dev/job/job-with-display-url/"
+        }
+    ],
+    "lastBuild": {
+        "id": "2024-02-25_16-26-29",
+        "building": false,
+        "number": 21,
+        "result": "SUCCESS",
+        "url": "http://jenkins.dev/job/job-with-display-url/21/",
+        "timestamp": 1708878389,
+        "duration": 4386421,
+        "actions": [
+            {
+                "_class" : "org.jenkinsci.plugins.displayurlapi.actions.RunDisplayAction",
+                "artifactsUrl" : "http://jenkins.dev/job/job-with-display-url/21/artifact",
+                "changesUrl" : "http://jenkins.dev/job/job-with-display-url/changes",
+                "displayUrl" : "http://jenkins.dev/job/job-with-display-url/21/pipeline-graph",
+                "testsUrl" : "http://jenkins.dev/job/job-with-display-url/21/testReport"
+            }
+        ]
+    },
+    "lastFailedBuild": null,
+    "lastSuccessfulBuild": {
+        "_class": "org.jenkinsci.plugins.workflow.job.WorkflowRun",
+        "url": "http://jenkins.dev/job/job-with-display-url//16/"
+    },
+    "property": []
+}

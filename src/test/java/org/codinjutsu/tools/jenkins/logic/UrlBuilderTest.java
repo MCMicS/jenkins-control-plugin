@@ -49,20 +49,19 @@ public class UrlBuilderTest {
     @Test
     public void createViewUrlForClassicPlateform() {
         URL url = urlBuilder.createViewUrl(JenkinsPlateform.CLASSIC, "http://localhost:8080/jenkins/My%20View");
-        assertThat(url).hasToString("http://localhost:8080/jenkins/My%20View/api/json?tree=name,url,jobs%5Bname,fullName,displayName,fullDisplayName,jobs,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Burl,id,building,result,number,displayName,fullDisplayName,timestamp,duration,actions%5Bparameters%5Bname,value%5D%5D%5D,lastFailedBuild%5Burl%5D,lastSuccessfulBuild%5Burl%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,description,choices%5D%5D%5D");
+        assertThat(url).hasToString("http://localhost:8080/jenkins/My%20View/api/json?tree=name,url,jobs%5Bname,fullName,displayName,fullDisplayName,jobs,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Burl,id,building,result,number,displayName,fullDisplayName,timestamp,duration,actions%5Bparameters%5Bname,value%5D,artifactsUrl,changesUrl,displayUrl,testsUrl%5D%5D,lastFailedBuild%5Burl%5D,lastSuccessfulBuild%5Burl%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,description,choices%5D%5D%5D");
     }
 
     @Test
     public void createJobJSONUrl() {
         URL url = urlBuilder.createJobUrl("http://localhost:8080/jenkins/my%20Job");
-        assertThat(url).hasToString("http://localhost:8080/jenkins/my%20Job/api/json?tree=name,fullName,displayName,fullDisplayName,jobs,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Burl,id,building,result,number,displayName,fullDisplayName,timestamp,duration,actions%5Bparameters%5Bname,value%5D%5D%5D,lastFailedBuild%5Burl%5D,lastSuccessfulBuild%5Burl%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,description,choices%5D%5D");
+        assertThat(url).hasToString("http://localhost:8080/jenkins/my%20Job/api/json?tree=name,fullName,displayName,fullDisplayName,jobs,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Burl,id,building,result,number,displayName,fullDisplayName,timestamp,duration,actions%5Bparameters%5Bname,value%5D,artifactsUrl,changesUrl,displayUrl,testsUrl%5D%5D,lastFailedBuild%5Burl%5D,lastSuccessfulBuild%5Burl%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,description,choices%5D%5D");
     }
 
     @Test
     public void createViewUrlForCloudbeesPlateform() {
         URL url = urlBuilder.createViewUrl(JenkinsPlateform.CLOUDBEES, "http://localhost:8080/jenkins/My%20View");
-        assertThat(url).hasToString("http://localhost:8080/jenkins/My%20View/api/json?tree=name,url,views%5Bjobs%5Bname,fullName,displayName,fullDisplayName,jobs,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Burl,id,building,result,number,displayName,fullDisplayName,timestamp,duration,actions%5Bparameters%5Bname,value%5D%5D%5D,lastFailedBuild%5Burl%5D,lastSuccessfulBuild%5Burl%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,description,choices%5D%5D%5D%5D");
-        assertThat(url.toString()).contains("/api/json?tree=name,url,views%5Bjobs%5Bname,fullName,displayName,fullDisplayName,jobs,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Burl,id,building,result,number,displayName,fullDisplayName,timestamp,duration,actions%5Bparameters%5Bname,value%5D%5D%5D,lastFailedBuild%5Burl%5D,lastSuccessfulBuild%5Burl%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,description,choices%5D%5D%5D%5D");
+        assertThat(url).hasToString("http://localhost:8080/jenkins/My%20View/api/json?tree=name,url,views%5Bjobs%5Bname,fullName,displayName,fullDisplayName,jobs,url,color,buildable,inQueue,healthReport%5Bdescription,iconUrl%5D,lastBuild%5Burl,id,building,result,number,displayName,fullDisplayName,timestamp,duration,actions%5Bparameters%5Bname,value%5D,artifactsUrl,changesUrl,displayUrl,testsUrl%5D%5D,lastFailedBuild%5Burl%5D,lastSuccessfulBuild%5Burl%5D,property%5BparameterDefinitions%5Bname,type,defaultParameterValue%5Bvalue%5D,description,choices%5D%5D%5D%5D");
     }
 
     @Test
@@ -108,7 +107,7 @@ public class UrlBuilderTest {
         var rangeToLoad = RangeToLoad.to(0);
         assertThat(urlBuilder.createBuildsUrl("http://localhost:8080/job/SampleJob", rangeToLoad))
                 .hasToString("http://localhost:8080/job/SampleJob/api/json?tree=builds%5Burl,id,building,result,number,displayName," +
-                        "fullDisplayName,timestamp,duration,actions%5Bparameters%5Bname,value%5D%5D%5D");
+                        "fullDisplayName,timestamp,duration,actions%5Bparameters%5Bname,value%5D,artifactsUrl,changesUrl,displayUrl,testsUrl%5D%5D");
         rangeToLoad = RangeToLoad.range(2, 5);
 
         assertThat(urlBuilder.createBuildsUrl("http://localhost:8080/job/SampleJob", rangeToLoad))
@@ -116,6 +115,6 @@ public class UrlBuilderTest {
                         "tree=builds[url,id,building,result,number,displayName,fullDisplayName,timestamp,duration,actions" +
                         "[parameters[name,value]]]{2,5}")
                 .hasToString("http://localhost:8080/job/SampleJob/api/json?tree=builds%5Burl,id,building,result,number,displayName," +
-                        "fullDisplayName,timestamp,duration,actions%5Bparameters%5Bname,value%5D%5D%5D%7B2,5%7D");
+                        "fullDisplayName,timestamp,duration,actions%5Bparameters%5Bname,value%5D,artifactsUrl,changesUrl,displayUrl,testsUrl%5D%5D%7B2,5%7D");
     }
 }
