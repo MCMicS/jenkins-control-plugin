@@ -18,11 +18,11 @@ package org.codinjutsu.tools.jenkins.logic;
 
 import com.intellij.openapi.project.Project;
 import com.offbytwo.jenkins.JenkinsServer;
-import com.offbytwo.jenkins.helper.BuildConsoleStreamListener;
 import com.offbytwo.jenkins.model.BuildWithDetails;
 import com.offbytwo.jenkins.model.ConsoleLog;
 import com.offbytwo.jenkins.model.JobWithDetails;
 import lombok.SneakyThrows;
+import lombok.Value;
 import org.assertj.core.api.Assertions;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
@@ -41,17 +41,18 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Answers;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class RequestManagerTest {
 
@@ -84,6 +85,14 @@ public class RequestManagerTest {
     private com.offbytwo.jenkins.model.Build lastSuccessfulBuild;
     @Mock
     private com.offbytwo.jenkins.model.Build lastFailedBuild;
+    @Mock
+    private org.codinjutsu.tools.jenkins.model.Build runningBuildModel;
+    @Mock
+    private org.codinjutsu.tools.jenkins.model.Build lastCompletedBuildModel;
+    @Mock
+    private org.codinjutsu.tools.jenkins.model.Build lastSuccessfulBuildModel;
+    @Mock
+    private org.codinjutsu.tools.jenkins.model.Build lastFailedBuildModel;
 
     private AutoCloseable mocks;
 
@@ -158,37 +167,47 @@ public class RequestManagerTest {
 
     @Test
     public void loadConsoleTextForRunningBuild() {
-        final Job job = createJobWithBuilds(runningBuild);
-        final String buildOutput = loadConsoleTextFor(job, BuildType.LAST);
-        assertThat(buildOutput).isEqualTo(RUNNING_CONSOLE_OUTPUT);
+        final var job = createJobWithBuilds(runningBuild);
+        final var buildOutput = loadConsoleTextFor(job, BuildType.LAST);
+        assertThat(buildOutput.getLog()).isEqualTo(RUNNING_CONSOLE_OUTPUT);
+        assertThat(buildOutput.getBuild()).isEqualTo(runningBuildModel);
     }
 
     @Test
     public void loadConsoleTextForLastBuild() {
-        final Job job = createJobWithBuilds();
-        final String buildOutput = loadConsoleTextFor(job, BuildType.LAST);
-        assertThat(buildOutput).isEqualTo(COMPLETED_CONSOLE_OUTPUT);
+        final var job = createJobWithBuilds();
+        final var buildOutput = loadConsoleTextFor(job, BuildType.LAST);
+        assertThat(buildOutput.getLog()).isEqualTo(COMPLETED_CONSOLE_OUTPUT);
+        assertThat(buildOutput.getBuild()).isEqualTo(lastCompletedBuildModel);
     }
 
     @Test
     public void loadConsoleTextForLastSuccessfulBuild() {
-        final Job job = createJobWithBuilds();
-        final String buildOutput = loadConsoleTextFor(job, BuildType.LAST_SUCCESSFUL);
-        assertThat(buildOutput).isEqualTo(SUCCESSFUL_CONSOLE_OUTPUT);
+        final var job = createJobWithBuilds();
+        final var buildOutput = loadConsoleTextFor(job, BuildType.LAST_SUCCESSFUL);
+        assertThat(buildOutput.getLog()).isEqualTo(SUCCESSFUL_CONSOLE_OUTPUT);
+        assertThat(buildOutput.getBuild()).isEqualTo(lastSuccessfulBuildModel);
     }
 
     @Test
     public void loadConsoleTextForLastFailedBuild() {
-        final Job job = createJobWithBuilds();
+        final var job = createJobWithBuilds();
         final var buildOutput = loadConsoleTextFor(job, BuildType.LAST_FAILED);
-        assertThat(buildOutput).isEqualTo(FAILED_CONSOLE_OUTPUT);
+        assertThat(buildOutput.getLog()).isEqualTo(FAILED_CONSOLE_OUTPUT);
+        assertThat(buildOutput.getBuild()).isEqualTo(lastFailedBuildModel);
     }
 
     @SneakyThrows
-    private String loadConsoleTextFor(Job job, BuildType buildType) {
-        final var completableFuture = new CompletableFuture<String>();
+    private BuildLogResult loadConsoleTextFor(Job job, BuildType buildType) {
+        final var completableFuture = new CompletableFuture<BuildLogResult>();
         final var result = new StringBuilder();
-        requestManager.loadConsoleTextFor(job, buildType, new BuildConsoleStreamListener() {
+        final var buildForLog = new AtomicReference<org.codinjutsu.tools.jenkins.model.Build>();
+        requestManager.loadConsoleTextFor(job, buildType, new RequestManager.BuildLogConsoleStreamListener() {
+            @Override
+            public void forBuild(org.codinjutsu.tools.jenkins.model.Build build) {
+                buildForLog.set(build);
+            }
+
             @Override
             public void onData(String newLogChunk) {
                 // Ignore auto generated message
@@ -199,7 +218,7 @@ public class RequestManagerTest {
 
             @Override
             public void finished() {
-                completableFuture.complete(result.toString());
+                completableFuture.complete(new BuildLogResult(buildForLog.get(), result.toString()));
             }
         });
         return completableFuture.get();
@@ -240,17 +259,31 @@ public class RequestManagerTest {
         jenkinsSettings = new JenkinsSettings();
 
         project = MockUtil.mockProject(configuration, jenkinsSettings, urlBuilderMock);
-        requestManager = new RequestManager(project);
+        requestManager = Mockito.spy(new RequestManager(project));
         requestManager.setSecurityClient(securityClientMock);
         requestManager.setJenkinsServer(jenkinsServer);
 
         when(urlBuilderMock.toUrl(anyString())).thenCallRealMethod();
         when(urlBuilderMock.createConfigureUrl(anyString())).thenCallRealMethod();
 
+        when(runningBuild.getNumber()).thenReturn(5);
+        when(lastCompletedBuild.getNumber()).thenReturn(4);
+        when(lastSuccessfulBuild.getNumber()).thenReturn(3);
+        when(lastFailedBuild.getNumber()).thenReturn(2);
+
         mockBuildConsoleOutput(runningBuild, RUNNING_CONSOLE_OUTPUT);
         mockBuildConsoleOutput(lastCompletedBuild, COMPLETED_CONSOLE_OUTPUT);
         mockBuildConsoleOutput(lastSuccessfulBuild, SUCCESSFUL_CONSOLE_OUTPUT);
         mockBuildConsoleOutput(lastFailedBuild, FAILED_CONSOLE_OUTPUT);
+
+        final String lastCompletedBuildUrl = lastCompletedBuild.getUrl();
+        doReturn(lastCompletedBuildModel).when(requestManager).loadBuild(lastCompletedBuildUrl);
+        final String runningBuildUrl = runningBuild.getUrl();
+        doReturn(runningBuildModel).when(requestManager).loadBuild(runningBuildUrl);
+        final String lastSuccessfulBuildUrl = lastSuccessfulBuild.getUrl();
+        doReturn(lastSuccessfulBuildModel).when(requestManager).loadBuild(lastSuccessfulBuildUrl);
+        final String lastFailedBuildUrl = lastFailedBuild.getUrl();
+        doReturn(lastFailedBuildModel).when(requestManager).loadBuild(lastFailedBuildUrl);
 
         when(runningBuild.details().isBuilding()).thenReturn(true);
     }
@@ -261,7 +294,7 @@ public class RequestManagerTest {
     }
 
     private void mockBuildConsoleOutput(com.offbytwo.jenkins.model.Build build, String consoleText) throws IOException {
-        final var url = "https://dummyserver.dev/jenkins";
+        final var url = "https://dummyserver.dev/jenkins/" + build.getNumber();
         final BuildWithDetails buildWithDetails = mock(BuildWithDetails.class, Answers.RETURNS_SMART_NULLS);
         when(build.getUrl()).thenReturn(url);
         when(build.details()).thenReturn(buildWithDetails);
@@ -271,5 +304,12 @@ public class RequestManagerTest {
         final var currentBufferSize = 0;
         final var consoleLog = new ConsoleLog(consoleText, hasMoreData, currentBufferSize);
         when(buildWithDetails.getConsoleOutputText(anyInt())).thenReturn(consoleLog);
+    }
+
+    @Value
+    private static class BuildLogResult {
+        private org.codinjutsu.tools.jenkins.model.Build build;
+        private String log;
+
     }
 }

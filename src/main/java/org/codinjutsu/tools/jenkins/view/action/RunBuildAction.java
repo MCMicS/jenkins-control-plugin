@@ -132,7 +132,7 @@ public class RunBuildAction extends AnAction implements DumbAware {
                                 (previousLastBuild == null || previousLastBuild.getNumber() < lastBuild.getNumber());
                         if (isNewerBuild && lastBuild.isBuilding()) {
                             final LogToolWindow logToolWindow = new LogToolWindow(project);
-                            logToolWindow.showLog(BuildType.LAST, job, browserPanel);
+                            logToolWindow.showLog(BuildType.LAST, job);
                         }
                     }
                 }).queue();
