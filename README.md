@@ -1,4 +1,4 @@
-# Jenkins Plugin 0.13.19 for Jetbrains products
+# Jenkins Plugin 0.13.21 for Jetbrains products
 [![Build Status](https://app.travis-ci.com/MCMicS/jenkins-control-plugin.svg?branch=master)](https://app.travis-ci.com/MCMicS/jenkins-control-plugin)
 [![Plugin Compatibility](https://github.com/MCMicS/jenkins-control-plugin/actions/workflows/compatibility.yml/badge.svg)](https://github.com/MCMicS/jenkins-control-plugin/actions/workflows/compatibility.yml)
 
