@@ -25,7 +25,7 @@ public class ShowBuildResultsAsJUnitViewAction extends AnAction {
     @NotNull
     private final LogToolWindow logToolWindow;
 
-    public ShowJobResultsAsJUnitViewAction(@NotNull BrowserPanel browserPanel) {
+    public ShowBuildResultsAsJUnitViewAction(@NotNull LogToolWindow logToolWindow) {
         super("Show test results", getDefaultDescription(), ICON);
         this.logToolWindow = logToolWindow;
     }
@@ -73,11 +73,6 @@ public class ShowBuildResultsAsJUnitViewAction extends AnAction {
 
     private Optional<Build> getBuild() {
         return logToolWindow.getBuild();
-    }
-
-    @Override
-    public @NotNull ActionUpdateThread getActionUpdateThread() {
-        return ActionUpdateThread.BGT;
     }
 
     @NotNull

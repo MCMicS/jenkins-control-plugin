@@ -2,7 +2,6 @@ package org.codinjutsu.tools.jenkins.view;
 
 import com.intellij.ide.CopyProvider;
 import com.intellij.ide.TextCopyProvider;
-import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.DataContext;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -30,11 +29,6 @@ public class JenkinsTreeCopyProvider implements CopyProvider {
         public boolean isCopyEnabled(@NotNull DataContext dataContext) {
             final var textLinesToCopy = this.getTextLinesToCopy();
             return !textLinesToCopy.isEmpty();
-        }
-
-        @Override
-        public @NotNull ActionUpdateThread getActionUpdateThread() {
-            return ActionUpdateThread.EDT;
         }
     };
 

@@ -63,13 +63,13 @@ public class JenkinsTree implements PersistentStateComponent<JenkinsTreeState> {
     @NotNull
     public static Optional<Job> getJob(TreePath treePath) {
         final Class<JenkinsTreeNode.JobNode> jobNodeClass = JenkinsTreeNode.JobNode.class;
-        return getLastSelectedPath(treePath, jobNodeClass).map(JenkinsTreeNode.JobNode::job);
+        return getLastSelectedPath(treePath, jobNodeClass).map(JenkinsTreeNode.JobNode::getJob);
     }
 
     @NotNull
     public static Optional<Job> getJob(@NotNull DefaultMutableTreeNode node) {
         final Class<JenkinsTreeNode.JobNode> jobNodeClass = JenkinsTreeNode.JobNode.class;
-        return getNode(node, jobNodeClass).map(JenkinsTreeNode.JobNode::job);
+        return getNode(node, jobNodeClass).map(JenkinsTreeNode.JobNode::getJob);
     }
 
     @NotNull

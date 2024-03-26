@@ -1,5 +1,6 @@
 package org.codinjutsu.tools.jenkins.view;
 
+import lombok.Value;
 import org.codinjutsu.tools.jenkins.JenkinsTree;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
@@ -65,7 +66,13 @@ public class JenkinsTreeCopyProviderTest {
         }
     }
 
-    private record TestNodeObject(String value) implements CopyTextProvider {
+    @Value
+    private static class TestNodeObject implements CopyTextProvider {
+        private final String value;
+
+        public String value() {
+            return getValue();
+        }
 
         @Override
         public @NotNull Optional<String> getTextToCopy() {

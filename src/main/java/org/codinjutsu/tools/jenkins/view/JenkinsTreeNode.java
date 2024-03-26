@@ -3,6 +3,8 @@ package org.codinjutsu.tools.jenkins.view;
 import com.intellij.ide.util.treeView.NodeDescriptorProvidingKey;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.navigation.NavigationItem;
+import lombok.Data;
+import lombok.Value;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildParameter;
 import org.codinjutsu.tools.jenkins.model.Jenkins;
@@ -57,7 +59,10 @@ public interface JenkinsTreeNode extends NodeDescriptorProvidingKey, NavigationI
         return Optional.empty();
     }
 
-    record BuildParameterNode(@NotNull BuildParameter buildParameter) implements JenkinsTreeNode {
+    @Data
+    class BuildParameterNode implements JenkinsTreeNode {
+        @NotNull
+        private final BuildParameter buildParameter;
         @NotNull
         @Override
         public String getUrl() {
@@ -81,7 +86,10 @@ public interface JenkinsTreeNode extends NodeDescriptorProvidingKey, NavigationI
         }
     }
 
-    record BuildNode(Build build) implements JenkinsTreeNode {
+    @Value
+    class BuildNode implements JenkinsTreeNode {
+
+        private final Build build;
 
         @NotNull
         @Override
@@ -100,7 +108,10 @@ public interface JenkinsTreeNode extends NodeDescriptorProvidingKey, NavigationI
         }
     }
 
-    record JobNode(Job job) implements JenkinsTreeNode {
+    @Value
+    class JobNode implements JenkinsTreeNode {
+
+        private final Job job;
 
         @NotNull
         @Override
@@ -119,7 +130,10 @@ public interface JenkinsTreeNode extends NodeDescriptorProvidingKey, NavigationI
         }
     }
 
-    record RootNode(Jenkins jenkins) implements JenkinsTreeNode {
+    @Value
+    class RootNode implements JenkinsTreeNode {
+
+        private final Jenkins jenkins;
 
         @NotNull
         @Override
