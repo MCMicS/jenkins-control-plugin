@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.13.20]
 
 - \#523 When a Jenkins Control tool is focused, color should be inverted
 - \#521 Add Copy Action
@@ -370,7 +370,8 @@
 - Autorefreshed Rss Reader View
 - Autorefresh functions can be disabled on the Jenkins Configuration Panel
 
-[Unreleased]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.20-eap...HEAD
+[Unreleased]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.20...HEAD
+[0.13.20]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.19...v0.13.20
 [0.13.19]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.18...v0.13.19
 [0.13.18]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.17...v0.13.18
 [0.13.17]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.16...v0.13.17
