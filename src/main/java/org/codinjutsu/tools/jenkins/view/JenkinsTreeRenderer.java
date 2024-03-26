@@ -163,19 +163,19 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
     }
 
     private void render(JenkinsTreeNode.RootNode jenkinsServer) {
-        final Jenkins jenkins = jenkinsServer.jenkins();
+        final Jenkins jenkins = jenkinsServer.getJenkins();
         append(jenkins.getNameToRender(), SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
         setToolTipText(jenkins.getServerUrl());
         setIcon(AllIcons.Webreferences.Server);
     }
 
     private void render(JenkinsTreeNode.BuildNode build) {
-        append(buildLabel(build.build()), SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
-        setIcon(new CompositeIcon(getBuildStatusColor(build.build())));
+        append(buildLabel(build.getBuild()), SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
+        setIcon(new CompositeIcon(getBuildStatusColor(build.getBuild())));
     }
 
     private void render(JenkinsTreeNode.JobNode jobNode, @NotNull Optional<TreeNode> parent) {
-        final Job job = jobNode.job();
+        final Job job = jobNode.getJob();
         append(buildLabel(job, parent.flatMap(this::getJenkinsTreeNode)), getAttribute(job));
         setToolTipText(job.getHealthDescription());
         if (favoriteJobDetector.isFavoriteJob(job)) {
@@ -186,7 +186,7 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
     }
 
     private void render(JenkinsTreeNode.BuildParameterNode buildParameterNode) {
-        append(buildParameterNode.buildParameter().getNameToRender(), SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
+        append(buildParameterNode.getBuildParameter().getNameToRender(), SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
     }
 
     private static class CompositeIcon implements Icon {

@@ -189,12 +189,12 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
 
     public Optional<Jenkins> getSelectedServer() {
         return jobTree.getLastSelectedPath(JenkinsTreeNode.RootNode.class)
-                .map(JenkinsTreeNode.RootNode::jenkins);
+                .map(JenkinsTreeNode.RootNode::getJenkins);
     }
 
     public @NotNull Optional<Build> getSelectedBuild() {
         return jobTree.getLastSelectedPath(JenkinsTreeNode.BuildNode.class)
-                .map(JenkinsTreeNode.BuildNode::build);
+                .map(JenkinsTreeNode.BuildNode::getBuild);
     }
 
     public @NotNull String getSelectedBuildUrl() {
@@ -204,12 +204,12 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
     @Nullable
     public Job getSelectedJob() {
         return jobTree.getLastSelectedPath(JenkinsTreeNode.JobNode.class)
-                .map(JenkinsTreeNode.JobNode::job).orElse(null);
+                .map(JenkinsTreeNode.JobNode::getJob).orElse(null);
     }
 
     public List<Job> getAllSelectedJobs() {
         return TreeUtil.collectSelectedObjectsOfType(jobTree.getTree(), JenkinsTreeNode.JobNode.class).stream()
-                .map(JenkinsTreeNode.JobNode::job).collect(Collectors.toList());
+                .map(JenkinsTreeNode.JobNode::getJob).collect(Collectors.toList());
     }
 
     @NotNull
