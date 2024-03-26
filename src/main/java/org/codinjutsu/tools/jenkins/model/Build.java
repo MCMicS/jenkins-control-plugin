@@ -81,16 +81,34 @@ public class Build {
 
     @SuppressWarnings("java:S107")
     @NotNull
-    private static Build createBuild(String buildUrl, int number, String status, boolean isBuilding, String buildDate, SimpleDateFormat simpleDateFormat, String message, Long timestamp, Long duration) {
+    public static Build createBuild(com.offbytwo.jenkins.model.Build build) {
+        final BuildStatusEnum status = BuildStatusEnum.NULL;
+        //boolean isBuilding = build.details().isBuilding()
+        boolean isBuilding = false;
+        String message = null;
+        return createBuild(build.getUrl(), build.getNumber(), status.getStatus(), isBuilding, message, 0L, 0L)
+                .build();
+    }
+
+    @SuppressWarnings("java:S107")
+    private static BuildBuilder createBuild(String buildUrl, int number, String status, boolean isBuilding, String message,
+                                            Long timestamp, Long duration) {
         return Build.builder()
                 .url(buildUrl)
                 .number(number)
-                .buildDate(DateUtil.parseDate(buildDate, simpleDateFormat))
                 .status(BuildStatusEnum.parseStatus(status))
                 .building(isBuilding)
                 .message(message)
                 .timestamp(new Date(timestamp))
-                .duration(duration)
+                .duration(duration);
+    }
+
+    @SuppressWarnings("java:S107")
+    @NotNull
+    private static Build createBuild(String buildUrl, int number, String status, boolean isBuilding, String buildDate,
+                                     SimpleDateFormat simpleDateFormat, String message, Long timestamp, Long duration) {
+        return createBuild(buildUrl, number, status, isBuilding, message, timestamp, duration)
+                .buildDate(DateUtil.parseDate(buildDate, simpleDateFormat))
                 .build();
     }
 

@@ -84,7 +84,7 @@ public class ShowLogAction extends AnAction implements DumbAware {
         final Job job = browserPanelForAction.getSelectedJob();
         if (job != null) {
             final LogToolWindow logToolWindow = new LogToolWindow(project);
-            logToolWindow.showLog(buildType, job, browserPanelForAction);
+            logToolWindow.showLog(buildType, job);
         }
     }
 
