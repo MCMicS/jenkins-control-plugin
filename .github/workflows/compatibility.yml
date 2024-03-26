@@ -13,10 +13,10 @@ jobs:
 
       # Validate wrapper
       - name: Gradle Wrapper Validation
-        uses: gradle/wrapper-validation-action@v1.1.0
+        uses: gradle/wrapper-validation-action@v2.1.2
 
       - name: Setup Java 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'adopt'
           java-version: 17
@@ -27,7 +27,7 @@ jobs:
 
       - name: Verify Plugin on IntelliJ Platforms
         id: verify
-        uses: ChrisCarini/intellij-platform-plugin-verifier-action@v1.2.1
+        uses: ChrisCarini/intellij-platform-plugin-verifier-action@v2.0.1
         with:
           ide-versions: .github/workflows/ide_versions_file.txt
 

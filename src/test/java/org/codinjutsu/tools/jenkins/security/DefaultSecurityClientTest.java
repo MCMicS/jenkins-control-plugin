@@ -14,12 +14,14 @@ import org.codinjutsu.tools.jenkins.model.RequestData;
 import org.codinjutsu.tools.jenkins.model.StringParameter;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
-import org.powermock.reflect.Whitebox;
+import org.junit.platform.commons.support.HierarchyTraversalMode;
+import org.junit.platform.commons.support.ReflectionSupport;
 
 import javax.net.ssl.SSLContext;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
@@ -115,9 +117,21 @@ public class DefaultSecurityClientTest {
      */
     @SneakyThrows
     private List<FormBodyPart> assertMultipartFormEntity(HttpEntity httpEntity) {
-        Assertions.assertThat(httpEntity.getClass().getName()).isEqualTo("org.apache.http.entity.mime.MultipartFormEntity");
-        final var abstractMultipartForm = Whitebox.getInternalState(httpEntity, "multipart");
-        return Whitebox.invokeMethod(abstractMultipartForm, "getBodyParts");
+        final var multipartFormEntityClass = Class.forName("org.apache.http.entity.mime.MultipartFormEntity");
+        final var abstractMultipartFormClass = Class.forName("org.apache.http.entity.mime.AbstractMultipartForm");
+        Assertions.assertThat(httpEntity.getClass()).isEqualTo(multipartFormEntityClass);
+        Assertions.assertThat(httpEntity.getClass().getName()).isEqualTo(multipartFormEntityClass.getName());
+
+        final var multipartField = ReflectionSupport.streamFields(multipartFormEntityClass,//
+                field -> field.getName().equals("multipart"), HierarchyTraversalMode.TOP_DOWN).findFirst();
+        final var getBodyPartsMethod = ReflectionSupport.findMethod(abstractMultipartFormClass,"getBodyParts");
+        Assertions.assertThat(multipartField).isPresent();
+        Assertions.assertThat(getBodyPartsMethod).isPresent();
+        final Field field = multipartField.get();
+        field.setAccessible(true);
+        final var abstractMultipartForm = field.get(httpEntity);
+        //noinspection unchecked
+        return (List<FormBodyPart>) ReflectionSupport.invokeMethod(getBodyPartsMethod.get(), abstractMultipartForm);
     }
 
     private class MockVirtualFileWithInputStream extends MockVirtualFile {

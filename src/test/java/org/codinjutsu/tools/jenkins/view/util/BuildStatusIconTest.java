@@ -16,23 +16,23 @@
 
 package org.codinjutsu.tools.jenkins.view.util;
 
+import com.intellij.openapi.project.Project;
 import icons.JenkinsControlIcons;
 import org.codinjutsu.tools.jenkins.logic.BuildStatusAggregator;
+import org.codinjutsu.tools.jenkins.view.BuildStatusEnumRenderer;
 import org.codinjutsu.tools.jenkins.view.BuildStatusRenderer;
-import org.codinjutsu.tools.jenkins.view.DefaultBuildStatusEnumRenderer;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import javax.swing.Icon;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 import static org.junit.Assert.assertEquals;
 
 
 public class BuildStatusIconTest {
-
+    private final Project project = Mockito.mock(Project.class);
     private final BuildStatusAggregator aggregatorMock = Mockito.mock(BuildStatusAggregator.class);
-    private final BuildStatusRenderer buildStatusRenderer = new DefaultBuildStatusEnumRenderer();
+    private final BuildStatusRenderer buildStatusRenderer = BuildStatusEnumRenderer.getInstance(project);
 
     @Test
     public void noBuildsShouldDisplayGreyIcon() {

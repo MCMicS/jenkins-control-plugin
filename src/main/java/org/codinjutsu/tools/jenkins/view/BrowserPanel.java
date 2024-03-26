@@ -16,6 +16,9 @@
 
 package org.codinjutsu.tools.jenkins.view;
 
+import com.intellij.icons.AllIcons;
+import com.intellij.ide.actions.CopyAction;
+import com.intellij.lang.LangBundle;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -186,12 +189,12 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
 
     public Optional<Jenkins> getSelectedServer() {
         return jobTree.getLastSelectedPath(JenkinsTreeNode.RootNode.class)
-                .map(JenkinsTreeNode.RootNode::getJenkins);
+                .map(JenkinsTreeNode.RootNode::jenkins);
     }
 
     public @NotNull Optional<Build> getSelectedBuild() {
         return jobTree.getLastSelectedPath(JenkinsTreeNode.BuildNode.class)
-                .map(JenkinsTreeNode.BuildNode::getBuild);
+                .map(JenkinsTreeNode.BuildNode::build);
     }
 
     public @NotNull String getSelectedBuildUrl() {
@@ -201,12 +204,12 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
     @Nullable
     public Job getSelectedJob() {
         return jobTree.getLastSelectedPath(JenkinsTreeNode.JobNode.class)
-                .map(JenkinsTreeNode.JobNode::getJob).orElse(null);
+                .map(JenkinsTreeNode.JobNode::job).orElse(null);
     }
 
     public List<Job> getAllSelectedJobs() {
         return TreeUtil.collectSelectedObjectsOfType(jobTree.getTree(), JenkinsTreeNode.JobNode.class).stream()
-                .map(JenkinsTreeNode.JobNode::getJob).collect(Collectors.toList());
+                .map(JenkinsTreeNode.JobNode::job).collect(Collectors.toList());
     }
 
     @NotNull
@@ -359,6 +362,11 @@ public final class BrowserPanel extends SimpleToolWindowPanel implements Persist
     private void installActionsInPopupMenu() {
         DefaultActionGroup popupGroup = new DefaultActionGroup("JenkinsPopupAction", true);
 
+        final CopyAction copyAction = new CopyAction();
+        copyAction.getTemplatePresentation().setText(LangBundle.message("popup.title.copy"));
+        copyAction.getTemplatePresentation().setIcon(AllIcons.Actions.Copy);
+        popupGroup.add(copyAction);
+        popupGroup.addSeparator();
         popupGroup.add(ActionManager.getInstance().getAction(RunBuildAction.ACTION_ID));
         popupGroup.add(ActionManager.getInstance().getAction(StopBuildAction.ACTION_ID));
         popupGroup.addSeparator();

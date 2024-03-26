@@ -15,21 +15,20 @@ import com.offbytwo.jenkins.model.TestSuites;
 import jetbrains.buildServer.messages.serviceMessages.TestFailed;
 import org.codinjutsu.tools.jenkins.exception.JenkinsPluginRuntimeException;
 import org.codinjutsu.tools.jenkins.logic.RequestManager;
-import org.codinjutsu.tools.jenkins.model.Job;
+import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
-class JobTestResultsHandler {
+class BuildTestResultsHandler {
     private static final String CLASS_METHOD_SEPARATOR = ":::";
-    private Job job;
+    private Build build;
     private final Project project;
     private final GeneralTestEventsProcessor testEventsProcessor;
 
-    JobTestResultsHandler(Job job, Project project, GeneralTestEventsProcessor testEventsProcessor) {
-        this.job = job;
+    BuildTestResultsHandler(Build build, Project project, GeneralTestEventsProcessor testEventsProcessor) {
+        this.build = build;
         this.project = project;
         this.testEventsProcessor = testEventsProcessor;
         testEventsProcessor.setLocator((protocol, path, project1, scope) -> {
@@ -54,7 +53,7 @@ class JobTestResultsHandler {
     void handle() {
         final BrowserPanel browserPanel = BrowserPanel.getInstance(project);
         try {
-            List<TestResult> testResults = RequestManager.getInstance(project).loadTestResultsFor(job);
+            final var testResults = RequestManager.getInstance(project).loadTestResultsFor(build);
             testResults.forEach(this::handleTestResult);
         } catch (JenkinsPluginRuntimeException e) {
             browserPanel.notifyErrorJenkinsToolWindow(e.getMessage());

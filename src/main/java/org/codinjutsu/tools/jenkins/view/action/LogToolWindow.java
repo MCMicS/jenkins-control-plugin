@@ -16,15 +16,14 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
-import com.offbytwo.jenkins.helper.BuildConsoleStreamListener;
 import lombok.Value;
 import org.codinjutsu.tools.jenkins.logic.JenkinsBackgroundTaskFactory;
+import org.codinjutsu.tools.jenkins.logic.RequestManager;
 import org.codinjutsu.tools.jenkins.logic.RequestManagerInterface;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildType;
 import org.codinjutsu.tools.jenkins.model.Job;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
-import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,13 +37,18 @@ public class LogToolWindow {
     static final String TOOL_WINDOW_ID = "JenkinsLogs";
 
     private final Project project;
+    private @Nullable Build build;
 
     public LogToolWindow(Project project) {
         this.project = project;
     }
 
+    public Optional<Build> getBuild() {
+        return Optional.ofNullable(build);
+    }
+
     @NotNull
-    private static ShowLogConsoleView createConsoleView(Project project, BrowserPanel browserPanelForAction) {
+    private static ShowLogConsoleView createConsoleView(Project project, LogToolWindow logToolWindow) {
         final TextConsoleBuilder builder = TextConsoleBuilderFactory.getInstance().createBuilder(project);
         builder.setViewer(true);
         final ConsoleView consoleView = builder.getConsole();
@@ -53,7 +57,7 @@ public class LogToolWindow {
         // panel creation for call to #createConsoleActions needed
         final JComponent panel = createConsolePanel(consoleView, toolbarActions);
         toolbarActions.addAll(consoleView.createConsoleActions());
-        toolbarActions.addAction(new ShowJobResultsAsJUnitViewAction(browserPanelForAction));
+        toolbarActions.addAction(new ShowBuildResultsAsJUnitViewAction(logToolWindow));
         panel.updateUI();
         return new ShowLogConsoleView(consoleView, panel);
     }
@@ -89,24 +93,24 @@ public class LogToolWindow {
         return String.format("%s %s", jobName, buildInfo);
     }
 
-    public void showLog(Build build, BrowserPanel browserPanel) {
-        showLog(browserPanel, build::getNameToRender,
+    public void showLog(Build build) {
+        showLog(build::getNameToRender,
                 (requestManager, processHandler) -> requestManager.loadConsoleTextFor(build, processHandler));
     }
 
-    public void showLog(BuildType buildType, Job job, BrowserPanel browserPanel) {
-        showLog(browserPanel, job::getNameToRenderSingleJob, () -> getTabTitle(buildType, job),
+    public void showLog(BuildType buildType, Job job) {
+        showLog(job::getNameToRenderSingleJob, () -> getTabTitle(buildType, job),
                 (requestManager, processHandler) -> requestManager.loadConsoleTextFor(job, buildType, processHandler));
     }
 
-    private void showLog(BrowserPanel browserPanel, Supplier<String> tabTitle,
+    private void showLog(Supplier<String> tabTitle,
                          @NotNull ShowLogHandler showLogHandler) {
-        showLog(browserPanel, tabTitle, tabTitle, showLogHandler);
+        showLog(tabTitle, tabTitle, showLogHandler);
     }
 
-    private void showLog(@NotNull BrowserPanel browserPanel, @NotNull Supplier<String> jobTitle,
+    private void showLog(@NotNull Supplier<String> jobTitle,
                          @NotNull Supplier<String> tabTitle, @NotNull ShowLogHandler showLogHandler) {
-        final var showLogConsoleView = createConsoleView(project, browserPanel);
+        final var showLogConsoleView = createConsoleView(project, LogToolWindow.this);
         final var consoleView = showLogConsoleView.getConsoleView();
         final var processHandler = new LogProcessHandler();
         consoleView.attachToProcess(processHandler);
@@ -133,7 +137,7 @@ public class LogToolWindow {
         void loadLog(@NotNull RequestManagerInterface requestManager, @NotNull LogProcessHandler processHandler);
     }
 
-    static class LogProcessHandler extends NopProcessHandler implements BuildConsoleStreamListener {
+    private class LogProcessHandler extends NopProcessHandler implements RequestManager.BuildLogConsoleStreamListener {
 
         @Override
         public void onData(String consoleContent) {
@@ -143,6 +147,11 @@ public class LogToolWindow {
         @Override
         public void finished() {
             notifyProcessDetached();
+        }
+
+        @Override
+        public void forBuild(Build build) {
+            LogToolWindow.this.build = build;
         }
     }
 

@@ -26,17 +26,18 @@ import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.config.Storage.PropertiesComponentStorage;
-import org.codinjutsu.tools.jenkins.model.Job;
+import org.codinjutsu.tools.jenkins.model.Build;
 import org.jetbrains.annotations.NotNull;
 
-public class JobTestConsoleProperties extends TestConsoleProperties implements SMCustomMessagesParsing {
+public class BuildTestConsoleProperties extends TestConsoleProperties implements SMCustomMessagesParsing {
     private final RunProfile configuration;
     private final ProcessHandler processHandler;
-    private final Job job;
+    private final Build build;
 
-    public JobTestConsoleProperties(Job job, Project project, Executor executor, RunProfile configuration, ProcessHandler processHandler) {
+    public BuildTestConsoleProperties(Build build, Project project, Executor executor, RunProfile configuration,
+                                      ProcessHandler processHandler) {
         super(new PropertiesComponentStorage("Jenkins.", PropertiesComponent.getInstance()), project, executor);
-        this.job = job;
+        this.build = build;
         this.configuration = configuration;
         this.processHandler = processHandler;
     }
@@ -53,7 +54,7 @@ public class JobTestConsoleProperties extends TestConsoleProperties implements S
             @Override
             public void onStartTesting() {
                 ApplicationManager.getApplication().executeOnPooledThread(() -> {
-                    new JobTestResultsHandler(job, getProject(), getProcessor()).handle();
+                    new BuildTestResultsHandler(build, getProject(), getProcessor()).handle();
                     processHandler.detachProcess();
                 });
             }

@@ -28,7 +28,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComponentContainer;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
-import org.codinjutsu.tools.jenkins.model.Job;
+import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -38,25 +38,25 @@ import java.util.Optional;
 
 import static org.codinjutsu.tools.jenkins.view.action.results.JobTestResultsToolWindowFactory.TOOL_WINDOW_ID;
 
-public class JobTestResultsToolWindow {
+public class BuildTestResultsToolWindow {
 
     private final Project project;
-    private Job job;
+    private Build build;
 
 
-    public JobTestResultsToolWindow(Project project, Job job) {
+    public BuildTestResultsToolWindow(Project project, Build build) {
         this.project = project;
-        this.job = job;
+        this.build = build;
     }
 
-    public void showMavenToolWindow() {
+    public void showInToolWindow() {
         final ConfigurationType configurationType = UnknownConfigurationType.getInstance();
         final ConfigurationFactory configurationFactory = configurationType.getConfigurationFactories()[0];
 
         final RunConfiguration configuration = new UnknownRunConfiguration(configurationFactory, project);
         final Executor executor = DefaultRunExecutor.getRunExecutorInstance();
         final ProcessHandler processHandler = new MyProcessHandler();
-        final TestConsoleProperties consoleProperties = new JobTestConsoleProperties(job, project, executor,
+        final TestConsoleProperties consoleProperties = new BuildTestConsoleProperties(build, project, executor,
                 configuration, processHandler);
         final BaseTestsOutputConsoleView consoleView;
         try {
@@ -65,7 +65,7 @@ public class JobTestResultsToolWindow {
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
         }
-        showInToolWindow(consoleView, job.getNameToRenderSingleJob());
+        showInToolWindow(consoleView, build.getNameToRender());
         processHandler.startNotify();
     }
 

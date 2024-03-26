@@ -17,7 +17,6 @@ import java.util.EnumSet;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.powermock.api.mockito.PowerMockito.when;
 
 public class ShowLogActionTest {
 
