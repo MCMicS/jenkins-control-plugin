@@ -243,8 +243,9 @@ public class RequestManager implements RequestManagerInterface, Disposable {
         securityClient.execute(url);
     }
 
+    @VisibleForTesting
     @NotNull
-    private Build loadBuild(String jenkinsBuildUrl) {
+    Build loadBuild(String jenkinsBuildUrl) {
         if (handleNotYetLoggedInState()) return Build.NULL;
         URL url = urlBuilder.createBuildUrl(jenkinsBuildUrl);
         String jenkinsJobData = securityClient.execute(url);
@@ -361,32 +362,24 @@ public class RequestManager implements RequestManagerInterface, Disposable {
     }
 
     @Override
-    public void loadConsoleTextFor(Build buildModel, BuildConsoleStreamListener buildConsoleStreamListener) {
-        try {
-            final int pollingInSeconds = 1;
-            final int poolingTimeout = Math.toIntExact(TimeUnit.HOURS.toSeconds(1));
-            final com.offbytwo.jenkins.model.Build build = getBuild(buildModel);
-            if (build.equals(com.offbytwo.jenkins.model.Build.BUILD_HAS_NEVER_RUN)) {
-                buildConsoleStreamListener.onData("No Build available\n");
-                buildConsoleStreamListener.finished();
-            } else {
-                buildConsoleStreamListener.onData("Log for Build " + build.getUrl() + "console\n");
-                streamConsoleOutput(build.details(), buildConsoleStreamListener, pollingInSeconds, poolingTimeout);
-            }
-        } catch (IOException | InterruptedException e) {
-            logger.warn("cannot load log for " + buildModel.getNameToRender());
-            Thread.currentThread().interrupt();
-            buildConsoleStreamListener.finished();
-        }
+    public void loadConsoleTextFor(Build buildModel, BuildLogConsoleStreamListener buildConsoleStreamListener) {
+        loadConsoleTextFor(getBuild(buildModel), buildConsoleStreamListener, buildModel::getNameToRender);
     }
 
     @Override
     public void loadConsoleTextFor(Job job, BuildType buildType,
-                                     BuildConsoleStreamListener buildConsoleStreamListener) {
+                                   BuildLogConsoleStreamListener buildConsoleStreamListener) {
+        loadConsoleTextFor(getBuildForType(buildType).apply(getJob(job)),
+                buildConsoleStreamListener, job::getNameToRenderSingleJob);
+    }
+
+    private void loadConsoleTextFor(com.offbytwo.jenkins.model.Build build,
+                                    BuildLogConsoleStreamListener buildConsoleStreamListener,
+                                   @NotNull Supplier<String> logName) {
         try {
             final int pollingInSeconds = 1;
             final int poolingTimeout = Math.toIntExact(TimeUnit.HOURS.toSeconds(1));
-            final com.offbytwo.jenkins.model.Build build = getBuildForType(buildType).apply(getJob(job));
+            buildConsoleStreamListener.forBuild(loadBuild(build.getUrl()));
             if (build.equals(com.offbytwo.jenkins.model.Build.BUILD_HAS_NEVER_RUN)) {
                 buildConsoleStreamListener.onData("No Build available\n");
                 buildConsoleStreamListener.finished();
@@ -395,14 +388,14 @@ public class RequestManager implements RequestManagerInterface, Disposable {
                 streamConsoleOutput(build.details(), buildConsoleStreamListener, pollingInSeconds, poolingTimeout);
             }
         } catch (IOException | InterruptedException e) {
-            logger.warn("cannot load log for " + job.getNameToRenderSingleJob());
+            logger.warn("cannot load log for " + logName.get());
             Thread.currentThread().interrupt();
             buildConsoleStreamListener.finished();
         }
     }
 
     private void streamConsoleOutput(BuildWithDetails buildWithDetails,
-                                     BuildConsoleStreamListener listener,
+                                     BuildLogConsoleStreamListener listener,
                                      int poolingInterval,
                                      int poolingTimeout) throws InterruptedException, IOException {
         // Calculate start and timeout
@@ -469,20 +462,28 @@ public class RequestManager implements RequestManagerInterface, Disposable {
 
     @Override
     public List<TestResult> loadTestResultsFor(Job job) {
+        return loadTestResultsFor(getBuildForType(BuildType.LAST).apply(getJob(job)));
+    }
+
+    @Override
+    public List<TestResult> loadTestResultsFor(Build build) {
+        return loadTestResultsFor(getBuild(build));
+    }
+
+    private List<TestResult> loadTestResultsFor(com.offbytwo.jenkins.model.Build build) {
         try {
-            List<TestResult> result = new ArrayList<>();
-            com.offbytwo.jenkins.model.Build lastCompletedBuild = getJob(job).getLastCompletedBuild();
-            if (lastCompletedBuild.getTestResult() != null) {
-                result.add(lastCompletedBuild.getTestResult());
+            final List<TestResult> result = new ArrayList<>();
+            if (build.getTestResult() != null) {
+                result.add(build.getTestResult());
             }
-            if (lastCompletedBuild.getTestReport().getChildReports() != null) {
-                result.addAll(lastCompletedBuild.getTestReport().getChildReports().stream()
+            if (build.getTestReport().getChildReports() != null) {
+                result.addAll(build.getTestReport().getChildReports().stream()
                         .map(TestChildReport::getResult)
                         .collect(Collectors.toList()));
             }
             return result;
         } catch (IOException e) {
-            logger.warn("cannot load test results for " + job.getNameToRenderSingleJob());
+            logger.warn("cannot load test results for " + build.getUrl());
             return Collections.emptyList();
         }
     }
@@ -534,7 +535,7 @@ public class RequestManager implements RequestManagerInterface, Disposable {
             buildQueueItem.setExecutable(executable);
             executable.setNumber(Long.valueOf(build.getNumber()));
             executable.setUrl(build.getUrl());
-            serverBuild = Optional.ofNullable(jenkinsServer.getBuild(buildQueueItem));
+            serverBuild = Optional.ofNullable(jenkinsServer.getBuild(buildQueueItem).details());
         } catch (IOException e) {
             logger.warn(e.getMessage(), e);
             throw new NoBuildFoundException(build, e);
@@ -563,5 +564,9 @@ public class RequestManager implements RequestManagerInterface, Disposable {
     @Override
     public void dispose() {
         Optional.ofNullable(jenkinsServer).ifPresent(JenkinsServer::close);
+    }
+
+    public interface BuildLogConsoleStreamListener extends BuildConsoleStreamListener {
+        void forBuild(Build build);
     }
 }

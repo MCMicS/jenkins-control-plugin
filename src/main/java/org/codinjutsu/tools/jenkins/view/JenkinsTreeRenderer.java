@@ -125,7 +125,7 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
 
         final String buildNumberDisplay = build.getDisplayNumber();
         final Optional<Long> duration = Optional.ofNullable(build.getDuration());
-        return String.format("%s (%s) duration: %s %s", buildNumberDisplay,
+        return String.format("%s (%s) duration: %s%s", buildNumberDisplay,
                 DateFormatUtil.formatDateTime(build.getTimestamp()),
                 NlsMessages.formatDuration(duration.orElse(0L)), status);
     }
@@ -162,31 +162,20 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
         return String.format("%s %s", renderedValue, status);
     }
 
-
-    public static String buildLabel(Jenkins jenkins) {
-        final var description = jenkins.getName();
-        final var label = new StringBuilder("Jenkins");
-        if (StringUtil.isNotEmpty(description)) {
-            label.append(' ');
-            label.append(description);
-        }
-        return label.toString();
-    }
-
     private void render(JenkinsTreeNode.RootNode jenkinsServer) {
-        final Jenkins jenkins = jenkinsServer.getJenkins();
-        append(buildLabel(jenkins), SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
+        final Jenkins jenkins = jenkinsServer.jenkins();
+        append(jenkins.getNameToRender(), SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
         setToolTipText(jenkins.getServerUrl());
         setIcon(AllIcons.Webreferences.Server);
     }
 
     private void render(JenkinsTreeNode.BuildNode build) {
-        append(buildLabel(build.getBuild()), SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
-        setIcon(new CompositeIcon(getBuildStatusColor(build.getBuild())));
+        append(buildLabel(build.build()), SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
+        setIcon(new CompositeIcon(getBuildStatusColor(build.build())));
     }
 
     private void render(JenkinsTreeNode.JobNode jobNode, @NotNull Optional<TreeNode> parent) {
-        final Job job = jobNode.getJob();
+        final Job job = jobNode.job();
         append(buildLabel(job, parent.flatMap(this::getJenkinsTreeNode)), getAttribute(job));
         setToolTipText(job.getHealthDescription());
         if (favoriteJobDetector.isFavoriteJob(job)) {
@@ -197,14 +186,7 @@ public class JenkinsTreeRenderer extends ColoredTreeCellRenderer {
     }
 
     private void render(JenkinsTreeNode.BuildParameterNode buildParameterNode) {
-        final String parameter;
-        if (buildParameterNode.hasValue()) {
-            parameter = String.format("%s: %s", buildParameterNode.getBuildParameter().getName(),
-                    buildParameterNode.getBuildParameter().getValue());
-        } else {
-            parameter = buildParameterNode.getBuildParameter().getName();
-        }
-        append(parameter, SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
+        append(buildParameterNode.buildParameter().getNameToRender(), SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
     }
 
     private static class CompositeIcon implements Icon {

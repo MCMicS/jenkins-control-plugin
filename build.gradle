@@ -6,12 +6,13 @@ import org.jetbrains.intellij.tasks.RunPluginVerifierTask
 
 plugins {
     id 'java'
-    id 'org.jetbrains.intellij' version '1.15.0'
+    id 'org.jetbrains.intellij' version '1.17.2'
+    id("org.jetbrains.kotlin.jvm") version "1.9.23"
     id 'org.jetbrains.changelog' version '2.2.0'
     id 'org.jetbrains.qodana' version '0.1.13'
-    id "io.freefair.lombok" version "8.3"
+    id "io.freefair.lombok" version "8.6"
     id 'idea'
-    id "org.sonarqube" version '4.3.1.3277'
+    id "org.sonarqube" version '4.4.1.3373'
     id 'jacoco'
 }
 def readPropertyString = (key) -> property(key).toString()
@@ -28,7 +29,7 @@ intellij {
     pluginName.set(readPropertyString('pluginName'))
     version.set(readPropertyString('platformVersion'))
     type.set(readPropertyString('platformType'))
-    downloadSources.set(true)
+    configureDefaultDependencies.set(true)
     plugins.set(Arrays.asList(readPropertyString("platformPlugins").split(',')))
 }
 
@@ -160,17 +161,22 @@ dependencies {
         exclude group: 'com.fasterxml.jackson.core'
         exclude group: 'jaxen'
     }
-
+    implementation(group: 'xml-apis', name: 'xml-apis', version: '') {
+        version {
+            strictly "[1.4.01]"
+        }
+    }
+    testImplementation('org.assertj:assertj-swing-junit:3.17.1') {
+        exclude group: 'org.assertj', module: 'assertj-core'
+        exclude group: 'junit'
+    }
     testImplementation(
-            platform('org.junit:junit-bom:5.10.0'),
+            platform('org.junit:junit-bom:5.10.2'),
             'org.junit.jupiter:junit-jupiter-api',
             'org.junit.jupiter:junit-jupiter-params',
             'junit:junit:4.13.2',
-            'org.mockito:mockito-inline:5.2.0',
-            'org.powermock:powermock-api-mockito2:2.0.9',
-            'org.powermock:powermock-core:2.0.9',
-            'org.assertj:assertj-core:3.24.2',
-            'org.assertj:assertj-swing-junit:3.17.1'
+            'org.mockito:mockito-core:5.11.0',
+            'org.assertj:assertj-core:3.25.3'
     )
     testRuntimeOnly(
             'org.junit.jupiter:junit-jupiter-engine',

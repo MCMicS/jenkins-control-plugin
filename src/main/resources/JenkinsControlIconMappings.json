@@ -1,0 +1,10 @@
+{
+  "images": {
+    "expui": {
+      "toolwindow": {
+        "jenkins.svg": "images/toolWindow_jenkins_icon.svg",
+        "showLogs.svg": "images/toolWindowGroupByTestProduction.svg"
+      }
+    }
+  }
+}

@@ -46,7 +46,7 @@ This plugin allows to view the content of your Jenkins Continuous Integration Se
 
 ![Browser-favoriteView.png](doc%2Fimages%2FBrowser-favoriteView.png)
 
-- Different Jenkins hostname as server url. May 
+- Different Jenkins hostname as server url. Can be used if your server is behind a proxy or usage of VPN.
 ![Configuration-Hostname_Server.png](doc%2Fimages%2FConfiguration-Hostname_Server.png)
 0
 ![Configuration-Hostname.png](doc%2Fimages%2FConfiguration-Hostname.png)

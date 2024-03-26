@@ -28,7 +28,7 @@ public final class JenkinsBackgroundTask extends Task.Backgroundable {
                                  boolean canBeCancelled,
                                  @NotNull JenkinsBackgroundTask.JenkinsTask jenkinsTask,
                                  @NotNull RequestManagerInterface requestManager) {
-        super(project, title, canBeCancelled, JenkinsBackgroundLoadingOption.INSTANCE);
+        super(project, title, canBeCancelled);
         this.project = project;
         this.requestManager = requestManager;
         this.jenkinsTask = jenkinsTask;

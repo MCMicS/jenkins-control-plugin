@@ -21,4 +21,16 @@ public class BuildParameter {
     public static BuildParameter of(@NotNull String name, @Nullable String value, @NotNull String buildUrl) {
         return new BuildParameter(name, value, buildUrl);
     }
+
+    public String getNameToRender() {
+        if (hasValue()) {
+            return String.format("%s: %s", getName(), getValue());
+        } else {
+            return getName();
+        }
+    }
+
+    public boolean hasValue() {
+        return getValue() != null;
+    }
 }

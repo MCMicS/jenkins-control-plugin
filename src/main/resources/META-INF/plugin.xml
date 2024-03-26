@@ -4,10 +4,7 @@
     <id>Jenkins Control Plugin</id>
     <description><![CDATA[A Jenkins Plugin for Intellij. Will be replaced by gradle build]]></description>
     <vendor url="https://github.com/MCMicS/jenkins-control-plugin/issues">
-        Programisci.eu
-        David Boissier,
-        Yuri Novitsky (support of PPP),
-        Michael Suhr
+        mcmics
     </vendor>
     <resource-bundle>messages.JenkinsControl</resource-bundle>
     <idea-version since-build="212.4638"/>
@@ -65,6 +62,7 @@
         <aboutPopupDescriptionProvider implementation="org.codinjutsu.tools.jenkins.view.JenkinsAbout" />
         <notificationGroup displayType="NONE" id="Jenkins Rss" />
         <notificationGroup displayType="TOOL_WINDOW" id="Jenkins Notification" toolWindowId="Jenkins"/>
+        <iconMapper mappingFile="JenkinsControlIconMappings.json"/>
     </extensions>
 
     <actions>

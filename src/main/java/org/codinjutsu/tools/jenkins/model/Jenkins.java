@@ -102,4 +102,14 @@ public class Jenkins {
     public static Jenkins byDefault() {
         return new Jenkins("", JenkinsAppSettings.DUMMY_JENKINS_SERVER_URL);
     }
+
+    public String getNameToRender() {
+        final var description = getName();
+        final var label = new StringBuilder("Jenkins");
+        if (StringUtil.isNotEmpty(description)) {
+            label.append(' ');
+            label.append(description);
+        }
+        return label.toString();
+    }
 }

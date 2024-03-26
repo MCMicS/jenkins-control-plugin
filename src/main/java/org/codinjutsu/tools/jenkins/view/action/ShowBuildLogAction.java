@@ -28,7 +28,7 @@ public class ShowBuildLogAction extends AnAction implements DumbAware {
         final BrowserPanel browserPanel = BrowserPanel.getInstance(project);
         browserPanel.getSelectedBuild().ifPresent(build -> {
             final LogToolWindow logToolWindow = new LogToolWindow(project);
-            logToolWindow.showLog(build, browserPanel);
+            logToolWindow.showLog(build);
         });
     }
 
