@@ -1,5 +1,6 @@
 ideaIC:2022.2
-ideaIU:222-EAP-SNAPSHOT
-pycharmPC:222-EAP-SNAPSHOT
-goland:222-EAP-SNAPSHOT
-clion:222-EAP-SNAPSHOT
+ideaIC:2022.2.5
+ideaIU:2022.2
+pycharmPC:2022.2
+goland:2022.2
+clion:2022.2
