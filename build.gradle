@@ -12,7 +12,7 @@ plugins {
     id 'org.jetbrains.qodana' version '0.1.13'
     id "io.freefair.lombok" version "8.6"
     id 'idea'
-    id "org.sonarqube" version '4.4.1.3373'
+    id "org.sonarqube" version '5.0.0.4638'
     id 'jacoco'
 }
 def readPropertyString = (key) -> property(key).toString()
