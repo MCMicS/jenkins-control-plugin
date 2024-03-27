@@ -2,5 +2,3 @@ ideaIC:2022.2
 ideaIC:2022.2.5
 ideaIU:2022.2
 pycharmPC:2022.2
-goland:2022.2
-clion:2022.2
