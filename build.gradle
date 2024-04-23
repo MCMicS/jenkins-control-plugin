@@ -9,7 +9,7 @@ plugins {
     id 'org.jetbrains.intellij' version '1.17.3'
     id("org.jetbrains.kotlin.jvm") version "1.9.23"
     id 'org.jetbrains.changelog' version '2.2.0'
-    id 'org.jetbrains.qodana' version '0.1.13'
+    id 'org.jetbrains.qodana' version '2023.3.2'
     id "io.freefair.lombok" version "8.6"
     id 'idea'
     id "org.sonarqube" version '5.0.0.4638'
@@ -50,9 +50,6 @@ changelog {
 
 qodana {
     cachePath = file(".qodana").canonicalPath
-    reportPath = file("build/reports/inspections").canonicalPath
-    saveReport = true
-    showReport = System.getenv("QODANA_SHOW_REPORT")?.toBoolean() ?: false
 }
 
 lombok {
