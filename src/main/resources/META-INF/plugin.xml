@@ -7,7 +7,7 @@
         mcmics
     </vendor>
     <resource-bundle>messages.JenkinsControl</resource-bundle>
-    <idea-version since-build="232.8660"/>
+    <idea-version since-build="242.20224"/>
 
     <depends>com.intellij.modules.platform</depends>
     <depends optional="true" config-file="org.codinjutsu.tools.jenkins-VcsSupport.xml">com.intellij.modules.vcs</depends>
