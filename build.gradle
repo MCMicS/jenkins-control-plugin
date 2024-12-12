@@ -9,7 +9,7 @@ plugins {
     id 'org.jetbrains.intellij' version '1.17.4'
     id("org.jetbrains.kotlin.jvm") version "2.0.20"
     id 'org.jetbrains.changelog' version '2.2.1'
-    id 'org.jetbrains.qodana' version '2024.2.2'
+    id 'org.jetbrains.qodana' version '2024.3.2'
     id "io.freefair.lombok" version "8.10"
     id 'idea'
     id "org.sonarqube" version '5.1.0.4882'
