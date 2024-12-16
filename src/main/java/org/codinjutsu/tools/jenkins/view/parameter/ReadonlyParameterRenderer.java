@@ -23,8 +23,8 @@ public class ReadonlyParameterRenderer implements JobParameterRenderer {
     private final Map<JobParameterType, BiFunction<JobParameter, String, JobParameterComponent<?>>> converter = new HashMap<>();
 
     public ReadonlyParameterRenderer() {
-        converter.put(STRING, JobParameterRenderers::createTextField);
-        converter.put(TEXT, JobParameterRenderers::createTextArea);
+        converter.put(STRING, JobParameterRenderers::createReadonlyTextField);
+        converter.put(TEXT, JobParameterRenderers::createReadonlyTextArea);
     }
 
     @NotNull
@@ -32,7 +32,7 @@ public class ReadonlyParameterRenderer implements JobParameterRenderer {
     public JobParameterComponent<?> render(@NotNull JobParameter jobParameter, @Nullable ProjectJob projectJob) {
         final JobParameterType jobParameterType = jobParameter.getJobParameterType();
         final String defaultValue = jobParameter.getDefaultValue();
-        return converter.getOrDefault(jobParameterType, JobParameterRenderers::createErrorLabel).apply(jobParameter, defaultValue, false);
+        return converter.getOrDefault(jobParameterType, JobParameterRenderers::createErrorLabel).apply(jobParameter, defaultValue);
     }
 
     @Override
