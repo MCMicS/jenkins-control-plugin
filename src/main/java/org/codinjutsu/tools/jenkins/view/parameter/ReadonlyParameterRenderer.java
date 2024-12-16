@@ -8,6 +8,8 @@ import org.codinjutsu.tools.jenkins.view.extension.JobParameterRenderers;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.*;
+import javax.swing.text.JTextComponent;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -23,8 +25,8 @@ public class ReadonlyParameterRenderer implements JobParameterRenderer {
     private final Map<JobParameterType, BiFunction<JobParameter, String, JobParameterComponent<?>>> converter = new HashMap<>();
 
     public ReadonlyParameterRenderer() {
-        converter.put(STRING, JobParameterRenderers::createReadonlyTextField);
-        converter.put(TEXT, JobParameterRenderers::createReadonlyTextArea);
+        converter.put(STRING, makeReadOnly(JobParameterRenderers::createTextField));
+        converter.put(TEXT, makeReadOnly(JobParameterRenderers::createTextArea));
     }
 
     @NotNull
@@ -38,5 +40,18 @@ public class ReadonlyParameterRenderer implements JobParameterRenderer {
     @Override
     public boolean isForJobParameter(@NotNull JobParameter jobParameter) {
         return converter.containsKey(jobParameter.getJobParameterType());
+    }
+
+    private BiFunction<JobParameter, String, JobParameterComponent<?>> makeReadOnly(
+            BiFunction<JobParameter, String, JobParameterComponent<?>> textCreator) {
+        return textCreator.andThen(this::makeReadOnly);
+    }
+
+    private <R> JobParameterComponent<R> makeReadOnly(JobParameterComponent<R> jobParameterComponent) {
+        final JComponent viewElement = jobParameterComponent.getViewElement();
+        if (viewElement instanceof JTextComponent textComponent) {
+            textComponent.setEditable(false);
+        }
+        return jobParameterComponent;
     }
 }
