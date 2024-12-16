@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- \#649 Support Readonly Parameter Plugin (@nikrabaev)
+
 ## [0.13.20]
 
 - \#523 When a Jenkins Control tool is focused, color should be inverted

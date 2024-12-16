@@ -67,29 +67,8 @@ public final class JobParameterRenderers {
     }
 
     @NotNull
-    public static JobParameterComponent<String> createReadonlyTextArea(JobParameter jobParameter, String defaultValue) {
-        final JTextArea textArea = new JBTextArea();
-        textArea.setRows(5);
-        textArea.setEditable(false);
-        if (StringUtil.isNotEmpty(defaultValue)) {
-            textArea.setText(defaultValue);
-        }
-        return new JobParameterComponent<>(jobParameter, textArea, JTextComponent::getText);
-    }
-
-    @NotNull
     public static JobParameterComponent<String> createTextField(JobParameter jobParameter, String defaultValue) {
         final JTextField textField = new JBTextField();
-        if (StringUtil.isNotEmpty(defaultValue)) {
-            textField.setText(defaultValue);
-        }
-        return new JobParameterComponent<>(jobParameter, textField, JTextComponent::getText);
-    }
-
-    @NotNull
-    public static JobParameterComponent<String> createReadonlyTextField(JobParameter jobParameter, String defaultValue) {
-        final JTextField textField = new JBTextField();
-        textField.setEditable(false);
         if (StringUtil.isNotEmpty(defaultValue)) {
             textField.setText(defaultValue);
         }
