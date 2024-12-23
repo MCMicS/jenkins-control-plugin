@@ -9,7 +9,10 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
+import javax.swing.*;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 public class GitParameterRenderer implements JobParameterRenderer {
@@ -51,10 +54,18 @@ public class GitParameterRenderer implements JobParameterRenderer {
             return JobParameterRenderers.createErrorLabel(jobParameter);
         }
         if (projectJob == null) {
-            return JobParameterRenderers.createComboBoxIfChoicesExists(jobParameter, jobParameter.getDefaultValue());
+            return JobParameterRenderers.createInputFilterListIfChoicesExists(jobParameter, jobParameter.getDefaultValue());
         } else {
             return JobParameterRenderers.createGitParameterChoices(projectJob).apply(jobParameter);
         }
+    }
+
+    @Nonnull
+    @Override
+    public Optional<JLabel> createLabel(@NotNull JobParameter jobParameter) {
+        final Optional<JLabel> label = JobParameterRenderer.super.createLabel(jobParameter);
+        label.ifPresent(textAreaLabel -> textAreaLabel.setVerticalAlignment(SwingConstants.TOP));
+        return label;
     }
 
     @Override
