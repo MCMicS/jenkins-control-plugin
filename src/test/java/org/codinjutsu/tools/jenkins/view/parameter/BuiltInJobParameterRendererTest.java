@@ -1,7 +1,7 @@
 package org.codinjutsu.tools.jenkins.view.parameter;
 
-import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.ui.components.JBTextField;
 import org.codinjutsu.tools.jenkins.model.BuildInJobParameter;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
 import org.codinjutsu.tools.jenkins.model.JobParameterType;
@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import javax.swing.*;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class BuiltInJobParameterRendererTest implements JobParameterTest {
 
@@ -49,7 +49,7 @@ public class BuiltInJobParameterRendererTest implements JobParameterTest {
     public void render() {
         final JobParameter jobParameter = createJobParameter(BuildInJobParameter.ChoiceParameterDefinition);
         JobParameterComponent<?> jobParameterComponent = jobParameterRenderer.render(jobParameter, PROJECT_JOB);
-        assertThat(jobParameterComponent.getViewElement()).isInstanceOf(ComboBox.class);
+        assertThat(jobParameterComponent.getViewElement()).isInstanceOf(JBTextField.class);
         assertThat(jobParameterComponent.getJobParameter()).isEqualTo(jobParameter);
 
         jobParameterComponent = jobParameterRenderer.render(createJobParameter(BuildInJobParameter.BooleanParameterDefinition),
