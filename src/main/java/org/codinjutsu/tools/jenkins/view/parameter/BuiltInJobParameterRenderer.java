@@ -16,12 +16,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
+import static org.codinjutsu.tools.jenkins.view.extension.JobParameterRenderers.NUMBER_OF_REQUIRING_INPUT_FILTER_LIST;
+
 public class BuiltInJobParameterRenderer implements JobParameterRenderer {
 
     private final Map<JobParameterType, BiFunction<JobParameter, String, JobParameterComponent<?>>> converter = new HashMap<>();
 
     public BuiltInJobParameterRenderer() {
-        converter.put(BuildInJobParameter.ChoiceParameterDefinition, JobParameterRenderers::createComboBox);
+        converter.put(BuildInJobParameter.ChoiceParameterDefinition, JobParameterRenderers::createComboBoxOrInputFilterListIfChoicesExists);
         converter.put(BuildInJobParameter.BooleanParameterDefinition, JobParameterRenderers::createCheckBox);
         converter.put(BuildInJobParameter.StringParameterDefinition, JobParameterRenderers::createTextField);
         converter.put(BuildInJobParameter.PasswordParameterDefinition, JobParameterRenderers::createPasswordField);
@@ -47,7 +49,11 @@ public class BuiltInJobParameterRenderer implements JobParameterRenderer {
     public Optional<JLabel> createLabel(@NotNull JobParameter jobParameter) {
         final JobParameterType jobParameterType = jobParameter.getJobParameterType();
         final Optional<JLabel> label = JobParameterRenderer.super.createLabel(jobParameter);
-        if (BuildInJobParameter.TextParameterDefinition.equals(jobParameterType)) {
+        boolean isTypeForInputTextFilter =
+                BuildInJobParameter.ChoiceParameterDefinition.equals(jobParameterType);
+        boolean isRequiringCountForInputTextFilter =
+                jobParameter.getChoices().size() > NUMBER_OF_REQUIRING_INPUT_FILTER_LIST;
+        if (isTypeForInputTextFilter && isRequiringCountForInputTextFilter) {
             label.ifPresent(textAreaLabel -> textAreaLabel.setVerticalAlignment(SwingConstants.TOP));
         }
         return label;

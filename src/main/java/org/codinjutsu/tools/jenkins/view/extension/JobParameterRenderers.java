@@ -17,6 +17,7 @@ import org.codinjutsu.tools.jenkins.logic.RequestManagerInterface;
 import org.codinjutsu.tools.jenkins.model.JobParameter;
 import org.codinjutsu.tools.jenkins.model.JobParameterType;
 import org.codinjutsu.tools.jenkins.model.ProjectJob;
+import org.codinjutsu.tools.jenkins.view.inputfilter.InputFilterList;
 import org.codinjutsu.tools.jenkins.view.parameter.JobParameterComponent;
 import org.codinjutsu.tools.jenkins.view.parameter.PasswordComponent;
 import org.jetbrains.annotations.NotNull;
@@ -24,6 +25,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.text.JTextComponent;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -32,6 +34,7 @@ public final class JobParameterRenderers {
 
     public static final Icon ERROR_ICON = AllIcons.General.BalloonError;
     public static final String MISSING_NAME_LABEL = "<Missing Name>";
+    public static final int NUMBER_OF_REQUIRING_INPUT_FILTER_LIST = 10;
 
     @NotNull
     public static JobParameterComponent<VirtualFile> createFileUpload(JobParameter jobParameter, String defaultValue) {
@@ -82,6 +85,18 @@ public final class JobParameterRenderers {
             checkBox.setSelected(true);
         }
         return new JobParameterComponent<>(jobParameter, checkBox, asString(JCheckBox::isSelected));
+    }
+
+    @NotNull
+    public static JobParameterComponent<String> createInputFilterList(@NotNull JobParameter jobParameter, String defaultValue) {
+        final String[] choices = jobParameter.getChoices().toArray(new String[0]);
+        final InputFilterList list = new InputFilterList(defaultValue, List.of(choices),
+                (text, textToFilter) -> {
+                    if (textToFilter.isEmpty()) return true;
+                    return text.toLowerCase().contains(textToFilter.toLowerCase());
+                });
+        return new JobParameterComponent<>(jobParameter, list, InputFilterList::getSelectedItem,
+                () -> defaultValue != null && list.getSelectedItem() == null);
     }
 
     @NotNull
@@ -144,6 +159,34 @@ public final class JobParameterRenderers {
     }
 
     @NotNull
+    public static JobParameterComponent<String> createComboBoxOrInputFilterListIfChoicesExists(@NotNull JobParameter jobParameter,
+                                                                                               String defaultValue) {
+        final BiFunction<JobParameter, String, JobParameterComponent<String>> renderer;
+        List<String> choices = jobParameter.getChoices();
+        if (choices.isEmpty()) {
+            renderer = JobParameterRenderers::createTextField;
+        } else if (choices.size() <= NUMBER_OF_REQUIRING_INPUT_FILTER_LIST) {
+            renderer = JobParameterRenderers::createComboBox;
+        } else {
+            renderer = JobParameterRenderers::createInputFilterList;
+        }
+        return renderer.apply(jobParameter, defaultValue);
+    }
+
+    @NotNull
+    public static JobParameterComponent<String> createInputFilterListIfChoicesExists(@NotNull JobParameter jobParameter,
+                                                                                     String defaultValue) {
+        final BiFunction<JobParameter, String, JobParameterComponent<String>> renderer;
+        List<String> choices = jobParameter.getChoices();
+        if (choices.isEmpty()) {
+            renderer = JobParameterRenderers::createTextField;
+        } else {
+            renderer = JobParameterRenderers::createInputFilterList;
+        }
+        return renderer.apply(jobParameter, defaultValue);
+    }
+
+    @NotNull
     public static Function<JobParameter, JobParameterComponent<String>> createGitParameterChoices(
             @NotNull ProjectJob projectJob) {
         return jobParameter -> createGitParameterChoices(projectJob, jobParameter, jobParameter.getDefaultValue());
@@ -162,9 +205,9 @@ public final class JobParameterRenderers {
                     .defaultValue(jobParameter.getDefaultValue())
                     .choices(requestManager.getGitParameterChoices(projectJob.getJob(), jobParameter))
                     .build();
-            return createComboBoxIfChoicesExists(gitParameter, defaultValue);
+            return createInputFilterListIfChoicesExists(gitParameter, defaultValue);
         } else {
-            return createComboBoxIfChoicesExists(jobParameter, defaultValue);
+            return createInputFilterListIfChoicesExists(jobParameter, defaultValue);
         }
     }
 
