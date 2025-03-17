@@ -172,7 +172,7 @@ dependencies {
             'org.junit.jupiter:junit-jupiter-api',
             'org.junit.jupiter:junit-jupiter-params',
             'junit:junit:4.13.2',
-            'org.mockito:mockito-core:5.15.2',
+            'org.mockito:mockito-core:5.16.1',
             'org.assertj:assertj-core:3.27.3'
     )
     testRuntimeOnly(
