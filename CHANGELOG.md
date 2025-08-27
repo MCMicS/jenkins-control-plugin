@@ -1,8 +1,10 @@
 # Changelog
 
-## [Unreleased]
+## [0.13.21]
 
 - \#649 Support Readonly Parameter Plugin (@nikrabaev)
+- \#657 Add InputFilterList for Improved Searchability(@LakeLab)
+- Build for IDE >= 2025.1
 
 ## [0.13.20]
 
@@ -375,6 +377,7 @@
 - Autorefresh functions can be disabled on the Jenkins Configuration Panel
 
 [Unreleased]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.20...HEAD
+[0.13.21]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.19...v0.13.21
 [0.13.20]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.19...v0.13.20
 [0.13.19]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.18...v0.13.19
 [0.13.18]: https://github.com/MCMicS/jenkins-control-plugin/compare/v0.13.17...v0.13.18
