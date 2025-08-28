@@ -19,14 +19,38 @@ jobs:
       # only required for workflows in private repositories
       actions: read
       contents: read
+      checks: read
+      pull-requests: read
     steps:
-      - uses: actions/checkout@v5
+      # Free GitHub Actions Environment Disk Space
+      - name: Maximize Build Space
+        uses: jlumbroso/free-disk-space@v1.3.1
         with:
-          fetch-depth: 0
-      - name: 'Qodana Scan'
+          tool-cache: false
+          large-packages: false
+
+      # Check out the current repository
+      - name: Fetch Sources
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}  # to check out the actual pull request commit, not the merge commit
+          fetch-depth: 0  # a full history is required for pull request analysis
+
+      # Set up the Java environment for the next steps
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: 21
+
+      # Run Qodana inspections
+      - name: Qodana - Code Inspection
         uses: JetBrains/qodana-action@v2025.2.1
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
+        with:
+          cache-default-branch-only: true
       - uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: ${{ runner.temp }}/qodana/results/qodana.sarif.json
+
