@@ -263,7 +263,6 @@ public class RequestManagerTest {
         requestManager.setSecurityClient(securityClientMock);
         requestManager.setJenkinsServer(jenkinsServer);
 
-        when(urlBuilderMock.toUrl(anyString())).thenCallRealMethod();
         when(urlBuilderMock.createConfigureUrl(anyString())).thenCallRealMethod();
 
         when(runningBuild.getNumber()).thenReturn(5);

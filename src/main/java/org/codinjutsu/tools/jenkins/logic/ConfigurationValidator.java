@@ -28,17 +28,15 @@ public final class ConfigurationValidator {
 
     @NotNull
     public ValidationResult validate(@NotNull String configuredServerUrl, @NotNull String jenkinsUrlAsString) {
-        final URL configuredUrl = urlBuilder.toUrl(configuredServerUrl);
-        final URL jenkinsUrl = urlBuilder.toUrl(jenkinsUrlAsString);
+        final URL configuredUrl = UrlBuilder.toUrl(configuredServerUrl);
+        final URL jenkinsUrl = UrlBuilder.toUrl(jenkinsUrlAsString);
         final URL configureUrl = urlBuilder.createConfigureUrl(configuredServerUrl);
 
         final ValidationResult.ValidationResultBuilder validationResult = ValidationResult.builder();
-        if (configuredUrl != null && jenkinsUrl != null) {
-            validateProtocol(validationResult, configuredUrl, jenkinsUrl, configureUrl);
-            validateHost(validationResult, configuredUrl, jenkinsUrl, configureUrl);
-            validatePort(validationResult, configuredUrl, jenkinsUrl, configureUrl);
-            validatePath(validationResult, configuredUrl, jenkinsUrl, configureUrl);
-        }
+        validateProtocol(validationResult, configuredUrl, jenkinsUrl, configureUrl);
+        validateHost(validationResult, configuredUrl, jenkinsUrl, configureUrl);
+        validatePort(validationResult, configuredUrl, jenkinsUrl, configureUrl);
+        validatePath(validationResult, configuredUrl, jenkinsUrl, configureUrl);
         return validationResult.build();
     }
 

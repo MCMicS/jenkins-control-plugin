@@ -21,23 +21,24 @@ import org.codinjutsu.tools.jenkins.exception.ConfigurationException;
 
 import javax.swing.*;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class UrlValidator implements UIValidator<JTextField> {
     public void validate(JTextField component) throws ConfigurationException {
-        String value = component.getText();
+        final var  value = component.getText();
         if (StringUtil.isEmpty(value)) {
             return;
         }
         try {
-            URL url = new URL(value);
-            String userInfo = url.getUserInfo();
+            final var url = new URI(value).toURL();
+            final var userInfo = url.getUserInfo();
             if (StringUtil.isEmpty(userInfo)) {
                 return;
             }
 
             throw new ConfigurationException("Credentials should not be embedded in the url. Use the above form instead.");
-        } catch (MalformedURLException ex) {
+        } catch (MalformedURLException | URISyntaxException ex) {
             throw new ConfigurationException(String.format("URL '%s' is malformed", value));
         }
     }
