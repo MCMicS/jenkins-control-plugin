@@ -19,9 +19,8 @@
   * [Changelog](CHANGELOG.md)
 
 ### Current Release
-* [Idea 2021.2 - 2022.1.4](../../releases/latest/download/jenkins-control-plugin-2021.2.zip)
-* [Idea 2022.2 - 2023.1.4](../../releases/latest/download/jenkins-control-plugin-2022.2.zip)
-* [Idea 2023.2 or newer](../../releases/latest/download/jenkins-control-plugin-2023.2.zip)
+* [Idea 2023.2 - 2024.3.6](../../releases/latest/download/jenkins-control-plugin-2023.2.zip)
+* [Idea 2025.1 or newer](../../releases/latest/download/jenkins-control-plugin-2025.1.zip)
 
 [//]: # (* [Idea 2022.2 or newer]&#40;../../releases/latest/download/jenkins-control-plugin-2022.2.zip&#41;)
 
