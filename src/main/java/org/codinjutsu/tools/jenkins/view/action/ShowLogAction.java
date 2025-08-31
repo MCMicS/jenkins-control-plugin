@@ -94,8 +94,10 @@ public class ShowLogAction extends AnAction implements DumbAware {
 
     @Override
     public void update(AnActionEvent event) {
-        final boolean canShowLogForLastBuild = ActionUtil.getBrowserPanel(event).map(BrowserPanel::getSelectedJob)
-                .map(this::isAvailable).orElse(Boolean.FALSE);
+        final boolean canShowLogForLastBuild = ActionUtil.getBrowserPanel(event)
+                .map(BrowserPanel::getSelectedJob)
+                .map(this::isAvailable)
+                .orElse(Boolean.FALSE);
         event.getPresentation().setVisible(canShowLogForLastBuild);
     }
 

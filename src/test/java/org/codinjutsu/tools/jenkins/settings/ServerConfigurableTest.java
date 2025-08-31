@@ -1,18 +1,20 @@
 package org.codinjutsu.tools.jenkins.settings;
 
 import com.intellij.credentialStore.CredentialStoreManager;
+import com.intellij.credentialStore.PasswordSafeSettings;
 import com.intellij.credentialStore.ProviderType;
 import com.intellij.ide.passwordSafe.PasswordSafe;
-import com.intellij.ide.passwordSafe.impl.BasePasswordSafe;
 import com.intellij.ide.passwordSafe.impl.TestPasswordSafeImpl;
 import com.intellij.mock.MockApplication;
 import com.intellij.mock.MockProject;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.options.ConfigurationException;
 import org.codinjutsu.tools.jenkins.JenkinsAppSettings;
 import org.codinjutsu.tools.jenkins.JenkinsSettings;
 import org.codinjutsu.tools.jenkins.logic.ConfigurationValidator;
 import org.jetbrains.annotations.NotNull;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,14 +41,20 @@ public class ServerConfigurableTest {
         project.registerService(JenkinsSettings.class, jenkinsSettings);
 
         final var application = MockApplication.setUp(DO_NOTHING);
+        application.registerService(PasswordSafeSettings.class);
         application.registerService(CredentialStoreManager.class, new MemoryOnlyCredentials());
-        final BasePasswordSafe passwordSafe = new TestPasswordSafeImpl();
+        final var passwordSafe = new TestPasswordSafeImpl();
         application.registerService(PasswordSafe.class, passwordSafe);
 
         jenkinsAppSettings.setServerUrl("https://example.org/jenkins");
         jenkinsSettings.setJenkinsUrl("https://example.org:8443/jenkins");
         jenkinsSettings.setUsername("jenkins");
         jenkinsSettings.setPassword("<token>");
+    }
+
+    @After
+    public void tearDown() {
+        ApplicationManager.setApplication(null);
     }
 
     @Test
