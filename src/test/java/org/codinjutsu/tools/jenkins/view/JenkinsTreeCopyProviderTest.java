@@ -17,7 +17,7 @@ import static org.mockito.Mockito.when;
 public class JenkinsTreeCopyProviderTest {
 
     private final JenkinsTree tree = mock();
-    private final JenkinsTreeCopyProvider copyProvider = new JenkinsTreeCopyProvider(tree);
+    private final JenkinsTreeCopyProvider copyProvider = new JenkinsTreeCopyProvider(tree::getSelectedPathComponents);
 
     @Test
     public void getTextLinesToCopyNoSelection() {
