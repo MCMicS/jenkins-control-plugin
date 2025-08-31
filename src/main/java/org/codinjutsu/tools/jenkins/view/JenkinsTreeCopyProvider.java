@@ -8,17 +8,18 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Value;
 import lombok.experimental.Delegate;
-import org.codinjutsu.tools.jenkins.JenkinsTree;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.util.Collection;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Value
 @Getter(AccessLevel.NONE)
 public class JenkinsTreeCopyProvider implements CopyProvider {
-    private final JenkinsTree tree;
+    private final Supplier<Stream<DefaultMutableTreeNode>> treeNodeProvider;
     @Delegate
     private final CopyProvider textCopyProvider = new TextCopyProvider() {
         @Override
@@ -39,7 +40,7 @@ public class JenkinsTreeCopyProvider implements CopyProvider {
     };
 
     @NotNull Collection<String> getTextLinesToCopy() {
-        return tree.getSelectedPathComponents()
+        return treeNodeProvider.get()
                 .map(DefaultMutableTreeNode::getUserObject)
                 .filter(CopyTextProvider.class::isInstance)
                 .map(CopyTextProvider.class::cast)
