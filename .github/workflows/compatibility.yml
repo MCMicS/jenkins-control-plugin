@@ -100,6 +100,7 @@ jobs:
         with:
           distribution: zulu
           java-version: 21
+          cache: gradle
 
       # Setup Gradle
       - name: Setup Gradle
@@ -121,7 +122,7 @@ jobs:
 
   compatibility:
     needs: [ verify ]
-    name: Ensure plugin compatibility for IDEA Community, IDEA Ultimate, PyCharm Community, GoLand, CLion, and the latest EAP snapshot of IDEA Community.
+    name: Ensure plugin compatibility against targeted platform version & the latest EAP snapshot for both IDEA Community, IDEA Ultimate.
     runs-on: ubuntu-latest
     steps:
 
@@ -130,7 +131,9 @@ jobs:
         uses: jlumbroso/free-disk-space@v1.3.1
         with:
           tool-cache: false
-          large-packages: false
+          # this removes docker images that are needed, like the one that is built at the beginning of the workflow run
+          # for the below action (ChrisCarini/intellij-platform-plugin-verifier-action@latest); hence, disable.
+          docker-images: false
 
       - name: Check out repository
         uses: actions/checkout@v5
@@ -141,6 +144,7 @@ jobs:
         with:
           distribution: zulu
           java-version: 21
+          cache: gradle
 
       # Setup Gradle
       - name: Setup Gradle
@@ -149,12 +153,13 @@ jobs:
           cache-read-only: true
 
       - name: Verify Plugin on IntelliJ Platforms
-        id: verify
+        id: verify-all-ides
         uses: ChrisCarini/intellij-platform-plugin-verifier-action@v2.0.2
         with:
           ide-versions: .github/workflows/ide_versions_file.txt
+          mute-plugin-problems: 'TemplateWordInPluginName'
 
       - name: Get log file path and print contents
         run: |
-          echo "The verifier log file [${{steps.verify.outputs.verification-output-log-filename}}] contents : " ;
-          cat ${{steps.verify.outputs.verification-output-log-filename}}
+          echo "The verifier log file [${{steps.verify-all-ides.outputs.verification-output-log-filename}}] contents : " ;
+          cat ${{steps.verify-all-ides.outputs.verification-output-log-filename}}
