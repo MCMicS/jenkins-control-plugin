@@ -40,8 +40,10 @@ public final class JobParameterRenderers {
     public static JobParameterComponent<VirtualFile> createFileUpload(JobParameter jobParameter, String defaultValue) {
         final TextFieldWithBrowseButton textFieldWithBrowseButton = new TextFieldWithBrowseButton();
         final Project project = null;
-        textFieldWithBrowseButton.addBrowseFolderListener(jobParameter.getName(), jobParameter.getDescription(), project,
-                FileChooserDescriptorFactory.createSingleFileNoJarsDescriptor());
+        final var fileChooserDescriptor = FileChooserDescriptorFactory.createSingleFileNoJarsDescriptor();
+        fileChooserDescriptor.withTitle(jobParameter.getName());
+        fileChooserDescriptor.withDescription(jobParameter.getDescription());
+        textFieldWithBrowseButton.addBrowseFolderListener(project, fileChooserDescriptor);
         textFieldWithBrowseButton.setTextFieldPreferredWidth(30);
         if (StringUtil.isNotEmpty(defaultValue)) {
             textFieldWithBrowseButton.setText(defaultValue);

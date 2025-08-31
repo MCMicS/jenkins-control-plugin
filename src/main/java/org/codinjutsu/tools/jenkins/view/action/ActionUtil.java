@@ -16,16 +16,13 @@
 
 package org.codinjutsu.tools.jenkins.view.action;
 
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.project.Project;
 import org.codinjutsu.tools.jenkins.view.BrowserPanel;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.awt.event.InputEvent;
 import java.util.Optional;
 
 public class ActionUtil {
@@ -42,13 +39,5 @@ public class ActionUtil {
     @NotNull
     public static Optional<BrowserPanel> getBrowserPanel(AnActionEvent event) {
         return getProject(event).map(BrowserPanel::getInstance);
-    }
-
-    public static void performAction(@NotNull AnAction action,
-                                     @NotNull String place,
-                                     @NotNull DataContext dataContext) {
-        @Nullable InputEvent event = null;
-        final var actionEvent = AnActionEvent.createFromAnAction(action, event, place, dataContext);
-        action.actionPerformed(actionEvent);
     }
 }

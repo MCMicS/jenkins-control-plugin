@@ -148,7 +148,7 @@ public class UrlBuilder {
 
     public URI createServerUrl(String serverUrl) {
         try {
-            return new URL(getBaseUrl(serverUrl)).toURI();
+            return new URI(getBaseUrl(serverUrl));
         } catch (Exception ex) {
             handleException(ex);
         }
@@ -201,10 +201,10 @@ public class UrlBuilder {
         }
     }
 
-    @Nullable
-    public URL toUrl(@NotNull String url) {
+    @SuppressWarnings("DataFlowIssue")
+    public static @NotNull URL toUrl(@NotNull String url) {
         try {
-            return new URL(url);
+            return new URI(url).toURL();
         } catch (Exception ex) {
             handleException(ex);
         }
@@ -238,6 +238,6 @@ public class UrlBuilder {
     private static @NotNull URL buildUrlNotNull(String context, @NotNull String pathWithQuery) throws MalformedURLException {
         final boolean pathWithLeadingSlash = StringUtil.startsWithChar(pathWithQuery, '/');
         final String serverContext = pathWithLeadingSlash ? UriUtil.trimTrailingSlashes(context) : context;
-        return new URL(serverContext + pathWithQuery);
+        return toUrl(serverContext + pathWithQuery);
     }
 }

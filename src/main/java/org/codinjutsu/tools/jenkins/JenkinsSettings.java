@@ -100,8 +100,7 @@ public class JenkinsSettings implements PersistentStateComponent<JenkinsSettings
 
     @NotNull
     private CredentialAttributes getPasswordCredentialAttributes() {
-        return new CredentialAttributes(JenkinsAppSettings.class.getName(), JENKINS_SETTINGS_PASSWORD_KEY,
-                JenkinsAppSettings.class);
+        return new CredentialAttributes(JenkinsAppSettings.class.getName(), JENKINS_SETTINGS_PASSWORD_KEY);
     }
 
     public void addFavorite(@NotNull List<Job> jobs) {

@@ -1,7 +1,7 @@
 package org.codinjutsu.tools.jenkins.settings;
 
 import com.intellij.ide.DataManager;
-import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.JBColor;
@@ -17,7 +17,6 @@ import org.codinjutsu.tools.jenkins.JenkinsControlBundle;
 import org.codinjutsu.tools.jenkins.exception.AuthenticationException;
 import org.codinjutsu.tools.jenkins.util.GuiUtil;
 import org.codinjutsu.tools.jenkins.util.StringUtil;
-import org.codinjutsu.tools.jenkins.view.action.ActionUtil;
 import org.codinjutsu.tools.jenkins.view.action.ReloadConfigurationAction;
 import org.codinjutsu.tools.jenkins.view.annotation.FormValidationPanel;
 import org.codinjutsu.tools.jenkins.view.annotation.GuiField;
@@ -77,9 +76,7 @@ public class ServerComponent implements FormValidationPanel {
         username.setPreferredSize(size);
         username.setHorizontalAlignment(LEFT);
         connectionStatusLabel.setFont(connectionStatusLabel.getFont().deriveFont(Font.BOLD));
-        final var reloadConfiguration = new JButton(JenkinsControlBundle.message("action.Jenkins.ReloadConfiguration.text"));
-        reloadConfiguration.addActionListener(event -> reloadConfiguration(DataManager.getInstance().getDataContext(reloadConfiguration)));
-
+        final var reloadConfiguration = createReloadConfigurationButton();
         testConnection.addActionListener(event -> testConnection(serverConnectionValidator));
         debugPanel.setVisible(false);
         debugPanel.setBorder(IdeBorderFactory.createTitledBorder(//
@@ -103,9 +100,22 @@ public class ServerComponent implements FormValidationPanel {
                 .getPanel();
     }
 
+    private @NotNull JComponent createReloadConfigurationButton() {
+//        final var reloadAction = ActionManager.getInstance().getAction(ReloadConfigurationAction.ACTION_ID);
+//        var place = ActionPlaces.UNKNOWN;
+//        final var presentation = reloadAction.getTemplatePresentation();
+//        presentation.setText(JenkinsControlBundle.message("action.Jenkins.ReloadConfiguration.text"));
+//        final var reloadConfigurationActionButton = new ActionButtonWithText(reloadAction, presentation, place,
+//                ActionToolbar.DEFAULT_MINIMUM_BUTTON_SIZE);
+        final var reloadConfiguration = new JButton(JenkinsControlBundle.message("action.Jenkins.ReloadConfiguration.text"));
+        reloadConfiguration.addActionListener(event -> reloadConfiguration(DataManager.getInstance()
+                .getDataContext(reloadConfiguration)));
+        return reloadConfiguration;
+    }
+
     private void reloadConfiguration(@NotNull DataContext dataContext) {
-        Optional.ofNullable(ActionManager.getInstance().getAction(ReloadConfigurationAction.ACTION_ID))
-                .ifPresent(action -> ActionUtil.performAction(action, "ServerSetting", dataContext));
+        Optional.ofNullable(dataContext.getData(CommonDataKeys.PROJECT))
+                .ifPresent(ReloadConfigurationAction::reloadConfiguration);
     }
 
     private static @NotNull JTextPane createDebugTextPane() {
