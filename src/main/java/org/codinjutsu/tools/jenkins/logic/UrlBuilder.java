@@ -201,7 +201,7 @@ public class UrlBuilder {
         }
     }
 
-    @SuppressWarnings("DataFlowIssue")
+    @SuppressWarnings({"DataFlowIssue", "java:S2637"})
     public static @NotNull URL toUrl(@NotNull String url) {
         try {
             return new URI(url).toURL();
@@ -235,7 +235,7 @@ public class UrlBuilder {
         return null;
     }
 
-    private static @NotNull URL buildUrlNotNull(String context, @NotNull String pathWithQuery) throws MalformedURLException {
+    private static @NotNull URL buildUrlNotNull(String context, @NotNull String pathWithQuery) {
         final boolean pathWithLeadingSlash = StringUtil.startsWithChar(pathWithQuery, '/');
         final String serverContext = pathWithLeadingSlash ? UriUtil.trimTrailingSlashes(context) : context;
         return toUrl(serverContext + pathWithQuery);

@@ -165,6 +165,7 @@ tasks.wrapper {
 
 configurations {
     provided
+    mockitoAgent
 }
 
 sourceSets {
@@ -225,7 +226,7 @@ dependencies {
             'org.junit.jupiter:junit-jupiter-api',
             'org.junit.jupiter:junit-jupiter-params',
             'junit:junit:4.13.2',
-            'org.mockito:mockito-core:5.19.0',
+            'org.mockito:mockito-core:5.+',
             'org.assertj:assertj-core:3.27.4'
     )
     testRuntimeOnly(
@@ -233,6 +234,9 @@ dependencies {
             'org.junit.vintage:junit-vintage-engine',
             'org.junit.platform:junit-platform-launcher'
     )
+    mockitoAgent('org.mockito:mockito-core:5.+') {
+        transitive = false
+    }
 
     // IntelliJ Platform Gradle Plugin Dependencies Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-dependencies-extension.html
     intellijPlatform {
@@ -258,9 +262,6 @@ dependencies {
 test {
     useJUnitPlatform()
     jvmArgs '-enableassertions', '-Djava.awt.headless=true'
-    doFirst {
-        systemProperty("idea.plugins.path", project.rootDir.canonicalPath + "/.test-plugins")
-    }
     testLogging {
         exceptionFormat = 'full'
         showStandardStreams = true
@@ -282,6 +283,11 @@ def snapshotSpec = copySpec {
 tasks.register('copyPluginToSnapshots', Copy) {
     into "snapshot"
     with snapshotSpec
+}
+tasks {
+    test {
+        //jvmArgs += "-javaagent:${configurations.mockitoAgent.asPath}"
+    }
 }
 
 copyPluginToSnapshots.dependsOn buildPlugin
