@@ -1,6 +1,5 @@
 package org.codinjutsu.tools.jenkins;
 
-import com.intellij.ide.plugins.CannotUnloadPluginException;
 import com.intellij.ide.plugins.DynamicPluginListener;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.openapi.application.ApplicationManager;
@@ -25,13 +24,6 @@ public class StartupJenkinsService implements ProjectActivity, DynamicPluginList
     public void beforePluginUnload(@NotNull IdeaPluginDescriptor pluginDescriptor, boolean isUpdate) {
         if (isJenkinsPlugin(pluginDescriptor)) {
             LOG.info("Unload Jenkins Control plugin");
-        }
-    }
-
-    @Override
-    public void checkUnloadPlugin(@NotNull IdeaPluginDescriptor pluginDescriptor) throws CannotUnloadPluginException {
-        if (isJenkinsPlugin(pluginDescriptor)) {
-            LOG.debug("check if Jenkins Control plugin could be unloaded");
         }
     }
 
