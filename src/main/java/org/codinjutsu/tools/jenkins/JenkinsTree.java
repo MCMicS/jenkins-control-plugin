@@ -1,9 +1,8 @@
 package org.codinjutsu.tools.jenkins;
 
+import com.intellij.ide.DataManager;
 import com.intellij.ide.util.treeView.TreeState;
-import com.intellij.openapi.actionSystem.DataSink;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
-import com.intellij.openapi.actionSystem.UiDataProvider;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -13,7 +12,6 @@ import com.intellij.ui.TreeUIHelper;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.util.containers.Convertor;
 import com.intellij.util.ui.tree.TreeUtil;
-import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.codinjutsu.tools.jenkins.model.Build;
 import org.codinjutsu.tools.jenkins.model.BuildParameter;
@@ -32,7 +30,6 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class JenkinsTree implements PersistentStateComponent<JenkinsTreeState> {
@@ -49,7 +46,7 @@ public class JenkinsTree implements PersistentStateComponent<JenkinsTreeState> {
     private JobClickHandler clickHandler;
 
     public JenkinsTree(Project project, @NotNull JenkinsSettings jenkinsSettings, Jenkins jenkins) {
-        this.tree = new TreeWithoutDefaultSearch(this::getSelectedPathComponents);
+        this.tree = new TreeWithoutDefaultSearch();
 
         this.tree.getEmptyText().setText(LOADING);
         this.tree.setCellRenderer(new JenkinsTreeRenderer(jenkinsSettings::isFavoriteJob,
@@ -59,6 +56,8 @@ public class JenkinsTree implements PersistentStateComponent<JenkinsTreeState> {
         GuiUtil.runInSwingThread(() -> {
             this.tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode(new JenkinsTreeNode.RootNode(jenkins)), false));
         });
+        DataManager.registerDataProvider(this.tree, dataId ->
+                PlatformDataKeys.COPY_PROVIDER.is(dataId) ? new JenkinsTreeCopyProvider(this::getSelectedPathComponents) : null);
     }
 
     @NotNull
@@ -295,20 +294,12 @@ public class JenkinsTree implements PersistentStateComponent<JenkinsTreeState> {
     }
 
     @SuppressWarnings("java:S110")
-    @RequiredArgsConstructor
-    private static class TreeWithoutDefaultSearch extends SimpleTree implements UiDataProvider {
-
-        private final Supplier<Stream<DefaultMutableTreeNode>> treeNodeProvider;
+    private static class TreeWithoutDefaultSearch extends SimpleTree {
 
         @Override
         protected void configureUiHelper(TreeUIHelper helper) {
             final Convertor<TreePath, String> convertor = treePath -> JenkinsTree.getJob(treePath).map(Job::preferDisplayName).orElse("");
             helper.installTreeSpeedSearch(this, convertor, true);
-        }
-
-        @Override
-        public void uiDataSnapshot(@NotNull DataSink dataSink) {
-            dataSink.set(PlatformDataKeys.COPY_PROVIDER, new JenkinsTreeCopyProvider(treeNodeProvider));
         }
     }
 }

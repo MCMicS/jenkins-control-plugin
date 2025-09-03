@@ -43,7 +43,9 @@ public final class JobParameterRenderers {
         final var fileChooserDescriptor = FileChooserDescriptorFactory.createSingleFileNoJarsDescriptor();
         fileChooserDescriptor.withTitle(jobParameter.getName());
         fileChooserDescriptor.withDescription(jobParameter.getDescription());
-        textFieldWithBrowseButton.addBrowseFolderListener(project, fileChooserDescriptor);
+//        textFieldWithBrowseButton.addBrowseFolderListener(project, fileChooserDescriptor);
+        textFieldWithBrowseButton.addBrowseFolderListener(jobParameter.getName(), jobParameter.getDescription(), project,
+                fileChooserDescriptor);
         textFieldWithBrowseButton.setTextFieldPreferredWidth(30);
         if (StringUtil.isNotEmpty(defaultValue)) {
             textFieldWithBrowseButton.setText(defaultValue);

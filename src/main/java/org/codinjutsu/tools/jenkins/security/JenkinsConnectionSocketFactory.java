@@ -2,7 +2,8 @@ package org.codinjutsu.tools.jenkins.security;
 
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.util.net.IdeProxySelector;
+import com.intellij.util.net.HttpConfigurable;
+import com.intellij.util.net.IdeaWideProxySelector;
 import org.apache.http.HttpHost;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.config.Registry;
@@ -23,9 +24,8 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Socket;
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Predicate;
 
 @Service
 public final class JenkinsConnectionSocketFactory {
@@ -79,16 +79,24 @@ public final class JenkinsConnectionSocketFactory {
                 .build();
     }
 
+    @NotNull
+    private static HttpConfigurable getHttpConfigurable() {
+        return HttpConfigurable.getInstance();
+    }
+
     private static @NotNull Proxy getProxy(String url) {
         return getProxy(toUri(url));
     }
 
     private static @NotNull Proxy getProxy(@Nullable URI uri) {
-        return Optional.ofNullable(uri)
-                .map(IdeProxySelector.getDefault()::select)
-                .filter(Predicate.not(List::isEmpty))
-                .map(proxies -> proxies.get(0))
-                .orElse(Proxy.NO_PROXY);
+        final List<Proxy> proxies = uri == null ? Collections.emptyList() :
+                new IdeaWideProxySelector(getHttpConfigurable()).select(uri);
+        return proxies.isEmpty() ? Proxy.NO_PROXY : proxies.get(0);
+//        return Optional.ofNullable(uri)
+//                .map(uriToGetProxyFor -> new IdeaWideProxySelector(getHttpConfigurable()).select(uriToGetProxyFor))
+//                .filter(Predicate.not(List::isEmpty))
+//                .map(proxies -> proxies.get(0))
+//                .orElse(Proxy.NO_PROXY);
     }
 
     @Nullable

@@ -35,7 +35,6 @@ apply plugin: 'org.jetbrains.intellij.platform'
 apply plugin: 'org.jetbrains.changelog'
 apply plugin: 'java'
 apply plugin: 'idea'
-apply plugin: "io.freefair.lombok"
 
 intellijPlatform {
     pluginConfiguration {

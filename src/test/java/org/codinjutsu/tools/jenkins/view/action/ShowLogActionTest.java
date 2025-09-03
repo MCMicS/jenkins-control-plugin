@@ -130,7 +130,7 @@ public class ShowLogActionTest {
     @Before
     public void setUp() {
         final DataContext dataContext = mock(DataContext.class);
-        when(dataContext.getData(PlatformDataKeys.PROJECT)).thenReturn(project);
+        when(dataContext.getData(PlatformDataKeys.PROJECT.getName())).thenReturn(project);
         when(project.getService(BrowserPanel.class)).thenReturn(browserPanel);
         when(actionEvent.getPresentation()).thenReturn(presentation);
         when(actionEvent.getDataContext()).thenReturn(dataContext);

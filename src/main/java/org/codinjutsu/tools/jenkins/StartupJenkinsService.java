@@ -1,5 +1,6 @@
 package org.codinjutsu.tools.jenkins;
 
+import com.intellij.ide.plugins.CannotUnloadPluginException;
 import com.intellij.ide.plugins.DynamicPluginListener;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.openapi.application.ApplicationManager;
@@ -20,11 +21,18 @@ import org.jetbrains.annotations.Nullable;
 public class StartupJenkinsService implements ProjectActivity, DynamicPluginListener {
     private static final Logger LOG = Logger.getInstance(JenkinsTree.class);
 
+    private final JenkinsControlHandleUnloadVetoer unloadVetoer = new JenkinsControlHandleUnloadVetoer();
+
     @Override
     public void beforePluginUnload(@NotNull IdeaPluginDescriptor pluginDescriptor, boolean isUpdate) {
         if (isJenkinsPlugin(pluginDescriptor)) {
             LOG.info("Unload Jenkins Control plugin");
         }
+    }
+
+    @Override
+    public void checkUnloadPlugin(@NotNull IdeaPluginDescriptor pluginDescriptor) throws CannotUnloadPluginException {
+        unloadVetoer.checkUnloadPlugin(pluginDescriptor);
     }
 
     private static boolean isJenkinsPlugin(@NotNull IdeaPluginDescriptor pluginDescriptor) {
@@ -39,7 +47,7 @@ public class StartupJenkinsService implements ProjectActivity, DynamicPluginList
         final LoginService loginService = LoginService.getInstance(project);
         AppUIUtil.invokeLaterIfProjectAlive(project, loginService::performAuthentication);
         final MessageBusConnection busConnection = ApplicationManager.getApplication().getMessageBus().connect();
-        busConnection.subscribe(DynamicPluginListener.TOPIC, this);
+        busConnection.subscribe(DynamicPluginListener.TOPIC, unloadVetoer);
         return project;
     }
 }
