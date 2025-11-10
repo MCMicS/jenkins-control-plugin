@@ -16,7 +16,7 @@ plugins {
     id 'org.jetbrains.changelog' version '2.4.0'
     id 'org.jetbrains.qodana' version '2025.2.1'
     id 'org.jetbrains.kotlinx.kover' version '0.9.3'
-    id "io.freefair.lombok" version "9.0.0"
+    id "io.freefair.lombok" version "9.1.0"
     id 'idea'
     id "org.sonarqube" version '7.2.0.6526'
     id 'jacoco'
