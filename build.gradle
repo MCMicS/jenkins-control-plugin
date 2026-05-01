@@ -18,7 +18,7 @@ plugins {
     id 'org.jetbrains.kotlinx.kover' version '0.9.8'
     id "io.freefair.lombok" version "9.2.0"
     id 'idea'
-    id "org.sonarqube" version '7.2.3.7755'
+    id "org.sonarqube" version '7.3.0.8198'
     id 'jacoco'
 }
 def readPropertyString = (key) -> property(key).toString()
